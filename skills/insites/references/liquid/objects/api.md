@@ -69,11 +69,11 @@ Secret configuration. Hidden from HTML output.
 
 ### context.headers
 ```liquid
-{{ context.headers['User-Agent'] }}
-{{ context.headers['X-Custom-Header'] }}
-{{ context.headers['Accept-Language'] }}
+{{ context.headers.HTTP_USER_AGENT }}
+{{ context.headers.HTTP_X_CUSTOM_HEADER }}
+{{ context.headers.HTTP_ACCEPT_LANGUAGE }}
 ```
-HTTP request headers (case-insensitive keys).
+HTTP request headers, keyed `HTTP_` + the header name uppercased with hyphens as underscores. Keys are **not** case-insensitive and a bracket read by HTTP name (`context.headers['User-Agent']`) returns blank. See [README.md](README.md#contextheaders).
 
 ### context.cookies
 ```liquid

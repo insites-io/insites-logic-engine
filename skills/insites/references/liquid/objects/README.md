@@ -80,14 +80,27 @@ Environment constants (API keys, secrets). Hidden from `{{ context }}` output fo
 ```
 
 ### context.headers
-HTTP request headers.
+The raw request environment, keyed the CGI way (RFC 3875, section 4.1.18). A request header is **not** stored under its HTTP name. Its name is uppercased, every hyphen becomes an underscore, and `HTTP_` is added in front:
+
+| Header sent | Read it as |
+|---|---|
+| `User-Agent` | `context.headers.HTTP_USER_AGENT` |
+| `Authorization` | `context.headers.HTTP_AUTHORIZATION` |
+| `X-Api-Key` | `context.headers.HTTP_X_API_KEY` |
+| `instance_api_key` | `context.headers.HTTP_INSTANCE_API_KEY` |
+
+This applies to custom headers as much as to standard ones. The object also carries request values that are not headers: `REQUEST_METHOD`, `REQUEST_URI`, `PATH_INFO`, `QUERY_STRING`, `SERVER_NAME`, `SERVER_PORT`.
 
 ```liquid
 {{ context.headers.HTTP_USER_AGENT }}
-{{ context.headers.HTTP_ACCEPT }}
+{{ context.headers.HTTP_X_API_KEY }}
 {{ context.headers.SERVER_NAME }}
 {{ context.headers.REQUEST_METHOD }}
 ```
+
+**Bracket reads by HTTP name return blank.** `context.headers['User-Agent']`, `['user-agent']` and `['Authorization']` are all empty, because no key of that form exists. Bracket notation works only with the transformed key: `context.headers['HTTP_USER_AGENT']`.
+
+`HTTP_ACCEPT` is not reliable. A request that sent `Accept: application/json` produced no `HTTP_ACCEPT` key; the platform appears to consume `Accept` to choose the page format. Use `format:` in the page front matter for content negotiation instead.
 
 ### context.cookies
 All site cookies.

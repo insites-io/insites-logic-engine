@@ -242,7 +242,7 @@ Common patterns and practical examples for using Insites global objects.
 
 ### User-Agent Based Feature Toggling
 ```liquid
-{%- assign user_agent = context.headers['User-Agent'] -%}
+{%- assign user_agent = context.headers.HTTP_USER_AGENT -%}
 {%- if user_agent | matches: 'Chrome' -%}
   {%- comment %} Chrome-specific optimizations {%- endcomment %}
 {%- elsif user_agent | matches: 'Firefox' -%}

@@ -207,11 +207,13 @@ Each file sets appropriate Content-Type automatically based on extension.
 
 ### Accept Header Negotiation
 
-Detect requested format via Accept header:
+Detect requested format via Accept header.
+
+> **Unreliable.** A request that sent `Accept: application/json` produced no `HTTP_ACCEPT` key in `context.headers`; the platform appears to consume the header to choose the page format. Prefer a `format:` front-matter key or a separate slug per format, and test this on your instance before relying on it.
 
 ```liquid
 <!-- File: products/:id.liquid -->
-{% assign accept = context.headers["Accept"] %}
+{% assign accept = context.headers.HTTP_ACCEPT %}
 
 {% if accept contains "application/json" %}
   {
@@ -355,7 +357,7 @@ Access: `/api/products/42?format=csv`
 {% assign content_hash = product | md5 %}
 {% response_headers "ETag" | add: "\"{{ content_hash }}\"" %}
 
-{% if context.headers["If-None-Match"] contains content_hash %}
+{% if context.headers.HTTP_IF_NONE_MATCH contains content_hash %}
   {% response_status 304 %}
 {% endif %}
 ```
