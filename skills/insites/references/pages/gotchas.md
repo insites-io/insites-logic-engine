@@ -61,7 +61,7 @@ Common errors, limits, and debugging guidance for page files.
 | Front matter slug length     | 255 characters       | Includes dynamic segments                     |
 | URL parameters per request   | ~100                 | Combined slug + query params                  |
 | Page file size               | 1 MB                 | Keep pages thin -- use partials for content    |
-| Nested partial depth         | 3 (default)          | Override with `max_deep_level` in front matter |
+| Nested partial depth         | Unverified           | Not the page's URL-nesting setting. See [routing gotchas](../routing/gotchas.md#a-static-slug-also-answers-deeper-paths) |
 | GraphQL calls per page       | No hard limit        | Each call adds latency; minimize for performance|
 | Redirect chain depth         | 10 hops              | Browser-enforced                              |
 | Response body size           | 10 MB                | For large responses consider pagination        |

@@ -2,6 +2,16 @@
 
 All notable changes to the Insites Logic Engine will be documented in this file.
 
+## [Unreleased]
+
+### Bug Fix
+
+- **`max_deep_level` was described four different ways, and none matched the platform schema.** Pages called it a recursive-partial limit, the CMS reference called it a GraphQL query depth, and two limits tables tied it to render and partial nesting. The schema defines it as the URL nesting a slug resolves. Measured on a live instance, it did not cap that either. All four now point at one explanation (`routing/gotchas.md`).
+
+### Improvement
+
+- **Documented that a static slug answers deeper paths, and what `slug_exact_match` does to that** (`routing/gotchas.md`, `configuration/README.md`). Pages that read an id off `context.location.pathname` with `extract_url_params` break when the flag is on. The fix is a `:param` in the slug. The default behavior was measured on two instances; the `true` behavior comes from an April 2024 incident and is labeled as not re-measured.
+
 ## [1.1.1] - 2026-08-25
 
 ### New Feature
