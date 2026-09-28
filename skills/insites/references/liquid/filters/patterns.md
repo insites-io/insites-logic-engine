@@ -159,12 +159,12 @@ Common patterns and practical examples for using Insites Liquid filters.
 ### Creating Session Tokens
 ```liquid
 {%- assign payload = user_id | append: ':' | append: 'now' | json -%}
-{%- assign token = payload | jwt_encode: secret_key -%}
+{%- assign token = payload | jwt_encode: 'HS256', secret_key -%}
 ```
 
 ### Verifying Data Integrity
 ```liquid
-{%- assign signature = data | hmac_sha256: secret_key -%}
+{%- assign signature = data | compute_hmac: secret_key -%}
 <meta name="data-signature" content="{{ signature }}">
 ```
 

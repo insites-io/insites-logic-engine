@@ -71,11 +71,10 @@ Insites provides a comprehensive set of filters organized by category: Array, Ha
 ### Crypto Filters
 - `encrypt` - Encrypt string with AES-256
 - `decrypt` - Decrypt AES-256 string
-- `jwt_encode` - Create JWT token
-- `jwt_decode` - Decode JWT token
-- `hmac_sha256` - Create HMAC signature
-- `md5` - Generate MD5 hash
-- `sha256` - Generate SHA256 hash
+- `jwt_encode` - Create JWT token (`jwt_encode: 'HS256', secret`)
+- `jwt_decode` - Verify and decode a JWT, returns `[payload, header]`
+- `compute_hmac` - Create HMAC signature (HMAC-SHA256, hex by default)
+- `digest` - Hash a string (`digest: 'md5'`, `digest: 'sha256'`). There are no `md5` or `sha256` filters
 
 ### Translation Filters
 - `t` - Translate key with interpolation

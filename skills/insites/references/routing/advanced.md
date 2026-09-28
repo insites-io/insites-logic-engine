@@ -352,7 +352,7 @@ Access: `/api/products/42?format=csv`
 ### ETags for Conditional Requests
 
 ```liquid
-{% assign content_hash = product | md5 %}
+{% assign content_hash = product | json | digest: 'md5' %}
 {% response_headers "ETag" | add: "\"{{ content_hash }}\"" %}
 
 {% if context.headers["If-None-Match"] contains content_hash %}

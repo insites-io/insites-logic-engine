@@ -202,7 +202,7 @@ Some filters consume iterators:
 
 ### Problem: JWT Expiration Not Automatic
 ```liquid
-{%- assign token = data | jwt_encode: secret -%}
+{%- assign token = data | jwt_encode: 'HS256', secret -%}
 {%- comment %} Token doesn't expire unless exp claim included {%- endcomment %}
 ```
 
@@ -210,7 +210,7 @@ Some filters consume iterators:
 ```liquid
 {%- assign exp_time = 'now' | add_to_time: 1, 'hours' -%}
 {%- assign payload = data | hash_merge: exp_time -%}
-{%- assign token = payload | jwt_encode: secret -%}
+{%- assign token = payload | jwt_encode: 'HS256', secret -%}
 ```
 
 ## Performance Gotchas

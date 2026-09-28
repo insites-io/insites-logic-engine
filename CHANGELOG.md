@@ -2,6 +2,14 @@
 
 All notable changes to the Insites Logic Engine will be documented in this file.
 
+## [Unreleased]
+
+### Bug Fix
+
+- **Crypto filters corrected.** There is no `hmac_sha256` filter on Insites: it answers "undefined filter" on v5 and v6 instances alike. Eight examples and two reference entries used it. The three webhook signature checks built from them refuse every correctly signed request: a page built the same way did exactly that on a v6 instance. They now use `compute_hmac`, which exists and returns HMAC-SHA256 as hex (or base64 with `'sha256', 'base64'`). The `md5` and `sha256` filters do not exist either; the examples now use `digest: 'md5'` and `digest: 'sha256'`.
+- **JWT filters corrected.** `jwt_encode` and `jwt_decode` need the algorithm first (`'HS256', secret`); the one-argument form is refused. `jwt_decode` returns `[payload, header]`, not the payload alone.
+- **Deletes corrected.** `record_delete` and `records_delete_all` do not remove the row: it is kept with `deleted_at` set, under the same id, and a `deleted_at` filter still returns it. Three pages said deletion is permanent with no soft delete.
+
 ## [1.1.1] - 2026-08-25
 
 ### New Feature
