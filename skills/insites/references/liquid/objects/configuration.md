@@ -99,12 +99,12 @@ context.page.title            # Page title
 ```
 
 ### context.headers
-HTTP request headers:
+HTTP request headers, keyed `HTTP_` + the header name uppercased with hyphens as underscores (see [README.md](README.md#contextheaders)):
 ```
-context.headers['User-Agent']
-context.headers['Accept-Language']
-context.headers['X-Forwarded-For']
-context.headers['Authorization']
+context.headers.HTTP_USER_AGENT
+context.headers.HTTP_ACCEPT_LANGUAGE
+context.headers.HTTP_X_FORWARDED_FOR
+context.headers.HTTP_AUTHORIZATION
 ```
 
 ### context.cookies

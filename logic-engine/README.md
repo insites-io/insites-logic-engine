@@ -11,7 +11,8 @@ logic-engine/
 │   ├── v0-conflicts.md                executive summary + 25-rule table + meta-findings
 │   ├── v0-conflicts-batch1.md         R-1 to R-8 entries
 │   ├── v0-conflicts-batch2.md         R-9 to R-16 entries
-│   └── v0-conflicts-batch3.md         R-17 to R-25 entries
+│   ├── v0-conflicts-batch3.md         R-17 to R-25 entries
+│   └── api-endpoints-2026-09.md       census behind rules/api-endpoints.md
 ├── rules/                             markdown constraint corpus (loaded into LLM prompts)
 │   ├── index.json                     registry: id → file path + frontmatter
 │   ├── pages.md
@@ -20,6 +21,7 @@ logic-engine/
 │   ├── graphql.md
 │   ├── schema.md
 │   ├── authorization.md
+│   ├── api-endpoints.md
 │   ├── forms.md
 │   ├── modules.md
 │   └── liquid-syntax.md

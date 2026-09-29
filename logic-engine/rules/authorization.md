@@ -31,6 +31,8 @@ authorization_policies:
 
 Inline auth checks are permitted as **secondary** guards (defense in depth), but the **primary** check MUST be in front matter.
 
+**Exception, proposed for review: JSON API pages called by machines.** A failed front-matter policy answers with a redirect to its `redirect_to`, not a 401 on the URL that was called, and a client that follows redirects re-issues a POST as a GET. The CRM V2 endpoints moved to an inline guard for this reason in May 2026 (TW#26083226): 88 pages call `modules/insites_core/functions/auth/api_key_guard` as their first statement and answer 401 JSON on failure. For an API page, an inline guard that runs **before any data access** and fails closed is an acceptable primary check. See `api-endpoints.md` (`api-pages-declare-a-guard`).
+
 **Verified by:**
 - `app-portal/modules/portal/public/views/pages/overview.liquid:25-26` — declares `is_user_logged_in`
 - `app-seedling/modules/dashboard/public/views/pages/dashboard.liquid` — declares dashboard policies
@@ -51,7 +53,9 @@ preship_action: "Fix addon-ecommerce/modules/ecommerce/public/authorization_poli
 
 **Rule:** Authorization policies MUST explicitly echo `true` or `false` in EVERY code path. Never let a code path produce no output (nil/blank).
 
-**Why:** An empty output from an authorization policy is ambiguous — the platform may interpret it as truthy, falsy, or treat it as an error depending on context. Always emitting an explicit boolean removes the ambiguity and prevents auth-bypass risks.
+**Why:** An empty output from an authorization policy relies on behavior nobody has documented. Measured on 26 September 2026: surrounding whitespace is trimmed (a policy printing a newline, spaces, `true` and a newline admits the request), and a request on which every policy printed nothing was denied with a redirect to `redirect_to`. So blank currently fails closed, but that is an observation, not a contract. An explicit `false` makes the deny path something a reviewer can see and a test can assert, and it does not depend on the platform continuing to treat blank as a denial.
+
+Across the IIA module default branches, 12 of 31 policy files print no `false` anywhere, so they rely on blank meaning deny. That includes `has_valid_instance_api_authorization`, `insites_only_allowed_if_logged_in` and `insites_only_allowed_by_administrators`.
 
 **How to apply:**
 ```liquid

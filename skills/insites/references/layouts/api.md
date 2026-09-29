@@ -160,7 +160,7 @@ CSRF token for forms rendered in the layout:
 HTTP request headers:
 
 ```liquid
-{{ context.headers.HTTP_ACCEPT }}
+{{ context.headers.HTTP_ACCEPT_LANGUAGE }}
 ```
 
 ## Useful Filters in Layouts
