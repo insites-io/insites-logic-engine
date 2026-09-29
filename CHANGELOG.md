@@ -14,6 +14,11 @@ All notable changes to the Insites Logic Engine will be documented in this file.
 - **The endpoint examples named a policy that does not exist.** `api-endpoints/README.md` and `crm-controllers/README.md` used `is_api_authenticated`, which no module ships. They now use `modules/insites_core/has_valid_instance_api_authorization`.
 - **Endpoint auth documented as it ships.** The CRM V2 endpoints moved from a front-matter policy to an inline `api_key_guard` function in May 2026 (TW#26083226), because a failed policy answers with a 302 redirect rather than a 401. `api/authentication.md`, `api/calling-from-liquid.md`, `api-endpoints/README.md` and `building-on-insites/04-authorization.md` now describe both guards and how each fails.
 - **`auth-policy-explicit-true-false` states what was measured.** Whitespace around `true` is trimmed, and blank output currently fails closed. The rule stands, and now records that 12 of 31 module policy files rely on blank meaning deny.
+- **`max_deep_level` was described four different ways, and none matched the platform schema.** Pages called it a recursive-partial limit, the CMS reference called it a GraphQL query depth, and two limits tables tied it to render and partial nesting. The schema defines it as the URL nesting a slug resolves. Measured on a live instance, it did not cap that either. All four now point at one explanation (`routing/gotchas.md`).
+
+### Improvement
+
+- **Documented that a static slug answers deeper paths, and what `slug_exact_match` does to that** (`routing/gotchas.md`, `configuration/README.md`). Pages that read an id off `context.location.pathname` with `extract_url_params` break when the flag is on. The fix is a `:param` in the slug. The default behavior was measured on two instances; the `true` behavior comes from an April 2024 incident and is labeled as not re-measured.
 
 ## [1.1.1] - 2026-08-25
 

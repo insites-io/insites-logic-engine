@@ -71,7 +71,7 @@ Common errors, limits, and debugging guidance for layout files.
 | Layout file size                  | 1 MB          | Keep layouts thin -- delegate to partials  |
 | yield slots per layout            | No hard limit | Common: `head`, `footer_scripts`           |
 | content_for blocks per page       | No hard limit | Each appends to the slot; no overwrite     |
-| Nested render depth in layouts    | 3 levels      | Default `max_deep_level`                   |
+| Nested render depth in layouts    | Unverified    | Not the page's URL-nesting setting. See [routing gotchas](../routing/gotchas.md#a-static-slug-also-answers-deeper-paths) |
 
 ## Troubleshooting Flowchart
 
