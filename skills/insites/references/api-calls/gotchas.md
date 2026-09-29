@@ -360,7 +360,7 @@ request_headers: |
 
 ```liquid
 {% assign received_sig = context.request.headers.X_Webhook_Signature %}
-{% assign computed_sig = payload | hmac_sha256: context.constants.WEBHOOK_SECRET %}
+{% assign computed_sig = payload | compute_hmac: context.constants.WEBHOOK_SECRET %}
 
 {% unless received_sig == computed_sig %}
   <!-- Reject webhook - signature mismatch -->

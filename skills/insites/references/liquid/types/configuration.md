@@ -38,7 +38,7 @@ Strings do not support inline interpolation. Use `capture` or filter chaining in
 | `truncate` | Limit length | `{{ text \| truncate: 50 }}` |
 | `url_encode` | URL-safe encoding | `{{ query \| url_encode }}` |
 | `json` | JSON-safe string | `{{ name \| json }}` |
-| `sha256` | SHA256 hash | `{{ secret \| sha256 }}` |
+| `digest` | SHA256 hash (hex) | `{{ secret \| digest: 'sha256' }}` |
 
 ## Number Configuration
 

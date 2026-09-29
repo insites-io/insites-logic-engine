@@ -206,21 +206,30 @@ Decrypts AES-256-CBC encrypted string.
 
 ### jwt_encode
 ```liquid
-{%- assign token = data | jwt_encode: secret -%}
+{%- assign token = data | jwt_encode: 'HS256', secret -%}
 ```
-Creates JWT token with payload.
+Creates a JWT from a hash. The algorithm comes first and is required: `jwt_encode: secret` is
+refused with "second argument must be one of following algorithms".
 
 ### jwt_decode
 ```liquid
-{%- assign payload = token | jwt_decode: secret -%}
+{%- assign decoded = token | jwt_decode: 'HS256', secret -%}
+{%- assign payload = decoded.first -%}
 ```
-Decodes JWT token, returns payload.
+Verifies and decodes a JWT. Returns an **array of two hashes, `[payload, header]`**, not the
+payload on its own, so read the claims from `decoded.first`. A bad signature raises
+"Signature verification failed" and a past `exp` raises "Signature has expired". The filter also
+accepts `none` as the algorithm, which skips verification: always name the algorithm you signed
+with.
 
-### hmac_sha256
+### compute_hmac
 ```liquid
-{%- assign signature = string | hmac_sha256: secret -%}
+{%- assign signature = string | compute_hmac: secret -%}
+{%- assign signature = string | compute_hmac: secret, 'sha256', 'base64' -%}
 ```
-Creates HMAC-SHA256 signature (base64).
+Creates an HMAC signature. With only the secret it is HMAC-SHA256 as lowercase hex. Pass
+`'sha256', 'base64'` for base64, as some webhook providers send it. There is no `hmac_sha256`
+filter: it answers "undefined filter".
 
 ## Utility Filters API
 

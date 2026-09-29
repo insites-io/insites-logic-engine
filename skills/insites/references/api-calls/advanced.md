@@ -193,7 +193,7 @@
   {% assign signature = context.request.headers.X_Webhook_Signature %}
 
   <!-- Verify signature -->
-  {% assign expected_sig = raw_body | hmac_sha256: context.constants.WEBHOOK_SECRET %}
+  {% assign expected_sig = raw_body | compute_hmac: context.constants.WEBHOOK_SECRET %}
 
   {% if signature != expected_sig %}
     <!-- Reject invalid webhook -->

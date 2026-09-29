@@ -119,9 +119,9 @@ No direct type check. Compare after arithmetic:
 {{ str | truncatewords: 10, "..." }}
 {{ str | slice: 0, 5 }}
 {{ str | split: "," }}
-{{ str | md5 }}
-{{ str | sha256 }}
-{{ str | hmac_sha256: "secret" }}
+{{ str | digest: "md5" }}
+{{ str | digest: "sha256" }}
+{{ str | compute_hmac: "secret" }}
 ```
 
 ### String properties

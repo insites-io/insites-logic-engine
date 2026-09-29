@@ -239,7 +239,7 @@
 
   <!-- Verify webhook signature -->
   {% assign signature = context.request.headers.X_Webhook_Signature %}
-  {% assign expected = payload | hmac_sha256: context.constants.WEBHOOK_SECRET %}
+  {% assign expected = payload | compute_hmac: context.constants.WEBHOOK_SECRET %}
 
   {% if signature == expected %}
     <!-- Process webhook -->

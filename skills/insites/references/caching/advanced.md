@@ -152,7 +152,7 @@ Monitor cache performance:
 Use content hashes for automatic invalidation:
 
 ```liquid
-{% assign content_hash = page.content | md5 %}
+{% assign content_hash = page.content | digest: 'md5' %}
 {% cache 'page-' | append: page.id | append: '-' | append: content_hash, expire: 86400 %}
   {{ page.content }}
 {% endcache %}
