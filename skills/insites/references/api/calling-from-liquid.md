@@ -17,11 +17,15 @@ Every V2 endpoint is a tiny page file that includes a controller partial:
 ---
 slug: crm/api/v2/contacts/:uuid
 method: get
-authorization_policies:
-  - modules/insites_core/has_valid_instance_api_authorization
+format: json
 ---
 
-{%- include "crm/controller/contacts/get", uuid: context.params.uuid -%}
+{%- function api_auth_passed = 'modules/insites_core/functions/auth/api_key_guard' -%}
+{%- if api_auth_passed -%}
+  {%- include "crm/controller/contacts/get", uuid: context.params.uuid -%}
+{%- else -%}
+  {%- include 'modules/insites_core/functions/auth/respond_401' -%}
+{%- endif -%}
 ```
 
 The controller partial has a `path:` front-matter alias that decouples its include path from its file location:
@@ -115,7 +119,7 @@ Always check both error keys — see the module's `gotchas.md` for the error-sha
 
 ## Auth context
 
-**The V2 authorization policy does not run when you call the controller directly.** That policy is on the V2 *endpoint page*, not on the controller partial. When you invoke the controller from your own page via `{% function %}`, you're bypassing it.
+**The V2 endpoint's guard does not run when you call the controller directly.** That guard (a front-matter policy, or on CRM V2 pages an inline `api_key_guard` function) is on the V2 *endpoint page*, not on the controller partial. When you invoke the controller from your own page via `{% function %}`, you're bypassing it.
 
 This is intentional — the controller is reusable logic. The expectation is that **your calling page enforces its own access control** via its own `authorization_policies:` front matter:
 

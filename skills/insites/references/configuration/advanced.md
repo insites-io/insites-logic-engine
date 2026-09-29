@@ -88,7 +88,7 @@ features:
 
 ```liquid
 {% assign feature_rollout = context.config.features.new_checkout.rollout_percentage %}
-{% assign user_hash = context.current_user.id | md5 | to_number %}
+{% assign user_hash = context.current_user.id | digest: 'md5' | to_number %}
 {% assign should_enable = user_hash | modulo: 100 | less_than: feature_rollout %}
 
 {% if should_enable %}

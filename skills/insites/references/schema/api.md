@@ -75,7 +75,7 @@ mutation delete($id: ID!) {
 
 **Signature:** `record_delete(id: ID!) : Record`
 
-Deletion is permanent. There is no soft-delete built in. Deleting a parent does **not** cascade to related records.
+A deleted record is not removed. It is kept with `deleted_at` set and keeps its id. A plain `records` query no longer returns it; `filter: { deleted_at: { exists: true } }` still does. `records_delete_all` behaves the same way. Deleting a parent does **not** cascade to related records.
 
 ## Querying Records
 

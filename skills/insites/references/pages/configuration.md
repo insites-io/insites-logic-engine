@@ -28,7 +28,7 @@ metadata:
 | `layout`   | String | `application`   | Layout template name (empty string for no layout)|
 | `metadata` | Hash   | `{}`            | Arbitrary metadata accessible via `context.page`  |
 | `response_headers` | Hash | `{}` | Custom HTTP response headers                      |
-| `max_deep_level` | Int | `3` | Maximum nesting depth for recursive partials       |
+| `max_deep_level` | Int | `3` | URL nesting this slug resolves, per the platform schema. Not a reliable cap: see [routing gotchas](../routing/gotchas.md#a-static-slug-also-answers-deeper-paths) |
 
 **Tip:** Use `authorization_policies` in front matter for page-level access control guards (e.g., restricting to logged-in users).
 

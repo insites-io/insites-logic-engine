@@ -183,7 +183,7 @@ Advanced patterns and professional techniques for using Insites Liquid objects.
 
 ### Accept-Language Processing
 ```liquid
-{%- assign lang_header = context.headers['Accept-Language'] | default: 'en-US' -%}
+{%- assign lang_header = context.headers.HTTP_ACCEPT_LANGUAGE | default: 'en-US' -%}
 {%- assign languages = lang_header | split: ',' -%}
 {%- assign primary_lang = languages | first | split: '-' | first -%}
 
@@ -197,9 +197,10 @@ Advanced patterns and professional techniques for using Insites Liquid objects.
 
 ### Custom Header Handling
 ```liquid
-{%- assign api_key = context.headers['X-API-Key'] -%}
-{%- assign api_version = context.headers['X-API-Version'] | default: 'v1' -%}
-{%- assign client_id = context.headers['X-Client-ID'] -%}
+{%- comment %} X-API-Key arrives as HTTP_X_API_KEY: uppercased, hyphens to underscores, HTTP_ prefix {%- endcomment %}
+{%- assign api_key = context.headers.HTTP_X_API_KEY -%}
+{%- assign api_version = context.headers.HTTP_X_API_VERSION | default: 'v1' -%}
+{%- assign client_id = context.headers.HTTP_X_CLIENT_ID -%}
 
 {%- if api_key and api_version -%}
   Using API {{ api_version }} with key validation

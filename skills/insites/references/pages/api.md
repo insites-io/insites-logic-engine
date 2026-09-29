@@ -171,7 +171,7 @@ CSRF token for form submissions:
 Request HTTP headers:
 
 ```liquid
-{{ context.headers.HTTP_ACCEPT }}
+{{ context.headers.HTTP_ACCEPT_LANGUAGE }}
 {{ context.headers.HTTP_USER_AGENT }}
 ```
 

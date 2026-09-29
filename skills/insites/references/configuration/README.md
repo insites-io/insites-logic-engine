@@ -31,6 +31,8 @@ modules:
     enabled: true
 ```
 
+`slug_exact_match` is also set in `app/config.yml`. When it is `true`, a page answers only its own slug, and a page that reads an id from a deeper path stops working. Both instances measured on September 26, 2026 behaved as if it were off. See [A Static Slug Also Answers Deeper Paths](../routing/gotchas.md#a-static-slug-also-answers-deeper-paths).
+
 ## Constants (Runtime Configuration)
 
 For secrets and environment-specific values. See `references/constants/`.

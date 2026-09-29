@@ -189,7 +189,7 @@ filter: {
 
 ## Soft Delete Pattern
 
-Since Insites has no built-in soft delete:
+A platform delete already keeps the row (with `deleted_at` set, under the same id), but there is no documented way to show it again. When users need to archive and restore a record themselves, keep your own flag:
 
 ```yaml
 name: invoice

@@ -159,7 +159,7 @@ Advanced patterns, optimization strategies, and professional techniques for Insi
 ### Encrypted Session Management
 ```liquid
 {%- assign session_data = user_id | append: ':' | append: 'now' -%}
-{%- assign session_hash = session_data | hmac_sha256: context.constants.session_key -%}
+{%- assign session_hash = session_data | compute_hmac: context.constants.session_key -%}
 {%- assign encrypted_session = session_data | encrypt: context.constants.session_key -%}
 ```
 
@@ -174,13 +174,13 @@ Advanced patterns, optimization strategies, and professional techniques for Insi
   "admin": {{ user.is_admin | json }}
 }
 {%- endcapture -%}
-{%- assign token = payload | parse_json | jwt_encode: context.constants.jwt_secret -%}
+{%- assign token = payload | parse_json | jwt_encode: 'HS256', context.constants.jwt_secret -%}
 ```
 
 ### Data Integrity Verification
 ```liquid
 {%- assign original_data = data | json -%}
-{%- assign signature = original_data | hmac_sha256: secret -%}
+{%- assign signature = original_data | compute_hmac: secret -%}
 {%- assign stored_signature = stored_sig -%}
 {%- if signature == stored_signature -%}
   Data verified

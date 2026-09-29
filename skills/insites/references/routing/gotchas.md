@@ -119,6 +119,41 @@ Check order (most specific first):
 /posts/:id.liquid → /posts/123 (NOT /posts/latest)
 ```
 
+### A Static Slug Also Answers Deeper Paths
+
+**Symptoms:** A record URL such as `/ecommerce/api/v1/products/<uuid>` works on one instance and returns 404 on another, while the list URL works on both.
+
+**Cause:** By default, a page answers any path below its slug. Measured on two instances on September 26, 2026: a page with the slug `ecommerce/api/v1/products` and no path parameter answered `/ecommerce/api/v1/products/<uuid>`, and still answered `/ecommerce/api/v1/products/1/2/3/4/5/6/7/8/9/10`, both with 200 from the same page. The control: an unknown sibling, `/ecommerce/api/v1/zz-no-such-route`, returned 404 on both instances.
+
+Older module pages rely on this. One page serves both the list and the record by parsing the path itself:
+
+```liquid
+{%- liquid
+  assign template = "/ecommerce/api/v1/products/{uuid}"
+  assign params = context.location.pathname | extract_url_params: template
+-%}
+{%- if params.uuid -%}
+  {%- include "modules/insites_ecommerce/controllers/_external/products/get_product", uuid: params.uuid -%}
+{%- else -%}
+  {%- include "modules/insites_ecommerce/controllers/_external/products/get_products", query_params: context.params -%}
+{%- endif -%}
+```
+
+`extract_url_params` returns nothing when the path does not match the template exactly. Measured on the same page: `/ecommerce/api/v1/products/<uuid>/a` returned the full list, not the record and not an error.
+
+Setting `slug_exact_match: true` in `app/config.yml` turns the default off. A page then answers only its own slug, and every page built like the one above stops serving its record URL. In April 2024 this stopped every Events record opening on one instance, and Insites engineering traced it to this flag. The `true` behavior has not been re-measured for this entry.
+
+**Solution:** declare the parameter in the slug, with one page per shape. This works whichever way the flag is set.
+
+```
+views/pages/api/products/get.liquid           slug: .../products          list only
+views/pages/api/products/details/get.liquid   slug: .../products/:uuid    reads context.params.uuid
+```
+
+The same applies to `put`, `patch`, `delete` and `post` pages that take an id from the path: put the id in the slug (`.../products/:id`). A static sibling such as `.../products/variants` still takes priority over `.../products/:uuid`, per Route Priority & Matching Rules in [Configuration](./configuration.md).
+
+**`max_deep_level` is not a reliable cap.** The platform schema defines `max_deep_level` as the URL nesting a slug resolves (`PageInputType.max_deep_level`, default 3): slug `abc` with 2 "will resolve /abc, abc/1, abc/2, but will NOT resolve abc/2/something". The page measured above declares `max_deep_level: 4` in its source and still answered a path ten segments below its slug. Do not rely on it to stop a page answering deeper paths.
+
 ## Limits and Constraints
 
 | Constraint | Limit | Notes |
