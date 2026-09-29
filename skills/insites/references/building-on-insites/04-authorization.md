@@ -21,8 +21,9 @@ authorization_policies:
 
 This is the one that costs people a data breach rather than a bug.
 
-`GET /crm/api/v2/contacts` is protected by an authorization policy declared on **the
-endpoint page**, not on the controller. When you call
+`GET /crm/api/v2/contacts` is protected by a guard on **the endpoint page** (an inline
+`api_key_guard` function on CRM V2 pages; an authorization policy elsewhere), not on the
+controller. When you call
 `crm/controller/contacts/list` directly with `{% function %}`, **that endpoint page is
 never involved, so its policy never runs.**
 
@@ -45,6 +46,22 @@ internal page where every signed-in user is genuinely allowed to see the data.
 Consider what an unauthorised caller learns. A redirect to a login page confirms that the
 page exists and roughly what it is for. If a page should be invisible rather than merely
 protected, have it answer 404 rather than redirecting.
+
+## A JSON endpoint whose policy fails answers with a redirect
+
+When a front-matter policy fails, the platform redirects to the policy's `redirect_to`
+(`api/401` for `has_valid_instance_api_authorization`). A browser follows that happily. An
+API client gets a 302 where it expected a 401, and a client that follows redirects re-issues
+a POST as a GET. That is why the CRM V2 pages moved to an inline guard function that answers
+401 JSON on the URL that was called. If your endpoint is called by machines, test its failure
+path with the client that will call it.
+
+## Reading an API key from a header
+
+Headers are keyed the CGI way: `X-Api-Key` arrives as `context.headers.HTTP_X_API_KEY`, and
+`context.headers['X-Api-Key']` is **blank**. A guard that compares a blank header with a
+blank expected value passes for everyone, so check the expected value is present first. See
+[liquid/objects](../liquid/objects/README.md#contextheaders).
 
 ## Checklist before a page goes live
 

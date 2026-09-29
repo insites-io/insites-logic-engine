@@ -2,10 +2,18 @@
 
 All notable changes to the Insites Logic Engine will be documented in this file.
 
-## [Unreleased]
+## [1.2.0] - 2026-09-26
+
+### New Feature
+
+- **API endpoint rules with validators** (`logic-engine/rules/api-endpoints.md`). Three rules, each with a validator in `engine/src/validators.ts` and two-sided tests: `api-pages-declare-a-guard` (every page under `views/pages/api/` declares a policy, calls a guard function, or states in a `public endpoint:` comment why it is public), `api-slug-no-format-extension` (no `.json` in a slug; use `format: json`), and `api-no-credentials-in-url` (no credential as a slug segment or a GET query parameter). Evidence is a census of all 1,368 API pages in the 14 IIA module default branches (`audit/api-endpoints-2026-09.md`), and the guard validator flags exactly the pages that census classes as unguarded.
 
 ### Bug Fix
 
+- **`context.headers` is keyed the CGI way, and bracket reads by HTTP name return blank.** A header's name is uppercased, hyphens become underscores, and `HTTP_` is prefixed (`X-Api-Key` → `HTTP_X_API_KEY`). The references documented `context.headers['User-Agent']` as case-insensitive in 22 places across 7 files, including the Stripe webhook example; every one of those reads returns blank. Measured on two instances with a read-only probe. All examples now use the dot form, and the rule is stated once in `liquid/objects/README.md`.
+- **The endpoint examples named a policy that does not exist.** `api-endpoints/README.md` and `crm-controllers/README.md` used `is_api_authenticated`, which no module ships. They now use `modules/insites_core/has_valid_instance_api_authorization`.
+- **Endpoint auth documented as it ships.** The CRM V2 endpoints moved from a front-matter policy to an inline `api_key_guard` function in May 2026 (TW#26083226), because a failed policy answers with a 302 redirect rather than a 401. `api/authentication.md`, `api/calling-from-liquid.md`, `api-endpoints/README.md` and `building-on-insites/04-authorization.md` now describe both guards and how each fails.
+- **`auth-policy-explicit-true-false` states what was measured.** Whitespace around `true` is trimmed, and blank output currently fails closed. The rule stands, and now records that 12 of 31 module policy files rely on blank meaning deny.
 - **`max_deep_level` was described four different ways, and none matched the platform schema.** Pages called it a recursive-partial limit, the CMS reference called it a GraphQL query depth, and two limits tables tied it to render and partial nesting. The schema defines it as the URL nesting a slug resolves. Measured on a live instance, it did not cap that either. All four now point at one explanation (`routing/gotchas.md`).
 
 ### Improvement

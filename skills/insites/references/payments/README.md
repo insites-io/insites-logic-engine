@@ -54,7 +54,7 @@ slug: api/_external/v2/stripe/webhook
 method: post
 ---
 {% liquid
-  assign signature = context.headers['Stripe-Signature']
+  assign signature = context.headers.HTTP_STRIPE_SIGNATURE
   assign expected = context.constants.stripe_webhook_secret
 
   comment %} TODO: signature-verification helper — Stripe HMAC-SHA256 over (timestamp + . + body) {% endcomment

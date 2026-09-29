@@ -1,7 +1,7 @@
 {
   "$schema": "../engine/schemas/rule-index.schema.json",
   "version": "0.1.0-draft",
-  "generated": "2026-05-01",
+  "generated": "2026-09-26",
   "status": "draft - awaiting team review of audit resolutions",
   "rules": [
     {
@@ -207,6 +207,36 @@
       "evidence": "real-project",
       "evidence_source": "Module-level extraction observed. Recommend extracting when a validation is reused 2+ times.",
       "audit_ref": "audit/v0-conflicts-batch2.md#rule-r-16"
+    },
+    {
+      "id": "api-pages-declare-a-guard",
+      "file": "api-endpoints.md",
+      "applies_to": ["page"],
+      "severity": "warning",
+      "evidence": "real-project",
+      "evidence_source": "1,344 of 1,368 IIA module API pages carry a guard (1,256 front-matter policies, 88 inline guard functions).",
+      "audit_ref": "audit/api-endpoints-2026-09.md#guards",
+      "validator": "api-pages-declare-a-guard"
+    },
+    {
+      "id": "api-slug-no-format-extension",
+      "file": "api-endpoints.md",
+      "applies_to": ["page"],
+      "severity": "warning",
+      "evidence": "real-project",
+      "evidence_source": "0 of 1,368 IIA module API pages put .json in the slug.",
+      "audit_ref": "audit/api-endpoints-2026-09.md#slugs",
+      "validator": "api-slug-no-format-extension"
+    },
+    {
+      "id": "api-no-credentials-in-url",
+      "file": "api-endpoints.md",
+      "applies_to": ["page"],
+      "severity": "error",
+      "evidence": "real-project",
+      "evidence_source": "0 of 1,368 IIA module API pages take a credential in the URL.",
+      "audit_ref": "audit/api-endpoints-2026-09.md#credentials",
+      "validator": "api-no-credentials-in-url"
     }
   ],
   "deferred_decisions": [

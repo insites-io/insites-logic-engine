@@ -147,17 +147,20 @@ mutation {
 
 ## Headers and Cookies Gotchas
 
-### Problem: Headers Are Case-Insensitive
+### Problem: Reading a Header by Its HTTP Name Returns Blank
 ```liquid
 {{ context.headers['user-agent'] }}
 {{ context.headers['User-Agent'] }}
 {{ context.headers['USER-AGENT'] }}
-{%- comment %} All should work {%- endcomment %}
+{%- comment %} All three are blank. No error is raised. {%- endcomment %}
 ```
 
-**Solution:** Use consistent casing:
+`context.headers` is keyed the CGI way, not by HTTP header name, so none of these keys exist. The failure is silent, which makes it dangerous in an auth check: a presence check (`if context.headers['X-Api-Key']`) is always false, and an equality check against a secret fails for every caller, **unless the expected value is also blank, in which case it passes for everyone**. Always check the expected value is not blank before comparing.
+
+**Solution:** Uppercase the name, turn hyphens into underscores, and prefix `HTTP_`:
 ```liquid
-{%- assign user_agent = context.headers['User-Agent'] -%}
+{%- assign user_agent = context.headers.HTTP_USER_AGENT -%}
+{%- assign api_key = context.headers.HTTP_X_API_KEY -%}
 ```
 
 ### Problem: Cookies Might Not Be Set
@@ -173,15 +176,15 @@ mutation {
 
 ### Problem: Treating Secure Headers as Trustworthy
 ```liquid
-{{ context.headers['X-Forwarded-For'] }}
+{{ context.headers.HTTP_X_FORWARDED_FOR }}
 {%- comment %} Can be spoofed by clients {%- endcomment %}
 ```
 
 **Solution:** Only trust headers from reverse proxy:
 ```liquid
 {%- comment %} Validate that request came through trusted proxy {%- endcomment %}
-{% if context.headers['X-Forwarded-For'] %}
-  {%- assign ip = context.headers['X-Forwarded-For'] | split: ',' | first -%}
+{% if context.headers.HTTP_X_FORWARDED_FOR %}
+  {%- assign ip = context.headers.HTTP_X_FORWARDED_FOR | split: ',' | first -%}
 {% else %}
   {%- assign ip = context.visitor.ip -%}
 {% endif %}
