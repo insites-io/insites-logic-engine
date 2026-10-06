@@ -92,6 +92,20 @@ Schema issue?
         └── Fix: Check table, join_on_property, foreign_property
 ```
 
+## `updated_at` is a stamp, not a change log
+
+Measured on v5 and v6 instances between 28 September and 6 October 2026 (TW#26848289):
+
+- An import that **clears** a property does not move `updated_at`; one that changes a value does. A `record_update` can leave it where it was.
+- Two edits inside the same second carry the same `updated_at`.
+- A row is only listed while it exists: a table whose rows were all deleted drops out of a `records` listing entirely, so a count of rows with `updated_at` after a point in time cannot show deletions.
+
+So `filter: { updated_at: { gt: $since } }` is a guard, not a proof of "nothing changed". Anything that must know for certain (a final sync before a cutover, an audit) compares content, or freezes the source first.
+
+## A deleted row keeps its id reserved
+
+`record_delete` and `records_delete_all` set `deleted_at` and keep the row under its id (see `api.md`). The consequence for anyone re-importing: **that id cannot be imported again**. A row deleted and then imported under the same id comes back under a **new** id, with the old one in `external_id` when `_id_remap` is used (measured 28 September 2026: faqs row 4965, deleted and re-imported, returned as 17714 with `external_id` 4965).
+
 ## See Also
 
 - [README.md](README.md) -- overview and getting started

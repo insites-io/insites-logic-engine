@@ -349,6 +349,28 @@ Check multiple permissions using the permissions map and pass results to a parti
 %}
 ```
 
+## Sign-in by emailed link
+
+For a tool whose users are invited rather than registered, a one-time emailed link replaces the password. The pattern below is the one proven on two Insites products (Nucleus, September 2026; the Insites Migration Tool, October 2026).
+
+**Mint the link.** `temporary_token(expires_in:)` on the `user` query gives a short-lived token for one account; pair it with a random nonce stored in a request table, and email both in one URL. Only the nonce is stored. The platform token is never written anywhere.
+
+```liquid
+{%- graphql found, em: email, h: 0.25 -%}
+query ($em: String, $h: Float) {
+  u: user(email: $em, is_deleted: false) { id temporary_token(expires_in: $h) }
+}
+{%- endgraphql -%}
+{%- assign nonce = 40 | random_string -%}
+{%- comment -%} record_create a row: email, nonce, expires_at, status "pending" {%- endcomment -%}
+```
+
+**Opening the link changes nothing.** Email scanners and link-preview bots open every link before the person does. The link page checks the token and nonce and shows a button; a second request (`POST`) checks both again, marks the nonce consumed, and only then signs the person in. A link that signed in on `GET` would be consumed by the scanner.
+
+**Answer the same for every address.** Whether or not the address is allowed a link, the page redirects to the same "check your email" result and writes a request row, so an attacker cannot learn who has access from the response. Limit requests per network address and live links per address, and read the address from the **last** `X-Forwarded-For` hop, the one the edge appended; the first entry is whatever the client chose to send.
+
+**Invitations make the account.** An invited person has never signed in, so the link needs an account to belong to: create it with `user_create` and a long random password nobody is shown, then mint the link. Only a signed server-to-server request may do this; a session token or a page must not be able to create accounts for arbitrary addresses.
+
 ## Best Practices
 
 1. **Always load the profile from `context.current_user`** -- every protected page starts by checking `context.current_user` and loading the full profile with roles via GraphQL

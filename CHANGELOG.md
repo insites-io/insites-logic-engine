@@ -2,6 +2,19 @@
 
 All notable changes to the Insites Logic Engine will be documented in this file.
 
+## [Unreleased]
+
+### Improvement
+
+- **Measured v6 facts the schema does not state** (`graphql/gotchas.md`): `import_models` with `_id_remap` answers ids in the order sent, echoes `external_ids`, preserves `created_at` and `updated_at`, stores the model's `id` as the external id, and makes a second copy of every row when sent twice, so a lost answer is read back by external id rather than resent. Names belong in variables, not query text. `admin_table_delete` takes a path. The admin API lists only a module's public partials and layouts. A policy's `http_status` has no input field. `constants` answers one page of 1000 and must be paged. All measured on a v6 instance between 28 September and 6 October 2026 (TW#26848218).
+- **`updated_at` is a stamp, not a change log; a deleted row's id stays reserved** (`schema/gotchas.md`). An import that clears a property leaves the stamp alone, two edits in a second share it, and a table whose rows were all deleted drops out of the listing. A row re-imported under a deleted id comes back under a new id.
+- **`hook_module_info`'s version lags the tag** (`modules/cms/advanced.md`, `modules/crm/advanced.md`). Release tooling does not bump it: five modules read 6.0.0 while tagged v6.0.2 on 5 October 2026. The hook answers "installed", the git tag answers "which version". The CRM entry also records that `insites_core` is retired on v6 in favor of `insites_crm`, and what a v6 instance with both installed means.
+- **Sign-in by emailed link** (`authentication/patterns.md`): `temporary_token` plus a stored nonce, consumed on a second request because scanners open links first, the same answer for every address, the last `X-Forwarded-For` hop, and accounts made only by a signed server-to-server request. Proven on Nucleus and the Insites Migration Tool.
+
+### Bug Fix
+
+- **The CLI can remove a module.** `configuration/README.md` said there was no CLI command to install or uninstall modules. `insites-cli modules remove <env> <name>` exists and removes configuration and data; installing is still through the Console.
+
 ## [1.2.0] - 2026-09-26
 
 ### New Feature

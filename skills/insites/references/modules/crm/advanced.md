@@ -64,6 +64,10 @@ Rendering it returns a JSON object describing the module:
 
 Other modules and apps use this to detect installed modules and gate behavior on the CRM being available. You should not override this partial — only consume it.
 
+**The `version` field is not a release number.** Release tooling does not bump this partial, so it lags the module's git tag. Measured 5 October 2026 against the latest tags: `insites_cms`, `insites_assets`, `insites_ecommerce`, `insites_locator` and `insites_permissions` were tagged v6.0.2 while their hook still said `6.0.0`. Use the hook to answer *"is the module installed"*; for *"which version"*, read the git tag or the Console changelog.
+
+**On v6 the CRM module is `insites_crm`, and `insites_core` is retired.** The hook moves to `modules/insites_crm/lib/hooks/hook_module_info`, and every `modules/insites_core/<table>` becomes `modules/insites_crm/<table>`. A v6 instance that lists **both** hooks has a leftover install of `insites_core` beside `insites_crm` (seen on a rehearsal instance on 5 October 2026: `insites_core` 6.0.0 beside `insites_crm` 6.1.2). Remove it with `insites-cli modules remove <env> insites_core`; the two modules sharing table names is not a supported state.
+
 ---
 
 ## Cross-module integration
