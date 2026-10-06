@@ -65,4 +65,4 @@ insites-cli modules pull payments dev
 insites-cli constants set --name stripe_sk_key --value "sk_..." dev
 ```
 
-Modules are preinstalled per Insites instance and updated through the Insites console; there is no CLI command to install or uninstall modules.
+Modules are installed and updated through the Insites Console. The CLI cannot install one, but it can remove one: `insites-cli modules remove <env> <name>` removes the module's configuration **and its data** from the instance, so treat it as a destructive command and take a backup first. `insites-cli modules list <env>` shows what is installed.

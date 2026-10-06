@@ -41,7 +41,7 @@ A page is a controller. It fetches data via `{% graphql %}`, then renders by del
 | `method` | Details | HTTP method: `get`, `post`, `put`, `patch`, `delete`. One method per file — separate file per method. |
 | `layout` | Details | Layout to wrap the page output, e.g. `modules/insites_core/json` or `default`. |
 | `format` | Details | `json`, `html`, `js`, `xml`, etc. Drives `Content-Type`. |
-| `searchable` | Sitemap | `true` to include in sitemap output, `false` to exclude. |
+| `searchable` | Sitemap | Platform search flag. On v6 the CRM module's `/sitemap.xml` does not use it: a page is listed when `metadata.is_sitemap_enabled` is true. See [gotcha 8](gotchas.md#8-on-v6-sitemapxml-is-the-crm-modules-page-and-metadatais_sitemap_enabled-decides-what-it-lists). |
 | `metadata` | Metadata | Object of free-form key/value pairs surfaced as `<meta name=...>` in HTML pages. |
 | `max_deep_level` | Details | URL nesting this page's slug resolves, per the platform schema. Not a reliable cap: see [routing gotchas](../../routing/gotchas.md#a-static-slug-also-answers-deeper-paths). |
 | `authorization_policies` | Security | List of policy names that gate access; e.g. `- modules/insites_core/has_valid_instance_api_authorization`. |

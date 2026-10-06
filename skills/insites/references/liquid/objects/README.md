@@ -25,10 +25,12 @@ URL information for the current request.
 
 ```liquid
 {{ context.location.pathname }}   → /products/123
-{{ context.location.search }}     → ?page=2
+{{ context.location.search }}     → {"page":"2"}  (the parsed parameters as JSON, not the raw query string)
 {{ context.location.host }}       → example.com
-{{ context.location.href }}       → full URL
+{{ context.location.href }}       → /products/123?page=2  (path and query, no scheme or host)
 ```
+
+To rebuild a full address, append `href` to an origin you know: `{{ 'https://' | append: context.location.host | append: context.location.href }}`. See gotchas.md, "search Is JSON, and href Is the Path".
 
 ### context.environment
 Returns `"staging"` or `"production"`.

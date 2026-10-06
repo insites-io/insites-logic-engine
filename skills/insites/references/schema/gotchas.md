@@ -92,6 +92,32 @@ Schema issue?
         └── Fix: Check table, join_on_property, foreign_property
 ```
 
+## `updated_at` is a stamp, not a change log
+
+Measured on v5 and v6 instances between 28 September and 6 October 2026 (TW#26848289):
+
+- An import that **clears** a property does not move `updated_at`; one that changes a value does. A `record_update` can leave it where it was.
+- Two edits inside the same second carry the same `updated_at`.
+- A row is only listed while it exists: a table whose rows were all deleted drops out of a `records` listing entirely, so a count of rows with `updated_at` after a point in time cannot show deletions.
+
+So `filter: { updated_at: { gt: $since } }` is a guard, not a proof of "nothing changed". Anything that must know for certain (a final sync before a cutover, an audit) compares content, or freezes the source first.
+
+## A deleted row keeps its id reserved
+
+`record_delete` and `records_delete_all` set `deleted_at` and keep the row under its id (see `api.md`). The consequence for anyone re-importing: **that id cannot be imported again**. A row deleted and then imported under the same id comes back under a **new** id, with the old one in `external_id` when `_id_remap` is used (measured 28 September 2026: faqs row 4965, deleted and re-imported, returned as 17714 with `external_id` 4965).
+
+## An Upload Property Can Hold an Upload, an Address or Nothing
+
+Three states, three different reads (TW#26855355, measured on the v6 Ecommerce module's `product_image`, 5 October 2026):
+
+| The property holds | `property(name:)` returns | `property_upload(name:) { url }` |
+|---|---|---|
+| a file uploaded through the platform | the upload's hash | the CDN `url` |
+| an address a module's admin stored as text | that address, as a String | fails: `Property upload should contain only hash ... given of class String` |
+| nothing | the text `{}` | null |
+
+Writing the empty `{}` into another upload property is refused (`tried to store {} in property upload which is not a valid URL`). Read with `property(name:)` first and branch on the shape before copying one upload property into another.
+
 ## See Also
 
 - [README.md](README.md) -- overview and getting started

@@ -73,6 +73,51 @@ Common errors, limits, and troubleshooting for GraphQL in Insites.
 | Concurrent queries per request | No hard limit | Each `{% graphql %}` tag is a separate call |
 | Sort fields | Multiple allowed | Applied in array order |
 
+## Measured on v6 instances, October 2026
+
+Facts the schema does not state, each measured on `combinate-intranet.prod01-insites.io` (v6, CRM 6.1.2) while building the Insites Migration Tool (TW#26848218). Where a date is given, that is when it was measured; re-measure before relying on one for a release decision.
+
+### Never pair an import's `ids` with the input by position
+
+- `import_users` with `_id_remap: true` answered its `ids` **out of the order the people were sent**: 232 people loaded again over earlier deletions, and 37 profiles written to the returned ids by position landed on someone else (5 October 2026, TW#26855352). A fresh batch of 12 came back in order, so it is not every batch, which is worse. The payload carries `external_ids` beside `ids`; pair those two arrays with each other, or read each person back by email.
+- `import_models` with `_id_remap: true` kept order in every measurement (0 of 10 positional mismatches across repeated batches, 6 October 2026) and echoes `external_ids` in the same order. Pair `ids` with `external_ids`, never with the models you sent: the order is observed, not promised.
+- `created_at` and `updated_at` sent on each model are **preserved** on the remapped rows.
+- With `_id_remap`, the platform stores the model's `id` field **as the external id** and generates a new row id. `external_id` sent beside it is ignored; a batch sent with only `external_id` came back with a fresh uuid in that field (29 September 2026).
+- **Sent twice, a remap import creates a second copy of every row in the batch.** A write whose answer was lost (gateway timeout, empty 200) must be **read back, never resent**: query the table with `filter: { external_id: { value_in: [...] } }` and treat "every id present" as "the write landed".
+- Without `_id_remap`, ids are kept as sent, so the same batch twice is idempotent.
+
+### Names go in variables, not in the query text
+
+`property_upload(name:)`, `property_upload_presigned_url(table:, property_name:)` and the `table` filter all accept variables. Pass a property or table name as a `String!` variable; a name interpolated into the query text is a GraphQL injection path when the name comes from a schema you did not write (a source instance being migrated, for example).
+
+```graphql
+query($t: String, $i: [ID!], $p: String!) {
+  records(per_page: 100, filter: { table: { value: $t }, id: { value_in: $i } }) {
+    results { id u: property_upload(name: $p) { url } }
+  }
+}
+```
+
+### `admin_table_delete` takes a path, not an id
+
+`admin_table_delete(physical_file_path: String!)`. There is no id form.
+
+### The admin API lists a module's public partials and layouts only
+
+`admin_liquid_partials` and `admin_liquid_layouts` return a module's `public/` files. The CRM module's private partials are not listed (7 of its partials and layouts appear, 6 October 2026). A page that includes a partial the module does not ship cannot be checked against the listing; only rendering the page shows the error.
+
+### A policy's `http_status` cannot be written
+
+`AuthorizationPolicy` exposes `http_status` on read, but no input type for creating or updating a policy carries it. A policy created through the admin API answers with the default status.
+
+### A list paged without a sort repeats rows and misses others
+
+`users(page:, per_page:)` with no `sort` pages in no stable order. Read straight after 232 people were imported, the full read came back as 233 rows holding 199 distinct people (TW#26855353). With `sort: [{ id: { order: ASC } }]` the same read was stable. Give every paged read a sort on a unique field, and treat a repeated id in a listing as a sign to read again.
+
+### `constants` answers at most one page
+
+`constants(per_page: 1000)` returns the first 1000 and no `total_entries`. Page with `page:` until a page comes back short; an instance can hold more than 1000 constants, and a reader that stops at one page sees a constant past it as absent.
+
 ## Troubleshooting Flowchart
 
 ```

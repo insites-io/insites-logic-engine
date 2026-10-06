@@ -14,6 +14,24 @@
 
 Without the filter, browsers may cache old versions and users won't see updates.
 
+## Name and Path Are Both Unique, and the Name Decides the Record
+
+`admin_assets_create` **updates** an asset when the `name` is already in use: a create with a name in use **moves that asset** to the new `physical_file_path`. A create with a **new** name for a path the instance already holds is refused with `Duplicate values. Key (instance_id, physical_file_path) ... already exists`, and the old file stays. So to replace the file at a path, read the name the instance holds for that path and send the new file under **that** name. Measured on 5 October 2026 (TW#26851119, 22 files in one rehearsal).
+
+## `admin_asset_delete` by Path Can Delete the Wrong Record
+
+`admin_asset_delete(physical_file_path:)` takes only a path. Where a path has a soft-deleted record **and** a live one, it answers the deleted one (success, the old id) and leaves the live asset in place. 380 deletes in a row reported success and removed nothing (TW#26851118). To remove what is actually there, use `admin_asset_delete_all(filter: { physical_file_path: { value: $p } }, hard_delete: true)`.
+
+## `admin_asset_delete_all` with `hard_delete` Is a Background Job
+
+It answers `scheduled` and runs later. Measured on 5 October 2026 (TW#26851122): the first call removed 309 of 412 assets after about six minutes and stopped; a second call removed the rest within two; a later call left 327 in place for 15 minutes, then ran while a load was writing to the same paths. Nothing reports when it has finished. Poll the count with `admin_assets(filter:)`, call again if it stalls, and do not write to the same paths until the count reaches zero.
+
+**Filter by id, not by a path prefix.** On 6 October 2026 (TW#26851122) a call filtered by `physical_file_path: { starts_with: "assets/squarespace/" }` answered `scheduled` three times over 45 minutes, and two hours later nothing had gone: the same 354 live and 1,603 deleted assets. The same deletes filtered by `id: { value_in: [...] }`, in batches, were gone within about a minute. Read the ids with `admin_assets(filter:)` first, then delete by id.
+
+## The File Host Keeps Serving Old Bytes at the Plain Address
+
+After a file is uploaded again over an existing asset, `asset_url` (which appends `?updated=`) serves the new file, and the **plain** address keeps serving the old one until the cache expires: 532,808 old bytes at the bare path against 532,534 new ones at the same path with any query string (TW#26851120). Anything that loads by plain address, such as a webpack runtime asking for its chunks, can run an old chunk beside new code. Reference uploads through `asset_url`, or give a changed file a new path.
+
 ## Environment-Specific URLs
 
 ### Different CDN in Staging vs Production

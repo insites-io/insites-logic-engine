@@ -10,15 +10,26 @@ screens, none of the validation and none of the API.
 
 1. **Does a module already store this?** Contacts, companies, activities, tasks,
    opportunities, orders, products, events and locations all have tables and controllers
-   already. Read the [alias inventory](reference/alias-inventory.md).
+   already. Read the [alias inventory](reference/alias-inventory.md). For a shop, the
+   Ecommerce module stores carts, cart items, orders, products and variants; the cart and
+   checkout pages are the project's to build (see [payments](../payments/README.md#carts-orders-and-checkout)).
 2. **Is there a table already?** List them:
 
    ```graphql
    { admin_tables { results { id name properties } } }
    ```
 
-   Names are namespaced: `modules/ins_core/...` for CRM structures,
-   `modules/ins_databases/...` for instance-specific tables.
+   This lists the **instance's own** tables only: `modules/ins_databases/...` for
+   instance-specific tables, and the `*_custom_field` tables. It does **not** list a module's
+   own tables (`modules/insites_crm/...`, `modules/insites_ecommerce/...`), and neither does
+   `admin_model_schemas`. Measured on a v6 instance on 6 October 2026: both answered 16 tables
+   while `modules/insites_ecommerce/product` held 16 rows; `admin_tables` filtered by that name
+   answered nothing.
+
+   Nor can a `records` query prove a table exists: filtered by a table that does not exist, it
+   answers `total_entries: 0` with no error, exactly as an empty table does. To know which
+   module tables an instance has, read the module's schema files at the version installed
+   (each module's `hook_module_info` partial gives the version).
 3. **Only then create your own.**
 
 ## Creating a table
