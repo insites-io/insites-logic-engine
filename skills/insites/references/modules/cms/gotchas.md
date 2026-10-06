@@ -74,13 +74,13 @@ Edges and quirks of the CMS module that bite when authoring or consuming file-ba
 
 ---
 
-## 8. Page front-matter `searchable` is a sitemap signal, not a search-engine signal
+## 8. On v6, `/sitemap.xml` is the CRM module's page, and `metadata.is_sitemap_enabled` decides what it lists
 
-**Bites:** setting `searchable: false` on a page and expecting search engines to skip it.
+**Bites:** expecting `searchable: true` to put a page in `/sitemap.xml`, or adding your own page at `sitemap.xml` to replace it.
 
-**Why:** the front-matter `searchable` flag controls whether the page appears in the platform's generated `/sitemap.xml`. Search engines may still find and index a page even if it's missing from the sitemap.
+**Why:** on v6, `/sitemap.xml` is a page the CRM module ships (`modules/insites_crm/public/views/pages/sitemap.xml.liquid`). Its query, `modules/insites_crm/sitemap/get_sitemap_pages`, lists a page when `metadata.is_sitemap_enabled` is true, plus CMS list and detail pages whose layout has the sitemap switched on. It orders them by `metadata.sitemap_priority` (descending), then `metadata.sitemap_order`, and reads `sitemap_change_frequency` for each entry. It reads `searchable` but never uses it to decide. So pages made by code or by a deploy, with no sitemap metadata, are missing: measured on two v6 instances that were given a moved website in October 2026, `/sitemap.xml` answered an empty `<urlset>` while dozens of pages were live. A page of your own at slug `sitemap.xml` does not replace the module's page. Nothing serves `/robots.txt` unless a page does.
 
-**Avoid:** for true noindex behavior, set the appropriate `<meta name="robots" content="noindex">` via the page's `metadata:` front-matter, not via `searchable:`.
+**Avoid:** set `metadata.is_sitemap_enabled: true` (and, if wanted, `sitemap_priority`, `sitemap_order`, `sitemap_change_frequency`) on every page that belongs in the sitemap; the CMS's Sitemap tab does the same. Add a `robots` page with `format: txt` that names the sitemap. For a page search engines must skip, a missing sitemap entry is not enough: add `<meta name="robots" content="noindex">` through the page's `metadata:`.
 
 ---
 

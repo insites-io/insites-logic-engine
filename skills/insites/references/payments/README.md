@@ -13,6 +13,17 @@ Insites integrates payments via Stripe using the `api_calls/` outbound-HTTP patt
 | Webhook receiver | `.json.liquid` page under `modules/<name>/public/views/pages/api/_external/v2/stripe/webhook.json.liquid` with its own signing-secret check. |
 | Form-driven payment flow | Form definition in `forms/<name>.liquid` whose `callback_actions` invoke the Stripe `api_call` and persist the resulting payment intent / charge. |
 
+## Carts, orders and checkout
+
+Insites is the backend. The Ecommerce module gives every instance the tables a shop needs, including `modules/insites_ecommerce/cart`, `cart_item`, `order`, `product` and `product_variant`. It does not ship a storefront: how a project shows its cart and takes payment is the project's decision, because every shop is different.
+
+Two official Insites templates show one way to build it, and are the place to start:
+
+- [`insites-io/app-portal`](https://github.com/insites-io/app-portal): the Insites Website & Portal template.
+- [`insites-io/addon-ecommerce`](https://github.com/insites-io/addon-ecommerce): the Ecommerce add-on, which adds a catalog, cart, checkout and order history on top of the Website & Portal template, writing to the Ecommerce module's tables.
+
+The rest of this page covers the payment call itself.
+
 ## Minimal Checkout Session call
 
 The call that is measured working is the inline `api_call_send` mutation from a page (a v6 instance, 5 and 6 October 2026, TW#26855354). It needs no API call file:

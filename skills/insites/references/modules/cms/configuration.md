@@ -33,7 +33,7 @@ When editing a page in IIA, the form is split into tabs corresponding to front-m
 |---|---|---|
 | Details | (default) | `slug`, `method`, `layout`, `format`, `max_deep_level` |
 | Content | `/content` | The Liquid body |
-| Sitemap | `/sitemap` | `searchable` flag and sitemap inclusion |
+| Sitemap | `/sitemap` | Sitemap inclusion (`metadata.is_sitemap_enabled`), priority, order and change frequency |
 | Metadata | `/metadata` | SEO `<meta>` tags via the `metadata:` front-matter object |
 | Open Graph | `/open-graph` | OG title/description/image/type for social shares |
 | Schema | `/schema` | JSON-LD structured data block |
