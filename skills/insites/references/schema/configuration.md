@@ -72,9 +72,17 @@ The `upload` type accepts an `options` object:
 
 | Option | Values | Default | Description |
 |--------|--------|---------|-------------|
-| `acl` | `public`, `private` | `private` | Public files served via CDN; private require signed URLs |
+| `acl` | `public`, `private` | **`public`** | Public files served via CDN; private require signed URLs |
 | `max_size` | Integer (bytes) | Platform default | Maximum upload file size |
 | `content_type` | Array of MIME strings | All types | Restrict accepted file types |
+
+**Leaving `acl` out makes the file public.** The platform schema sets the default on
+`PropertyUploadOptionsInput.acl` to `public`, and a presign for an upload property with no
+`acl` option comes back with `acl: public-read`, so anyone holding the URL can open the file.
+Set `acl: private` (in the property options, or as `acl` in the `presign_url` argument of
+`property_upload_presigned_url`) for anything a visitor submits. A private file is then read with
+`property_upload(name: "...", expires_in: <seconds>) { url }`: the schema says `expires_in` must
+be set when the ACL is private, and the unsigned `url` does not open it.
 
 ## Built-in Fields
 

@@ -17,6 +17,7 @@ All notable changes to the Insites Logic Engine will be documented in this file.
 
 - **The payments stub mixed two front-matter vocabularies.** Its Checkout Session file used `method:` and `headers:` where API call files take `request_type` and `request_headers`. The example now uses the inline mutation that is measured working, and names the file keys beside it.
 - **The CLI can remove a module.** `configuration/README.md` said there was no CLI command to install or uninstall modules. `insites-cli modules remove <env> <name>` exists and removes configuration and data; installing is still through the Console.
+- **An upload property with no `acl` option is public, not private.** `schema/configuration.md` gave the default as `private`. The platform schema sets `PropertyUploadOptionsInput.acl` to `public`, and a presign for the CRM attachment `file` property, which declares no options, returned `acl: public-read` on a v6 instance on 6 October 2026. Anyone who relied on the documented default has been storing files publicly. The table now says `public`, and a paragraph says how to make a file private and how to read it back (`expires_in`). TW#26801619.
 
 ## [1.2.0] - 2026-09-26
 
