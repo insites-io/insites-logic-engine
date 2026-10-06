@@ -15,6 +15,7 @@ All notable changes to the Insites Logic Engine will be documented in this file.
 
 - **Carts and checkout are the project's to build** (`payments/README.md`, `building-on-insites/05-storing-data.md`). The Ecommerce module stores carts, cart items and orders; the storefront is built per project, starting from the official `app-portal` and `addon-ecommerce` templates.
 - **Deleting assets by a path prefix does not run; by id does** (`assets/gotchas.md`). Measured 6 October 2026 (TW#26851122).
+- **`admin_asset_delete` by path is documented as current behavior** (`assets/gotchas.md`). Reproduced on 7 October 2026: once a path has been deleted and written again, a delete by that path answers with the old deleted record every time and leaves the live asset. A hard delete of the old record does not clear it. The way round it is to read the live id and delete by id, which removed the live copy within seconds. The workaround no longer suggests filtering by path, which does not run (TW#26851118).
 
 ### Bug Fix
 

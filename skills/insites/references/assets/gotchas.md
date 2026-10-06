@@ -18,9 +18,31 @@ Without the filter, browsers may cache old versions and users won't see updates.
 
 `admin_assets_create` **updates** an asset when the `name` is already in use: a create with a name in use **moves that asset** to the new `physical_file_path`. A create with a **new** name for a path the instance already holds is refused with `Duplicate values. Key (instance_id, physical_file_path) ... already exists`, and the old file stays. So to replace the file at a path, read the name the instance holds for that path and send the new file under **that** name. Measured on 5 October 2026 (TW#26851119, 22 files in one rehearsal).
 
-## `admin_asset_delete` by Path Can Delete the Wrong Record
+## `admin_asset_delete` by Path Deletes an Older Deleted Record, Not the Live One
 
-`admin_asset_delete(physical_file_path:)` takes only a path. Where a path has a soft-deleted record **and** a live one, it answers the deleted one (success, the old id) and leaves the live asset in place. 380 deletes in a row reported success and removed nothing (TW#26851118). To remove what is actually there, use `admin_asset_delete_all(filter: { physical_file_path: { value: $p } }, hard_delete: true)`.
+`admin_asset_delete(physical_file_path:)` takes only a path; there is no id form. A delete is soft: the record stays, with `deleted_at` set. So a path that has been deleted and then written again holds two records, the old deleted one and the live one, and a delete by that path picks the **deleted** record. It sets that record's `deleted_at` again, answers with the old id and no error, and the live asset stays where it was. This is how the mutation works today, so code that deletes by path has to allow for it.
+
+Measured on a v6 instance on 7 October 2026 (TW#26851118), on one path:
+
+| Step | Answered | Live at the path afterwards |
+|---|---|---|
+| Create | 51358 | 51358 |
+| Delete by path | 51358 | none |
+| Create again | 51359 | 51359 |
+| Delete by path, three times | 51358 each time | 51359 |
+| Delete by id: `admin_asset_delete_all` with `hard_delete: true` | `scheduled` | none, within seconds |
+
+Clearing the old record first does not get round it. On the same path, `admin_asset_delete_all(filter: { id: { value_in: ["51358"] } }, hard_delete: true)` on the deleted record only stamped its `deleted_at` again. The record was still there after five minutes, and the next delete by path still answered 51358.
+
+A path holding only a live record deletes as expected (control: 51357 created, deleted, gone from the listing). The same shape shows at scale: a rollback that deleted 267 files by path left 170 of them live, every one at a path holding an older deleted copy, and none of the 97 that went sat at such a path (6 October 2026). Earlier, 380 deletes in a row answered with one old id and removed nothing.
+
+**To delete what is live at a path, delete it by id:**
+
+1. Read the live id with `admin_assets(filter: { physical_file_path: { value: $p } })`. The default listing leaves deleted records out; add `deleted_at: { exists: true }` to see them.
+2. Delete it with `admin_asset_delete_all(filter: { id: { value_in: [$id] } }, hard_delete: true)`. Filter by id, not by path (see below).
+3. Read the path back until the listing is empty. The live copy is marked deleted straight away and leaves the listing within seconds; the hard removal of the record runs later as a background job (next section), and its answer, `scheduled`, does not say when that has happened.
+
+Do not treat the answer from `admin_asset_delete` as proof the file has gone. Read the path back.
 
 ## `admin_asset_delete_all` with `hard_delete` Is a Background Job
 
