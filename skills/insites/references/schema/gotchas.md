@@ -106,6 +106,18 @@ So `filter: { updated_at: { gt: $since } }` is a guard, not a proof of "nothing 
 
 `record_delete` and `records_delete_all` set `deleted_at` and keep the row under its id (see `api.md`). The consequence for anyone re-importing: **that id cannot be imported again**. A row deleted and then imported under the same id comes back under a **new** id, with the old one in `external_id` when `_id_remap` is used (measured 28 September 2026: faqs row 4965, deleted and re-imported, returned as 17714 with `external_id` 4965).
 
+## An Upload Property Can Hold an Upload, an Address or Nothing
+
+Three states, three different reads (TW#26855355, measured on the v6 Ecommerce module's `product_image`, 5 October 2026):
+
+| The property holds | `property(name:)` returns | `property_upload(name:) { url }` |
+|---|---|---|
+| a file uploaded through the platform | the upload's hash | the CDN `url` |
+| an address a module's admin stored as text | that address, as a String | fails: `Property upload should contain only hash ... given of class String` |
+| nothing | the text `{}` | null |
+
+Writing the empty `{}` into another upload property is refused (`tried to store {} in property upload which is not a valid URL`). Read with `property(name:)` first and branch on the shape before copying one upload property into another.
+
 ## See Also
 
 - [README.md](README.md) -- overview and getting started

@@ -26,6 +26,28 @@ request_headers: >
 }
 ```
 
+## Inline API Call From a Page: `api_call_send`
+
+An API call does not need a file. The `api_call_send` mutation takes the request inline, and this is the form to reach for from a page or a job when the request is built at run time:
+
+```liquid
+{%- parse_json headers -%}
+{ "Authorization": "Bearer {{ context.constants.stripe_sk_live }}", "Content-Type": "application/x-www-form-urlencoded" }
+{%- endparse_json -%}
+{%- graphql r, h: headers, b: body -%}
+mutation ($h: HashObject, $b: String) {
+  api_call_send(
+    api_call: { url: "https://api.stripe.com/v1/checkout/sessions", method: "POST", headers: $h, body: $b }
+    options: { timeout: 10 }
+  ) { response { status body } }
+}
+{%- endgraphql -%}
+```
+
+`api_call` is `{ url: String!, method: String!, headers: HashObject, body: String }`. `options.timeout` is in seconds: for a call made from a web request the default and the maximum are both 5, for one made from a background job the default is 8 and the maximum 180. The answer is `response { status body }`. Measured creating and reading Stripe Checkout Sessions from a page on a v6 instance, 5 and 6 October 2026 (TW#26855354).
+
+The file form above uses `to`, `request_type` and `request_headers` in its front matter. Those are the keys; `method:` and `headers:` are the inline mutation's names, not front-matter keys.
+
 ## Using download_file Filter
 
 For simpler API calls, use the `download_file` filter:

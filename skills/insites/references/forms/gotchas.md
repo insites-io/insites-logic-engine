@@ -26,6 +26,25 @@ Test:
 {% endif %}
 ```
 
+## Comparing the Authenticity Token Yourself
+
+`{{ context.authenticity_token }}` prints a **different value every time**, even twice in one request, and none of them equals the value a genuine form posts back. The token is masked per render (the same scheme Rails uses), so a POST page cannot check the posted token against anything it can read.
+
+The platform checks it. **An invalid token does not refuse the post; it empties the session.** So the supported check on a POST page is the session, not the token:
+
+```liquid
+{%- comment -%} the form page {%- endcomment -%}
+{% session my_form = 'on' %}
+
+{%- comment -%} the POST page {%- endcomment -%}
+{% unless context.session.my_form == 'on' %}
+  {% response_status 422 %}
+  {% break %}
+{% endunless %}
+```
+
+Measured on a v6 instance on 5 October 2026 (TW#26851117): a post without the visitor's session wrote nothing and answered 422; a genuine post kept the session and went through. A signed-in page can check `context.current_user` the same way.
+
 ## Using {% form %} Instead of HTML
 
 **Problem:** Form tag is not recognized, form doesn't submit or behaves unexpectedly.
