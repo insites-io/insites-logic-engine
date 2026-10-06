@@ -83,7 +83,7 @@ Schema issue?
 │   ├── Is the file within size/type limits?
 │   │   └── Fix: Check max_size and content_type in schema options
 │   └── Is acl set correctly?
-│       └── public = CDN URL, private = signed URL
+│       └── public = CDN URL, private = signed URL; no acl option means public
 │
 └── Relationship not resolving?
     ├── Is the _id property storing the correct ID?
