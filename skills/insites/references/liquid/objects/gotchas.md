@@ -206,13 +206,28 @@ mutation {
 {%- assign path = path | split: '/' | join: '/' -%}
 ```
 
-### Problem: Query String Not Parsed
+### Problem: search Is JSON, and href Is the Path
+Measured on a v6 instance (prod01) on 6 October 2026, for `/docs?a=1&b=2`:
+
+| Property | Renders |
+|---|---|
+| `context.location.search` | `{"a":"1","b":"2"}`, and `{}` with no query. The parsed parameters as JSON, **not** the raw `?a=1&b=2` |
+| `context.location.href` | `/docs?a=1&b=2`. The path and the raw query, with no scheme or host |
+| `context.location.host` | the host the request came in on, such as `example.com` |
+
+So a redirect target built as `origin | append: pathname | append: search` is not an address.
+`redirect_to` refuses it with `RedirectToTagError: invalid target in redirect_to tag`, and the
+page renders that error **with a 200**, so nothing upstream notices. Build it from `href`:
+
 ```liquid
-{{ context.location.search }}
-{%- comment %} Returns raw string: "?page=1&sort=name" {%- endcomment %}
+{%- assign target = 'https://new.example.com' | append: context.location.href -%}
+{%- redirect_to target -%}
 ```
 
-**Solution:** Use context.params instead:
+`redirect_to` works from a layout as well as a page, so one line at the top of a layout moves
+every page that uses it. A page whose own body redirects first wins.
+
+**To read one parameter**, use context.params:
 ```liquid
 {{ context.params.page }}
 {{ context.params.sort }}
