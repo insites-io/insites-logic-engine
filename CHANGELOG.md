@@ -2,6 +2,12 @@
 
 All notable changes to the Insites Logic Engine will be documented in this file.
 
+## [Unreleased]
+
+### Bug Fix
+
+- **An upload property with no `acl` option is public, not private.** `schema/configuration.md` gave the default as `private`. The platform schema sets `PropertyUploadOptionsInput.acl` to `public`, and a presign for the CRM attachment `file` property, which declares no options, returned `acl: public-read` on a v6 instance on 6 October 2026. Anyone who relied on the documented default has been storing files publicly. The table now says `public`, and a paragraph says how to make a file private and how to read it back (`expires_in`). TW#26801619.
+
 ## [1.2.0] - 2026-09-26
 
 ### New Feature
