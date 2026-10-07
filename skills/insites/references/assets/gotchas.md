@@ -39,16 +39,42 @@ A path holding only a live record deletes as expected (control: 51357 created, d
 **To delete what is live at a path, delete it by id:**
 
 1. Read the live id with `admin_assets(filter: { physical_file_path: { value: $p } })`. The default listing leaves deleted records out; add `deleted_at: { exists: true }` to see them.
-2. Delete it with `admin_asset_delete_all(filter: { id: { value_in: [$id] } }, hard_delete: true)`. Filter by id, not by path (see below).
-3. Read the path back until the listing is empty. The live copy is marked deleted straight away and leaves the listing within seconds; the hard removal of the record runs later as a background job (next section), and its answer, `scheduled`, does not say when that has happened.
+2. Delete it with `admin_asset_delete_all(filter: { id: { value_in: [$id] } }, hard_delete: true)`. Filter by id: a path filter also matches the old deleted record (see below).
+3. Read the path back until the listing is empty. The answer, `scheduled`, does not say when that has happened. The record stays, marked deleted, even with `hard_delete: true` (next section).
 
 Do not treat the answer from `admin_asset_delete` as proof the file has gone. Read the path back.
 
-## `admin_asset_delete_all` with `hard_delete` Is a Background Job
+## `admin_asset_delete_all` Runs as a Background Job, and `hard_delete` Does Not Remove the File
 
-It answers `scheduled` and runs later. Measured on 5 October 2026 (TW#26851122): the first call removed 309 of 412 assets after about six minutes and stopped; a second call removed the rest within two; a later call left 327 in place for 15 minutes, then ran while a load was writing to the same paths. Nothing reports when it has finished. Poll the count with `admin_assets(filter:)`, call again if it stalls, and do not write to the same paths until the count reaches zero.
+This is how the mutation works today. Code that deletes assets has to work with it.
 
-**Filter by id, not by a path prefix.** On 6 October 2026 (TW#26851122) a call filtered by `physical_file_path: { starts_with: "assets/squarespace/" }` answered `scheduled` three times over 45 minutes, and two hours later nothing had gone: the same 354 live and 1,603 deleted assets. The same deletes filtered by `id: { value_in: [...] }`, in batches, were gone within about a minute. Read the ids with `admin_assets(filter:)` first, then delete by id.
+- **It answers `scheduled` and does the work later.** The answer comes back in under a second and carries no job id. Nothing in the answer says when the delete has finished.
+- **The job deletes about 3 to 4 assets a second on staging and 6 to 11 a second on production.** On a quiet instance every job ran to the end, up to 1,000 assets in one call.
+- **A path prefix filter and an id filter run at the same speed.** Use whichever selects the assets you mean.
+- **The filter also matches assets that are already deleted.** You do not need `deleted_at: { exists: true }` to reach them. A second delete over deleted assets stamps their `deleted_at` again and changes nothing else.
+- **`hard_delete: true` gives the same result as a soft delete.** Each asset is marked deleted (`deleted_at` set) and leaves the default listing. The record stays, and the file at its address keeps serving its old bytes. 90 minutes after a hard delete, nothing had been removed.
+- **Two jobs run side by side**, each at about the speed of one job alone. They do not wait for each other.
+
+**To know when a delete has finished**, poll `admin_assets(filter:)` with the same filter, leaving out `deleted_at`. The delete is done when `total_entries` reaches 0. The job also shows in `admin_background_jobs(filter: { type: RUNNING })` on the `long_running` queue while it works, and leaves when it is done. That entry has no arguments and no `source_name`, so it can only be matched to a call when nothing else is running.
+
+**A running job leaves alone assets written after it started.** Assets written under the same prefix while a job was running were not deleted. Still wait for the count to reach 0 before writing to those paths. A job that starts late has not yet chosen what it deletes, and on 5 October 2026 one did start late and then ran during a load (see below).
+
+**A delete does not take a file offline.** The address keeps serving the file after both a soft and a hard delete.
+
+Measured on two v6 instances on 7 October 2026, one on staging and one on production (TW#26851122). Times come from polls every 15 seconds:
+
+| Run | Assets | Staging | Production |
+|---|---|---|---|
+| Hard delete, path prefix filter | 400 | 111 s | 48 s |
+| Hard delete, id filter | 400 | 111 s | 48 s |
+| Soft delete, path prefix filter | 200 | 64 s | 32 s |
+| Soft delete, path prefix filter (second run) | 200 | 48 s | 32 s |
+| Hard delete, path prefix filter | 1,000 | 270 s | 94 s |
+| Two hard deletes started together | 300 + 300 | 152 s | 57 s |
+
+After 90 minutes, 2,200 of 2,200 hard-deleted assets on each instance were still listed with `deleted_at` set. 20 of 20 sampled addresses on each instance still answered 200 with the original bytes, including with a cache-busting query string. A soft-delete-only control on production (50 assets) looked the same. On a soft-deleted set, a second delete re-stamped `deleted_at` on 50 of 50 assets, with no `deleted_at` filter in the call. 20 assets written under a prefix while its hard delete of 300 was running were all still live once it finished, 20 of 20 on each instance.
+
+Earlier, slower runs: on 5 and 6 October 2026, on a migration destination, one delete left its assets in place for over an hour and one job stopped after 309 of 412 assets. Neither happened in the 14 runs on quiet instances: the 12 in the table and the 2 late-write runs. Loads were also running on that destination. That is the likely cause, but it was not measured. If a count stops falling, call the delete again.
 
 ## The File Host Keeps Serving Old Bytes at the Plain Address
 
