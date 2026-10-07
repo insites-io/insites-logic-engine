@@ -143,7 +143,7 @@ CRUD plus archive/restore lifecycle. Sub-resources for addresses, personal info,
 | `GET` | `/crm/api/v2/contacts` | List contacts (paginated) |
 | `GET` | `/crm/api/v2/contacts/:uuid` | Read one contact |
 | `PATCH` | `/crm/api/v2/contacts/:uuid` | Update a contact |
-| `DELETE` | `/crm/api/v2/contacts/:uuid` | Hard-delete a contact |
+| `DELETE` | `/crm/api/v2/contacts/:uuid` | Delete a contact |
 | `PATCH` | `/crm/api/v2/contacts/:uuid/archive` | Archive (soft-hide) |
 | `PATCH` | `/crm/api/v2/contacts/:uuid/restore` | Restore from archive |
 
@@ -213,7 +213,7 @@ CRUD plus archive/restore. Includes an `assign-contacts` lifecycle action.
 | `GET` | `/crm/api/v2/companies` | List companies |
 | `GET` | `/crm/api/v2/companies/:uuid` | Read one company |
 | `PATCH` | `/crm/api/v2/companies/:uuid` | Update a company |
-| `DELETE` | `/crm/api/v2/companies/:uuid` | Hard-delete a company |
+| `DELETE` | `/crm/api/v2/companies/:uuid` | Delete a company |
 | `PATCH` | `/crm/api/v2/companies/:uuid/archive` | Archive |
 | `PATCH` | `/crm/api/v2/companies/:uuid/restore` | Restore |
 | `PATCH` | `/crm/api/v2/companies/:uuid/assign-contacts` | Link contacts to a company |

@@ -146,7 +146,7 @@ Versus:
 DELETE /crm/api/v2/contacts/<uuid> HTTP/1.1
 ```
 
-Hard-delete. Not reversible via the API. Sub-resources are cascade-deleted (addresses, personal info, profiles, relationships).
+Delete. Cannot be undone via the API. Sub-resources are cascade-deleted (addresses, personal info, profiles, relationships).
 
 **Which to use:** archive is appropriate for "no longer active" — preserves history, restorable if it was a mistake. Delete is for genuinely-bad data (test records, GDPR right-to-erasure, etc.). When in doubt, archive.
 

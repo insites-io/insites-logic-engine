@@ -97,7 +97,7 @@ GET    /databases/api/v2/database/:table_id/items   ← singular
 
 **Why:** the data module fires no webhooks. Confirmed by audit of all V2 controllers.
 
-**Avoid:** for change notifications, poll the items list and watch `updated_at`, or wire your own integration via the api module's user-defined endpoints. If your downstream depends on knowing about deletes specifically, consider archiving items via a custom flag column instead of hard-deleting them.
+**Avoid:** for change notifications, poll the items list and watch `updated_at`, or wire your own integration via the api module's user-defined endpoints. If your downstream depends on knowing about deletes specifically, consider archiving items via a custom flag column instead of deleting them.
 
 ---
 

@@ -100,13 +100,13 @@ Don't rely on HTTP status alone — also inspect the body shape.
 
 ---
 
-## 10. Hard delete is cascade and irreversible
+## 10. Delete cascades and cannot be undone
 
 **Bites:** `DELETE /crm/api/v2/contacts/<uuid>` removes the contact's addresses, personal info, profiles, and relationships along with it. Confused with archive, this loses data.
 
-**Why:** the V2 API supports both soft-delete (`PATCH /<resource>/<uuid>/archive`) and hard-delete (`DELETE`). They are different verbs with different semantics. Hard-delete is not reversible via the API.
+**Why:** the V2 API has both archive (`PATCH /<resource>/<uuid>/archive`) and delete (`DELETE`). They are different verbs with different results. A delete cannot be undone via the API.
 
-**Avoid:** default to archive. Reserve hard-delete for genuinely-bad data (test records, GDPR right-to-erasure). When archive is what you want, use the lifecycle PATCH paths — they preserve data and are reversible with `/restore`.
+**Avoid:** default to archive. Reserve delete for genuinely-bad data (test records, GDPR right-to-erasure). When archive is what you want, use the lifecycle PATCH paths — they preserve data and are reversible with `/restore`.
 
 ---
 

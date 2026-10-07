@@ -16,7 +16,7 @@ For shared conventions, see [`../api.md`](../api.md).
 | `GET` | `/crm/api/v2/activities` | List activities (paginated) |
 | `GET` | `/crm/api/v2/activities/:uuid` | Read one |
 | `PATCH` | `/crm/api/v2/activities/:uuid` | Update an activity |
-| `DELETE` | `/crm/api/v2/activities/:uuid` | Hard-delete an activity |
+| `DELETE` | `/crm/api/v2/activities/:uuid` | Delete an activity |
 
 **Required fields on create:** `type`, `feature_type`, `feature.uuid`.
 
