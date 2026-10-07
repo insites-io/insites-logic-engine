@@ -184,9 +184,9 @@ insites-cli deploy staging
 **Issue**: Old assets served from CDN cache
 
 **Solution**:
-- Purge CDN cache in Insites dashboard
-- Use versioned asset filenames: `app-v2.js`
-- Clear browser cache (Ctrl+Shift+Delete)
+- Reference the file through `asset_url`, which changes its `?updated=` address on every upload
+- Where code builds asset addresses itself, use versioned file names: `app-v2.js`
+- Do not plan on a purge. An edge purge of the exact URL is an Insites operator action on the stack's CDN, and it does not reach browsers that already cached the file. See [The File Host Keeps Serving Old Bytes at the Plain Address](../assets/gotchas.md#the-file-host-keeps-serving-old-bytes-at-the-plain-address)
 
 ## Schema Application Failures
 

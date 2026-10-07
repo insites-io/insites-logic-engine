@@ -30,7 +30,14 @@ It answers `scheduled` and runs later. Measured on 5 October 2026 (TW#26851122):
 
 ## The File Host Keeps Serving Old Bytes at the Plain Address
 
-After a file is uploaded again over an existing asset, `asset_url` (which appends `?updated=`) serves the new file, and the **plain** address keeps serving the old one until the cache expires: 532,808 old bytes at the bare path against 532,534 new ones at the same path with any query string (TW#26851120). Anything that loads by plain address, such as a webpack runtime asking for its chunks, can run an old chunk beside new code. Reference uploads through `asset_url`, or give a changed file a new path.
+After a file is uploaded again over an existing asset, `asset_url` (which appends `?updated=`) serves the new file, and the **plain** address keeps serving the old one: 532,808 old bytes at the bare path against 532,534 new ones at the same path with any query string (TW#26851120). Anything that loads by plain address, such as a webpack runtime asking for its chunks, can run an old chunk beside new code.
+
+**An upload does not purge the file host's cache, and there is no short expiry to wait out.** The file host answers every asset with `cache-control: public, max-age=315576000, s-maxage=31536000`: one year at the edge, ten years in the browser. Measured on 7 October 2026 on one staging and one production instance: a file was synced, its plain address fetched until the edge answered `cf-cache-status: HIT`, and the file synced again with new content. `asset_url` and any query string returned the new content straight away; the plain address kept answering `HIT` with the old content on all 30 checks over the next 15 minutes, once a minute on each instance, and was still old eight hours later. A plain address only catches up when the edge happens to evict the copy, which is not a time you can plan for.
+
+**A purge clears the edge, not the browser.** An edge purge of the exact URL, run by an Insites operator on the stack's CDN, made both plain addresses serve the new content within five seconds (same day, same two files). That is an operator action, not something an instance can do, and it does not reach a browser that has already loaded the plain address: that browser holds its copy for ten years and does not ask again. So the fix sits with the reference, not the platform:
+
+- Reference every uploaded file through `asset_url`, so a changed file gets a new `?updated=` address.
+- Where a runtime builds addresses itself (webpack chunks, dynamic `import()`), give each changed file a new path, such as a content hash in the file name, and never upload new content over an old path.
 
 ## Environment-Specific URLs
 
