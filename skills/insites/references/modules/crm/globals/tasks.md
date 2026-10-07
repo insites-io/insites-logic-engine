@@ -20,7 +20,7 @@ CRUD plus `complete` / `open` lifecycle PATCH actions. A task can be associated 
 | `GET` | `/crm/api/v2/tasks` | List tasks (paginated) |
 | `GET` | `/crm/api/v2/tasks/:uuid` | Read one task |
 | `PATCH` | `/crm/api/v2/tasks/:uuid` | Update a task |
-| `DELETE` | `/crm/api/v2/tasks/:uuid` | Hard-delete a task |
+| `DELETE` | `/crm/api/v2/tasks/:uuid` | Delete a task |
 | `PATCH` | `/crm/api/v2/tasks/:uuid/complete` | Mark complete |
 | `PATCH` | `/crm/api/v2/tasks/:uuid/open` | Re-open a completed task |
 
@@ -74,7 +74,7 @@ No request body is required for these actions; the `:uuid` in the path is the on
 
 ## Task comments
 
-Threaded comments attached to a task. CRUD without delete (comments cannot be hard-deleted via the API as of this writing).
+Threaded comments attached to a task. CRUD without delete (comments cannot be deleted via the API as of this writing).
 
 | Method | Path | Purpose |
 |---|---|---|

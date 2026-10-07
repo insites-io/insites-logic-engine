@@ -75,7 +75,9 @@ mutation delete($id: ID!) {
 
 **Signature:** `record_delete(id: ID!) : Record`
 
-A deleted record is not removed. It is kept with `deleted_at` set and keeps its id. A plain `records` query no longer returns it; `filter: { deleted_at: { exists: true } }` still does. `records_delete_all` behaves the same way. Deleting a parent does **not** cascade to related records.
+A deleted record is kept for 30 days. It keeps its id and has `deleted_at` set. A plain `records` query no longer returns it; `filter: { deleted_at: { exists: true } }` still does. `records_delete_all` behaves the same way. Deleting a parent does **not** cascade to related records.
+
+An overnight job removes every deleted item whose `deleted_at` is more than 30 days old. To have a row removed sooner, set its `deleted_at` back more than 30 days with `record_update(id: $id, record: { deleted_at: "<date more than 30 days ago>" })`. This works on a live row and on one already deleted, and the date reads back as sent (measured on two v6 instances on 7 October 2026, TW#26851122).
 
 ## Querying Records
 

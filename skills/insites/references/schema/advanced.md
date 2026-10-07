@@ -187,9 +187,9 @@ filter: {
 
 **Limitation:** You cannot use `related_record` with a dynamic table name. Resolve the parent record in a separate query or denormalize the parent's key fields onto the comment.
 
-## Soft Delete Pattern
+## Archive and Restore Pattern
 
-A platform delete already keeps the row (with `deleted_at` set, under the same id), but there is no documented way to show it again. When users need to archive and restore a record themselves, keep your own flag:
+A delete keeps the row for 30 days (with `deleted_at` set, under the same id), then an overnight job removes it, and there is no documented way to show it again. When users need to archive and restore a record themselves, keep your own field:
 
 ```yaml
 name: invoice
@@ -198,8 +198,8 @@ properties:
     type: string
   - name: total
     type: float
-  - name: deleted_at
-    type: datetime         # null means active, set means deleted
+  - name: archived_at
+    type: datetime         # null means active, set means archived
 ```
 
 **Filter active records:**
@@ -207,11 +207,11 @@ properties:
 ```graphql
 filter: {
   table: { value: "invoice" }
-  properties: [{ name: "deleted_at", value: "" }]
+  properties: [{ name: "archived_at", value: "" }]
 }
 ```
 
-**Note:** Filtering for empty/null property values can be inconsistent. An alternative is a boolean `deleted` property set to `"false"` by default, which is more reliable to filter on.
+**Note:** Filtering for empty/null property values can be inconsistent. An alternative is a boolean `archived` property set to `"false"` by default, which is more reliable to filter on.
 
 ## Upload Security Considerations
 

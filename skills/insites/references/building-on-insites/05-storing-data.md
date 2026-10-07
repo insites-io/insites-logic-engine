@@ -81,7 +81,7 @@ Read them with the `records` query, filtered by table:
   the schema, so a field with no description produces a documented endpoint that explains
   nothing. You are writing documentation whether you intend to or not.
 - **A delete keeps the row, and its id.** `record_delete` and `records_delete_all` set
-  `deleted_at` rather than removing anything: a plain `records` query stops returning the row,
+  `deleted_at` and keep the row for 30 days before an overnight job removes it: a plain `records` query stops returning the row,
   and `filter: { deleted_at: { exists: true } }` still finds it under the same id. There is
   no documented way to restore one, so if a record needs to disappear from a list but be
   recoverable, add your own flag rather than deleting.

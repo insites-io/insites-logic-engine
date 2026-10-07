@@ -126,7 +126,7 @@ Returns the updated item with the new `updated_at`. If you omit a column from th
 DELETE /databases/api/v2/database/1/items/1213?format=json HTTP/1.1
 ```
 
-Returns `200` on success. There is no soft-delete / archive flow on data items — `DELETE` is a hard delete.
+Returns `200` on success. There is no archive flow on data items. `DELETE` deletes the item.
 
 ---
 
