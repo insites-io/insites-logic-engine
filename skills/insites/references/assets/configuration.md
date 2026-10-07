@@ -60,14 +60,15 @@ Use `asset_path` filter for relative URLs:
 
 ## Cache Busting
 
-Insites automatically appends version hashes to asset filenames during deployment:
+The file name does not change. `asset_url` appends an `?updated=` stamp, and the stamp changes each time the file is uploaded again:
 
 ```
-Original: logo.png
-Deployed: logo-a1b2c3d4.png
+Uploaded:     scripts/app.js
+asset_url:    https://files.<stack>/instances/<id>/assets/scripts/app.js?updated=1791323249
+Plain address: https://files.<stack>/instances/<id>/assets/scripts/app.js
 ```
 
-Filters handle this transparently without manual intervention.
+Measured on 7 October 2026 on one staging and one production instance. The plain address is cached for a year at the edge and ten years in the browser, and an upload does not purge it, so only the `asset_url` form is cache busted. See [The File Host Keeps Serving Old Bytes at the Plain Address](gotchas.md#the-file-host-keeps-serving-old-bytes-at-the-plain-address).
 
 ## Deploy Configuration
 
