@@ -102,9 +102,15 @@ query($t: String, $i: [ID!], $p: String!) {
 
 `admin_table_delete(physical_file_path: String!)`. There is no id form.
 
-### The admin API lists a module's public partials and layouts only
+### The admin API never lists a module's private files
 
 `admin_liquid_partials` and `admin_liquid_layouts` return a module's `public/` files. The CRM module's private partials are not listed (7 of its partials and layouts appear, 6 October 2026). A page that includes a partial the module does not ship cannot be checked against the listing; only rendering the page shows the error.
+
+The same holds for every admin listing measured on two v6 instances on 7 October 2026: `admin_pages`, `admin_liquid_partials`, `admin_graphql`, `admin_email_notifications` and `admin_authorization_policies` each returned 0 files under a `/private/` path. It holds for tables too: `admin_tables` and `admin_model_schemas` do not list a table whose schema is in `private/schema/`, even filtered by its exact name or id, and every IIA module's tables are there. The error from `record_create` on a table named `~` lists every table instead; see [storing data](../building-on-insites/05-storing-data.md#what-to-check-in-order).
+
+### A table-not-found error names every table
+
+`record_create` on a table that does not exist answers `Could not find Table with name: <name>. Did you mean one of: <names> ?`. When the name matches no table, `<names>` is every table on the instance, private module tables included, with no cap (350 names measured). When the name is part of some table names, it is only those. `records` filtered by a missing table answers 0 with no error instead, so it cannot tell a missing table from an empty one.
 
 ### A policy's `http_status` cannot be written
 

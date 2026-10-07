@@ -16,7 +16,7 @@ app/
 
 Every schema file lives in `app/schema/` and has a `.yml` extension.
 
-> **Module path:** In modules, schema files live in `modules/<module_name>/public/schema/`. Module schemas are always public so the app and other modules can query the data.
+> **Module path:** In modules, schema files live in `modules/<module_name>/public/schema/` or `modules/<module_name>/private/schema/`. A table in either is read and written by name in the same way; only `public/` tables appear in `admin_tables` and `admin_model_schemas`. Every IIA module uses `private/schema/`.
 
 ## YAML Format
 
