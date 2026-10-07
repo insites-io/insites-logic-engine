@@ -2,7 +2,7 @@
 
 Schema files define your data models in Insites. Each YAML file in `app/schema/` becomes a database table backed by PostgreSQL and ElasticSearch, accessible exclusively through GraphQL.
 
-> **Module path:** When building a module, use `modules/<module_name>/public/schema/` for schema definitions. Module schemas are always public so the app and other modules can query the data.
+> **Module path:** When building a module, schema files go in `modules/<module_name>/public/schema/` or `modules/<module_name>/private/schema/`. Both work the same way at runtime: `records` reads a table in either by name. The folder decides only what the admin API lists: `admin_tables` and `admin_model_schemas` list `public/` tables and never `private/` ones. Every IIA module keeps its schemas in `private/schema/`. See [storing data](../building-on-insites/05-storing-data.md#what-to-check-in-order) for how to list every table.
 
 ## Key Purpose
 

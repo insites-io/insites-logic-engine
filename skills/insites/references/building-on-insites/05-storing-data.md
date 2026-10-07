@@ -19,17 +19,55 @@ screens, none of the validation and none of the API.
    { admin_tables { results { id name properties } } }
    ```
 
-   This lists the **instance's own** tables only: `modules/ins_databases/...` for
-   instance-specific tables, and the `*_custom_field` tables. It does **not** list a module's
-   own tables (`modules/insites_crm/...`, `modules/insites_ecommerce/...`), and neither does
-   `admin_model_schemas`. Measured on a v6 instance on 6 October 2026: both answered 16 tables
-   while `modules/insites_ecommerce/product` held 16 rows; `admin_tables` filtered by that name
-   answered nothing.
+   This lists only tables whose schema file sits in a **public** place: `app/schema/`, and a
+   module's `public/schema/`. On an instance that means `modules/ins_databases/...` and the
+   `*_custom_field` tables. A table whose schema file sits in a module's **`private/`** folder
+   is not listed, not even when filtered by its exact name or id, and `admin_model_schemas`
+   answers the same set. Every IIA module keeps its schemas in `private/schema/` (114 of 114
+   schema files across the ten v6 module repositories), so no `modules/insites_crm/...`,
+   `modules/insites_ecommerce/...` or other module table ever appears.
+
+   The folder alone decides it. A table created at `modules/ins_databases/private/schema/` is
+   hidden in the same way while its twin under `public/schema/` is listed, and a table synced to
+   `app/schema/` is listed. A hidden table still works: `records` reads it and `record_create`
+   writes it by name. Measured on two v6 instances on 7 October 2026 (TW#26860280).
+
+   **To list every table, the modules' included,** ask for a table that cannot exist. The error
+   names every table on the instance:
+
+   ```graphql
+   mutation { record_create(record: { table: "~", properties: [] }) { id } }
+   ```
+
+   ```
+   Could not find Table with name: ~. Did you mean one of: modules/ins_core/crm_company_custom_field, ..., modules/insites_crm/activity, ... ?
+   ```
+
+   No `~` table can exist, so nothing is written. Measured on two v6 instances: 150 and 126
+   names, including every table `admin_tables` lists, every module table holding rows, every
+   schema file in the v6 module repositories, and the two tables the Events and Locator modules
+   create in migrations. With 200 tables added, the list grew to 350, so it is not capped. Two
+   things to handle when you use it:
+
+   - **The list is complete only when the name you send matches none of them.** A name that is
+     part of some table names answers only those: `ecommerce` answers 38. Send `~`.
+   - **It is error text, not an API.** Split it on `Did you mean one of: ` and on commas, strip
+     the trailing ` ?`, and check the result contains everything `admin_tables` lists before
+     trusting it.
+
+   The other routes each give part of the answer:
+
+   | Route | What it gives |
+   |---|---|
+   | `records` with no table filter | Only the tables that hold rows. An empty module table is missing |
+   | `/admin/api` | The tables behind an API resource: 43 of 126 on one instance |
+   | A module's source at the installed version | Its schema files, but not tables its migrations create (`modules/insites_events/event_system_field`, `modules/insites_locator/location_system_field`) |
+   | `insites-cli modules pull` | The module's `public/` files only, so no schemas |
+   | `cms_items(type: CustomModelType)` (deprecated) | `app/schema/` tables only |
 
    Nor can a `records` query prove a table exists: filtered by a table that does not exist, it
-   answers `total_entries: 0` with no error, exactly as an empty table does. To know which
-   module tables an instance has, read the module's schema files at the version installed
-   (each module's `hook_module_info` partial gives the version).
+   answers `total_entries: 0` with no error, exactly as an empty table does. The error above is
+   the existence check: a name that exists is absent from it.
 3. **Only then create your own.**
 
 ## Creating a table
