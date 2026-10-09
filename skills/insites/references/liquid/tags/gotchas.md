@@ -127,23 +127,19 @@ Alternative: Use the function without explicit return (Insites will return the l
 
 **Solution:** Verify the path mapping:
 
-- Partials live in `/app/views/partials/`
-- Use relative paths from the partials directory
-- File must end in `.liquid`
+- A path with no prefix reads `app/views/partials/`: `{% render 'header' %}` reads `app/views/partials/header.liquid`
+- A path that starts `modules/<name>/` reads that module's `public/views/partials/` or `private/views/partials/`: `{% render 'modules/my_module/card' %}` reads `modules/my_module/public/views/partials/card.liquid`
+- Leave out `views/partials/` and the `.liquid` extension
 
 ```liquid
-{% render 'partials/header' %}          {%- correct --%}
-{% render 'app/views/partials/header' %} {%- incorrect --%}
-{% render 'header.liquid' %}             {%- incorrect, omit extension --%}
+{% render 'header' %}                      {% comment %} correct {% endcomment %}
+{% render 'modules/my_module/card', item: product %} {% comment %} correct {% endcomment %}
+{% render 'app/views/partials/header' %}   {% comment %} incorrect {% endcomment %}
+{% render 'partials/header' %}             {% comment %} incorrect: reads app/views/partials/partials/header.liquid {% endcomment %}
+{% render 'header.liquid' %}               {% comment %} incorrect, omit extension {% endcomment %}
 ```
 
-If partial is in a module:
-
-```liquid
-{% render 'modules/my_module/partials/card', item: product %}
-```
-
-Check `/app/views/partials/` directory structure matches your include paths.
+See [`project-structure.md`](../../project-structure.md) for how paths resolve in both trees.
 
 ---
 
@@ -336,7 +332,7 @@ Use try/catch for safe operations (parsing, type coercion):
    - Continue to step 3
 
 3. **Are you calling `{% render %}`?**
-   - Partial not found → Verify path in `/app/views/partials/`
+   - Partial not found → Verify path in `app/views/partials/` or `modules/<name>/{public,private}/views/partials/`
    - Partial found → Continue to step 4
 
 4. **Are you using `parse_json` or `session`?**

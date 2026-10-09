@@ -4,9 +4,9 @@ This document covers all configuration options for layout files in `app/views/la
 
 ## File Location
 
-All layouts live in `app/views/layouts/`. The filename (without extension) is the layout name referenced in page front matter.
+Layouts live in `app/views/layouts/` or a module's `views/layouts/`. The filename (without extension) is the layout name referenced in page front matter.
 
-> **Module path:** In modules, layouts live in `modules/<module_name>/public/views/layouts/` or `modules/<module_name>/private/views/layouts/`. The layout name in page front matter works the same way.
+> **Module path:** In modules, layouts live in `modules/<module_name>/public/views/layouts/` or `modules/<module_name>/private/views/layouts/`. Name them with the module prefix in page front matter: `layout: modules/<module_name>/dashboard_default` reads `modules/<module_name>/public/views/layouts/dashboard_default.liquid` or the same path under `private/`.
 
 ```
 app/views/layouts/

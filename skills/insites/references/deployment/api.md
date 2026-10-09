@@ -67,11 +67,11 @@ Validates:
 Files synchronized:
 
 ```
-app/views/
-app/api_calls/
-app/lib/
-config/
+app/
+modules/
 ```
+
+The CLI deploys these two trees and nothing else.
 
 ### Migration Phase
 

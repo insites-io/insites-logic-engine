@@ -79,9 +79,9 @@ export POS_STAGING_TOKEN="token_abc"
 
 ### Required Files
 
-- `app/views/pages/` - At least home page
-- `config/translations.yml` - Translation keys defined
-- `app/migrations/` - Migration files up to date
+- `app/views/pages/` or a module's `views/pages/` - At least a home page
+- `app/translations/<locale>.yml` - Translation keys defined (only when the site uses translations)
+- `migrations/` in `app/` or a module - Migration files up to date
 - `.insites` - Environment configuration (gitignored)
 
 ## Deployment Profiles

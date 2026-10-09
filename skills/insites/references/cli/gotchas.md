@@ -86,7 +86,9 @@ Ensure partial exists at correct path:
 
 ```bash
 # Referencing: {% include 'components/button' %}
-# File should be at: app/views/partials/components/button.html.liquid
+# File should be at: app/views/partials/components/button.liquid
+# Referencing: {% include 'modules/ui/components/button' %}
+# File should be at: modules/ui/public/views/partials/components/button.liquid (or private/)
 ```
 
 ### Tag Validation
