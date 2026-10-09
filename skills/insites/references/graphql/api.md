@@ -108,10 +108,10 @@ mutation($id: ID!, $price: String) {
 ### record_delete
 
 ```graphql
-record_delete(id: ID!) : Record
+record_delete(id: ID!, table: String, form_name: String) : Record!
 ```
 
-Permanent deletion. No cascade to related records.
+Sets `deleted_at` and keeps the row for 30 days (see [schema/api.md](../schema/api.md#record_delete)). No cascade to related records. **Pass `table` as well as `id`.** The schema marks `table` optional, but a delete with `id` alone was refused on a v6 instance with "You must specify table to which the record should belong" (2 September 2026), and 107 of the 108 `record_delete` calls in the v6 module source pass it.
 
 ### user_create
 
@@ -140,9 +140,11 @@ existing policy or the mutation fails.
 ### admin_assets_create / admin_asset_update
 `cache_control: "max-age=31536000, public"` is stored in the asset's metadata and applied
 as the `Cache-Control` header on the stored object, so edge caches and browsers follow
-your policy. The `url` argument of `admin_assets_create` is deprecated and ignored: the
-URL is derived from the asset name and the instance's file host. Upload the bytes with
-`admin_assets_presign_urls`, then call `admin_assets_create` without `url`.
+your policy. Upload the bytes with `admin_assets_presign_urls`, then call
+`admin_assets_create` with `name` and `physical_file_path`. Sources disagree about `url`:
+the bundled schema declares `AssetInput.url: String!` and the v6 assets module sends it,
+while the 19 May release notes call it deprecated and ignored. Send it, and do not rely on
+its value.
 
 ### admin_logs
 ```graphql

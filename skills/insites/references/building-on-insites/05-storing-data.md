@@ -120,9 +120,11 @@ Read them with the `records` query, filtered by table:
   nothing. You are writing documentation whether you intend to or not.
 - **A delete keeps the row, and its id.** `record_delete` and `records_delete_all` set
   `deleted_at` and keep the row for 30 days before an overnight job removes it: a plain `records` query stops returning the row,
-  and `filter: { deleted_at: { exists: true } }` still finds it under the same id. There is
-  no documented way to restore one, so if a record needs to disappear from a list but be
-  recoverable, add your own flag rather than deleting.
+  and `filter: { deleted_at: { exists: true } }` still finds it under the same id. The schema
+  documents a restore: `record_update` with `deleted_at` set back to an empty value, after
+  which related records must be restored one by one. That path has not been measured, so if a
+  record needs to disappear from a list but stay recoverable, an `archived_at` field of your
+  own is still the safer design.
 
 ## Do not reach for the REST API for your own instance's data
 

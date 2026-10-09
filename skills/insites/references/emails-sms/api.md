@@ -2,170 +2,81 @@
 
 ## Overview
 
-Insites provides GraphQL mutations for sending emails and SMS messages, with support for template variables, attachments, and delivery tracking.
+Insites sends email and SMS with two GraphQL mutations, `email_send` and `sms_send`. Each one renders a template you registered in `app/emails/` or `app/smses/` and passes it a `data` hash. The signatures below are from the platform schema (`graphql/schema/schema.json`).
 
 ## GraphQL Mutations
 
 ### email_send
 
-Sends an email using a defined template:
-
 ```graphql
-mutation SendWelcomeEmail(
-  $email: String!
-  $data: JsonObject!
-) {
-  email_send(
-    template: "welcome"
-    to: $email
-    data: $data
-  ) {
-    success
-    errors
+mutation send_welcome($data: HashObject) {
+  email_send(template: { name: "welcome" }, data: $data) {
+    is_scheduled_to_send
   }
 }
 ```
 
-### email_send Parameters
+Build `data` as **one** Liquid variable and pass it whole:
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `template` | String | Yes | Name of email template (without `.liquid` extension) |
-| `to` | String | Yes | Recipient email address |
-| `data` | Object | No | Data variables passed to template context |
-| `delay` | Integer | No | Delay in seconds before sending |
-| `bcc` | String | No | Additional BCC address |
+```liquid
+{%- assign mail = { "to": user.email, "first_name": user.first_name } -%}
+{%- graphql sent = 'emails/send_welcome', data: mail -%}
+```
+
+The template reads it as `data`: `to: '{{ data.to }}'` in its front matter, `{{ data.first_name }}` in its body.
+
+| Argument | Type | Description |
+|---|---|---|
+| `template` | `NotificationTemplateInput` | `{ name: "welcome" }`, the file name under `app/emails/` without `.liquid` |
+| `data` | `HashObject` | Variables the template reads as `data` |
+| `email` | `NotificationEmailInput` | Inline email: `to`, `from`, `subject`, `content` required; `cc`, `bcc`, `reply_to`, `delay` (minutes) optional |
+
+The payload is `is_scheduled_to_send: Boolean!` (its `errors` field is deprecated).
+
+**Send through a registered template.** Measured on Insites instances in October 2026: an inline `email: {...}` with no `template`, and a `data` written as a GraphQL object literal with variables inside it, both answer `is_scheduled_to_send: true` and send nothing. A template called by name with `data` passed as one variable delivered in 1 to 3 seconds. So `is_scheduled_to_send: true` is not proof of delivery.
 
 ### sms_send
 
-Sends an SMS message:
-
 ```graphql
-mutation SendVerificationSMS(
-  $phone: String!
-  $code: String!
-) {
-  sms_send(
-    template: "verification"
-    to: $phone
-    data: {
-      verification_code: $code
-    }
-  ) {
-    success
-    errors
+mutation send_code($data: HashObject) {
+  sms_send(template: { name: "verification" }, data: $data) {
+    is_scheduled_to_send
   }
 }
 ```
 
-### sms_send Parameters
+| Argument | Type | Description |
+|---|---|---|
+| `template` | `NotificationTemplateInput` | `{ name: "verification" }`, a template under `app/smses/` |
+| `data` | `HashObject` | Variables the template reads as `data` |
+| `sms` | `SmsSendInput` | Inline SMS: `to` and `content` required, `delay` in minutes (default 0) |
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `template` | String | Yes | SMS template name |
-| `to` | String | Yes | Recipient phone number |
-| `data` | Object | No | Template variables |
-
-## Response Structure
-
-```json
-{
-  "success": true,
-  "errors": []
-}
-```
+The SMS path was not measured. Treat it like email until it is: template by name, `data` as one variable.
 
 ## Template Variable Access
 
-Within email/SMS templates, access passed data:
+Within email and SMS templates, read what you passed as `data`:
 
 ```liquid
-Hello {{ data.user.first_name }},
+Hello {{ data.first_name }},
 
-Your order #{{ data.order.id }} has been confirmed.
-Total: {{ data.order.total | money }}
-
-Best regards,
-{{ site.name }}
+Your order #{{ data.order_id }} has been confirmed.
 ```
 
-## Sending Inline Content
+## Sending Later
 
-Override template content programmatically:
+Neither mutation takes a delay for a template send. Run it in a background job, whose `delay` is in minutes:
 
-```graphql
-mutation SendEmail {
-  email_send(
-    template: "custom"
-    to: "user@example.com"
-    data: {
-      subject: "Custom Subject"
-      body: "Custom HTML body"
-    }
-  ) {
-    success
-  }
-}
+```liquid
+{% background delay: 1440, source_name: 'reminder_email' %}
+  {%- graphql sent = 'emails/send_reminder', data: mail -%}
+{% endbackground %}
 ```
 
-## Attachments
+## What the Schema Does Not Have
 
-Include file attachments in emails:
-
-```graphql
-mutation SendInvoice {
-  email_send(
-    template: "invoice"
-    to: "customer@example.com"
-    data: {
-      attachments: [
-        {
-          filename: "invoice.pdf"
-          content: "base64_encoded_content"
-          mime_type: "application/pdf"
-        }
-      ]
-    }
-  ) {
-    success
-  }
-}
-```
-
-## Batch Sending
-
-Send to multiple recipients:
-
-```graphql
-mutation SendBatch(
-  $recipients: [String!]!
-) {
-  email_send(
-    template: "newsletter"
-    to: $recipients
-    data: { newsletter_date: "2024-01-15" }
-  ) {
-    success
-  }
-}
-```
-
-## Status Checking
-
-Query email delivery status:
-
-```graphql
-query GetEmailStatus($id: ID!) {
-  email(id: $id) {
-    id
-    status
-    sent_at
-    opened_at
-    clicked_at
-    bounce_type
-  }
-}
-```
+- **No attachment argument** on `email_send`.
+- **No query for delivery status.** The mutation answers whether the send was queued, nothing more.
 
 ## See Also
 

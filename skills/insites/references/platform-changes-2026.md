@@ -59,8 +59,9 @@ updated, so re-measure rather than assume a date.
 ## 19 May: asset cache control, policies by name
 
 - `cache_control` on `admin_assets_create` and `admin_asset_update` sets the stored
-  object's `Cache-Control` header. The `url` argument of `admin_assets_create` is
-  deprecated and ignored. [graphql](graphql/api.md), [assets](assets/api.md)
+  object's `Cache-Control` header. The notes call the `url` argument of
+  `admin_assets_create` deprecated and ignored, but the bundled schema still requires it:
+  send it and do not rely on its value. [graphql](graphql/api.md), [assets](assets/api.md)
 - `admin_page_create` and `admin_page_update` take `authorization_policies` as policy
   names, beside `authorization_policy_ids`. [graphql](graphql/api.md)
 - `asset_url`'s `?updated=` is one per-instance timestamp bumped whenever any asset

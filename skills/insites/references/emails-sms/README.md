@@ -40,11 +40,8 @@ layout: mailer
 ### Via GraphQL
 ```graphql
 # app/graphql/emails/send_order_confirmation.graphql
-mutation send($email: String!, $order_id: ID!, $total: String!) {
-  email_send(
-    template: { name: "order_confirmation" }
-    data: '{ "email": "{{ email }}", "order_id": "{{ order_id }}", "total": "{{ total }}" }'
-  ) {
+mutation send($data: HashObject) {
+  email_send(template: { name: "order_confirmation" }, data: $data) {
     is_scheduled_to_send
   }
 }
@@ -56,11 +53,8 @@ mutation send($email: String!, $order_id: ID!, $total: String!) {
 {% comment %} In command after creating order {% endcomment %}
 {% background source_name: 'event:order_created', priority: 'default', max_attempts: 3 %}
   {% comment %} Consumer: app/lib/consumers/order_created/send_email.liquid {% endcomment %}
-  {% graphql _ = 'emails/send_order_confirmation',
-    email: order.email,
-    order_id: order.id,
-    total: order.total
-  %}
+  {%- assign mail = { "to": order.email, "order_id": order.id, "total": order.total } -%}
+  {% graphql _ = 'emails/send_order_confirmation', data: mail %}
 {% endbackground %}
 ```
 

@@ -59,7 +59,7 @@ Use `record_create` / `record_update` against the profile type's table:
 mutation update_profile($user_id: ID!, $first_name: String!, $last_name: String!) {
   record_update(
     id: $user_id,
-    record_input: {
+    record: {
       table: "modules/dashboard/public/user_profile_types/crm_contact",
       properties: [
         { name: "first_name", value: $first_name }

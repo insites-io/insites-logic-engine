@@ -32,17 +32,14 @@ events: ['user/welcome']
 GraphQL query in `app/graphql/send_welcome_email.graphql`:
 
 ```graphql
-mutation SendWelcomeEmail($user_id: ID!) {
-  user(id: $user_id) {
-    id
-    email
-    name
-    email_send(template: "welcome") {
-      success
-    }
+mutation send_welcome($data: HashObject) {
+  email_send(template: { name: "welcome" }, data: $data) {
+    is_scheduled_to_send
   }
 }
 ```
+
+Build `data` in Liquid as one variable (`{ "to": user.email, "name": user.name }`) and pass it whole; see [api.md](api.md#email_send).
 
 ## Conditional Email Sending
 
@@ -100,22 +97,16 @@ Send verification codes via SMS:
 
 ## Scheduled Email Dispatch
 
-Schedule emails with delay parameter:
+Schedule an email with a background job:
 
-```graphql
-mutation ScheduleEmail {
-  email_send(
-    template: "reminder"
-    to: "user@example.com"
-    data: { action_required: true }
-    delay: 86400
-  ) {
-    success
-  }
-}
+```liquid
+{% background delay: 1440, source_name: 'reminder_email' %}
+  {%- assign mail = { "to": user.email, "action_required": true } -%}
+  {%- graphql sent = 'emails/send_reminder', data: mail -%}
+{% endbackground %}
 ```
 
-Delays email by 24 hours (86400 seconds).
+Sends the email after 24 hours: a background job's `delay` is in minutes. `email_send` itself takes no delay for a template send.
 
 ## Multi-Language Emails
 

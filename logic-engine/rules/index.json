@@ -37,7 +37,7 @@
       "applies_to": ["graphql"],
       "severity": "info",
       "evidence": "real-project",
-      "evidence_source": "100% compliance across 20+ GraphQL files. All tables use modules/{name}/... format.",
+      "evidence_source": "100% compliance across 20+ GraphQL files for module tables (modules/{name}/...). app/schema tables use their plain file name, measured 9 October 2026.",
       "audit_ref": "audit/v0-conflicts-batch2.md#rule-r-15"
     },
     {
