@@ -49,7 +49,7 @@ All endpoints are gated by `modules/insites_crm/has_valid_instance_api_authoriza
 
 - **Body:** JSON.
 - **Path parameters:** `:id` (database or item), `:table_id` (parent database id for item endpoints).
-- **Query parameters:** common across LIST endpoints (see below). `format=json` is required for proper HTTP status codes (same as other v2 modules — see [`../crm/api.md#status-codes`](../crm/api.md#status-codes)).
+- **Query parameters:** common across LIST endpoints (see below). `format=json` is required for proper HTTP status codes (same as other v2 modules; see [CRM API notes](../crm/api.md#notes-for-the-llm-consumer)).
 
 ### Database items use dynamic field-bag — `properties.<name>` keys
 
