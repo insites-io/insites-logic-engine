@@ -77,6 +77,31 @@ en:
     not_found: "Page not found"
 ```
 
+### What the Deploy Now Rejects
+
+The platform tightened deploy-time validation through 2026. Deploy to staging to find
+these: nothing else reports them.
+
+- **YAML that used to deploy silently wrong.** Since 9 September 2026 the parser that
+  reads every front matter and `.yml` file refuses three spellings instead of rewriting
+  them: `status: :draft` (was deployed as the string `":draft"`), `thing: !ruby/object:Foo`
+  (deployed with the tag dropped) and `other: *missing` (deployed as nothing). The error
+  names the fix. Anchors, aliases, the `<<:` merge key and dates are unchanged.
+- **Two files claiming the same Table or Form name** fail the deploy, on deploys of
+  any size (12 August 2026). Two Model Schemas, Profile Types or User Profiles that
+  resolve to the same parameterized name fail fast with both files named (20 April).
+- **A Liquid syntax error, unknown tag or unknown filter** is reported with its line:
+  `Liquid syntax error (line 4): Unknown filters: not_a_filter` (26 August).
+- **Every validation error is reported together** in one response rather than stopping
+  at the first (20 April), and the deploy returns a report of what was upserted or
+  deleted per resource type, with an `asset_status` of `in_progress`, `success` or
+  `error` for the asset phase.
+- **A stale partial after a large deploy** is no longer the platform's fault: before
+  12 August 2026 a deploy touching more than 250 partials expired the compiled-template
+  cache for the last batch only, so partials outside it kept serving their previous
+  compiled version. The same fix expires a deleted partial's `path:` alias properly and
+  warns on a `Duplicate pk` collision split across batches (the last file still wins).
+
 ## Migration Issues
 
 ### Failed Migration

@@ -46,9 +46,11 @@ Returns `{"pos_login": {"token": "..."}}`.
 
 ## Before inventing an endpoint
 
-225 controller aliases exist across six modules (ecommerce 95, crm 58, events 35,
-locator 23, data 7, assets 7). Check the inventory before writing a name. A call to an
-alias that does not exist fails at render time with a partial-not-found error.
+404 controller aliases exist across eight v6 modules (pipelines 107, ecommerce 105,
+data 61, crm 59, events 37, locator 23, assets 7, api 5; counted 9 October 2026). Check
+the inventory before writing a name. A call to an alias that does not exist fails at
+render time with a partial-not-found error, and nine names the modules' own API docs
+quote are among the ones that do not exist.
 
 ## Do not
 

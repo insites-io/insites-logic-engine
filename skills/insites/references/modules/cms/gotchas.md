@@ -36,9 +36,9 @@ Edges and quirks of the CMS module that bite when authoring or consuming file-ba
 
 ## 4. `{% form %}` tag is not used in Insites
 
-**Bites:** writing `{% form %}...{% endform %}` because that's what platformOS docs show. The form renders but CSRF doesn't behave as expected.
+**Bites:** writing `{% form %}...{% endform %}` because that is what the underlying platform's generic docs show. The form renders but CSRF doesn't behave as expected.
 
-**Why:** Insites uses plain `<form>` elements with explicit CSRF tokens; the `{% form %}` tag is the legacy platformOS pattern not adopted here.
+**Why:** Insites uses plain `<form>` elements with explicit CSRF tokens; the `{% form %}` tag is the underlying platform's legacy pattern, not adopted here.
 
 **Avoid:** write forms as `<form action="..." method="post">...{{ context.csrf_tag }}...</form>` with the explicit CSRF token field. See [`../../forms/`](../../forms/) for the canonical form patterns.
 
@@ -54,13 +54,13 @@ Edges and quirks of the CMS module that bite when authoring or consuming file-ba
 
 ---
 
-## 6. Don't edit files under `modules/`
+## 6. Trying to patch the CMS module itself
 
-**Bites:** editing `modules/insites_cms/...` to fix a bug in module behavior. The fix works locally, but the next module update overwrites it and the bug returns.
+**Bites:** looking for `modules/insites_cms/...` in your repo to fix a bug in module behavior. It isn't there. The CMS module ships with the instance, not with your project.
 
-**Why:** the `modules/` tree is owned by Insites and replaced on every module update. Edits there are not preserved.
+**Why:** Insites-supplied modules live on the instance. Your repo's `modules/` directory holds only your own modules, which you can edit freely.
 
-**Avoid:** override at the app level. Place an identically-named file at `app/views/...` (or `app/<whatever>/...`) and Insites will resolve to your file ahead of the module's. See [`advanced.md`](advanced.md) for the override mechanism.
+**Avoid:** shadow the file you want to change with a same-path file in your own code (first match wins), or compose around the module's exports. See [`advanced.md`](advanced.md) for resolution order. If the bug is in the module, report it to Insites.
 
 ---
 

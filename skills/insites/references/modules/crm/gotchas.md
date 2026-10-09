@@ -44,7 +44,7 @@ Don't rely on HTTP status alone — also inspect the body shape.
 
 **Bites:** sending `DELETE /crm/api/v2/custom-fields/contacts/<some-uuid>` returns 404 because the route expects a numeric `id`.
 
-**Why:** PlatformOS schema constraint — custom-field definition records cannot use the UUID convention used by every other CRM resource.
+**Why:** platform schema constraint — custom-field definition records cannot use the UUID convention used by every other CRM resource.
 
 **Avoid:** when listing custom fields via `GET /crm/api/v2/custom-fields/contacts`, capture the numeric `id` of the row you want to delete; don't pass the resource UUID. This applies only to the *definitions* endpoints — custom-field values on contacts/companies are addressed by the parent resource's UUID as normal.
 
@@ -64,9 +64,9 @@ Don't rely on HTTP status alone — also inspect the body shape.
 
 **Bites:** writing a `profiles` key on a contact and then not finding it in subsequent GET responses.
 
-**Why:** the controller strips any profile whose name matches `modules/insites_core/*` from the response — these are internal Insites profiles, not user-assignable. The base CRM contact profile (`modules/insites_core/crm_contact`) is also filtered.
+**Why:** the controller strips any profile whose name matches `modules/insites_crm/*` from the response — these are internal Insites profiles, not user-assignable. The base CRM contact profile (`modules/insites_crm/crm_contact`) is also filtered.
 
-**Avoid:** only user-assigned feature profiles (e.g., `modules/ins_permission_manager/<name>`) are surfaced, with `/` and `-` characters in the profile name replaced by `_` in the returned object key. If you wrote a profile under `modules/insites_core/...`, expect it to be invisible in API responses by design.
+**Avoid:** only user-assigned feature profiles (e.g., `modules/ins_permission_manager/<name>`) are surfaced, with `/` and `-` characters in the profile name replaced by `_` in the returned object key. If you wrote a profile under `modules/insites_crm/...`, expect it to be invisible in API responses by design.
 
 ---
 

@@ -20,11 +20,11 @@ method: get
 format: json
 ---
 
-{%- function api_auth_passed = 'modules/insites_core/functions/auth/api_key_guard' -%}
+{%- function api_auth_passed = 'modules/insites_crm/functions/auth/api_key_guard' -%}
 {%- if api_auth_passed -%}
   {%- include "crm/controller/contacts/get", uuid: context.params.uuid -%}
 {%- else -%}
-  {%- include 'modules/insites_core/functions/auth/respond_401' -%}
+  {%- include 'modules/insites_crm/functions/auth/respond_401' -%}
 {%- endif -%}
 ```
 
@@ -36,11 +36,11 @@ The controller partial has a `path:` front-matter alias that decouples its inclu
 path: crm/controller/contacts/get
 ---
 
-{%- graphql results = 'modules/insites_core/_external/v2/contacts/get_contact', uuid: uuid -%}
+{%- graphql results = 'modules/insites_crm/_external/v2/contacts/get_contact', uuid: uuid -%}
 {# ... build a `data` variable from results, set status, etc. ... #}
 
 {%- if context.params.format == 'json' -%}
-  {%- include "modules/insites_core/functions/response_handler", data: data, status: status -%}
+  {%- include "modules/insites_crm/functions/response_handler", data: data, status: status -%}
 {%- endif -%}
 
 {% return data %}
@@ -129,8 +129,8 @@ slug: admin/contacts/:uuid
 method: get
 layout: admin
 authorization_policies:
-  - modules/insites_core/insites_only_allowed_if_logged_in
-  - modules/insites_core/insites_only_allowed_by_administrators
+  - modules/insites_crm/insites_only_allowed_if_logged_in
+  - modules/insites_crm/insites_only_allowed_by_administrators
 ---
 
 {%- function contact = "crm/controller/contacts/get", uuid: context.params.uuid -%}
@@ -167,7 +167,7 @@ slug: my-app/contacts/:uuid
 method: get
 layout: app_default
 authorization_policies:
-  - modules/insites_core/insites_only_allowed_if_logged_in
+  - modules/insites_crm/insites_only_allowed_if_logged_in
 ---
 
 {%- function contact = "crm/controller/contacts/get", uuid: context.params.uuid -%}
@@ -193,7 +193,7 @@ slug: my-app/contacts
 method: post
 layout: app_default
 authorization_policies:
-  - modules/insites_core/insites_only_allowed_if_logged_in
+  - modules/insites_crm/insites_only_allowed_if_logged_in
 ---
 
 {%- function created = "crm/controller/contacts/create", params: context.params -%}

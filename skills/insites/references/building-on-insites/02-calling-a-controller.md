@@ -53,7 +53,7 @@ The CRM controllers gate it on a query parameter:
 
 ```liquid
 {%- if context.params.format == 'json' -%}
-  {%- include "modules/insites_core/functions/response_handler",
+  {%- include "modules/insites_crm/functions/response_handler",
       data: data, status: status -%}
 {%- endif -%}
 
@@ -61,15 +61,20 @@ The CRM controllers gate it on a query parameter:
 ```
 
 So a CRM controller only touches your response if the request carried `?format=json`.
-All 58 CRM controllers do this, and all 58 return a value.
+All 59 CRM controllers do this, and all 59 return a value. The ecommerce, events,
+locator, assets, API and pipelines short-form controllers follow the same shape, with
+one exception: `locator/controller/enquiries/filters/get_filter_options` neither gates
+its handler nor returns a value. (Counted on the v6 module trees, 9 October 2026.)
 
 **The data module controllers do not gate it at all.** Verified in module-data on
-13 August 2026:
+13 August 2026 and unchanged in module-v6-data v6.0.2 on 9 October 2026:
 
 | Alias | Returns a value | Response handler |
 |---|---|---|
 | `databases/controller/databases/list` | yes | **ungated** |
 | `databases/controller/databases/get` | yes | **ungated** |
+| `databases/controller/databases/create` | yes | **ungated** |
+| `databases/controller/deprecated/databases/list` | yes | **ungated** |
 | `databases/controller/database/items/list` | yes | **ungated** |
 | `databases/controller/database/items/get` | yes | **ungated** |
 | `databases/controller/database/items/delete` | yes | **ungated** |
@@ -80,7 +85,7 @@ Two consequences, and both look like your own bug:
 
 1. **`items/add` and `items/update` return nothing.** Your variable is blank even when the
    write succeeded. Do not test success by checking the return value; re-read the record.
-2. **All seven set your page's `Content-Type` and status** whatever the request looked
+2. **All nine set your page's `Content-Type` and status** whatever the request looked
    like. Call one from a page that renders HTML and the response headers stop matching the
    body.
 
@@ -118,8 +123,33 @@ Check the [alias inventory](reference/alias-inventory.md). **A call to an alias 
 not exist fails at render time** with a partial-not-found error, and inventing plausible
 names is the single most common way an agent wastes a build.
 
-225 aliases exist. Naming is not uniform: the CRM, ecommerce, locator, data and assets
-aliases contain the word `controller`, and the 35 events aliases do not.
+404 controller aliases exist on the v6 modules (9 October 2026), up from 225 on v5.
+Naming is not uniform. Most are the short form `<module>/controller/<resource>/<verb>`;
+the 35 short events aliases carry no `controller` word at all (`events/venues/list`); and
+the pipelines, data and events modules also declare long-form controllers under
+`modules/<module>/controllers/...`. Filter on none of these.
+
+**The long-form aliases are admin controllers, and they behave like the data module's
+writes.** The 82 `modules/insites_pipeline/controllers/...`, 52
+`modules/insites_databases/controllers/...` and 2 `modules/insites_events/controllers/...`
+aliases back the admin screens: none of the 136 contains a `{% return %}`, none gates
+its response handler, and all but a handful write the HTTP response unconditionally
+(counted 9 October 2026). Call them from a page and your variable is blank and your
+response is theirs. The short-form aliases are the API controllers; build on those.
+
+A further 90 partials declare a `path:` that is **not** a controller: a module's own
+functions, GraphQL wrappers, schema and API-doc partials under `modules/<module>/...`.
+They answer a `{% function %}` call, but they have no published contract and some of
+them write. The inventory lists them apart. Build on the controllers.
+
+**Nine controller names in the modules' own API documentation do not exist.** The v6
+API docs name `crm/controller/company-info/{create,get,list,update}`,
+`crm/controller/contact-personal-info/{create,get,list,update}` and
+`modules/insites_assets/controllers/credentials/get_details` as the controllers behind
+their endpoints, and no partial declares any of them: the first eight endpoints are
+pages with the logic inline. A `{% function %}` on one of those names fails with
+partial-not-found. Found with `tools/lint-controller-contracts.mjs` against the v6
+trees on 9 October 2026.
 
 ---
 

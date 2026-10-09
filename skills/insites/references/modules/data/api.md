@@ -43,7 +43,7 @@ Item update is `PUT /databases/api/v2/database/:table_id/items/:id`. Other modul
 
 ### Authentication
 
-All endpoints are gated by `modules/insites_core/has_valid_instance_api_authorization` — the same instance API key used for every V2 surface. The single-database read also adds `modules/insites_databases/is_valid_database_id` to verify the path's `:id` resolves to a real database.
+All endpoints are gated by `modules/insites_crm/has_valid_instance_api_authorization` — the same instance API key used for every V2 surface. The single-database read also adds `modules/insites_databases/is_valid_database_id` to verify the path's `:id` resolves to a real database.
 
 ### Request format
 

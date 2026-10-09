@@ -17,7 +17,7 @@ slug: api/_external/v2/products
 method: get
 format: json
 authorization_policies:
-  - modules/insites_core/has_valid_instance_api_authorization
+  - modules/insites_crm/has_valid_instance_api_authorization
 ---
 {% liquid
   graphql res = 'modules/dashboard/products/list',
@@ -31,8 +31,8 @@ authorization_policies:
 ## Conventions
 
 - **Authentication.** V2 endpoints expect a raw `instance_<50-char-alphanumeric>` token in the `Authorization` header (no `Bearer` prefix). See [`api/authentication.md`](../api/authentication.md) for the exact contract. Every API page needs a guard; a page with no guard is public. There are two guard shapes, and they fail differently:
-  - **Front-matter policy.** `modules/insites_core/has_valid_instance_api_authorization` compares `Authorization` with the key managed in IIA (Integrations → Instance API Key), so it follows a key rotation. A caller that fails it gets a **302 redirect to `api/401`**, not a 401 on the URL it called. Browsers cope; API clients often do not, and a redirected POST becomes a GET.
-  - **Inline guard function.** The CRM V2 endpoints switched to this in May 2026 so that a failed call answers 401 JSON on the original URL for every method: `{%- function api_auth_passed = 'modules/insites_core/functions/auth/api_key_guard' -%}`, then `respond_401` on the false branch. The function is private to `insites_core`; whether app code may call it is not yet documented.
+  - **Front-matter policy.** `modules/insites_crm/has_valid_instance_api_authorization` compares `Authorization` with the key managed in IIA (Integrations → Instance API Key), so it follows a key rotation. A caller that fails it gets a **302 redirect to `api/401`**, not a 401 on the URL it called. Browsers cope; API clients often do not, and a redirected POST becomes a GET.
+  - **Inline guard function.** The CRM V2 endpoints switched to this in May 2026 so that a failed call answers 401 JSON on the original URL for every method: `{%- function api_auth_passed = 'modules/insites_crm/functions/auth/api_key_guard' -%}`, then `respond_401` on the false branch. The function is private to `insites_core`; whether app code may call it is not yet documented.
   - **Never copy the instance key into a constant** to compare against. The copy does not change when an administrator replaces the key, so the old key keeps working on your endpoint.
 - **Method handling.** One file per HTTP verb. PUT/DELETE need `_method` only when called via HTML forms; native API clients send the verb directly.
 - **Status codes.** Set explicit response codes via `{% response_status N %}` for non-200 outcomes (validation 422, not found 404, unauthenticated 401, forbidden 403).

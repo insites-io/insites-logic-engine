@@ -10,12 +10,12 @@ CRM ships two public email layouts that other modules and your app can render:
 
 | Layout | Purpose |
 |---|---|
-| `modules/insites_core/external_email_layout` | Customer-facing emails (notifications to contacts) |
-| `modules/insites_core/internal_email_layout` | Admin-facing emails (notifications to instance staff) |
+| `modules/insites_crm/external_email_layout` | Customer-facing emails (notifications to contacts) |
+| `modules/insites_crm/internal_email_layout` | Admin-facing emails (notifications to instance staff) |
 
 Reference them in your own email templates by the path above (or override them in your app by placing a same-named partial in your `app/views/layouts/`). Override resolution follows the standard Insites partial-shadowing rule: app-level files win over module-level files when paths match.
 
-**Don't edit the module's layout files directly** — every Insites instance receives module updates, and edits to `modules/<name>/...` are overwritten on update. Always override at the app level.
+The CRM module's files are not in your repo, so shadowing is the only way to change a layout. Your own modules under `modules/` are yours to edit.
 
 ---
 
@@ -45,7 +45,7 @@ For events not currently emitted (delete, archive/restore, sub-resource operatio
 CRM exposes one public hook partial for cross-module discovery:
 
 ```
-modules/insites_core/lib/hooks/hook_module_info
+modules/insites_crm/lib/hooks/hook_module_info
 ```
 
 Rendering it returns a JSON object describing the module:
@@ -53,9 +53,9 @@ Rendering it returns a JSON object describing the module:
 ```json
 {
   "name": "Insites Core",
-  "machine_name": "insites_core",
+  "machine_name": "insites_crm",
   "type": "module",
-  "version": "5.14.0",
+  "version": "6.1.2",
   "updated_at": "<timestamp>",
   "slug": "crm",
   "label": "CRM"

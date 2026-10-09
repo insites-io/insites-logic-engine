@@ -54,6 +54,22 @@ Common errors, limits, and debugging guidance for page files.
 
 **Solution:** Create the layout file or fix the name. Use `layout: ""` for no layout.
 
+## Content Type and Charset
+
+- A page in a format other than `html` (`md`, `json`, `css`, `csv`, `ics`, `js`, `text`,
+  `xml`) sends `; charset=utf-8` in its `Content-Type` since the 12 August 2026 platform
+  release. Before that a bare `text/markdown` made clients fall back to latin-1 and
+  mangle every non-ASCII character. A `Content-Type` set through `response_headers` wins.
+- An error raised after the page committed its content type (its `format`, or
+  `response_headers`) is answered in that type rather than renegotiated from `Accept`;
+  an error on a `.js` page is a JSON string literal, not bare text (16 September 2026).
+- A page with `format: txt`, `robots.txt` for one, is served as `text/plain` whatever the
+  client's `Accept` header (6 October 2026 release; a v6 staging instance did not yet
+  carry that release on 9 October 2026).
+- `dynamic_cache` on a page with `layout: ""` served the first request and failed on
+  every cache hit; fixed on 16 September 2026, which is what broke cached `sitemap.xml`
+  pages.
+
 ## Limits
 
 | Resource                     | Limit               | Notes                                         |

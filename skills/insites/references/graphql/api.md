@@ -14,8 +14,22 @@ records(
   per_page: Int
   filter: RecordFilter
   sort: [RecordSort]
+  options: { read_replica: Boolean, timeout: Int }
 ) : RecordCollection
 ```
+
+`options` (also on `users`, `admin_versions` and the deprecated `models`) controls how the
+read executes. `read_replica: true` runs the whole operation on a read replica when the
+environment has one, for listings, search, reports and exports; without a reachable
+replica it is ignored and the query runs on the primary. Replica reads can lag a write,
+so do not use it right after one; inside a `{% transaction %}` it is ignored and mutations
+refuse it. `timeout` is the database statement timeout in seconds for the operation; once
+`options` is passed it defaults to 19 (one second under the request timeout), and the
+largest value in a query wins. Accepted on a v6 staging instance, 9 October 2026.
+
+`min` and `max` aggregations compute against the requested field and return a scalar
+`{ "value": x }` like `avg`; before the 29 June 2026 platform release they computed
+against the record id and could return a per-shard array.
 
 **RecordCollection fields:**
 
@@ -116,6 +130,35 @@ user_update(id: ID!, user: UserInput!) : User
 ```graphql
 user_delete(id: ID!) : User
 ```
+
+### admin_page_create / admin_page_update
+Both accept `authorization_policies: [String]`, the policy **names** as written in page
+front matter (`modules/insites_crm/insites_only_allowed_if_logged_in`), beside the older
+`authorization_policy_ids`. Names and ids combine; every name must resolve to an
+existing policy or the mutation fails.
+
+### admin_assets_create / admin_asset_update
+`cache_control: "max-age=31536000, public"` is stored in the asset's metadata and applied
+as the `Cache-Control` header on the stored object, so edge caches and browsers follow
+your policy. The `url` argument of `admin_assets_create` is deprecated and ignored: the
+URL is derived from the asset name and the instance's file host. Upload the bytes with
+`admin_assets_presign_urls`, then call `admin_assets_create` without `url`.
+
+### admin_logs
+```graphql
+query logs($last_id: ID) {
+  admin_logs(filter: { id: { range: { gt: $last_id } }, type: { value: "payment" } }) {
+    id type message data created_at
+  }
+}
+```
+Reads the entries the `log` tag writes, oldest first: the latest 20 with no lower bound,
+up to 500 after `id` when one is given, so pass the last id back to follow the log.
+`type` and `message` take the usual string operators (`contains`, `starts_with`,
+`ends_with`, case-insensitive unless `case_sensitive: true`), applied to roughly the
+latest 1000 entries. Part of the 6 October 2026 platform release: on 9 October 2026 a v6
+staging instance still answered `Field 'admin_logs' doesn't exist on type 'RootQuery'`,
+so check before building on it.
 
 ### constant_set
 

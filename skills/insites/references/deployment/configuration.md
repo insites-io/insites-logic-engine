@@ -10,21 +10,21 @@ Configure deployment environments via `.insites` file in project root. This is a
     "instance_uuid": "uuid",
     "token": "dev-token",
     "email": "dev@company.com",
-    "url": "https://dev-instance.staging.oregon.platform-os.com",
+    "url": "https://dev-instance.staging-insites.io",
     "key": "key"
   },
   "staging": {
     "instance_uuid": "uuid",
     "token": "staging-token",
     "email": "dev@company.com",
-    "url": "https://staging-instance.staging.oregon.platform-os.com",
+    "url": "https://staging-instance.staging-insites.io",
     "key": "key"
   },
   "production": {
     "instance_uuid": "uuid",
     "token": "prod-token",
     "email": "dev@company.com",
-    "url": "https://prod-instance.platform-os.com",
+    "url": "https://prod-instance.prod01-insites.io",
     "key": "key"
   }
 }
@@ -90,7 +90,7 @@ export POS_STAGING_TOKEN="token_abc"
 
 ```yaml
 development:
-  url: https://dev.instance.platformos.com
+  url: https://dev-instance.staging-insites.io
   token: ${POS_DEV_TOKEN}
   email: dev@example.com
   features:
@@ -102,7 +102,7 @@ development:
 
 ```yaml
 staging:
-  url: https://staging.instance.platformos.com
+  url: https://staging-instance.staging-insites.io
   token: ${POS_STAGING_TOKEN}
   email: staging@example.com
   features:
@@ -114,7 +114,7 @@ staging:
 
 ```yaml
 production:
-  url: https://instance.platformos.com
+  url: https://instance.prod01-insites.io
   token: ${POS_PROD_TOKEN}
   email: prod@example.com
   features:

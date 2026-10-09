@@ -89,12 +89,51 @@
 
 **Cause:** `hash_assign` modifies an existing hash. If the variable is nil, it fails silently.
 
-**Solution:** Initialize the hash first:
+**Solution:** Initialize the hash first, and write into it with `assign`, which now does
+everything `hash_assign` did (`hash_assign` is deprecated and still works):
 
 ```liquid
-{% parse_json my_hash %}{}{% endparse_json %}
-{% hash_assign my_hash["key"] = "value" %}
+{% assign my_hash = {} %}
+{% assign my_hash["key"] = "value" %}
 ```
+
+### "h[k] is null, expected Hash or Array"
+
+**Cause:** a nested bracket or dot assignment whose intermediate container does not exist.
+Measured on a v6 staging instance on 9 October 2026, `{% assign h = {} %}{% assign h["k"]["z"] = 1 %}`
+stops the render with this error. Nothing is auto-created.
+
+**Solution:** create each level before writing below it, or build the whole value as one
+literal:
+
+```liquid
+{% assign h = {} %}
+{% assign h["k"] = {} %}
+{% assign h["k"]["z"] = 1 %}
+
+{% assign h = { "k": { "z": 1 } } %}
+```
+
+### "Liquid syntax error: Unexpected character" on a string that holds a backslash
+
+**Cause:** since the 26 August 2026 platform release a backslash inside a string literal
+escapes the character after it. `\"` and `\'` put a delimiter inside a literal of the
+same kind, and `\\` is one literal backslash. Any other `\X` is left exactly as written,
+so `'\d+'`, `'\.'` and `'C:\temp'` still mean what they always did. The one spelling
+that breaks is a lone trailing backslash, `'\'` or `"\"`: the backslash now escapes the
+closing quote and the literal never ends. Most such files are rejected at deploy with
+the error above, which names the line.
+
+**Solution:** double it.
+
+```liquid
+{% assign a = value | remove: '\' %}        {%- comment -%} before {%- endcomment -%}
+{% assign a = value | remove: '\\' %}       {%- comment -%} after  {%- endcomment -%}
+{{ 'a\\b' }}                                {%- comment -%} a\b    {%- endcomment -%}
+```
+
+A literal that already contained `\\`, `\"` or `\'` parses either way but now yields a
+different value, and no deploy error points at it: search for those three sequences.
 
 ### "My array from split contains empty strings"
 

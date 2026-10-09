@@ -84,7 +84,8 @@ Need data operations?
 ├─ Seed/migrate data → migrations/
 ├─ Bulk import/export → migrations/ or insites-cli data commands
 ├─ Access existing Postgres/ES/Redis → graphql/ (all DB access via GraphQL only)
-└─ Contacts / companies / tasks / activities → modules/crm/ (V2 REST API; see "I need CRM data" tree below)
+├─ Contacts / companies / tasks / activities → modules/crm/ (V2 REST API; see "I need CRM data" tree below)
+└─ Events, products and orders, locations, pipelines, assets, forms, profiles → see "I need another module's data" tree below
 ```
 
 ### "I need CRM data (contacts, companies, tasks, activities, attachments)"
@@ -110,7 +111,7 @@ Need CRM operations?
 ├─ Event streams (audit / activity feed, append-only)                     → modules/crm/globals/event_streams.md
 │
 ├─ Auth (instance API key, no Bearer prefix)                              → references/api/authentication.md
-└─ Pipelines / stages / opportunities / cases — NOT in v2 API (legacy v1 archived)
+└─ Pipelines / stages / opportunities → modules/pipelines/ (its own V2 API; see "I need another module's data")
 ```
 
 ### "I need CMS-managed content (pages, layouts, partials, globals, emails, …)"
@@ -133,6 +134,30 @@ Need CMS operations?
 ├─ Emails / SMS (templates)                               → modules/cms/metadata.md (Emails/SMS)
 └─ Authorization Policies (page-gating rules)             → modules/cms/metadata.md (Authorization Policies)
 ```
+
+### "I need another module's data (events, ecommerce, locator, pipelines, assets, forms, permissions, API)"
+
+Every module below has the same six pages: `README.md` (surface at a glance, auth, webhooks),
+`api.md` (every endpoint), `configuration.md` (admin setup, migrations), `patterns.md`
+(curl and `{% function %}` examples), `gotchas.md`, `advanced.md` (hooks, cross-module
+dependencies). All written from the v6 module source on 9 October 2026.
+
+```
+Which module?
+├─ Events, venues, tickets, speakers, sponsors, expenses, FAQs → modules/events/      (35 V2 endpoints, 37 aliases, 3 webhooks)
+├─ Products, variants, categories, carts, orders, quotes, payments → modules/ecommerce/ (109 V2 endpoints, 105 aliases, 4 webhooks)
+├─ Locations, categories, enquiries, opening hours             → modules/locator/     (22 V2 endpoints, 23 aliases, no webhooks)
+├─ Pipelines, stages, opportunities, related contacts          → modules/pipelines/   (25 V2 endpoints, 107 aliases, 6 webhook events)
+├─ Uploaded assets, folders, upload credentials                → modules/assets/      (8 V2 endpoints, 7 aliases; platform filters are in assets/)
+├─ Custom API endpoints, policies, the instance's API docs     → modules/api/         (5 aliases; how /admin/api is rendered)
+├─ Form builder, submissions, public upload routes             → modules/forms/       (20 admin endpoints, no aliases; HTML forms are in forms/)
+├─ User profile schemas ("permissions")                        → modules/permissions/ (12 admin endpoints, no aliases, no RBAC)
+├─ Shared admin UI assets (components.insites.io)              → modules/general/README.md (not an instance module)
+└─ MCP server that wraps the CRM API                           → modules/ai/README.md      (not an instance module)
+```
+
+Before calling any alias, check `references/building-on-insites/reference/alias-inventory.md`,
+and read `02-calling-a-controller.md` for the response-handler and long-form-alias traps.
 
 ### "I need user-definable data tables (databases + items)"
 
@@ -187,7 +212,7 @@ Need Liquid help?
 │   ├─ Execute GraphQL → graphql tag
 │   ├─ Call partial as function → function tag
 │   ├─ Render a partial → render tag
-│   ├─ Parse JSON data → parse_json tag
+│   ├─ Build a hash or array → assign literal (parse_json is deprecated for JSON written in the template)
 │   ├─ Redirect user → redirect_to tag
 │   ├─ Set session data → session tag
 │   ├─ Log for debugging → log tag
@@ -221,7 +246,7 @@ Need Liquid help?
 │   ├─ context.headers → HTTP request headers
 │   └─ forloop/tablerowloop → iteration helpers
 ├─ Types → liquid/types/
-├─ Variables (assign, capture, parse_json) → liquid/variables/
+├─ Variables (assign, capture) → liquid/variables/
 ├─ Flow control (if/elsif/else/unless/case) → liquid/flow-control/
 └─ Loops (for, cycle, tablerow) → liquid/loops/
 ```
@@ -316,7 +341,7 @@ Use the decision trees above to identify which category applies, then load the m
 | Category | Reference |
 |----------|-----------|
 | Guided track (README, credentials, controllers, pages, auth, data, errors) | `references/building-on-insites/` |
-| Controller alias inventory (225 aliases) | `references/building-on-insites/reference/alias-inventory.md` |
+| Controller alias inventory (404 controller aliases on v6) | `references/building-on-insites/reference/alias-inventory.md` |
 | Contract template (crm/controller/contacts/list) | `references/building-on-insites/reference/crm-contacts-list.md` |
 
 ### Views & Routing
@@ -366,9 +391,19 @@ Use the decision trees above to identify which category applies, then load the m
 ### Modules
 | Category | Reference |
 |----------|-----------|
-| CRM (insites_core) | `references/modules/crm/` |
+| CRM (insites_crm) | `references/modules/crm/` |
 | CMS (insites_cms) | `references/modules/cms/` |
 | Data (insites_databases) | `references/modules/data/` |
+| Events (insites_events) | `references/modules/events/` |
+| Ecommerce (insites_ecommerce) | `references/modules/ecommerce/` |
+| Locator (insites_locator) | `references/modules/locator/` |
+| Pipelines (insites_pipeline) | `references/modules/pipelines/` |
+| Assets (insites_assets) | `references/modules/assets/` |
+| API (insites_api) | `references/modules/api/` |
+| Forms (insites_forms) | `references/modules/forms/` |
+| Permissions (insites_permissions) | `references/modules/permissions/` |
+| General (shared admin UI assets, not a module) | `references/modules/general/README.md` |
+| AI (MCP server, not a module) | `references/modules/ai/README.md` |
 | Module Template | `references/modules/template/` |
 
 > Copy `references/modules/template/` to create documentation for new Insites modules. Each module gets its own directory with: README.md, api.md, configuration.md, patterns.md, gotchas.md, advanced.md.
@@ -394,6 +429,7 @@ Use the decision trees above to identify which category applies, then load the m
 ### Developer Tools
 | Category | Reference |
 |----------|-----------|
+| Platform changes in 2026 (what changed, what is live on Insites instances) | `references/platform-changes-2026.md` |
 | CLI | `references/cli/` |
 | Deployment | `references/deployment/` |
 | Testing (insites_test + insites-cli) | `references/testing/` |
@@ -412,8 +448,8 @@ Pages call `{% graphql %}` and pass results to partials as render arguments. New
 Create/update/delete operations are driven by forms. Each `forms/<name>.liquid` declares its YAML schema (fields, validation) and a Liquid `callback_actions` block that runs the GraphQL mutations and side effects when the form is submitted. There is no separate `app/lib/commands/` directory in canonical Combinate.
 → `references/forms/`
 
-### 4. Modules are read-only
-Don't edit files under `modules/` — that tree is replaced wholesale on every module update, so changes are lost. Modules are preinstalled per instance and updated through the Insites console, not the CLI. To override module behavior, place a same-path file under your `app/` tree; Insites resolves your file ahead of the module's.
+### 4. Modules are your code
+The `modules/` directory is checked-in source in your repo. Every module in it is yours to edit, `public/` and `private/` alike. Insites-supplied modules (`insites_crm`, `insites_cms`, `insites_databases` and the rest) are not in your repo, so there is nothing there to edit by mistake. To change how one of them behaves, don't reach for its files — shadow it with a same-path file in your own code (first match wins) or compose around its exports with `{% render %}`, `{% function %}` and its GraphQL. See `references/modules/cms/advanced.md` for resolution order.
 → `references/modules/`
 
 ### 5. Extract reusable code (DRY)
@@ -421,12 +457,12 @@ When the same logic appears twice, extract it. Use `{% function %}` for partials
 → `references/partials/`
 
 ### 6. Liquid coding standards
-Statements within `{% liquid %}` blocks must stay on a single line each — line-wrapping causes Liquid syntax errors. Variables in Insites are local to the partial; use the `export` tag to share them across renders.
+Statements within `{% liquid %}` blocks must stay on a single line each, except that a `{ }` or `[ ]` literal argument may continue across lines until it closes (see `references/liquid/types/api.md`) — line-wrapping causes Liquid syntax errors. Variables in Insites are local to the partial; use the `export` tag to share them across renders.
 → `references/liquid/`
 
 ## Project Structure
 
-Insites projects organise code by **module**, not by a flat root layout. Every project has a top-level `modules/` directory containing one or more module folders (e.g. `modules/dashboard/`, `modules/website/`). Each module follows the same internal structure under `modules/<name>/public/`.
+Insites projects organise code by **module**, not by a flat root layout. Every project has a top-level `modules/` directory containing one or more module folders (e.g. `modules/dashboard/`, `modules/website/`). Each module keeps its code under `public/` (reachable by other modules and the app), `private/` (internal to the module), or both. Which to use is your call per file; the directory layout is identical under either.
 
 ```
 project-root/
@@ -447,6 +483,7 @@ project-root/
 │   │   │   ├── emails/                # Email templates
 │   │   │   ├── migrations/            # Data seeding and schema migrations
 │   │   │   └── assets/                # Module-scoped JS/CSS/images
+│   │   ├── private/                   # Optional: same layout, internal to this module
 │   │   └── test/                      # Module-level test fixtures (if any)
 │   └── <another-module>/
 └── package.json                       # (optional) Node.js dependencies
@@ -487,7 +524,6 @@ For the full canonical layout reference (per-directory purpose, naming conventio
 
 ## Forbidden Behaviors
 
-- Editing files in `./modules/` (read-only)
 - Breaking long lines in `{% liquid %}` blocks (causes syntax errors)
 - Inventing Liquid tags, filters, or GraphQL types not in the platform
 - Using `{% form %}` tag for HTML forms (use plain `<form>` with CSRF token)
@@ -499,10 +535,9 @@ For the full canonical layout reference (per-directory purpose, naming conventio
 
 ## Documentation Links
 
-| Resource | URL |
+| Resource | Where |
 |----------|-----|
-| Official Docs | https://documentation.platformos.com |
-| GraphQL Schema | https://documentation.platformos.com/api/graphql/schema |
-| Liquid Filters | https://documentation.platformos.com/api-reference/liquid/platformos-filters |
-| Liquid Tags | https://documentation.platformos.com/api-reference/liquid/platformos-tags |
-| Liquid Objects | https://documentation.platformos.com/api-reference/liquid/platformos-objects |
+| Insites docs and change log | https://docs.insites.io and https://docs.insites.io/change-log |
+| GraphQL schema | `references/graphql/schema/schema.json` (introspected from a live instance) |
+| Liquid filters, tags, objects | `references/liquid/filters/`, `references/liquid/tags/`, `references/liquid/objects/` |
+| What the platform changed this year | `references/platform-changes-2026.md` |

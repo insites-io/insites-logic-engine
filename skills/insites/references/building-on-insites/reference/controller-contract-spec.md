@@ -23,7 +23,7 @@ doc-data partial, by contrast, is read by `{% function %}` and *returns* its dat
 `contract` key on it is available to the renderer as `content.contract` with no extra query.
 
 Add the `contract` key to the endpoint's doc-data (example: CRM contacts list, at
-`modules/insites_core/.../insites_api/external_api/contacts/get_contacts.liquid`):
+`modules/insites_crm/.../insites_api/external_api/contacts/get_contacts.liquid`):
 
 ```liquid
 {% parse_json content %}
@@ -37,7 +37,7 @@ Add the `contract` key to the endpoint's doc-data (example: CRM contacts list, a
   "example_response": [ /* ... */ ],
 
   "contract": {
-    "module": "module-crm",
+    "module": "module-v6-crm",
     "stability": "stable",
     "safe_in_function": true,
     "http_twin": "GET /crm/api/v2/contacts",
@@ -68,9 +68,9 @@ previously carry.
 
 | Field | Rule |
 |---|---|
-| `module` | Repo name (`module-crm`, `module-data`, …). |
+| `module` | Repo name (`module-v6-crm`, `module-v6-data`, …). |
 | `stability` | `stable`, `beta`, or `deprecated`. |
-| `safe_in_function` | `true` only when the controller both returns a value and gates its response handler. The two module-data write controllers with no `{% return %}` are `false`. |
+| `safe_in_function` | `true` only when the controller both returns a value and gates its response handler. The two data-module write controllers with no `{% return %}` are `false`. |
 | `http_twin` | The REST endpoint that wraps this controller, `METHOD /path` form, omitted when none exists. |
 | `params` | One entry per key the controller reads (from `params.*` or named arguments). Every entry states type, default, and meaning. Named arguments (e.g. `uuid` passed beside `params`) are listed with `argument: true`. |
 | `returns` | One entry per top-level key of the return hash. |

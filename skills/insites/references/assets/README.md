@@ -32,7 +32,7 @@ app/assets/
 ### asset_url (full CDN URL)
 ```liquid
 {{ 'images/logo.png' | asset_url }}
-→ https://cdn.platformos.com/.../images/logo.png?updated=1234567890
+→ https://cdn.example.com/.../images/logo.png?updated=1234567890
 
 <link rel="stylesheet" href="{{ 'styles/main.css' | asset_url }}">
 <script src="{{ 'scripts/app.js' | asset_url }}"></script>

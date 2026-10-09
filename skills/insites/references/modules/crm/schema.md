@@ -20,7 +20,7 @@ The API layer translates wire ↔ storage. When you write `{"category.uuid": "ab
 
 ### Where Contact base fields live
 
-Contacts are not a standalone schema. The base identity fields — `uuid`, `first_name`, `last_name`, `name` (auto-generated), `email` — live on the platformOS `users` table. Everything else (job_title, phone numbers, social links, alerts, addresses, custom fields, etc.) lives on the `crm_contact` user_profile_type that extends `users`. The API hides this layering and presents both as one flat resource.
+Contacts are not a standalone schema. The base identity fields — `uuid`, `first_name`, `last_name`, `name` (auto-generated), `email` — live on the platform's `users` table. Everything else (job_title, phone numbers, social links, alerts, addresses, custom fields, etc.) lives on the `crm_contact` user_profile_type that extends `users`. The API hides this layering and presents both as one flat resource.
 
 Companies have their own `crm_company` schema (no user-table dependency).
 
@@ -61,7 +61,7 @@ For per-resource sort/search defaults that differ from the table above, see the 
 
 A person record. Core CRM resource. Extensive field set including identity, contact info, social links, alert messages, ownership, custom fields, and surfaced profiles.
 
-**Storage:** identity (`uuid`, `first_name`, `last_name`, `name`, `email`) lives on the platformOS `users` table. Everything else lives on the `crm_contact` user_profile_type. The API hides this and presents both as one resource.
+**Storage:** identity (`uuid`, `first_name`, `last_name`, `name`, `email`) lives on the platform's `users` table. Everything else lives on the `crm_contact` user_profile_type. The API hides this and presents both as one resource.
 
 **IIA list-table columns** (visible in `<your-instance>/admin/insites#/crm/contacts`):
 `name` · `email` · `email_2` · `job_title` · `company` · `assigned_to` · `category` · `type` · `lead_source` · `created_at`
@@ -105,7 +105,7 @@ Other fields exist on the resource but are only visible in the detail view, not 
 | `stripe_id` | string | — | Stripe customer ID for payments |
 | `owner_company` | data_source `companies` | — | Company that owns this contact |
 | `owner_contact` | data_source `contacts` | — | Contact who owns this contact |
-| `profiles` | object | system | User-assigned profiles (excludes internal `modules/insites_core/*`). Keys are profile names with `/` and `-` replaced by `_`; values are property objects. See [`patterns.md`](patterns.md) and [`gotchas.md`](gotchas.md). |
+| `profiles` | object | system | User-assigned profiles (excludes internal `modules/insites_crm/*`). Keys are profile names with `/` and `-` replaced by `_`; values are property objects. See [`patterns.md`](patterns.md) and [`gotchas.md`](gotchas.md). |
 | `created_at` / `updated_at` | string (ISO) | system | Timestamps |
 
 **LIST defaults:** `sort_by=last_updated DESC`, `search_by=name`.
@@ -180,7 +180,7 @@ Used to assign or update profile properties on a contact. Profile assignment is 
 | `value_boolean` | boolean | If field type is Boolean |
 | `value_json` | geojson | If field type is GeoJSON |
 
-Use the matching `value*` key for each field's declared type. Internal Insites profiles (`modules/insites_core/*`) are stripped from responses — see [`gotchas.md`](gotchas.md).
+Use the matching `value*` key for each field's declared type. Internal Insites profiles (`modules/insites_crm/*`) are stripped from responses — see [`gotchas.md`](gotchas.md).
 
 ---
 

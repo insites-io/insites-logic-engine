@@ -1,13 +1,13 @@
 ---
 alias: crm/controller/contacts/list
 kind: controller
-module: module-crm
-module_version: "5.14.0"
+module: module-v6-crm
+module_version: "6.1.2"
 stability: stable
 safe_in_function: true
 http_twin: GET /crm/api/v2/contacts
-source: pos/modules/insites_core/private/views/partials/controllers/_external/v2/contacts/get_contacts.liquid
-verified: 2026-08-13
+source: pos/modules/insites_crm/private/views/partials/controllers/_external/v2/contacts/get_contacts.liquid
+verified: 2026-10-09
 related:
   - crm/controller/contacts/get
   - crm/controller/companies/list
@@ -46,7 +46,7 @@ One argument, `params`, a hash. Every key is optional.
 
 `search_by` is checked against the contact's own **user fields** first. If it is not one of
 those, it is treated as the name of a **profile property** on the
-`modules/insites_core/crm_contact` profile, where `job_title`, `email_2`,
+`modules/insites_crm/crm_contact` profile, where `job_title`, `email_2`,
 `mobile_phone_number`, `notes` and `is_archived` live.
 
 That is why `search_by: "email"` finds a contact by their primary address but **never by
@@ -132,7 +132,7 @@ slug: team/contacts
 layout_name: application
 format: html
 authorization_policies:
-  - modules/insites_core/insites_only_allowed_if_logged_in
+  - modules/insites_crm/insites_only_allowed_if_logged_in
 ---
 {%- assign keyword = context.params.q | default: '' | strip -%}
 
@@ -197,4 +197,6 @@ the page's response headers, and a missing argument cannot widen the result set.
    needs no key and is not rate limited.
 
 Every statement on this page was traced to `get_contacts.liquid` and
-`functions/_external/user_filter.liquid` in module-crm v5.14.0 on 13 August 2026.
+`functions/_external/user_filter.liquid` in module-crm v5.14.0 on 13 August 2026. The
+same two files in module-v6-crm v6.1.2 differ only by the module rename (`insites_core`
+to `insites_crm`), checked 9 October 2026, so every statement holds on v6.

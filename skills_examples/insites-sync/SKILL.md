@@ -65,6 +65,5 @@ Only sync files within the `./app/` directory:
 
 ## Important Notes
 
-- NEVER sync files from `./modules/` - these are read-only
-- NEVER sync files outside `./app/`
+- This example targets a flat `./app/` layout; sync only files under `./app/`
 - Always validate after sync to catch issues early

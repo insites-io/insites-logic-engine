@@ -41,7 +41,7 @@ Each has its own page. If you read nothing else, read the first two.
 
 ## Reference
 
-- [Alias inventory](reference/alias-inventory.md) — all 225 controllers, by module.
+- [Alias inventory](reference/alias-inventory.md) — all 404 controllers, by module.
   **Check here before you invent an endpoint name.**
 - [`crm/controller/contacts/list`](reference/crm-contacts-list.md) — a full contract,
   written in the shape every controller reference should have.
@@ -50,11 +50,13 @@ Each has its own page. If you read nothing else, read the first two.
 
 Stated so you can tell a gap from an absence, and so you do not guess:
 
-- Full contracts for the other 224 aliases. The inventory lists their names and modules;
+- Full contracts for the other 403 aliases. The inventory lists their names and modules;
   their arguments are not documented here.
 - Anything about the Console beyond minting a token.
 - Deploying assets, themes or translations.
 - The ecommerce, events and locator modules beyond their alias names.
 
 Everything in this pack was verified against module source or a live instance on
-13 August 2026, and the version each figure came from is stated where it matters.
+13 August 2026 and re-checked against the v6 module trees (CRM v6.1.2, the rest v6.0.2
+to v6.1.0) on 9 October 2026. The version each figure came from is stated where it
+matters.

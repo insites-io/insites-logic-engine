@@ -176,6 +176,25 @@ Some filters consume iterators:
 {%- endif -%}
 ```
 
+When the pattern contains a value you did not write, run it through `escape_regex`
+first (`'Jane.Doe' | escape_regex` is `Jane\.Doe`); see [api.md](api.md#escape_regex).
+
+### Problem: A Filter That Rejects Its Arguments Decides Your Branch
+```liquid
+{%- assign ok = raw | is_date_in_past -%}
+{%- if ok -%} ... {%- endif -%}
+```
+By default an instance runs with `liquid_raise_mode` on: a rejected argument stops the
+render with a 500 and a full diagnostic (`is_date_in_past filter - first argument must be a
+parsable time, received: not-a-date`, measured on a v6 staging instance, 9 October 2026),
+so no placeholder value reaches your logic. Keep it that way. On an instance that has
+turned it off, a failing filter returns `''`, which is truthy, and since the 12 August 2026
+platform release the boolean filters (`array_any`, `array_include`, `end_with`,
+`hcaptcha`, `is_date_before`, `is_date_in_past`, `is_email_valid`, `is_gpg_valid`,
+`is_token_valid`, `matches`, `start_with`) return `false` instead. Neither is a right
+answer, so in that mode write `{% if result != blank %}` whenever a filter result decides
+control flow.
+
 ### Problem: Unicode in Slugify
 ```liquid
 {%- assign slug = "Café Münster" | slugify -%}
@@ -205,6 +224,13 @@ Some filters consume iterators:
 {%- assign token = data | jwt_encode: 'HS256', secret -%}
 {%- comment %} Token doesn't expire unless exp claim included {%- endcomment %}
 ```
+
+This is about tokens you mint with the filter. Tokens minted by the `User.jwt_token`
+GraphQL field are different since the 29 June 2026 platform release: they carry `iat`,
+`exp` and an `iss` bound to the instance, expire after the instance session timeout
+unless `jwt_token(expires_in: 3600)` says otherwise (clamped to one year), and stop
+being accepted when the user's password changes. Integrations that relied on
+non-expiring tokens from that field must re-issue and handle expiry.
 
 **Solution:** Include expiration in payload:
 ```liquid

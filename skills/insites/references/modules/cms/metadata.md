@@ -39,12 +39,12 @@ A page is a controller. It fetches data via `{% graphql %}`, then renders by del
 |---|---|---|
 | `slug` | Details | URL pattern, e.g. `crm/api/v2/contacts/:uuid`. Path params use `:name`. |
 | `method` | Details | HTTP method: `get`, `post`, `put`, `patch`, `delete`. One method per file — separate file per method. |
-| `layout` | Details | Layout to wrap the page output, e.g. `modules/insites_core/json` or `default`. |
+| `layout` | Details | Layout to wrap the page output, e.g. `modules/insites_crm/json` or `default`. |
 | `format` | Details | `json`, `html`, `js`, `xml`, etc. Drives `Content-Type`. |
 | `searchable` | Sitemap | Platform search flag. On v6 the CRM module's `/sitemap.xml` does not use it: a page is listed when `metadata.is_sitemap_enabled` is true. See [gotcha 8](gotchas.md#8-on-v6-sitemapxml-is-the-crm-modules-page-and-metadatais_sitemap_enabled-decides-what-it-lists). |
 | `metadata` | Metadata | Object of free-form key/value pairs surfaced as `<meta name=...>` in HTML pages. |
 | `max_deep_level` | Details | URL nesting this page's slug resolves, per the platform schema. Not a reliable cap: see [routing gotchas](../../routing/gotchas.md#a-static-slug-also-answers-deeper-paths). |
-| `authorization_policies` | Security | List of policy names that gate access; e.g. `- modules/insites_core/has_valid_instance_api_authorization`. |
+| `authorization_policies` | Security | List of policy names that gate access; e.g. `- modules/insites_crm/has_valid_instance_api_authorization`. |
 | Open Graph fields | Open Graph | OG: title, description, image, type, etc. Used by social-share cards. |
 | Schema fields | Schema | JSON-LD structured data block for SEO. |
 | Cache config | Cache | TTL, key strategy, vary-by — controls server-side fragment cache for the page. |
@@ -199,6 +199,6 @@ Files that define a single yes/no access rule. Referenced by name from page fron
 
 **Body:** Liquid that evaluates to truthy (allowed) or falsy/blank (denied). Often calls `{% graphql %}` to look up tokens, sessions, or user state.
 
-**Example:** `modules/insites_core/has_valid_instance_api_authorization.liquid` (the V2 API auth policy) — receives the `Authorization` header, compares to the stored instance API key, returns `true` on match.
+**Example:** `modules/insites_crm/has_valid_instance_api_authorization.liquid` (the V2 API auth policy) — receives the `Authorization` header, compares to the stored instance API key, returns `true` on match.
 
 Policies are pure rule files — no side effects beyond returning their boolean result. Don't write data or send notifications from inside a policy.

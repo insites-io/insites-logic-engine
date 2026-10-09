@@ -8,11 +8,11 @@ Maintain two identical production instances:
 
 ```yaml
 production_blue:
-  url: https://blue.instance.platformos.com
+  url: https://blue-instance.prod01-insites.io
   token: ${BLUE_TOKEN}
 
 production_green:
-  url: https://green.instance.platformos.com
+  url: https://green-instance.prod01-insites.io
   token: ${GREEN_TOKEN}
 ```
 
@@ -129,7 +129,7 @@ verify_deployment() {
   fi
 
   # Run health check endpoint
-  RESPONSE=$(curl -s https://$ENV.instance.platformos.com/health)
+  RESPONSE=$(curl -s https://$ENV-instance.prod01-insites.io/health)
   if [ $RESPONSE != "OK" ]; then
     return 1
   fi

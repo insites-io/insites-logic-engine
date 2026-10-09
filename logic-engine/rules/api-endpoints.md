@@ -29,7 +29,7 @@ related: [auth-policies-in-front-matter, auth-policy-explicit-true-false]
 
 **How to apply:**
 - Called by a browser session: a front-matter policy.
-- Called by a machine with the instance API key: `modules/insites_core/has_valid_instance_api_authorization`, or an inline guard if the caller needs a 401 on the original URL rather than a redirect. See `skills/insites/references/api-endpoints/README.md`.
+- Called by a machine with the instance API key: `modules/insites_crm/has_valid_instance_api_authorization`, or an inline guard if the caller needs a 401 on the original URL rather than a redirect. See `skills/insites/references/api-endpoints/README.md`.
 - Deliberately public: the `public endpoint:` comment, with the reason.
 - `method: options` preflight pages and empty files are skipped.
 

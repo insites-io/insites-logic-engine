@@ -75,6 +75,12 @@ Cache a rendered fragment.
 
 ## parse_json
 
+**Deprecated** for JSON written in the template: `{% assign car = { "type": "SUV" } %}`
+produces the same hash with no string in between, and a value spliced in with the
+`json` filter becomes a plain expression (`{ "color": color }`). Keep `parse_json` for a
+JSON string that arrives at runtime. See [types](../types/api.md). Existing blocks keep
+working.
+
 Parse a JSON string literal into a hash or array variable.
 
 ```liquid
@@ -178,6 +184,12 @@ Return a value from a `function`-invoked partial. Stops execution of the partial
 {% return null %}
 ```
 
+Since the 26 August 2026 platform release a `return` inside a `for` or `tablerow` loop
+returns the value of the iteration it ran in, stops the loop and propagates out of nested
+loops; `redirect_to` inside a loop stops the loop and the rest of the template. A
+`return` inside an `include`d partial still goes nowhere: only `function` collects a
+returned value.
+
 ## content_for / yield
 
 Store markup in a named block (page/partial), render it in a layout.
@@ -214,6 +226,10 @@ Set custom HTTP response headers. Pass a JSON string.
 ```
 
 ## hash_assign
+
+**Deprecated.** `assign` now writes by dot and bracket notation and appends with `<<`
+(`{% assign cart["items"] << new_item %}`), so there is one syntax for every
+assignment; see [types](../types/api.md). `hash_assign` still works.
 
 Modify hash values by key. Supports nested keys.
 

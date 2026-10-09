@@ -13,6 +13,7 @@ project-root/
 └── modules/
     ├── <module-a>/
     │   ├── public/               # Everything reachable by other modules / runtime
+    │   ├── private/              # Optional: internal to this module (same layout as public/)
     │   └── test/                 # Module-level test fixtures (optional)
     └── <module-b>/
         ├── public/
@@ -23,7 +24,7 @@ Each project has at least one module. Examples seen in real Combinate projects: 
 
 ## Per-module layout
 
-Every `modules/<name>/public/` follows this structure. Only directories that the module actually uses appear — there's no requirement to create empty ones.
+Every `modules/<name>/public/` follows this structure, and `modules/<name>/private/` uses the same layout when you want a file kept internal to the module. Public vs private is your choice per file. Only directories that the module actually uses appear — there's no requirement to create empty ones.
 
 ```
 modules/<name>/public/
@@ -110,7 +111,7 @@ Each policy file at `modules/<name>/public/authorization_policies/<policy>.liqui
 
 ## Patterns the existing skill historically described that DON'T exist in canonical Combinate
 
-These were sourced from PlatformOS docs and don't appear in real Combinate projects. Don't generate code at these paths:
+These were sourced from the underlying platform's generic docs and don't appear in real Combinate projects. Don't generate code at these paths:
 
 | Skill said | Reality |
 |---|---|
@@ -118,7 +119,7 @@ These were sourced from PlatformOS docs and don't appear in real Combinate proje
 | `app/lib/queries/<name>.liquid` | No such directory. GraphQL files live at `modules/<name>/public/graphql/<domain>/<operation>.graphql` and are called directly from pages or forms. |
 | `app/lib/validations/<name>.liquid` | No such directory. Field-level validation lives in form YAML `validation:` blocks; cross-field checks live inline in `callback_actions`. |
 | `app/lib/helpers/<name>.liquid` | No such directory. Helpers are partials at `modules/<name>/public/views/partials/<helper>.liquid` invoked via `{% function %}`. |
-| Flat `app/views/...` layout at project root | Real layout is `modules/<name>/public/views/...`. The flat structure is a PlatformOS convention; Combinate has always used the modules-based layout. |
+| Flat `app/views/...` layout at project root | Real layout is `modules/<name>/public/views/...`. The flat structure is the underlying platform's generic convention; Combinate has always used the modules-based layout. |
 
 ## Multi-module projects
 
@@ -133,4 +134,4 @@ Modules are siblings, not nested. Each module's code is self-contained: a `websi
 
 ## Where this convention came from
 
-The modules-based layout reflects how the team actually builds Combinate products in `app-portal`, `app-seedling`, `addon-ecommerce`, and `addon-events`. The previous skill content described a flat `app/views/...` layout sourced from PlatformOS docs; the v0 corpus audit (logged as TW-26193603) found this didn't match real production code, and the rewrite aligned the skill to reality.
+The modules-based layout reflects how the team actually builds Combinate products in `app-portal`, `app-seedling`, `addon-ecommerce`, and `addon-events`. The previous skill content described a flat `app/views/...` layout sourced from the underlying platform's generic docs; the v0 corpus audit (logged as TW-26193603) found this didn't match real production code, and the rewrite aligned the skill to reality.

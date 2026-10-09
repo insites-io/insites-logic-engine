@@ -28,12 +28,12 @@ HTTP 200, so skimming costs more than reading.
 
 ## Reference
 
-- [Alias inventory](reference/alias-inventory.md): all 225 controller aliases by module.
+- [Alias inventory](reference/alias-inventory.md): all 404 controller aliases by module.
   Check a name here before calling it.
 - [crm/controller/contacts/list](reference/crm-contacts-list.md): a complete contract,
   and the template every other controller reference should follow.
 
 ## Not covered
 
-Contracts for the other 224 aliases. Console beyond token minting. Assets, themes and
+Contracts for the other 403 aliases. Console beyond token minting. Assets, themes and
 translations. Ecommerce, events and locator beyond their alias names.

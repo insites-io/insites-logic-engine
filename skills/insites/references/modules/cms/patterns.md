@@ -104,8 +104,8 @@ slug: admin/dashboard
 method: get
 layout: admin
 authorization_policies:
-  - modules/insites_core/insites_only_allowed_if_logged_in
-  - modules/insites_core/insites_only_allowed_by_administrators
+  - modules/insites_crm/insites_only_allowed_if_logged_in
+  - modules/insites_crm/insites_only_allowed_by_administrators
 ---
 
 {% render 'admin/dashboard' %}
@@ -122,13 +122,13 @@ To write a custom policy, see [`metadata.md#authorization-policies`](metadata.md
 Email templates are referenced by path; the platform handles the actual delivery:
 
 ```liquid
-{% include 'modules/insites_core/functions/send_email',
+{% include 'modules/insites_crm/functions/send_email',
    template: 'emails/welcome',
    to: contact.email,
    variables: { name: contact.first_name, contact_uuid: contact.uuid } %}
 ```
 
-The `welcome` email template at `app/emails/welcome.liquid` renders with the `variables` available in its body. Wrap it in an email layout for consistent branding (`modules/insites_core/external_email_layout` for customer-facing emails, `internal_email_layout` for admin notifications).
+The `welcome` email template at `app/emails/welcome.liquid` renders with the `variables` available in its body. Wrap it in an email layout for consistent branding (`modules/insites_crm/external_email_layout` for customer-facing emails, `internal_email_layout` for admin notifications).
 
 The exact send-email function path varies by module version — check your project's email helpers.
 

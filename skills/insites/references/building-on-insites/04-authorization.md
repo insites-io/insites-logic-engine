@@ -13,7 +13,7 @@ inherited default.
 slug: team/contacts
 format: html
 authorization_policies:
-  - modules/insites_core/insites_only_allowed_if_logged_in
+  - modules/insites_crm/insites_only_allowed_if_logged_in
 ---
 ```
 
