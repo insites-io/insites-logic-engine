@@ -269,7 +269,7 @@ insites-cli deploy production
 - Verify `.insites` file (JSON): `cat .insites | python3 -m json.tool | head -10`
 - Check token in dashboard
 - Regenerate if expired
-- Use environment variables: `export POS_TOKEN=`
+- In CI, set all five of `INSITES_URL`, `INSITES_EMAIL`, `INSITES_TOKEN`, `INSITES_INSTANCE` and `INSITES_POS_KEY`; with any one missing the CLI ignores them and reads `.insites` (see [configuration](configuration.md#credentials-from-environment-variables))
 
 ### Mismatched Environment
 

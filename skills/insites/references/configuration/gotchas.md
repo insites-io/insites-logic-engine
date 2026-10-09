@@ -56,22 +56,11 @@ insites-cli config validate
 
 ## Environment Variables Not Substituted
 
-### $VARIABLE References Don't Work
+### `$VARIABLE` in `.insites` is sent as written
 
-```yaml
-# WRONG: Variable not exported
-environments:
-  production:
-    token: $PRODUCTION_TOKEN
-    # If PRODUCTION_TOKEN not set, uses literal string "$PRODUCTION_TOKEN"
-```
+`.insites` is plain JSON. The CLI reads it as is and does not expand variables, so `"token": "$PRODUCTION_TOKEN"` sends the literal text `$PRODUCTION_TOKEN`, whether or not the variable is exported.
 
-**Solution:** Export variables before deploy:
-
-```bash
-export PRODUCTION_TOKEN='abc123'
-insites-cli deploy production
-```
+**Solution:** keep real values in `.insites` (it is gitignored), or set all five of `INSITES_URL`, `INSITES_EMAIL`, `INSITES_TOKEN`, `INSITES_INSTANCE` and `INSITES_POS_KEY`, which replace `.insites` for every command. See [deployment configuration](../deployment/configuration.md#credentials-from-environment-variables).
 
 ## Circular Configuration Dependencies
 

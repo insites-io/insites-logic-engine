@@ -50,7 +50,7 @@ This produces a `.insites` file like:
 Install Insites CLI via npm:
 
 ```bash
-npm install -g /insites-cli
+npm install -g @insites/insites-cli
 ```
 
 Verify installation:

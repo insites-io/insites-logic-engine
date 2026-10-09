@@ -6,14 +6,13 @@
 
 Maintain two identical production instances:
 
-```yaml
-production_blue:
-  url: https://blue-instance.prod01-insites.io
-  token: ${BLUE_TOKEN}
+Add both with `insites-cli env add`, so `.insites` holds two entries:
 
-production_green:
-  url: https://green-instance.prod01-insites.io
-  token: ${GREEN_TOKEN}
+```json
+{
+  "production_blue": { "url": "https://blue-instance.prod01-insites.io", "email": "...", "instance_uuid": "...", "token": "...", "key": "..." },
+  "production_green": { "url": "https://green-instance.prod01-insites.io", "email": "...", "instance_uuid": "...", "token": "...", "key": "..." }
+}
 ```
 
 ### Deployment Strategy
@@ -156,7 +155,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: npm install -g /insites-cli
+      - run: npm install -g @insites/insites-cli
       - run: insites-cli audit
 
   deploy_staging:
@@ -164,10 +163,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: npm install -g /insites-cli
+      - run: npm install -g @insites/insites-cli
       - run: insites-cli deploy staging
         env:
-          POS_TOKEN: ${{ secrets.POS_STAGING_TOKEN }}
+          INSITES_URL: ${{ secrets.STAGING_INSITES_URL }}
+          INSITES_EMAIL: ${{ secrets.STAGING_INSITES_EMAIL }}
+          INSITES_TOKEN: ${{ secrets.STAGING_INSITES_TOKEN }}
+          INSITES_INSTANCE: ${{ secrets.STAGING_INSITES_INSTANCE }}
+          INSITES_POS_KEY: ${{ secrets.STAGING_INSITES_POS_KEY }}
 
   deploy_production:
     needs: deploy_staging
@@ -175,10 +178,14 @@ jobs:
     if: success()
     steps:
       - uses: actions/checkout@v2
-      - run: npm install -g /insites-cli
+      - run: npm install -g @insites/insites-cli
       - run: insites-cli deploy production
         env:
-          POS_TOKEN: ${{ secrets.POS_PROD_TOKEN }}
+          INSITES_URL: ${{ secrets.PROD_INSITES_URL }}
+          INSITES_EMAIL: ${{ secrets.PROD_INSITES_EMAIL }}
+          INSITES_TOKEN: ${{ secrets.PROD_INSITES_TOKEN }}
+          INSITES_INSTANCE: ${{ secrets.PROD_INSITES_INSTANCE }}
+          INSITES_POS_KEY: ${{ secrets.PROD_INSITES_POS_KEY }}
 ```
 
 ## Disaster Recovery

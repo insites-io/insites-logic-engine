@@ -60,12 +60,7 @@ app/
 secrets/
 ```
 
-Use environment variables instead:
-
-```bash
-export POS_DEV_TOKEN="token_xyz"
-export POS_STAGING_TOKEN="token_abc"
-```
+In CI, set the credentials as environment variables instead; see [Credentials from Environment Variables](#credentials-from-environment-variables).
 
 ## Pre-Deployment Checklist
 
@@ -84,44 +79,30 @@ export POS_STAGING_TOKEN="token_abc"
 - `migrations/` in `app/` or a module - Migration files up to date
 - `.insites` - Environment configuration (gitignored)
 
-## Deployment Profiles
+## Credentials from Environment Variables
 
-### Development Profile
+The CLI reads one instance's credentials from five environment variables. It uses them only when **all five** are set, and then it uses them for every command, ignoring both `.insites` and the environment name you pass (`lib/settings.js` in CLI 5.10.2).
 
-```yaml
-development:
-  url: https://dev-instance.staging-insites.io
-  token: ${POS_DEV_TOKEN}
-  email: dev@example.com
-  features:
-    skip_tests: true
-    enable_debug: true
+| Variable | `.insites` field | What it is |
+|---|---|---|
+| `INSITES_URL` | `url` | Instance URL |
+| `INSITES_EMAIL` | `email` | Account email |
+| `INSITES_TOKEN` | `token` | Console or Portal token |
+| `INSITES_INSTANCE` | `instance_uuid` | Instance UUID |
+| `INSITES_POS_KEY` | `key` | Instance key that `deploy`, `sync` and `logs` send |
+
+```bash
+export INSITES_URL="https://staging-instance.staging-insites.io"
+export INSITES_EMAIL="dev@example.com"
+export INSITES_TOKEN="..."
+export INSITES_INSTANCE="..."
+export INSITES_POS_KEY="..."
+insites-cli deploy staging
 ```
 
-### Staging Profile
+Because they override the environment name, one shell targets one instance. Deploy to staging and production from separate CI jobs, each with its own set of secrets. Copy the values from the matching entry in an `.insites` file made by `insites-cli env add`.
 
-```yaml
-staging:
-  url: https://staging-instance.staging-insites.io
-  token: ${POS_STAGING_TOKEN}
-  email: staging@example.com
-  features:
-    skip_tests: false
-    enable_debug: false
-```
-
-### Production Profile
-
-```yaml
-production:
-  url: https://instance.prod01-insites.io
-  token: ${POS_PROD_TOKEN}
-  email: prod@example.com
-  features:
-    skip_tests: false
-    enable_debug: false
-    backup_before_deploy: true
-```
+`.insites` is plain JSON and the CLI does not expand variables in it: `"token": "${STAGING_TOKEN}"` is sent as that literal text. To read a different file, set `CONFIG_FILE_PATH`.
 
 ## Asset Configuration
 

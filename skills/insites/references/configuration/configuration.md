@@ -39,12 +39,7 @@ The `.insites` file is a JSON file that stores authentication and deployment end
 
 Never commit `.insites` with real tokens. Add `.insites` to `.gitignore`.
 
-Set variables locally:
-
-```bash
-export STAGING_ENDPOINT='https://staging-instance.staging-insites.io'
-export STAGING_TOKEN='abc123def456'
-```
+To run without `.insites` (in CI, for example), set all five of `INSITES_URL`, `INSITES_EMAIL`, `INSITES_TOKEN`, `INSITES_INSTANCE` and `INSITES_POS_KEY`. See [deployment configuration](../deployment/configuration.md#credentials-from-environment-variables).
 
 ## app/config.yml Structure
 

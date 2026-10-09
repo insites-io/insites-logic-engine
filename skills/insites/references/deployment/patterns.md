@@ -94,16 +94,26 @@ jobs:
           insites-cli audit 2>&1 | tee audit.log
           grep -q '\[Audit\] 0 rules detected issues' audit.log
 
+      # The five INSITES_* variables override .insites and the environment
+      # name, so each step carries the full set for its own instance.
       - name: Deploy to Staging
         run: insites-cli deploy staging
         env:
-          POS_STAGING_TOKEN: ${{ secrets.POS_STAGING_TOKEN }}
+          INSITES_URL: ${{ secrets.STAGING_INSITES_URL }}
+          INSITES_EMAIL: ${{ secrets.STAGING_INSITES_EMAIL }}
+          INSITES_TOKEN: ${{ secrets.STAGING_INSITES_TOKEN }}
+          INSITES_INSTANCE: ${{ secrets.STAGING_INSITES_INSTANCE }}
+          INSITES_POS_KEY: ${{ secrets.STAGING_INSITES_POS_KEY }}
 
       - name: Deploy to Production
         run: insites-cli deploy production
         if: success()
         env:
-          POS_PROD_TOKEN: ${{ secrets.POS_PROD_TOKEN }}
+          INSITES_URL: ${{ secrets.PROD_INSITES_URL }}
+          INSITES_EMAIL: ${{ secrets.PROD_INSITES_EMAIL }}
+          INSITES_TOKEN: ${{ secrets.PROD_INSITES_TOKEN }}
+          INSITES_INSTANCE: ${{ secrets.PROD_INSITES_INSTANCE }}
+          INSITES_POS_KEY: ${{ secrets.PROD_INSITES_POS_KEY }}
 ```
 
 ## Migration Management Pattern
