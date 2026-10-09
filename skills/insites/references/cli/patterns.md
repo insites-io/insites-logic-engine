@@ -27,18 +27,13 @@ insites-cli logsv2 dev --follow
 
 ### Linting and Checks
 
-Always run insites-cli audit before deployment:
+Always run insites-cli audit before deployment and read the summary count:
 
 ```bash
 insites-cli audit
 ```
 
-Checks performed:
-- Liquid syntax validation
-- Tag usage correctness
-- Translation file completeness
-- Partial naming conventions
-- Asset references
+Checks performed: deprecated tags, filters and keys; file types per folder; partial name clashes; file names; partials never included. It does not check Liquid syntax, translations or asset references, and it exits 0 either way. Full list in [`api.md`](api.md#audit).
 
 ## Environment Promotion Pipeline
 

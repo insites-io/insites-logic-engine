@@ -16,21 +16,32 @@ Follow these rules as written. Where they say "never" or "must", treat that lite
 
 ## 2. Pre-flight validation
 
-After every file change, run the linter:
+After every file change, run the audit and fix what it reports:
 
 ```bash
 insites-cli audit
 ```
 
-The audit must pass with zero errors before deployment. The hard requirements it enforces:
+It reads `app/` and `modules/`, prints `[Audit] N rules detected issues.`, and lists the files for each. It takes no arguments. It exits 0 even when a rule fires, so read the count, not the exit code. `insites-cli deploy` runs the same audit first (unless `CI=true`) and deploys anyway. What it checks (CLI 5.10.2):
 
-- Partial filenames have no underscore prefix
-- `render 'path/name'` resolves to `app/views/partials/path/name.liquid`
-- Pages have one HTTP method each
-- Pages contain no raw HTML/JS/CSS — delegate to partials
-- Partials never call `{% graphql %}` — pages own data fetching
-- User-facing text is hardcoded directly in English
-- No hardcoded credentials — use `context.constants`
+- **Deprecated tags and filters.** A fixed list of retired Liquid tags (`form_tag`, `input`, `query_graph` and others) and filters (`to_money`, `timeago` and others).
+- **Deprecated keys.** `enable_profiler: true` in a page, `[]` after an input name, `resource_id:` on `include_form`, `configuration:` in a form, `attribute_type:` and `custom_attributes:` in a profile or model type, `headers:` in an API call (use `request_headers`), and model names that are not snake_case.
+- **File types per folder.** Only `.liquid` in `forms`, `authorization_policies`, `emails`, `smses`, `api_calls` and `notifications`; only `.yml` in `user_profile_types` and `model_schemas`; only `.graphql` in `graphql`.
+- **Partial name clashes.** A partial and an underscore twin at the same path (`card.liquid` and `_card.liquid`).
+- **File names.** Characters outside letters, digits, spaces and `- _ ~ @ % + . / \ ( ) ' & ]`.
+- **Partials never included.** It counts `include` and `function` calls only, so a partial used only through `render` is listed. It skips this check when any `include` or `function` takes a variable, which includes every `{% function result = '...' %}`.
+
+It does not check Liquid syntax, GraphQL, page front matter, HTML in pages, or credentials. See `references/cli/api.md`.
+
+**Conventions (not checked by the audit).** The Logic Engine rules in `logic-engine/rules/` hold these:
+
+- Partial file names have no leading underscore (`partials-no-underscore-prefix`).
+- Each page declares one HTTP method (`pages-one-http-method`).
+- HTML reused across pages, or built from several UI blocks, goes in partials. A simple page can keep its own HTML (`pages-prefer-partials-for-shared-html`).
+- Presentation partials (cards, headers, layouts, nav) do not call `{% graphql %}`. Block, calculation and callback partials may (`graphql-in-partials-restricted`).
+- Secrets come from `context.constants`, never from the template (`use-context-constants-for-secrets`).
+
+User-facing text can be written in the template or kept in translations. See **Translation Filter** in `references/liquid/filters/README.md`.
 
 ## 3. Decision trees
 
@@ -532,8 +543,8 @@ For the per-directory reference, see [`references/project-structure.md`](referen
 - Using `{% form %}` tag for HTML forms (use plain `<form>` with CSRF token)
 - Bypassing security (CSRF tokens, authorization)
 - Direct database access outside GraphQL
-- Deploying without running `insites-cli audit`
-- Syncing files outside `./app/`
+- Deploying without reading the `insites-cli audit` report (it never blocks a deploy)
+- Putting code outside `app/` and `modules/` (the CLI syncs and deploys nothing else)
 - Hardcoding API keys or secrets (use `context.constants`)
 
 ## Documentation Links

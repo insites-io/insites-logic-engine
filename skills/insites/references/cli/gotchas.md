@@ -61,7 +61,9 @@ lsof -i :3000 | kill -9
 - Review conflicting migrations
 - Resolve manually or create compensating migration
 
-## Linting (insites-cli audit) Failures
+## Linting (insites-cli audit) Findings
+
+`insites-cli audit` reports deprecated code and file-layout faults (see [`api.md`](api.md#audit)) and exits 0 either way. The errors below come from a sync, a deploy or a page render, not from the audit.
 
 ### Syntax Errors
 
@@ -95,11 +97,7 @@ Ensure partial exists at correct path:
 
 **Error**: "Unknown tag"
 
-Verify tag spelling and Insites support:
-
-```bash
-insites-cli audit --help
-```
+Verify tag spelling and Insites support against the tag reference (`references/liquid/tags/`). The audit flags only the retired tags on its own list.
 
 ### Translation Keys
 

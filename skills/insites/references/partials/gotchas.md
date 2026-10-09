@@ -21,7 +21,7 @@
 
 ### "GraphQL tag in partial causes error or is ignored"
 
-**Cause:** GraphQL calls should only be made in pages. Using `{% graphql %}` in partials violates the architecture rule and may fail with insites-cli audit.
+**Cause:** GraphQL calls should only be made in pages. Using `{% graphql %}` in a presentation partial breaks the `graphql-in-partials-restricted` rule. `insites-cli audit` does not check this.
 
 **Solution:** Move the GraphQL call to the page and pass the result to the partial as a parameter.
 
@@ -35,7 +35,7 @@
 
 **Cause:** Insites does NOT use underscore prefixes for partials (unlike Rails/Shopify conventions).
 
-**Solution:** Rename `_card.liquid` to `card.liquid`. The insites-cli audit linter flags this.
+**Solution:** Rename `_card.liquid` to `card.liquid`. `insites-cli audit` flags it only when `card.liquid` and `_card.liquid` both exist at the same path; a lone `_card.liquid` passes.
 
 ### "Export variable not accessible"
 

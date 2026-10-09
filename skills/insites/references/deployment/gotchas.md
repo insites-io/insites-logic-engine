@@ -38,9 +38,9 @@ Deployment includes:
 
 ## Deployment Validation Failures
 
-### Linting (insites-cli audit) Failure
+### Linting (insites-cli audit) Findings
 
-**Issue**: Deployment blocked by validation errors
+**Issue**: The deploy printed audit findings. The audit never blocks a deploy; validation errors that stop one come from the platform (see below).
 
 **Solution**:
 ```bash

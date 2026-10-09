@@ -16,11 +16,11 @@ Edges and quirks of the CMS module that bite when authoring or consuming file-ba
 
 ## 2. Pages must not contain HTML
 
-**Bites:** putting `<div>...</div>` in a page file. The audit runs and fails — or worse, the request returns malformed output because the layout already wrapped what should have been delegated.
+**Bites:** putting `<div>...</div>` in a page file. `insites-cli audit` does not check this, and the request can return malformed output because the layout already wrapped what should have been delegated.
 
 **Why:** pages are controllers. They fetch data via `{% graphql %}` and delegate rendering to partials. HTML lives in partials only.
 
-**Avoid:** keep page bodies to `{% graphql %}`, `{% function %}`, `{% assign %}`, and `{% render %}` calls. If a page is short and you're tempted to inline a `<p>`, extract it to a partial. The platform's `insites-cli audit` enforces this rule.
+**Avoid:** keep page bodies to `{% graphql %}`, `{% function %}`, `{% assign %}`, and `{% render %}` calls. If a page is short and you're tempted to inline a `<p>`, extract it to a partial.
 
 ---
 

@@ -70,23 +70,21 @@ insites-cli data clean dev                      # Clean all data (DANGEROUS)
 
 ## Linting (insites-cli audit)
 
-**Must run after EVERY file change.**
+**Run after every file change and read the report.**
 
 ```bash
-insites-cli audit                            # Lint all files
-insites-cli audit app/views/pages/           # Lint specific directory
+insites-cli audit                            # Scans app/ and modules/; takes no arguments
 ```
 
 ### What it checks
 
-- Liquid syntax errors
-- Invalid tag/filter usage
-- Missing translations
-- Broken partial references
-- Incorrect file naming
-- Deprecated patterns
+- Deprecated tags, filters and front-matter keys
+- File types in the wrong folder
+- A partial and its underscore twin at the same path
+- Characters not allowed in file names
+- Partials no `include` or `function` call names
 
-### Must pass with 0 errors before deployment.
+It does not check Liquid syntax, translations or credentials. It exits 0 even when a rule fires, so read the `[Audit] N rules detected issues.` line. Full list in [`api.md`](api.md#audit).
 
 ## Environment Configuration
 

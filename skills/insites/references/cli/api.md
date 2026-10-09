@@ -27,13 +27,29 @@ insites-cli archive -o ./tmp/release.zip
 
 ## audit
 
-Check the project for deprecations, recommendations, and errors. Used in pre-commit and pre-deploy gates.
+Scan the project for deprecated code and file-layout faults.
 
 ```bash
 insites-cli audit
 ```
 
-No options. The audit traverses `app/` and reports any rules that fire. Exit code is non-zero on errors, zero on warnings/info only.
+No options, and no arguments: `insites-cli audit app/views/pages/` scans the whole project. It reads `app/` and `modules/`, prints `[Audit] N rules detected issues.`, then lists each rule's message and files.
+
+**It exits 0 whether or not a rule fires.** A CI step such as `insites-cli audit || exit 1` never fails. To gate on it, fail when the summary count is not 0.
+
+What it checks (CLI 5.10.2, `lib/audit/`):
+
+| Check | Fires on |
+|---|---|
+| Deprecated tags | A fixed list of retired tags, such as `form_tag`, `input`, `select`, `query_graph`, `will_paginate` |
+| Deprecated filters | A fixed list of retired filters, such as `to_money`, `timeago`, `strip_tags`, `pagination_links` |
+| Deprecated keys | `enable_profiler: true` in a page; `[]` after an input name; `resource_id:` on `include_form`; `configuration:` in a form (use `fields`); `attribute_type:` or `custom_attributes:` in a profile or model type (use `type`, `properties`); `headers:` in an API call (use `request_headers`); a model `name:` that is not snake_case |
+| File types per folder | A non-`.liquid` file in `forms`, `authorization_policies`, `notifications`, `emails`, `api_calls` or `smses`; a non-`.yml` file in `user_profile_types` or `model_schemas`; a non-`.graphql` file in `graphql` |
+| Partial name clash | A partial and an underscore twin at the same path (`card.liquid` and `_card.liquid`) |
+| File names | A character outside letters, digits, spaces and `- _ ~ @ % + . / \ ( ) ' & ]` |
+| Partials never included | A partial no `include` or `function` call names. `render` calls are not counted, so a partial used only through `render` is listed. The check turns itself off when any `include` or `function` takes a variable, which includes every `{% function result = '...' %}` |
+
+It does not check Liquid syntax, GraphQL, page front matter, HTML in pages, GraphQL in partials, translations, or credentials. Those are conventions; see `SKILL.md` section 2.
 
 ---
 
@@ -52,7 +68,7 @@ insites-cli deploy --partial-deploy <environment>
 |---|---|
 | `-p, --partial-deploy` | Partial deployment — does not remove data from directories missing in the build |
 
-Deployment runs the audit, syncs files, executes pending migrations, and updates the environment.
+Deployment runs the audit (skipped when `CI=true`), then deploys whatever it reports, executes pending migrations, and updates the environment.
 
 ---
 

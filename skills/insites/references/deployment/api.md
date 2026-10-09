@@ -12,8 +12,8 @@ insites-cli deploy production
 ```
 
 Deployment process:
-1. Validates with insites-cli audit
-2. Syncs all files
+1. Runs insites-cli audit and prints its report (skipped when `CI=true`; it never stops the deploy)
+2. Syncs all files in `app/` and `modules/`
 3. Executes pending migrations
 4. Applies schema updates
 5. Uploads assets to CDN
@@ -56,11 +56,7 @@ Runs automatically:
 insites-cli audit
 ```
 
-Validates:
-- Liquid syntax
-- Tag correctness
-- Partial references
-- Translation keys
+Reports deprecated tags, filters and keys, file types per folder, partial name clashes, file names and partials never included. It does not validate Liquid syntax or translations, and the deploy goes ahead whatever it finds. See [`../cli/api.md`](../cli/api.md#audit).
 
 ### Sync Phase
 

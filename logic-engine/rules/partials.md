@@ -10,7 +10,7 @@ id: partials-no-underscore-prefix
 applies_to: [partial]
 severity: error
 evidence: real-project
-evidence_source: "100% compliance across 438 partials in app-portal, app-seedling, addon-ecommerce, addon-events. Zero underscore-prefixed partials found. Pending cli-audit verification to upgrade evidence to cli-audit."
+evidence_source: "100% compliance across 438 partials in app-portal, app-seedling, addon-ecommerce, addon-events. Zero underscore-prefixed partials found. insites-cli audit (5.10.2) does not flag a lone underscore partial, only a partial with an underscore twin at the same path, so the evidence stays real-project."
 audit_ref: audit/v0-conflicts-batch1.md#rule-r-3
 ---
 ```
