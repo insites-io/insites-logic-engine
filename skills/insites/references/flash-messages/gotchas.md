@@ -68,7 +68,7 @@ Manually clear if needed:
 
 ### Use Descriptive Flash Messages
 
-Flash messages should contain plain English text that is displayed directly to the user:
+Flash messages hold plain text that is displayed directly to the user. Write it in the template, or look it up with the `t` filter when the site serves more than one language:
 
 ```liquid
 {% comment %} Correct — use descriptive flash messages {% endcomment %}

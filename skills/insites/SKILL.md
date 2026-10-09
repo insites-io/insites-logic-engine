@@ -244,7 +244,7 @@ Need Liquid help?
 │   ├─ Validation → is_email_valid, is_json_valid, matches, etc.
 │   ├─ Currency/pricing → pricify, pricify_cents, amount_to_fractional, etc.
 │   ├─ Cryptography → encrypt, decrypt, digest, compute_hmac, jwt_encode/decode
-│   ├─ Translation → t (translate), t_escape
+│   ├─ Translation → t (translate), t_escape; files in app/translations/<locale>.yml (see Translation Filter in liquid/filters/README.md)
 │   └─ Assets → asset_url, asset_path
 ├─ Objects (global data) → liquid/objects/
 │   ├─ context.params → HTTP parameters

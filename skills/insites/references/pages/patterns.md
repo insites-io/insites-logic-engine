@@ -300,7 +300,7 @@ The form partial includes CSRF token and submits to the POST endpoint.
 5. **No HTML in pages** -- all markup lives in partials
 6. **No GraphQL in partials** -- always fetch in the page and pass data down
 7. **Flash before redirect** -- set session flash, then redirect
-8. **Use translations** -- never hardcode user-facing text in pages or partials
+8. **Use translations for more than one language** -- text in the template works; move it to `app/translations/<locale>.yml` and the `t` filter when the site serves more than one language
 
 ## See Also
 

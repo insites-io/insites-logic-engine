@@ -71,7 +71,7 @@ insites-cli deploy staging
 
 **Translation Missing**:
 ```yaml
-# Add to config/translations.yml
+# Add to app/translations/en.yml
 en:
   errors:
     not_found: "Page not found"

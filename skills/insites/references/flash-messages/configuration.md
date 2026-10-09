@@ -62,7 +62,7 @@ Flash data is stored in session with the following structure:
 }
 ```
 
-Flash values are plain English strings displayed directly to the user.
+Flash values are plain strings displayed directly to the user. Write them in the template, or look them up with the `t` filter when the site serves more than one language.
 
 ## Layout Pattern
 

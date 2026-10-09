@@ -43,11 +43,11 @@
 
 **Solution:** Always provide namespace: `{% export var, namespace: 'ns' %}`. Access via `{{ context.exports.ns.var }}`.
 
-### "Hardcoded text flagged by linter"
+### "Should user-facing text be hardcoded?"
 
-**Cause:** User-facing strings should be clear and descriptive.
+**Cause:** Nothing flags it. `insites-cli audit` does not check user-facing text.
 
-**Solution:** Use plain, descriptive English text for user-facing strings. For example: `<h1>Products</h1>`.
+**Solution:** Text written in the partial works (`<h1>Products</h1>`). When the site serves more than one language, move it to translation files and read it with `{{ 'app.products.title' | t }}` (see Translation Filter in [`liquid/filters/README.md`](../liquid/filters/README.md#translation-filter)).
 
 ## Limits
 

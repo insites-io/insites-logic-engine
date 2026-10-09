@@ -101,12 +101,10 @@ Verify tag spelling and Insites support against the tag reference (`references/l
 
 ### Translation Keys
 
-**Error**: "Untranslated string"
-
-Define all strings in translation files:
+`insites-cli audit` does not check translations. A key that is missing renders `translation missing:` on the page. Define keys in one file per language:
 
 ```yaml
-# config/translations.yml
+# app/translations/en.yml
 en:
   hello: "Hello"
   goodbye: "Goodbye"

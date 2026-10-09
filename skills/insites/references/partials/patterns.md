@@ -266,7 +266,7 @@ authorization_policies:
 ## Best Practices
 
 1. **Never call GraphQL from partials** — receive data from pages as parameters
-2. **Use plain English text for user-facing strings**
+2. **Write clear user-facing strings**, in the partial or in translations when the site serves more than one language
 3. **No underscore prefix** — `card.liquid` not `_card.liquid`
 4. **Keep partials focused** — one component or one function per file
 5. **Use function for data, render for HTML** — clear separation of concerns
