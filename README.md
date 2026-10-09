@@ -141,7 +141,9 @@ The `prepack` script copies `logic-engine/` into the package before publishing s
 
 ## Versioning & releases
 
-Active branch: `release/v1.1.0`. The v1.1.0 release rewrote the skill against canonical Combinate codebases (`app-portal`, `app-seedling`) — corrected the project layout to modules-based, replaced the legacy command-pattern guidance with form `callback_actions`, calibrated the strict Pages/Partials rules against real practice, and tightened the authorization-policy `true`/`false` output invariant. See `CHANGELOG.md` for the full list and `logic-engine/audit/v0-conflicts.md` for the rule-by-rule grounding.
+Releases are cut on a `release/vX.Y.Z` branch and merged to `master` through a pull request; merging is the release, because the installers fetch the default branch. Each release is tagged `vX.Y.Z` on `master` and listed in `CHANGELOG.md`.
+
+Latest: **v2.0.0** (9 October 2026). The skill now describes the v6 Insites modules and the 2026 platform releases as they are: the controller alias inventory is regenerated from the v6 module source (404 controller aliases), every module has a six-page reference, `insites_core` is `insites_crm` throughout, the twelve 2026 platform releases are folded into the Liquid, GraphQL, API, asset, page, configuration and deployment references with a dated digest, and no upstream vendor name remains anywhere in the skill. See `CHANGELOG.md` for the full list.
 
 ## License
 

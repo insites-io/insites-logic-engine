@@ -2,7 +2,7 @@
 
 All notable changes to the Insites Logic Engine will be documented in this file.
 
-## [Unreleased]
+## [2.0.0] - 2026-10-09
 
 ### Improvement
 - **Alias inventory regenerated from the v6 modules** (`building-on-insites/reference/alias-inventory.md`, `tools/generate-alias-inventory.mjs`, TW#26847837, 9 October 2026). 404 controller aliases across eight modules (pipelines 107, ecommerce 105, data 61, crm 59, events 37, locator 23, assets 7, api 5), up from the 225 the v5 repos declared, plus 90 internal `path:` aliases (functions, GraphQL wrappers, schema and API-doc partials) now listed apart because they carry no contract. The generator reads the version from the checkout's git tag and reports where `hook_module_info` lags it, and tells a controller from an internal alias by shape (short form, or `modules/<module>/controllers/...`). Every figure the pack quotes (`README`, `llms.txt`, `AGENTS.md`, `02-calling-a-controller.md`, `SKILL.md`) follows.
