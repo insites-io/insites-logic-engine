@@ -24,7 +24,7 @@ The **first match wins**, so to override a module-supplied layout or partial, pl
 | Override a CMS-provided header partial | `app/views/partials/shared/header.liquid` (matching whatever path the module ships) |
 | Override `hook_module_info` for a custom module identification | Don't — see *hook_module_info* below |
 
-**Don't edit files under `modules/`.** Module updates overwrite that tree wholesale; your changes are lost on the next deploy.
+The CMS module itself is not in your repo, so there are no module files to edit. Shadow or compose as above. Your own modules under `modules/` are yours to change freely.
 
 ---
 

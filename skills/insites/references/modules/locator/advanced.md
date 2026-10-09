@@ -59,4 +59,4 @@ No references were found in the v6 ecommerce, events, pipelines, permissions, as
 
 - **No webhooks, notifications, email layouts or public pages.** The only public file is the hook partial; the module implements `hook_module_info` and declares no hooks of its own.
 - **No API for custom-field definition create or update, FAQs, attachments, imports, exports or saved filters.** Those are admin pages ([`configuration.md`](configuration.md)).
-- **No override points for the controllers.** The `modules/` tree is read-only at runtime; wrap a controller in your own partial instead of editing it.
+- **No override points for the controllers.** The module's files live on the instance, not in your repo; wrap a controller in your own partial instead of editing it.

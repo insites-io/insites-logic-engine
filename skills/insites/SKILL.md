@@ -448,8 +448,8 @@ Pages call `{% graphql %}` and pass results to partials as render arguments. New
 Create/update/delete operations are driven by forms. Each `forms/<name>.liquid` declares its YAML schema (fields, validation) and a Liquid `callback_actions` block that runs the GraphQL mutations and side effects when the form is submitted. There is no separate `app/lib/commands/` directory in canonical Combinate.
 → `references/forms/`
 
-### 4. Modules are read-only
-Don't edit files under `modules/` — that tree is replaced wholesale on every module update, so changes are lost. Modules are preinstalled per instance and updated through the Insites console, not the CLI. To override module behavior, place a same-path file under your `app/` tree; Insites resolves your file ahead of the module's.
+### 4. Modules are your code
+The `modules/` directory is checked-in source in your repo. Every module in it is yours to edit, `public/` and `private/` alike. Insites-supplied modules (`insites_crm`, `insites_cms`, `insites_databases` and the rest) are not in your repo, so there is nothing there to edit by mistake. To change how one of them behaves, don't reach for its files — shadow it with a same-path file in your own code (first match wins) or compose around its exports with `{% render %}`, `{% function %}` and its GraphQL. See `references/modules/cms/advanced.md` for resolution order.
 → `references/modules/`
 
 ### 5. Extract reusable code (DRY)
@@ -462,7 +462,7 @@ Statements within `{% liquid %}` blocks must stay on a single line each, except 
 
 ## Project Structure
 
-Insites projects organise code by **module**, not by a flat root layout. Every project has a top-level `modules/` directory containing one or more module folders (e.g. `modules/dashboard/`, `modules/website/`). Each module follows the same internal structure under `modules/<name>/public/`.
+Insites projects organise code by **module**, not by a flat root layout. Every project has a top-level `modules/` directory containing one or more module folders (e.g. `modules/dashboard/`, `modules/website/`). Each module keeps its code under `public/` (reachable by other modules and the app), `private/` (internal to the module), or both. Which to use is your call per file; the directory layout is identical under either.
 
 ```
 project-root/
@@ -483,6 +483,7 @@ project-root/
 │   │   │   ├── emails/                # Email templates
 │   │   │   ├── migrations/            # Data seeding and schema migrations
 │   │   │   └── assets/                # Module-scoped JS/CSS/images
+│   │   ├── private/                   # Optional: same layout, internal to this module
 │   │   └── test/                      # Module-level test fixtures (if any)
 │   └── <another-module>/
 └── package.json                       # (optional) Node.js dependencies
@@ -523,7 +524,6 @@ For the full canonical layout reference (per-directory purpose, naming conventio
 
 ## Forbidden Behaviors
 
-- Editing files in `./modules/` (read-only)
 - Breaking long lines in `{% liquid %}` blocks (causes syntax errors)
 - Inventing Liquid tags, filters, or GraphQL types not in the platform
 - Using `{% form %}` tag for HTML forms (use plain `<form>` with CSRF token)

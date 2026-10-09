@@ -15,7 +15,7 @@ CRM ships two public email layouts that other modules and your app can render:
 
 Reference them in your own email templates by the path above (or override them in your app by placing a same-named partial in your `app/views/layouts/`). Override resolution follows the standard Insites partial-shadowing rule: app-level files win over module-level files when paths match.
 
-**Don't edit the module's layout files directly** — every Insites instance receives module updates, and edits to `modules/<name>/...` are overwritten on update. Always override at the app level.
+The CRM module's files are not in your repo, so shadowing is the only way to change a layout. Your own modules under `modules/` are yours to edit.
 
 ---
 

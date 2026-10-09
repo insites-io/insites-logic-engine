@@ -13,6 +13,7 @@ project-root/
 └── modules/
     ├── <module-a>/
     │   ├── public/               # Everything reachable by other modules / runtime
+    │   ├── private/              # Optional: internal to this module (same layout as public/)
     │   └── test/                 # Module-level test fixtures (optional)
     └── <module-b>/
         ├── public/
@@ -23,7 +24,7 @@ Each project has at least one module. Examples seen in real Combinate projects: 
 
 ## Per-module layout
 
-Every `modules/<name>/public/` follows this structure. Only directories that the module actually uses appear — there's no requirement to create empty ones.
+Every `modules/<name>/public/` follows this structure, and `modules/<name>/private/` uses the same layout when you want a file kept internal to the module. Public vs private is your choice per file. Only directories that the module actually uses appear — there's no requirement to create empty ones.
 
 ```
 modules/<name>/public/
