@@ -91,10 +91,10 @@ insites-cli deploy development --config /path/to/.insites
 
 ### Multiple Projects
 
-Maintain separate `.insites` files per project:
+Maintain separate `.insites` files per project. The CLI has no `--config` option; point it at another file with `CONFIG_FILE_PATH`:
 
 ```bash
-insites-cli sync staging --config ./config/.insites
+CONFIG_FILE_PATH=./config/.insites insites-cli sync staging
 ```
 
 ## Common Issues

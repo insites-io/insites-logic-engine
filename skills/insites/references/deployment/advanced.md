@@ -51,7 +51,7 @@ insites-cli constants set --name CANARY_NEW_FEATURE --value "false" production
 insites-cli constants set --name CANARY_PERCENTAGE --value "10" production
 
 # 3. Monitor metrics
-insites-cli logs production --filter error --follow
+insites-cli logs production --filter error
 
 # 4. Gradually increase
 insites-cli constants set --name CANARY_PERCENTAGE --value "50" production
@@ -108,9 +108,10 @@ wait
 
 ### Incremental Asset Deployment
 
+`sync` has no folder option, and production should not be synced. A partial deploy leaves files that are missing from the build in place:
+
 ```bash
-# Only deploy changed assets
-insites-cli sync production --include "app/assets/stylesheets"
+insites-cli deploy production -p
 ```
 
 ## Deployment Verification
@@ -122,11 +123,8 @@ insites-cli sync production --include "app/assets/stylesheets"
 verify_deployment() {
   ENV=$1
 
-  # Check logs for critical errors
-  ERRORS=$(insites-cli logs $ENV --filter "critical_error" | wc -l)
-  if [ $ERRORS -gt 0 ]; then
-    return 1
-  fi
+  # insites-cli logs streams until Ctrl+C, so it cannot be counted here.
+  # Watch it in another terminal: insites-cli logs $ENV --filter error
 
   # Run health check endpoint
   RESPONSE=$(curl -s https://$ENV-instance.prod01-insites.io/health)
@@ -225,14 +223,11 @@ insites-cli deploy production
 ### Deployment Metrics
 
 ```bash
-# Monitor deployment completion
-watch -n 5 'insites-cli logs production --filter deployment'
+# Stream errors after a deploy; it runs until Ctrl+C
+insites-cli logs production --filter error
 
-# Check error rates post-deployment
-insites-cli logs production --filter error | tail -20
-
-# Verify performance
-insites-cli logs production --filter slow_query
+# Keep a copy to read afterwards
+insites-cli logs production --filter error | tee deploy-errors.log
 ```
 
 ### Custom Monitoring

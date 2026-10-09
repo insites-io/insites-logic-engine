@@ -9,7 +9,6 @@ Never synchronize directly to production:
 ```bash
 # WRONG - Never do this!
 insites-cli sync production
-insites-cli sync production --watch
 ```
 
 ### Why This Is Dangerous
@@ -111,7 +110,7 @@ these: nothing else reports them.
 **Problem**: Database inconsistency
 
 **Solution**:
-1. Investigate error: `insites-cli logsv2 staging --filter migration`
+1. Investigate error: `insites-cli logs staging | grep -i migration` (`--filter` matches an entry's type, not its text)
 2. Fix migration file
 3. Create compensating migration
 4. Rerun deployment
@@ -161,8 +160,8 @@ insites-cli migrations list staging
 # Verify file structure
 ls -la app/views/
 
-# Explicit sync with verbose output
-insites-cli sync dev --verbose
+# Sync with the CLI's debug output (there is no --verbose option)
+DEBUG=1 insites-cli sync dev
 
 # Note: insites-cli env clear-cache does not exist.
 # Manually verify your .insites file if sync issues persist.
@@ -177,8 +176,8 @@ insites-cli sync dev --verbose
 # Deploy all at once instead
 insites-cli deploy staging
 
-# Or debug individual files
-insites-cli sync dev --verbose --include "app/views/pages"
+# Or debug one file at a time (DEBUG prints the CLI's debug lines)
+DEBUG=1 insites-cli sync dev -f app/views/pages/home.liquid
 ```
 
 ## Asset Deployment

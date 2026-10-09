@@ -39,11 +39,11 @@ File sync only - no migrations or schema changes.
 
 ### Watch Mode
 
-Continuous synchronization:
+`sync` watches by default and has no `--watch` or `--filter` option:
 
 ```bash
-insites-cli sync dev --watch
-insites-cli sync staging --watch --filter "app/views"
+insites-cli sync dev
+insites-cli sync staging -f app/views/pages/home.liquid   # one file, then exit
 ```
 
 ## Deployment Lifecycle
@@ -136,13 +136,15 @@ insites-cli env info production
 
 ```bash
 insites-cli logs production
-insites-cli logs production --filter "deployment"
+insites-cli logs production --filter error
 ```
 
 ### Monitor in Progress
 
+`insites-cli logs` always follows: it streams until you press `Ctrl+C` and has no `--follow` option. Run it in a second terminal while the deploy runs:
+
 ```bash
-insites-cli logs production --follow
+insites-cli logs production
 ```
 
 ## Rollback Procedures

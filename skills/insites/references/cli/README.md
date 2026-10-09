@@ -3,7 +3,7 @@
 Command-line tools for Insites development.
 
 > **CLI COMMAND STATUS — read before using any CLI examples:**
-> - `insites-cli logs` → **does not exist**. Use `insites-cli logsv2` (alias: `l2`) instead.
+> - `insites-cli logs <environment>` (alias `l`) streams the instance's logs live and works on every stack. `insites-cli logsv2` (alias `l2`) searches log history, but only where the stack has a log proxy: on the Insites stack (`*.staging-insites.io`, `*.prod01-insites.io`, where v6 instances run) it stops and points you at `logs`.
 > - `insites-cli constants list|set|unset` ships in CLI 5.10.2. See `references/constants/`.
 > - There is **no** `insites-cli cache` command. See `references/caching/`.
 > - `insites-cli sessions` → **not yet available** (under development). See `references/sessions/`.
@@ -25,8 +25,8 @@ insites-cli gui serve dev                       # Start GraphQL GUI explorer
 
 ### Debugging
 ```bash
-insites-cli logsv2 dev                          # Watch real-time logs (alias: l2)
-insites-cli logsv2 dev --filter type:error      # Filter error logs
+insites-cli logs dev                            # Stream live logs until Ctrl+C (alias: l)
+insites-cli logs dev --filter error             # Only entries whose type is "error"
 insites-cli exec liquid dev '<code>'            # Execute Liquid snippet
 insites-cli exec graphql dev '<query>'          # Execute GraphQL query
 ```
@@ -107,7 +107,7 @@ Generate with: `insites-cli env add dev --email dev@example.com --instance-uuid 
 
 ```bash
 # Terminal 1: Watch logs
-insites-cli logsv2 dev
+insites-cli logs dev
 
 # Terminal 2: Make changes and observe
 insites-cli sync dev

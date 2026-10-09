@@ -67,7 +67,7 @@ Call external services with built-in retry logic:
 **Advantages**:
 - Handles temporary API failures automatically
 - Exponential backoff between retries
-- Logged attempts visible in `insites-cli logs`
+- Each attempt shows in `insites-cli logs` if the job writes a `{% log %}` entry
 - Non-blocking (doesn't slow down user request)
 
 **Configuration**:
@@ -246,17 +246,13 @@ Prioritize jobs strategically:
 
 ## Monitoring and Debugging
 
-Track job execution via logs:
+Write a log entry from inside the job with a type you can filter on, for example `{% log note, type: 'send_email' %}`, then stream it (until `Ctrl+C`):
 
 ```bash
-insites-cli logs | grep 'send_email'
+insites-cli logs staging --filter send_email
 ```
 
-Parse logs to identify failures:
-
-```bash
-insites-cli logs | grep 'FAILED'
-```
+`insites-cli logs` does not print `source_name`, so `grep` finds a job only by text its own entries contain.
 
 ## See Also
 

@@ -112,7 +112,7 @@ authorization_policies:
   - require_login
 ```
 
-If you need to debug a denial, temporarily prepend `{% log "policy result: " %}{% log result %}` *before* the final emit and check `insites-cli logsv2` — but never leave logging in a deployed policy.
+If you need to debug a denial, temporarily prepend `{% log "policy result: " %}{% log result %}` *before* the final emit and watch `insites-cli logs <environment>`, but never leave logging in a deployed policy.
 
 ## Limits
 

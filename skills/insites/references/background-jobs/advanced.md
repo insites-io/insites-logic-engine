@@ -45,18 +45,13 @@ Insites automatically implements exponential backoff between retries. The wait t
 
 ### Detecting and Handling Failures
 
-Monitor retry attempts in logs:
+To watch attempts, log from inside the job with a type you can filter on, for example `{% log note, type: 'processing_order' %}`, then:
 
 ```bash
-insites-cli logs | grep 'attempt'
+insites-cli logs staging --filter processing_order
 ```
 
-Example output:
-```
-[attempt 1/3] - processing_order - FAILED
-[attempt 2/3] - processing_order - FAILED
-[attempt 3/3] - processing_order - SUCCESS
-```
+`insites-cli logs` prints each entry as `[time] - type: message`. Whether the platform logs each attempt itself was not measured.
 
 ---
 
@@ -179,30 +174,18 @@ Use background jobs for fire-and-forget async tasks, events for event-driven wor
 
 ### Filtering Logs by Status
 
-View only failed jobs:
+`--filter` matches a type. Give success and failure different types in the job (`{% log note, type: 'job_failed' %}`), then:
 
 ```bash
-insites-cli logs | grep 'FAILED'
-```
-
-View only successful jobs:
-
-```bash
-insites-cli logs | grep 'SUCCESS'
+insites-cli logs staging --filter job_failed
 ```
 
 ### Performance Analysis
 
-Track job execution times:
+Log the duration from inside the job (as in the example above), then stream it. `insites-cli logs` never ends on its own, so `| tail` never prints; save to a file and read it after `Ctrl+C`:
 
 ```bash
-insites-cli logs | grep 'send_email' | tail -20
-```
-
-Identify slow jobs:
-
-```bash
-insites-cli logs | grep 'attempt' | grep -E '[5-9]\d{2}ms|[1-9]\d{3}ms'
+insites-cli logs staging | grep send_email | tee send_email.log
 ```
 
 ### Debugging Failed Jobs
@@ -211,7 +194,7 @@ When a job fails:
 
 1. Check logs for error message:
    ```bash
-   insites-cli logs --source-name='failing_job'
+   insites-cli logs staging --filter error
    ```
 
 2. Review the included partial for syntax errors
@@ -379,8 +362,8 @@ Test partials in isolation before wrapping in background:
 Set up alerts for failed jobs:
 
 ```bash
-{% comment %} Monitor for consistent failures {% endcomment %}
-insites-cli logs | grep 'FAILED' | grep 'send_email'
+# Watch for failures the job logs itself, e.g. {% log note, type: 'send_email_failed' %}
+insites-cli logs production --filter send_email_failed
 ```
 
 If pattern detected, investigate and fix.

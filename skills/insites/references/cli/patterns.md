@@ -14,13 +14,13 @@ insites-cli gui serve
 3. In another terminal, watch file synchronization:
 
 ```bash
-insites-cli sync dev --watch
+insites-cli sync dev
 ```
 
-4. View real-time logs:
+4. View real-time logs (runs until `Ctrl+C`):
 
 ```bash
-insites-cli logsv2 dev --follow
+insites-cli logs dev
 ```
 
 ## Pre-Deployment Validation
@@ -128,7 +128,8 @@ insites-cli data clean staging    # removes ALL data on the instance; there is n
 ENV=$1
 insites-cli audit
 insites-cli deploy $ENV
-insites-cli logsv2 search
+# Watch the result in another terminal: insites-cli logs $ENV
+# (logs streams until Ctrl+C, so it does not belong inside a script)
 ```
 
 ## See Also

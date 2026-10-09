@@ -3,8 +3,8 @@
 Complete reference for `insites-cli`. All command signatures verified against `insites-cli help <command>` output.
 
 The CLI's top-level commands fall into three groups:
-- **Direct verbs** — `archive`, `audit`, `deploy`, `init`, `pull`, `sync`
-- **Subcommand groups** — `constants`, `data`, `duplicate`, `env`, `exec`, `gui`, `logsv2`, `migrations`, `modules`
+- **Direct verbs**: `archive`, `audit`, `deploy`, `init`, `logs`, `pull`, `sync`
+- **Subcommand groups**: `constants`, `data`, `duplicate`, `env`, `exec`, `gui`, `logsv2`, `migrations`, `modules`
 
 Run `insites-cli help <command>` for the live signature on any instance — this doc reflects the same source.
 
@@ -111,27 +111,54 @@ insites-cli gui serve [environment]
 
 ---
 
-## logsv2
+## logs
 
-Display logs and errors. **`logsv2` has subcommands, not flags** — pick the one you need.
+Stream an instance's logs to the terminal. It reads from the instance itself, so it works on every stack.
 
 ```bash
-insites-cli logsv2 search
-insites-cli logsv2 searchAround
-insites-cli logsv2 alerts
-insites-cli logsv2 reports
+insites-cli logs staging
+insites-cli logs staging --filter error
+insites-cli logs staging --interval 1000 -q
+```
+
+(Alias: `l`)
+
+| Option | Default | Description |
+|---|---|---|
+| `--interval <ms>` | `3000` | Time between polls, in milliseconds |
+| `--filter <type>` | none | Show only entries of this type, compared without case. An entry with no type counts as `error`. `{% log x, type: 'debug' %}` writes an entry of type `debug` |
+| `-q, --quiet` | off | Print the message only, without the path, page, partial and user line |
+
+It runs until you press `Ctrl+C`. It never exits on its own, so `$(insites-cli logs ...)` and `insites-cli logs ... | wc -l` never finish. It has no `--follow`, `--tail` or `--source-name` option; each is rejected as an unknown option. To narrow by text, pipe it: `insites-cli logs staging | grep send_email`.
+
+---
+
+## logsv2
+
+Search log history, and manage alerts and reports. **`logsv2` takes a subcommand first, then the environment.** `insites-cli logsv2 staging` is rejected as an unknown command.
+
+```bash
+insites-cli logsv2 search staging --size 50
+insites-cli logsv2 search staging --start_time <t> --end_time <t> --json
+insites-cli logsv2 searchAround staging --key 1701428187696722
+insites-cli logsv2 alerts list staging
+insites-cli logsv2 reports staging --json
 ```
 
 (Alias: `l2`)
 
-| Subcommand | Description |
+| Subcommand | Options |
 |---|---|
-| `search` | Search logs |
-| `searchAround` | Search the stream for records around a timestamp |
-| `alerts` | Manage alerts |
-| `reports` | Predefined reports based on logs |
+| `search [environment]` | `--sql <sql>`, `--size <n>` (default 10), `--from <n>` (default 0), `--start_time`, `--end_time`, `--json` |
+| `searchAround [environment]` | `--key <timestamp>`, `--stream_name <name>` (default `logs`), `--size <n>` (default 10), `--json` |
+| `alerts list [environment]` | `--json` |
+| `alerts add [environment]` | `--name`, `--keyword`, `--url`, `--operator` (default `Contains`), `--column` (default `message`), `--channel`, `--json` |
+| `alerts trigger [environment]` | `--name`, `--json` |
+| `reports [environment]` | `--json` |
 
-The CLI's per-subcommand help does not surface argument detail beyond what's shown here; check `insites-cli logsv2 search` interactive output (or your instance's docs) for filter/range arguments.
+None of them takes `--filter`. `alerts rm` is listed in the help, but CLI 5.10.2 ships no script for it, so it fails.
+
+**`logsv2` needs a log proxy, and only the shared stack has one.** On the Insites stack (`*.staging-insites.io` and `*.prod01-insites.io` hosts, where v6 instances run) every `logsv2` subcommand prints `logsv2 is not available on the Insites dedicated stack: it publishes no log proxy` and stops. Use `insites-cli logs` there, or set `LOGS_PROXY_URL` to a proxy that serves the instance.
 
 ---
 

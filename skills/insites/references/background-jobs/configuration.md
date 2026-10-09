@@ -53,7 +53,7 @@ The `{% background %}` tag enables asynchronous job execution in Insites. Jobs r
 - **Default**: Generated automatically if omitted
 - **Description**: Identifier for the job in logs and monitoring
 - **Best Practice**: Use descriptive, snake_case names (e.g., `send_welcome_email`, `generate_report`)
-- **Tip**: Helps with debugging and job tracking via `insites-cli logs`
+- **Tip**: `insites-cli logs` does not print it. To find a job's entries there, write a `{% log ..., type: 'send_welcome_email' %}` inside the job and run `insites-cli logs <environment> --filter send_welcome_email`
 
 ## Scope Limitations
 
@@ -105,7 +105,7 @@ Jobs that encounter errors will retry based on `max_attempts`:
 {% endbackground %}
 ```
 
-Failed jobs after max retries generate log entries visible in `insites-cli logs`.
+Whether a job that runs out of attempts writes a log entry was not measured. Log from inside the job if you need to see it in `insites-cli logs`.
 
 ## Performance Considerations
 

@@ -46,17 +46,15 @@ Or pass through partial parameters:
 **Solution**: Check logs for execution status:
 
 ```bash
-insites-cli logs --source-name='your_job_name'
+insites-cli logs staging --filter error
 ```
 
-Look for:
-- Failed attempts (indicates execution, but with errors)
-- No logs at all (indicates job not reached background processor)
+`insites-cli logs` has no `--source-name` option and does not print the source name. Add `{% log note, type: 'your_job_name' %}` inside the job and run `insites-cli logs staging --filter your_job_name` to see whether it runs.
 
 If no logs appear, verify:
 - Job source_name is spelled correctly
 - Background tag syntax is valid (check for missing quotes/parameters)
-- insites-cli logs connection is working
+- `insites-cli logs <environment>` shows other entries, so the stream itself works
 
 ---
 
@@ -158,7 +156,7 @@ Partial expects `user` variable but it's undefined.
 
 ```liquid
 {% comment %} Check logs for error details {% endcomment %}
-{% comment %} insites-cli logs --source-name='failing_job' {% endcomment %}
+{% comment %} insites-cli logs staging --filter error {% endcomment %}
 
 {% comment %} Fix the partial, then requeue {% endcomment %}
 {% background max_attempts: 1, source_name: 'fixed_job' %}
@@ -262,9 +260,9 @@ inside the block. `params` and `current_user` still do not.
 ```
 Is job executing?
 ├─ YES
-│  └─ Check logs: insites-cli logs --source-name='name'
-│     ├─ SUCCESS? → Job working correctly
-│     └─ FAILED? → Check error message, fix partial, retry
+│  └─ Check logs: insites-cli logs <env> --filter <type the job logs>
+│     ├─ Its entries appear? → Job is running
+│     └─ Errors? → Check error message, fix partial, retry
 │
 └─ NO
    ├─ Is syntax correct?
@@ -279,7 +277,7 @@ Is job executing?
    │  └─ NO → Contact platform support
    │  └─ YES → Check insites-cli logs for system errors
    │
-   └─ Enable debug logging in insites-cli logs
+   └─ Add {% log %} calls inside the job and watch insites-cli logs <env>
 ```
 
 ---

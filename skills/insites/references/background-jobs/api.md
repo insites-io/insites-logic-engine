@@ -52,7 +52,7 @@
 - **Type**: String (quoted)
 - **Default**: Auto-generated (not recommended for production)
 - **Format**: Alphanumeric, hyphens, underscores
-- **Visibility**: Appears in `insites-cli logs` output for filtering and debugging
+- **Visibility**: Names the job. `insites-cli logs` does not print it, so log from inside the job with a `type:` you can filter on (see Monitoring below)
 
 ## Full API Example
 
@@ -140,37 +140,23 @@ Background jobs do **not** have access to:
 
 ## Monitoring with insites-cli logs
 
-### View All Job Logs
+`insites-cli logs <environment>` streams the instance's log entries until you press `Ctrl+C`. It prints each one as `[time] - type: message`, with the path, page and partial underneath when the entry has them. It does not print `source_name`, its only filter is `--filter <type>`, and it has no `--source-name` or `--tail` option.
+
+So give the job a log entry of its own, with a type you can filter on. Inside the job's partial:
+
+```liquid
+{%- assign note = 'sent welcome email to ' | append: email -%}
+{%- log note, type: 'send_email' -%}
+```
+
+Then:
 
 ```bash
-insites-cli logs
+insites-cli logs staging --filter send_email
+insites-cli logs staging | grep process_payment
 ```
 
-### Filter by Source Name
-
-```bash
-insites-cli logs | grep 'send_email'
-```
-
-### View Specific Job
-
-```bash
-insites-cli logs --source-name='process_payment'
-```
-
-### Monitor in Real-Time
-
-```bash
-insites-cli logs --tail
-```
-
-### Log Output Format
-
-```
-[2024-01-15 14:32:45] background job: send_email (attempt 1/2) - SUCCESS
-[2024-01-15 14:32:50] background job: process_payment (attempt 1/3) - FAILED
-[2024-01-15 14:32:55] background job: process_payment (attempt 2/3) - SUCCESS
-```
+Whether the platform writes an entry of its own for each attempt or failure was not measured. Do not rely on one.
 
 ## Error Scenarios
 
@@ -183,10 +169,10 @@ insites-cli logs --tail
 ```
 
 If the included partial fails:
-1. Logs: "api_call (attempt 1/3) - FAILED"
+1. The attempt fails
 2. Wait: Exponential backoff
 3. Retry: Attempt 2/3 begins
-4. If all attempts fail: Final failure logged
+4. If all attempts fail, the job stops (whether the platform logs that was not measured)
 
 ### Job Success
 
@@ -196,7 +182,7 @@ If the included partial fails:
 {% endbackground %}
 ```
 
-Logs: "completed_job (attempt 1/1) - SUCCESS"
+Nothing appears in `insites-cli logs` unless the job writes a `{% log %}` entry itself.
 
 ## Constraints
 

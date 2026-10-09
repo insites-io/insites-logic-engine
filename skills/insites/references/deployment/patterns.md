@@ -7,7 +7,7 @@
 ```bash
 # 1. Develop and test locally
 insites-cli gui serve
-insites-cli sync dev --watch
+insites-cli sync dev
 
 # 2. Run validation
 insites-cli audit
@@ -15,14 +15,14 @@ insites-cli audit
 # 3. Deploy to staging
 insites-cli deploy staging
 
-# 4. Review staging logs
-insites-cli logsv2 search
+# 4. Review staging logs (streams until Ctrl+C)
+insites-cli logs staging
 
 # 5. Deploy to production
 insites-cli deploy production
 
-# 6. Monitor production
-insites-cli logsv2 search
+# 6. Monitor production (streams until Ctrl+C)
+insites-cli logs production
 ```
 
 ## Pre-Deployment Pattern
@@ -43,11 +43,8 @@ echo "✓ insites-cli audit passed"
 insites-cli env list
 echo "✓ Environment verified"
 
-# 4. Check for errors in logs
-ERROR_COUNT=$(insites-cli logs production --filter error | wc -l)
-if [ $ERROR_COUNT -gt 0 ]; then
-  echo "⚠ Warning: $ERROR_COUNT errors in production logs"
-fi
+# 3. Logs: insites-cli logs streams until Ctrl+C, so it cannot be counted
+#    in a script. Watch it in another terminal: insites-cli logs production --filter error
 
 echo "Ready for deployment"
 ```
@@ -65,11 +62,11 @@ insites-cli deploy staging
 # Verify data integrity
 insites-cli data export staging --path data/test_export.zip
 
-# Monitor for 24-48 hours
-insites-cli logs staging --follow
+# Watch the logs (streams until Ctrl+C)
+insites-cli logs staging
 
-# Check error rates
-insites-cli logs staging --filter error --follow
+# Errors only
+insites-cli logs staging --filter error
 ```
 
 ## CI/CD Deployment Pattern

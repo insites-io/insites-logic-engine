@@ -311,7 +311,7 @@ Need integrations?
 ```
 Need deployment?
 ├─ Deploy to environment → deployment/ (insites-cli deploy)
-├─ Watch logs → cli/ (insites-cli logsv2)
+├─ Watch logs → cli/ (insites-cli logs)
 ├─ Run Liquid/GraphQL ad-hoc → cli/ (insites-cli exec)
 ├─ Pull a module's code from an instance → cli/ (insites-cli modules pull)
 ├─ Set environment constants → constants/ (insites-cli constants set)

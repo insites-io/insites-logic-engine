@@ -23,9 +23,8 @@ grep -q '\[Audit\] 0 rules detected issues' audit.log || exit 1
 # Deploy
 insites-cli deploy $ENV
 
-# Check for errors via logsv2 search subcommand
-echo "Checking logs for errors..."
-insites-cli logsv2 search
+# logs streams until Ctrl+C, so watch it in another terminal rather than here:
+#   insites-cli logs $ENV --filter error
 
 echo "Deployment completed successfully"
 ```
@@ -56,19 +55,23 @@ done
 ### Real-time Log Monitoring
 
 ```bash
-insites-cli logsv2 dev --follow --filter "error"
+insites-cli logs dev --filter error
 ```
 
 ### Log Export to File
 
+`logs` streams until you stop it, so the file grows until `Ctrl+C`:
+
 ```bash
-insites-cli logsv2 staging > logs.txt 2>&1
+insites-cli logs staging -q | tee logs.txt
 ```
 
 ### Pattern-based Filtering
 
+`--filter` matches an entry's type, not a pattern. Pipe the stream to match text:
+
 ```bash
-insites-cli logsv2 dev --filter "api_call.*timeout"
+insites-cli logs dev | grep -E 'api_call.*timeout'
 ```
 
 ## Constants Management at Scale
@@ -186,10 +189,10 @@ deploy:
 
 ### Selective Sync
 
-Sync only specific directories:
+`sync` has no directory option. Leave paths out with `.insitesignore`, or push one file with `-f`:
 
 ```bash
-insites-cli sync dev --watch --include "app/views"
+insites-cli sync dev -f app/views/pages/home.liquid
 ```
 
 ### Parallel Operations
@@ -198,10 +201,10 @@ Use multiple terminal sessions:
 
 ```bash
 # Terminal 1: Watch and sync
-insites-cli sync dev --watch
+insites-cli sync dev
 
 # Terminal 2: Monitor logs
-insites-cli logsv2 dev --follow
+insites-cli logs dev
 
 # Terminal 3: Local development
 insites-cli gui serve

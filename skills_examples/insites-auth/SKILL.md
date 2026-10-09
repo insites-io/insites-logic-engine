@@ -445,7 +445,7 @@ The User Module provides a helper for the full user profile:
 insites-cli deploy staging
 
 # Watch logs for errors
-insites-cli logsv2 staging
+insites-cli logs staging
 
 # Open GUI to inspect users
 insites-cli gui serve staging
@@ -471,7 +471,7 @@ insites-cli test run staging
 insites-cli test run staging test/user_test
 
 # Run with logs visible
-insites-cli logsv2 staging &
+insites-cli logs staging &
 insites-cli test run staging test/auth
 ```
 Verify that all tests passed.

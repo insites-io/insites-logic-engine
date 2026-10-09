@@ -8,7 +8,7 @@ Never use sync command on production:
 
 ```bash
 # WRONG - Never do this!
-insites-cli sync production --watch
+insites-cli sync production
 ```
 
 Always use deploy which includes validation:
@@ -39,7 +39,7 @@ Production should only receive through:
 **Solution**:
 - Verify `.insites` exists in project root
 - Check file permissions: `ls -la .insites`
-- Specify explicit path: `insites-cli sync dev --config /path/to/.insites`
+- Specify explicit path: `CONFIG_FILE_PATH=/path/to/.insites insites-cli sync dev` (there is no `--config` option)
 
 ### Port Already in Use
 
@@ -114,20 +114,21 @@ en:
 
 ### No Logs Appearing
 
-**Issue**: Logs filter returns no results
+**Issue**: `insites-cli logs` prints nothing
 
 **Solutions**:
-- Check environment is correct: `insites-cli logsv2 dev`
-- Use `--follow` flag: `insites-cli logsv2 dev --follow`
-- Check application activity generating logs
+- Check the environment name matches one in `.insites`: `insites-cli logs dev`
+- Remove `--filter` and see whether anything arrives. It keeps only entries whose type equals the value, ignoring case
+- Load a page on the instance so something writes a log entry
+- `insites-cli logsv2` on the Insites stack prints that it is not available and stops; use `logs` there
 
 ### Filter Not Matching
 
-Use exact filter values:
+`--filter` compares an entry's type, not its text, and it is not a pattern. Case does not matter. `{% log x, type: 'background_job' %}` matches `--filter background_job`. To match text, pipe the stream:
 
 ```bash
-insites-cli logsv2 staging --filter "background_job"
-insites-cli logsv2 staging --filter "api_call"
+insites-cli logs staging --filter background_job
+insites-cli logs staging | grep api_call
 ```
 
 ## Module Installation Problems

@@ -692,7 +692,7 @@ GET /_tests/run_async
 This initiates background execution. Monitor via logs:
 
 ```bash
-insites-cli logsv2 staging
+insites-cli logs staging
 ```
 
 ### 3.6 Real-Time Development
@@ -704,7 +704,7 @@ insites-cli logsv2 staging
 insites-cli sync staging
 
 # Terminal 2: Watch logs
-insites-cli logsv2 staging
+insites-cli logs staging
 
 # Terminal 3: Run tests as needed
 insites-cli test run staging -n test/your_test
@@ -852,7 +852,7 @@ function contract = 'modules/tests/assertions/equal',
 
 ```bash
 # Watch logs while running tests
-insites-cli logsv2 staging
+insites-cli logs staging
 
 # In another terminal
 insites-cli test run staging -n test/failing_test
@@ -907,7 +907,7 @@ insites-cli deploy staging              # Deploy before testing
 insites-cli test run staging            # Run all tests
 insites-cli test run staging -n test/name  # Run specific test
 insites-cli sync staging                # Real-time sync
-insites-cli logsv2 staging                # View logs
+insites-cli logs staging                  # View logs
 ```
 
 ### Browser Endpoints
