@@ -129,6 +129,14 @@ the 35 short events aliases carry no `controller` word at all (`events/venues/li
 the pipelines, data and events modules also declare long-form controllers under
 `modules/<module>/controllers/...`. Filter on none of these.
 
+**The long-form aliases are admin controllers, and they behave like the data module's
+writes.** The 82 `modules/insites_pipeline/controllers/...`, 52
+`modules/insites_databases/controllers/...` and 2 `modules/insites_events/controllers/...`
+aliases back the admin screens: none of the 136 contains a `{% return %}`, none gates
+its response handler, and all but a handful write the HTTP response unconditionally
+(counted 9 October 2026). Call them from a page and your variable is blank and your
+response is theirs. The short-form aliases are the API controllers; build on those.
+
 A further 90 partials declare a `path:` that is **not** a controller: a module's own
 functions, GraphQL wrappers, schema and API-doc partials under `modules/<module>/...`.
 They answer a `{% function %}` call, but they have no published contract and some of

@@ -84,7 +84,8 @@ Need data operations?
 ├─ Seed/migrate data → migrations/
 ├─ Bulk import/export → migrations/ or insites-cli data commands
 ├─ Access existing Postgres/ES/Redis → graphql/ (all DB access via GraphQL only)
-└─ Contacts / companies / tasks / activities → modules/crm/ (V2 REST API; see "I need CRM data" tree below)
+├─ Contacts / companies / tasks / activities → modules/crm/ (V2 REST API; see "I need CRM data" tree below)
+└─ Events, products and orders, locations, pipelines, assets, forms, profiles → see "I need another module's data" tree below
 ```
 
 ### "I need CRM data (contacts, companies, tasks, activities, attachments)"
@@ -110,7 +111,7 @@ Need CRM operations?
 ├─ Event streams (audit / activity feed, append-only)                     → modules/crm/globals/event_streams.md
 │
 ├─ Auth (instance API key, no Bearer prefix)                              → references/api/authentication.md
-└─ Pipelines / stages / opportunities / cases — NOT in v2 API (legacy v1 archived)
+└─ Pipelines / stages / opportunities → modules/pipelines/ (its own V2 API; see "I need another module's data")
 ```
 
 ### "I need CMS-managed content (pages, layouts, partials, globals, emails, …)"
@@ -133,6 +134,30 @@ Need CMS operations?
 ├─ Emails / SMS (templates)                               → modules/cms/metadata.md (Emails/SMS)
 └─ Authorization Policies (page-gating rules)             → modules/cms/metadata.md (Authorization Policies)
 ```
+
+### "I need another module's data (events, ecommerce, locator, pipelines, assets, forms, permissions, API)"
+
+Every module below has the same six pages: `README.md` (surface at a glance, auth, webhooks),
+`api.md` (every endpoint), `configuration.md` (admin setup, migrations), `patterns.md`
+(curl and `{% function %}` examples), `gotchas.md`, `advanced.md` (hooks, cross-module
+dependencies). All written from the v6 module source on 9 October 2026.
+
+```
+Which module?
+├─ Events, venues, tickets, speakers, sponsors, expenses, FAQs → modules/events/      (35 V2 endpoints, 37 aliases, 3 webhooks)
+├─ Products, variants, categories, carts, orders, quotes, payments → modules/ecommerce/ (109 V2 endpoints, 105 aliases, 4 webhooks)
+├─ Locations, categories, enquiries, opening hours             → modules/locator/     (22 V2 endpoints, 23 aliases, no webhooks)
+├─ Pipelines, stages, opportunities, related contacts          → modules/pipelines/   (25 V2 endpoints, 107 aliases, 6 webhook events)
+├─ Uploaded assets, folders, upload credentials                → modules/assets/      (8 V2 endpoints, 7 aliases; platform filters are in assets/)
+├─ Custom API endpoints, policies, the instance's API docs     → modules/api/         (5 aliases; how /admin/api is rendered)
+├─ Form builder, submissions, public upload routes             → modules/forms/       (20 admin endpoints, no aliases; HTML forms are in forms/)
+├─ User profile schemas ("permissions")                        → modules/permissions/ (12 admin endpoints, no aliases, no RBAC)
+├─ Shared admin UI assets (components.insites.io)              → modules/general/README.md (not an instance module)
+└─ MCP server that wraps the CRM API                           → modules/ai/README.md      (not an instance module)
+```
+
+Before calling any alias, check `references/building-on-insites/reference/alias-inventory.md`,
+and read `02-calling-a-controller.md` for the response-handler and long-form-alias traps.
 
 ### "I need user-definable data tables (databases + items)"
 
@@ -369,6 +394,16 @@ Use the decision trees above to identify which category applies, then load the m
 | CRM (insites_crm) | `references/modules/crm/` |
 | CMS (insites_cms) | `references/modules/cms/` |
 | Data (insites_databases) | `references/modules/data/` |
+| Events (insites_events) | `references/modules/events/` |
+| Ecommerce (insites_ecommerce) | `references/modules/ecommerce/` |
+| Locator (insites_locator) | `references/modules/locator/` |
+| Pipelines (insites_pipeline) | `references/modules/pipelines/` |
+| Assets (insites_assets) | `references/modules/assets/` |
+| API (insites_api) | `references/modules/api/` |
+| Forms (insites_forms) | `references/modules/forms/` |
+| Permissions (insites_permissions) | `references/modules/permissions/` |
+| General (shared admin UI assets, not a module) | `references/modules/general/README.md` |
+| AI (MCP server, not a module) | `references/modules/ai/README.md` |
 | Module Template | `references/modules/template/` |
 
 > Copy `references/modules/template/` to create documentation for new Insites modules. Each module gets its own directory with: README.md, api.md, configuration.md, patterns.md, gotchas.md, advanced.md.
