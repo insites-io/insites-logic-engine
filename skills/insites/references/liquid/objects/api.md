@@ -136,13 +136,8 @@ Loaded module metadata.
 ### context.visitor
 ```liquid
 {{ context.visitor.ip }}
-{{ context.visitor.country }}
-{{ context.visitor.city }}
-{{ context.visitor.timezone }}
-{{ context.visitor.latitude }}
-{{ context.visitor.longitude }}
 ```
-GeoIP and visitor information (from IP).
+The CLI's object reference lists `ip` as the only property. What it holds has not been measured. For the visitor's address, read `context.headers.HTTP_X_REAL_IP` (see [gotchas](gotchas.md#problem-reading-the-visitors-address-from-the-wrong-header)).
 
 ### context.exports
 ```liquid
