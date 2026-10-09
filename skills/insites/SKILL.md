@@ -38,7 +38,7 @@ It does not check Liquid syntax, GraphQL, page front matter, HTML in pages, or c
 - Partial file names have no leading underscore (`partials-no-underscore-prefix`).
 - Each page declares one HTTP method (`pages-one-http-method`).
 - HTML reused across pages, or built from several UI blocks, goes in partials. A simple page can keep its own HTML (`pages-prefer-partials-for-shared-html`).
-- Presentation partials (cards, headers, layouts, nav) do not call `{% graphql %}`. Block, calculation and callback partials may (`graphql-in-partials-restricted`).
+- Presentation partials (cards, headers, layouts, nav) do not call `{% graphql %}`. Block, calculation and callback partials may, and a reusable query goes in a partial called with `{% function %}` (`graphql-in-partials-restricted`). This is a convention: the platform runs `{% graphql %}` inside a partial.
 - Secrets come from `context.constants`, never from the template (`use-context-constants-for-secrets`).
 
 User-facing text can be written in the template or kept in translations. See **Translation Filter** in `references/liquid/filters/README.md`.
@@ -451,8 +451,8 @@ Use the decision trees above to identify which category applies, then load the m
 Pages fetch data via `{% graphql %}` and delegate the bulk of rendering to partials via `{% render %}`. Small amounts of page-specific inline HTML are acceptable in practice (a wrapper element, a one-off heading, the body of a `.json.liquid` page) — what's *not* acceptable is duplicating markup that other pages could reuse, or putting form/card/list markup inline. Rule of thumb: more than ~10 lines of HTML in a page → extract a partial.
 → `references/pages/`, `references/partials/`
 
-### 2. Pages own data fetching
-Pages call `{% graphql %}` and pass results to partials as render arguments. New code should not put `{% graphql %}` inside a partial. **Caveat:** existing addons (notably older `addon-*` repos) contain partials that call GraphQL directly — treat that as legacy debt. When working inside one of those addons, follow the local convention until a refactor is in scope; for new code in `app-portal` / `app-seedling`-style repos, keep GraphQL in pages.
+### 2. Pages own the data they show
+A page fetches what it displays and passes it to partials as render arguments, so presentation partials (cards, headers, layouts, nav) never query. Block, calculation and callback partials may call `{% graphql %}`, and a query used in more than one place goes in a partial called with `{% function %}`. This is the `graphql-in-partials-restricted` convention, not a platform limit: the platform runs `{% graphql %}` inside a partial.
 → `references/graphql/`, `references/partials/`
 
 ### 3. State changes live in form `callback_actions`

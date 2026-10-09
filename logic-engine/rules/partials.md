@@ -70,6 +70,8 @@ supersedes: [graphql-not-in-partials]
 
 Pure presentation partials (cards, headers, layouts, UI components) MUST NOT contain GraphQL. Pass data in as parameters from the caller.
 
+**Platform behavior:** this is a convention, not a platform limit. The platform runs `{% graphql %}` inside a partial: a partial called with `{% function %}` ran an inline mutation and returned its result on a production instance on 9 October 2026. No Liquid error forbids it, and `insites-cli audit` does not check it.
+
 **Why:** Calling GraphQL in every render of a UI component creates N+1 query explosions and tight coupling between presentation and data. But forbidding it everywhere is contradicted by real-world practice — block partials and calculation partials are legitimate use cases.
 
 **How to apply:**
@@ -79,6 +81,7 @@ Pure presentation partials (cards, headers, layouts, UI components) MUST NOT con
 
 **Verified by:**
 - Acceptable GraphQL-in-partial: `addon-ecommerce/modules/ecommerce/public/views/partials/blocks/new_arrivals.liquid:9,13` — block partial fetching its own products
+- Platform runs it: `signin/take_slot` in `skills/insites/references/authentication/patterns.md`, a calculation partial called with `{% function %}` that runs a `record_create` per slot, run on a production instance on 9 October 2026
 - Forbidden pattern (no real examples violate): a UI card partial doing a GraphQL fetch on every render
 - Compliant pure-presentation partials: `addon-ecommerce/modules/ecommerce/public/views/partials/products/product_card.liquid` (receives data as parameters)
 

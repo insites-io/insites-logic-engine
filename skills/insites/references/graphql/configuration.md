@@ -207,7 +207,7 @@ Mutations return the affected record:
 ## Invocation Restrictions
 
 - **Pages:** `{% graphql %}` tag is fully supported.
-- **Partials:** **NEVER** call `{% graphql %}` from partials. Pass data from pages instead.
+- **Partials:** the platform runs `{% graphql %}` inside a partial (measured with a partial called by `{% function %}`). By the `graphql-in-partials-restricted` convention, presentation partials (cards, headers, layouts, nav) take data from the page instead; block, calculation and callback partials may query.
 - **Commands:** GraphQL can be called from command files.
 - **Migrations:** GraphQL can be called from migration files.
 

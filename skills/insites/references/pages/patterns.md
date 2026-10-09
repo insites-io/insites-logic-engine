@@ -298,7 +298,7 @@ The form partial includes CSRF token and submits to the POST endpoint.
 3. **Use `break` for early returns** -- render an error view and `break` to stop execution
 4. **One method per file** -- never check `context.method` to branch logic
 5. **No HTML in pages** -- all markup lives in partials
-6. **No GraphQL in partials** -- always fetch in the page and pass data down
+6. **Fetch in the page** -- pass data down to presentation partials; only block, calculation and callback partials query (`graphql-in-partials-restricted`)
 7. **Flash before redirect** -- set session flash, then redirect
 8. **Use translations for more than one language** -- text in the template works; move it to `app/translations/<locale>.yml` and the `t` filter when the site serves more than one language
 

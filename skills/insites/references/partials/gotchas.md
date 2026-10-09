@@ -19,11 +19,11 @@
 {% render 'products/card', product: product, user: profile %}
 ```
 
-### "GraphQL tag in partial causes error or is ignored"
+### "Should this partial call `{% graphql %}`?"
 
-**Cause:** GraphQL calls should only be made in pages. Using `{% graphql %}` in a presentation partial breaks the `graphql-in-partials-restricted` rule. `insites-cli audit` does not check this.
+**Cause:** That depends on the kind of partial, not on the platform, which runs `{% graphql %}` inside a partial. The `graphql-in-partials-restricted` convention keeps queries out of presentation partials (cards, headers, layouts, nav), which run once per render, and allows them in block, calculation and callback partials. `insites-cli audit` does not check this.
 
-**Solution:** Move the GraphQL call to the page and pass the result to the partial as a parameter.
+**Solution:** For a presentation partial, fetch in the page and pass the result as a parameter. For a query used in several places, put it in a partial called with `{% function %}` (see [the query wrapper pattern](patterns.md#function-partial-pattern-query-wrapper)).
 
 ### "Function returns nil"
 
@@ -77,7 +77,7 @@ Partial problem?
 └── Linter errors?
     ├── No underscore prefix in filenames
     ├── Use clear, descriptive text for user-facing strings
-    └── No GraphQL calls in partials
+    └── No GraphQL in presentation partials (convention, not checked)
 ```
 
 ## See Also

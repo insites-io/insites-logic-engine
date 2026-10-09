@@ -4,11 +4,11 @@ Common errors, limits, and troubleshooting for GraphQL in Insites.
 
 ## Common Errors
 
-### "Liquid error: graphql tag is not allowed in partials"
+### GraphQL in a partial
 
-**Cause:** You placed a `{% graphql %}` tag inside a partial file (`app/views/partials/`). Insites prohibits GraphQL calls from partials.
+**The platform runs it.** A partial called with `{% function %}` that holds an inline `{% graphql %}` mutation and returns the result ran on a production instance on 9 October 2026 (`signin/take_slot` in [authentication patterns](../authentication/patterns.md)). No Liquid error forbids the tag in a partial.
 
-**Solution:** Move the `{% graphql %}` call to the page that renders the partial. Pass the query result to the partial as a variable: `{% render 'my_partial', products: result.records.results %}`.
+**Where it belongs is a convention**, `graphql-in-partials-restricted`: presentation partials (cards, headers, layouts, nav) take their data as parameters, and block, calculation and callback partials may query. A query used in several places goes in a partial called with `{% function %}`. `insites-cli audit` does not check this. `insites-cli check` (`NestedGraphQLQuery`) follows `function` and `render` calls into partials and flags a query that runs inside a loop.
 
 ### "QueryNotFound: 'products/serch'"
 
@@ -139,8 +139,6 @@ GraphQL issue?
 ├── Query returns error?
 │   ├── "QueryNotFound"
 │   │   └── Fix: Check file path and spelling (relative to app/graphql/)
-│   ├── "not allowed in partials"
-│   │   └── Fix: Move {% graphql %} to page, pass data to partial
 │   ├── "Variable ... invalid value"
 │   │   └── Fix: Ensure all required (!) variables are provided and non-nil
 │   └── "Cannot query field"

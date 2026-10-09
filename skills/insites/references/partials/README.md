@@ -71,7 +71,7 @@ app/views/partials/
 ## Guidelines
 
 - Partials hold most HTML/JS/CSS presentation; small amounts of page-specific markup may live inline in a page (see [Pages](../pages/README.md#inline-html--when-its-allowed)).
-- **Pages own data fetching.** Pages call `{% graphql %}` and pass results to partials as render arguments. Partials that need data should receive it from their caller.
-- **GraphQL inside partials — when it appears.** Real Combinate addons (notably some older `addon-*` repos) do contain partials that call `{% graphql %}` directly, and `{% function %}`-style partials that exist specifically to encapsulate a query. Treat those as legacy debt: when adding new code, fetch in the page; when working in an existing addon, follow the addon's local convention until you can refactor it. Don't introduce *new* GraphQL-in-partial code in `app-portal` / `app-seedling`-style repos.
+- **Presentation partials take their data as parameters.** A page fetches what it shows and passes it to the partials it renders.
+- **GraphQL in a partial.** The platform runs `{% graphql %}` inside a partial. Where it belongs is the `graphql-in-partials-restricted` convention: not in cards, headers, layouts or nav; allowed in block, calculation and callback partials. A query used in several places goes in a partial called with `{% function %}` (see [the query wrapper pattern](patterns.md#function-partial-pattern-query-wrapper)).
 - User-facing text can sit in the partial or come from translations with the `t` filter (see Translation Filter in [`liquid/filters/README.md`](../liquid/filters/README.md#translation-filter)).
 - Use `{% render %}` for display-only partials; use `{% function %}` for partials that return data.

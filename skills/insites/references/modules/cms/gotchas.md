@@ -24,13 +24,13 @@ Edges and quirks of the CMS module that bite when authoring or consuming file-ba
 
 ---
 
-## 3. Partials cannot call `{% graphql %}`
+## 3. Presentation partials do not call `{% graphql %}`
 
-**Bites:** copy-pasting a `{% graphql %}` query into a partial because the page got crowded. The page works, but partials rendered standalone (or in tests) fail.
+**Bites:** copy-pasting a `{% graphql %}` query into a card or header partial because the page got crowded. It works, because the platform runs `{% graphql %}` inside a partial, but it runs once per render: a list of 50 cards runs 50 queries.
 
-**Why:** GraphQL execution is restricted to pages. Partials should receive their data via render arguments — never fetch directly.
+**Why:** the `graphql-in-partials-restricted` convention. Presentation partials take their data as render arguments. Block, calculation and callback partials may query.
 
-**Avoid:** keep all data fetching at the page level. If a partial needs data not in its arguments, factor the fetch into a `lib/queries/<name>.liquid` partial called via `{% function %}` from the page, then pass the result down.
+**Avoid:** fetch in the page and pass the result down. For a query used in several places, put it in a partial called with `{% function %}` that returns the result, then pass that to the presentation partial.
 
 ---
 
