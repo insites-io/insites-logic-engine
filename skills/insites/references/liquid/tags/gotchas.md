@@ -4,7 +4,18 @@
 
 **Error:** Syntax error or unexpected output when using multiple lines within a liquid block.
 
-**Cause:** The `{% liquid %}` tag requires each statement to remain on a single line. Line wrapping breaks the parser.
+**Cause:** The `{% liquid %}` tag requires each statement to remain on a single line. Line wrapping breaks the parser. The one exception: a `{ }` or `[ ]` literal argument may continue across lines until it closes (measured on a v6 staging instance, 9 October 2026):
+
+```liquid
+{% liquid
+  assign contact = {
+    "email": email,
+    "roles": ["member"]
+  }
+%}
+```
+
+Everything else, a long `graphql` or `function` call included, stays on its line. Outside a `{% liquid %}` block any tag may span lines.
 
 **Solution:** Keep each statement on one line within liquid blocks:
 
@@ -32,6 +43,18 @@ endif
   {% render 'partials/user_card', user: get_user.user %}
 {% endif %}
 ```
+
+---
+
+## A `%}` Inside a `#` Comment Closes the `{% liquid %}` Block
+
+**Fixed.** Inside `{% liquid %}` a line starting with `#` is a comment to the end of that line, and since the 26 August 2026 platform release a `%}` on that line is comment content: only a `%}` outside a comment closes the tag (measured on a v6 staging instance, 9 October 2026). A block whose every `%}` is commented out is reported as `Tag '{%' was not properly terminated`, exactly like one with no `%}` at all.
+
+---
+
+## Errors Now Carry a File and Line
+
+A Liquid error raised while rendering carries a stack trace naming the file and line, captured the way the `log` tag is, and a low-level error inside a filter (a frozen hash, an unsupported method) is wrapped into the same `Liquid error (path:line): ...` form rather than a bare message. A filter that rejects its arguments is reported with its line and the whole `include`/`function` stack that led there, once per distinct message per render rather than once per loop iteration. A parse error in a partial loaded via `render` points at the partial's own file. Read the instance logs (`insites-cli logs`) for the diagnostic; the page shows the message only.
 
 ---
 

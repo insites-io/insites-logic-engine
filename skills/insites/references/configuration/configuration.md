@@ -14,14 +14,14 @@ The `.insites` file is a JSON file that stores authentication and deployment end
     "instance_uuid": "your-instance-uuid",
     "token": "your-staging-token",
     "email": "dev@example.com",
-    "url": "https://staging-instance.staging.oregon.platform-os.com",
+    "url": "https://staging-instance.staging-insites.io",
     "key": "your-key"
   },
   "production": {
     "instance_uuid": "your-instance-uuid",
     "token": "your-production-token",
     "email": "dev@example.com",
-    "url": "https://production-instance.platform-os.com",
+    "url": "https://production-instance.prod01-insites.io",
     "key": "your-key"
   }
 }
@@ -42,7 +42,7 @@ Never commit `.insites` with real tokens. Add `.insites` to `.gitignore`.
 Set variables locally:
 
 ```bash
-export STAGING_ENDPOINT='https://staging.platformos.com'
+export STAGING_ENDPOINT='https://staging-instance.staging-insites.io'
 export STAGING_TOKEN='abc123def456'
 ```
 

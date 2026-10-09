@@ -45,7 +45,7 @@ Each column on a database has:
 |---|---|
 | `name` | The column's name. Becomes the dotted key when writing items: `properties.<name>` |
 | `attribute_type` | Storage type: `string`, `integer`, `float`, `boolean`, `array`, `geo_json` |
-| `belongs_to` | If the column is a related-record reference, the schema path it points at (e.g. `modules/insites_core/crm_contact`) |
+| `belongs_to` | If the column is a related-record reference, the schema path it points at (e.g. `modules/insites_crm/crm_contact`) |
 | `metadata.label` | Display label used in IIA tables and forms |
 | `metadata.ui_element` | UI hint: `input`, `dropdown`, `checkbox`, `card_select_multiple`, `textarea`, `file_multiple`, etc. |
 | `options` | Allowed values for enum-style columns |

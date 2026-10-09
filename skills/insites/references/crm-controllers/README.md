@@ -6,17 +6,17 @@ The CRM module exposes its V2 API at `/<module>/api/v2/...` via **controller pag
 
 ## The `path:` alias
 
-A controller declares its public URL via the `path:` key in front matter, separately from its file location. This lets the file live under `modules/insites_core/public/views/pages/api/_external/v2/contacts/` while serving requests at `/crm/api/v2/contacts`.
+A controller declares its public URL via the `path:` key in front matter, separately from its file location. This lets the file live under `modules/insites_crm/public/views/pages/api/_external/v2/contacts/` while serving requests at `/crm/api/v2/contacts`.
 
 ```liquid
 ---
 path: crm/api/v2/contacts/:id
 method: get
 authorization_policies:
-  - modules/insites_core/has_valid_instance_api_authorization
+  - modules/insites_crm/has_valid_instance_api_authorization
 ---
 {% liquid
-  graphql res = 'modules/insites_core/contacts/find', id: context.params.id
+  graphql res = 'modules/insites_crm/contacts/find', id: context.params.id
   assign body = res.records.results.first | json
   print body
 %}
@@ -26,7 +26,7 @@ The `path:` value takes priority over `slug:`; if both are present, `path:` wins
 
 ## Conventions inherited from CRM
 
-- **Auth:** raw `instance_<50chars>` token in `Authorization` header (no Bearer). See [`api/authentication.md`](../api/authentication.md). The CRM module's own V2 pages guard inline with `modules/insites_core/functions/auth/api_key_guard` so that a failure answers 401 on the original URL; the front-matter policy above redirects to `api/401` instead. See [`api-endpoints/`](../api-endpoints/README.md) for the trade-off.
+- **Auth:** raw `instance_<50chars>` token in `Authorization` header (no Bearer). See [`api/authentication.md`](../api/authentication.md). The CRM module's own V2 pages guard inline with `modules/insites_crm/functions/auth/api_key_guard` so that a failure answers 401 on the original URL; the front-matter policy above redirects to `api/401` instead. See [`api-endpoints/`](../api-endpoints/README.md) for the trade-off.
 - **JSON shape:** controllers emit the CRM module's canonical shape — `{ "data": { ... } }` for single records, `{ "data": [...], "meta": { "total_entries": N, ... } }` for lists. Match what the module's existing endpoints already produce; don't invent new shapes.
 - **Webhooks:** only `contact_created`, `contact_updated`, `company_created`, `company_updated` fire today. Don't promise webhook coverage your controller can't deliver.
 - **Custom fields:** read/write through the property accessor pattern documented in [`modules/crm/configuration.md`](../modules/crm/configuration.md).

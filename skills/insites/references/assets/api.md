@@ -20,9 +20,26 @@ Generates a full CDN URL with cache-busting hash.
 
 **Output:**
 ```html
-<img src="https://cdn.example.com/images/hero-abc123.jpg" alt="Hero Image">
-<link rel="stylesheet" href="https://cdn.example.com/styles/main-xyz789.css">
-<script src="https://cdn.example.com/scripts/app-def456.js"></script>
+<img src="https://cdn.example.com/images/hero.jpg?updated=1774959340" alt="Hero Image">
+<link rel="stylesheet" href="https://cdn.example.com/styles/main.css?updated=1774959340">
+<script src="https://cdn.example.com/scripts/app.js?updated=1774959340"></script>
+```
+
+The file name is not rewritten. The `updated=` value is one per-instance timestamp,
+bumped whenever any asset changes (19 May 2026 platform release), so every asset URL
+is invalidated together and a browser that cached the old query-stringed URL keeps it
+until the stamp moves. On an instance serving assets from local disk `asset_url` returns
+a host-relative URL (16 September 2026 release). A missing asset answers 404, not 403
+(6 October 2026 release).
+
+### asset_name_to_raw_url
+
+Resolves an asset by its **name** to its raw URL, or `nil` when no asset has that name;
+live on a v6 staging instance, 9 October 2026.
+
+```liquid
+{{ 'logo.png' | asset_name_to_raw_url }}
+{%- comment -%} https://<file host>/instances/1/assets/logo.png, or nothing {%- endcomment -%}
 ```
 
 ### asset_path

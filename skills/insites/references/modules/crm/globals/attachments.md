@@ -44,7 +44,7 @@ There is no PATCH/update — attachments are immutable once uploaded.
      "x-amz-meta-versions": "{}",
      "x-amz-meta-acl": "public-read",
      "x-amz-meta-content-disposition": "inline",
-     "key": "instances/12277/property_uploads/modules/insites_core/attachment/file/<uuid>/${filename}",
+     "key": "instances/12277/property_uploads/modules/insites_crm/attachment/file/<uuid>/${filename}",
      "policy": "<base64-encoded policy>",
      "x-amz-credential": "AKIA.../20250416/us-west-2/s3/aws4_request",
      "x-amz-algorithm": "AWS4-HMAC-SHA256",
@@ -64,7 +64,7 @@ There is no PATCH/update — attachments are immutable once uploaded.
 
    {
      "uuid": "aaaaaaaa-bbbb-cccc-1234-567890abcdef",
-     "file": "https://cdn.<your-instance>.platform-os.com/instances/.../<uuid>/<filename>"
+     "file": "https://<file host>/instances/.../<uuid>/<filename>"
    }
    ```
 

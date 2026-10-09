@@ -20,7 +20,7 @@ The following hold for every CRM-specific endpoint unless explicitly noted on a 
 <method> /crm/api/v2/<resource>[/<id-or-uuid>][/<action>]
 ```
 
-- IDs are UUIDs everywhere except **custom fields**, which use numeric `:id` (PlatformOS schema constraint — not a bug, do not "fix" it).
+- IDs are UUIDs everywhere except **custom fields**, which use numeric `:id` (platform schema constraint — not a bug, do not "fix" it).
 - Lifecycle operations are exposed as `PATCH` with a semantic suffix:
   - `PATCH /crm/api/v2/contacts/:uuid/archive`
   - `PATCH /crm/api/v2/contacts/:uuid/restore`
@@ -197,7 +197,7 @@ Content-Type: application/json
 }
 ```
 
-**Profile filtering on the response.** Internal Insites profiles (anything matching `modules/insites_core/*`) are stripped. Only user-assigned feature profiles surface, with their `/` and `-` characters replaced by `_` in the key — e.g. a profile named `modules/ins_permission_manager/admin` is returned at `profiles.modules_ins_permission_manager_admin`.
+**Profile filtering on the response.** Internal Insites profiles (anything matching `modules/insites_crm/*`) are stripped. Only user-assigned feature profiles surface, with their `/` and `-` characters replaced by `_` in the key — e.g. a profile named `modules/ins_permission_manager/admin` is returned at `profiles.modules_ins_permission_manager_admin`.
 
 ---
 
@@ -245,7 +245,7 @@ The response is the full updated company object (id, uuid, company_name, contact
 
 ### Custom fields
 
-Manage the custom-field **schema** (definitions) for contacts and companies. **This is the only CRM resource that uses numeric `:id` instead of `:uuid`** — PlatformOS schema constraint.
+Manage the custom-field **schema** (definitions) for contacts and companies. **This is the only CRM resource that uses numeric `:id` instead of `:uuid`** — platform schema constraint.
 
 **Full field reference:**
 - `<your-insites-instance>/admin/api/crm/contact-custom-fields/overview`

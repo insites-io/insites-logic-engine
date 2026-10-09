@@ -237,6 +237,11 @@ Always set reasonable `max_attempts` limit:
 {% endbackground %}
 ```
 
+Two context values no longer need passing: since the 20 April 2026 platform release a
+background job receives the same `context.environment` and `context.location.host` as
+the web request that queued it, so environment branching and host-aware URLs work
+inside the block. `params` and `current_user` still do not.
+
 ---
 
 ## Limits and Constraints

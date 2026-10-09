@@ -43,7 +43,7 @@ This watches for file changes and syncs them immediately. Do NOT use in producti
     "instance_uuid": "uuid",
     "token": "token",
     "email": "dev@example.com",
-    "url": "https://your-instance.staging.oregon.platform-os.com",
+    "url": "https://your-instance.staging-insites.io",
     "key": "key"
   }
 }

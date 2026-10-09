@@ -72,7 +72,7 @@ from: 'noreply@yourdomain.com'
 ---
 ```
 
-Not: `from: 'noreply@platformos.com'`
+Not: `from: 'noreply@some-other-domain.com'`, a domain you do not control
 
 ### Reply-To Domain Mismatch
 

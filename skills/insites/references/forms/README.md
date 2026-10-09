@@ -3,7 +3,7 @@
 Insites has two distinct concepts both called "forms":
 
 1. **HTML `<form>` elements** in pages/partials — for browser-rendered submissions. Use plain HTML tags; do NOT use the `{% form %}` Liquid tag.
-2. **Form definitions** at `modules/<name>/public/forms/<name>.liquid` — YAML-fronted Liquid files that declare the schema (fields, validation) and a `callback_actions` block that runs the GraphQL mutations and side effects when the form is submitted. **This is where state-changing logic lives in canonical Combinate** (replacing what older PlatformOS docs called the "command pattern").
+2. **Form definitions** at `modules/<name>/public/forms/<name>.liquid` — YAML-fronted Liquid files that declare the schema (fields, validation) and a `callback_actions` block that runs the GraphQL mutations and side effects when the form is submitted. **This is where state-changing logic lives in canonical Combinate** (replacing the older "command pattern").
 
 This document covers the HTML side. For the form-definition / `callback_actions` pattern, see the section below.
 

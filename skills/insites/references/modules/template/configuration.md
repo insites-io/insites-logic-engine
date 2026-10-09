@@ -13,7 +13,7 @@ insites-cli deploy staging
 |----------|-------------|---------|
 | `MODULE_API_KEY` | API key for the module | `sk_test_...` |
 
-Set via partner portal or:
+Set in the Insites Console or:
 ```bash
 insites-cli constants set staging MODULE_API_KEY "value"
 ```

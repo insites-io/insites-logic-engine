@@ -227,6 +227,41 @@ Maximum 50MB:
 {% endif %}
 ```
 
+## `api_call_send` Options
+
+The `api_call_send` mutation's `api_call` argument takes, beside `url`, `method`, `headers`
+and `body`:
+
+- `options: { skip_ssl_verification: true }` skips certificate verification for an
+  internal service with a self-signed certificate. Off by default.
+- A `body` given directly is sent **byte for byte** and is not rendered as Liquid (your
+  Liquid has already run), so a binary payload such as a Web Push message decoded with
+  `base64_decode` goes out as the raw request body. Bodies of named API calls defined
+  as files are still rendered as templates.
+- `form_data: [ { name, value | file: { url | content_base64, filename, content_type } } ]`
+  sends `multipart/form-data` for POST, PUT and PATCH without hand-building the body.
+  A file comes from a `url` (downloaded first, an uploaded property's URL for example)
+  or from `content_base64`; names may repeat (`files[]`); the `Content-Type` and boundary
+  are generated and one you pass in `headers` is ignored; up to 100 parts, 10 downloaded
+  files and 50MB in all; `body` and `form_data` cannot be combined. Part of the 6 October
+  2026 platform release, which a v6 staging instance did not yet carry on 9 October 2026.
+
+```graphql
+mutation upload($url: String!, $photo_url: String!, $file_info: String!) {
+  api_call_send(api_call: {
+    url: $url, method: "POST",
+    form_data: [
+      { name: "uploadedFile", file: { url: $photo_url, filename: "photo.jpeg", content_type: "image/jpeg" } },
+      { name: "fileInfo", value: $file_info, content_type: "application/json" }
+    ]
+  }) { response { status body } }
+}
+```
+
+`download_file`'s `max_size` is enforced on the bytes received, not only on the declared
+`Content-Length`, so a server that omits the header cannot exceed it (6 October 2026
+release). The maximum stays 50MB.
+
 ## Request Body Configuration
 
 ### JSON Payload

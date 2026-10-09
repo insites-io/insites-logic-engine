@@ -15,9 +15,70 @@ Creates a variable of any type.
 {% assign my_bool = true %}
 ```
 
+### assign with a hash or array literal
+
+`assign` takes a JSON-shaped literal directly. Variables may be values or keys, nesting
+is unlimited, and a literal may continue across lines until its bracket closes, inside a
+`{% liquid %}` block too. This is the way to build a hash or an array; the `parse_json`
+tag and filter are deprecated for JSON written in the template (see below).
+
+```liquid
+{% assign empty_hash = {} %}
+{% assign empty_list = [] %}
+{% assign var = "hello" %}
+{% assign hash = { "key": var, var: "value", "arr": ["el1", var] } %}
+{{ hash | json }}
+{%- comment -%} { "key": "hello", "hello": "value", "arr": ["el1", "hello"] } {%- endcomment -%}
+
+{% liquid
+  assign contact = {
+    "email": email,
+    "roles": ["member"]
+  }
+%}
+```
+
+Write into an existing hash or array in place:
+
+```liquid
+{% assign contact.name = "Ada" %}                 {%- comment -%} dot notation {%- endcomment -%}
+{% assign contact["roles"][0] = "owner" %}        {%- comment -%} bracket notation {%- endcomment -%}
+{% assign contact.tags << "vip" %}                {%- comment -%} append to an array {%- endcomment -%}
+{% assign contact["address"]["city"] = "Perth" %} {%- comment -%} only if address exists {%- endcomment -%}
+```
+
+Every intermediate container must already exist. Measured on a v6 staging instance,
+9 October 2026: `{% assign h = {} %}{% assign h["k"]["z"] = 1 %}` fails the render with
+`h[k] is null, expected Hash or Array`. Create `h["k"] = {}` first. `{% function %}`
+accepts the same dot, bracket and `<<` targets on its left-hand side.
+
+Literals also work as arguments to tags and filters, so a hash no longer has to be
+assigned before it is passed:
+
+```liquid
+{% function total = 'lib/sum', numbers: [1, 2, 3] %}
+{% render 'shared/card', data: { "title": "Hello", "tags": ["news"], "active": true } %}
+{% assign items = value | default: [] %}
+```
+
+Inside a literal, a value is an expression (`"email": email`), not an interpolation.
+Writing `"email": {{ email }}` is a syntax error that names the key.
+
+### Double-quoted string interpolation (opt-in)
+
+With `string_interpolation: true` in `app/config.yml`, `{{ }}` inside a **double**-quoted
+string renders, filters included: `{% assign greeting = "Hello {{ name | upcase }}!" %}`.
+Single-quoted strings never interpolate. The flag is off on existing instances and on
+by default on new ones; the v6 staging instance measured on 9 October 2026 had it off
+(`"Hi {{ n }}"` printed literally). Turning it on is a breaking change for any template
+that keeps a literal `{{ }}` inside double quotes: move those to single quotes first.
+
 ### parse_json (filter)
 
-Converts a JSON string to a Hash or Array.
+Converts a JSON string to a Hash or Array. Deprecated for JSON written in the template
+(use an `assign` literal); still the step that turns a JSON **string that arrives at
+runtime** (an API response body, `download_file` output, a stored property) into a hash,
+and that use is not going away.
 
 ```liquid
 {% assign hash = '{"key": "value"}' | parse_json %}
@@ -26,7 +87,16 @@ Converts a JSON string to a Hash or Array.
 
 ### parse_json (tag)
 
-Block form for complex JSON with interpolation.
+Block form for complex JSON with interpolation. Deprecated: `assign` takes the same JSON
+as a literal, and a value that was spliced in with the `json` filter becomes a plain
+expression. The rewrite is mechanical:
+
+```liquid
+{% parse_json data %}{ "color": {{ color | json }} }{% endparse_json %}
+{% assign data = { "color": color } %}
+```
+
+Existing `parse_json` blocks keep working.
 
 ```liquid
 {% parse_json variable_name %}

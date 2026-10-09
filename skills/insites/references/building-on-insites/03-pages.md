@@ -104,7 +104,7 @@ slug: team/contacts
 layout_name: application
 format: html
 authorization_policies:
-  - modules/insites_core/insites_only_allowed_if_logged_in
+  - modules/insites_crm/insites_only_allowed_if_logged_in
 ---
 <h1>Contacts</h1>
 ```

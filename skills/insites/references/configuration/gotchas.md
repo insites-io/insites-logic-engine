@@ -11,7 +11,7 @@
     "instance_uuid": "real-uuid",
     "token": "abc123realproductiontoken",
     "email": "admin@company.com",
-    "url": "https://production-instance.platform-os.com",
+    "url": "https://production-instance.prod01-insites.io",
     "key": "real-key"
   }
 }

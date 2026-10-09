@@ -36,9 +36,9 @@ Edges and quirks of the CMS module that bite when authoring or consuming file-ba
 
 ## 4. `{% form %}` tag is not used in Insites
 
-**Bites:** writing `{% form %}...{% endform %}` because that's what platformOS docs show. The form renders but CSRF doesn't behave as expected.
+**Bites:** writing `{% form %}...{% endform %}` because that is what the underlying platform's generic docs show. The form renders but CSRF doesn't behave as expected.
 
-**Why:** Insites uses plain `<form>` elements with explicit CSRF tokens; the `{% form %}` tag is the legacy platformOS pattern not adopted here.
+**Why:** Insites uses plain `<form>` elements with explicit CSRF tokens; the `{% form %}` tag is the underlying platform's legacy pattern, not adopted here.
 
 **Avoid:** write forms as `<form action="..." method="post">...{{ context.csrf_tag }}...</form>` with the explicit CSRF token field. See [`../../forms/`](../../forms/) for the canonical form patterns.
 

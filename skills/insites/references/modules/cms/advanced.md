@@ -20,7 +20,7 @@ The **first match wins**, so to override a module-supplied layout or partial, pl
 
 | Goal | Place file at |
 |---|---|
-| Override the default email layout | `app/views/layouts/external_email_layout.html.liquid` (matches `modules/insites_core/public/views/layouts/external_email_layout.html.liquid`) |
+| Override the default email layout | `app/views/layouts/external_email_layout.html.liquid` (matches `modules/insites_crm/public/views/layouts/external_email_layout.html.liquid`) |
 | Override a CMS-provided header partial | `app/views/partials/shared/header.liquid` (matching whatever path the module ships) |
 | Override `hook_module_info` for a custom module identification | Don't — see *hook_module_info* below |
 
@@ -89,7 +89,7 @@ CMS uses two named email layouts that any outbound email can wrap with:
 | `external_email_layout` | Customer-facing emails. |
 | `internal_email_layout` | Admin/internal notifications. |
 
-These layouts are owned by the `insites_core` module (not CMS), and the override path is on the core module — see [`../crm/advanced.md#overriding-email-layouts`](../crm/advanced.md). CMS-managed email *templates* (under `app/emails/...`) reference these layouts by the `layout:` front-matter key.
+These layouts are owned by the `insites_crm` module (not CMS), and the override path is on the core module — see [`../crm/advanced.md#overriding-email-layouts`](../crm/advanced.md). CMS-managed email *templates* (under `app/emails/...`) reference these layouts by the `layout:` front-matter key.
 
 ---
 

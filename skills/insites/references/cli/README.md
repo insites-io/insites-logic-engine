@@ -97,7 +97,7 @@ insites-cli audit app/views/pages/           # Lint specific directory
     "instance_uuid": "uuid",
     "token": "token",
     "email": "dev@example.com",
-    "url": "https://your-instance.staging.oregon.platform-os.com",
+    "url": "https://your-instance.staging-insites.io",
     "key": "key"
   }
 }
@@ -115,7 +115,7 @@ insites-cli logsv2 dev
 insites-cli sync dev
 
 # Terminal 3: Test endpoints
-curl -i https://your-instance.staging.oregon.platform-os.com/endpoint
+curl -i https://your-instance.staging-insites.io/endpoint
 ```
 
 Check logs when you get 5xx responses.

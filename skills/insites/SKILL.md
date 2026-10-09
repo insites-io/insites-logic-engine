@@ -187,7 +187,7 @@ Need Liquid help?
 │   ├─ Execute GraphQL → graphql tag
 │   ├─ Call partial as function → function tag
 │   ├─ Render a partial → render tag
-│   ├─ Parse JSON data → parse_json tag
+│   ├─ Build a hash or array → assign literal (parse_json is deprecated for JSON written in the template)
 │   ├─ Redirect user → redirect_to tag
 │   ├─ Set session data → session tag
 │   ├─ Log for debugging → log tag
@@ -221,7 +221,7 @@ Need Liquid help?
 │   ├─ context.headers → HTTP request headers
 │   └─ forloop/tablerowloop → iteration helpers
 ├─ Types → liquid/types/
-├─ Variables (assign, capture, parse_json) → liquid/variables/
+├─ Variables (assign, capture) → liquid/variables/
 ├─ Flow control (if/elsif/else/unless/case) → liquid/flow-control/
 └─ Loops (for, cycle, tablerow) → liquid/loops/
 ```
@@ -316,7 +316,7 @@ Use the decision trees above to identify which category applies, then load the m
 | Category | Reference |
 |----------|-----------|
 | Guided track (README, credentials, controllers, pages, auth, data, errors) | `references/building-on-insites/` |
-| Controller alias inventory (225 aliases) | `references/building-on-insites/reference/alias-inventory.md` |
+| Controller alias inventory (404 controller aliases on v6) | `references/building-on-insites/reference/alias-inventory.md` |
 | Contract template (crm/controller/contacts/list) | `references/building-on-insites/reference/crm-contacts-list.md` |
 
 ### Views & Routing
@@ -366,7 +366,7 @@ Use the decision trees above to identify which category applies, then load the m
 ### Modules
 | Category | Reference |
 |----------|-----------|
-| CRM (insites_core) | `references/modules/crm/` |
+| CRM (insites_crm) | `references/modules/crm/` |
 | CMS (insites_cms) | `references/modules/cms/` |
 | Data (insites_databases) | `references/modules/data/` |
 | Module Template | `references/modules/template/` |
@@ -394,6 +394,7 @@ Use the decision trees above to identify which category applies, then load the m
 ### Developer Tools
 | Category | Reference |
 |----------|-----------|
+| Platform changes in 2026 (what changed, what is live on Insites instances) | `references/platform-changes-2026.md` |
 | CLI | `references/cli/` |
 | Deployment | `references/deployment/` |
 | Testing (insites_test + insites-cli) | `references/testing/` |
@@ -421,7 +422,7 @@ When the same logic appears twice, extract it. Use `{% function %}` for partials
 → `references/partials/`
 
 ### 6. Liquid coding standards
-Statements within `{% liquid %}` blocks must stay on a single line each — line-wrapping causes Liquid syntax errors. Variables in Insites are local to the partial; use the `export` tag to share them across renders.
+Statements within `{% liquid %}` blocks must stay on a single line each, except that a `{ }` or `[ ]` literal argument may continue across lines until it closes (see `references/liquid/types/api.md`) — line-wrapping causes Liquid syntax errors. Variables in Insites are local to the partial; use the `export` tag to share them across renders.
 → `references/liquid/`
 
 ## Project Structure
@@ -499,10 +500,9 @@ For the full canonical layout reference (per-directory purpose, naming conventio
 
 ## Documentation Links
 
-| Resource | URL |
+| Resource | Where |
 |----------|-----|
-| Official Docs | https://documentation.platformos.com |
-| GraphQL Schema | https://documentation.platformos.com/api/graphql/schema |
-| Liquid Filters | https://documentation.platformos.com/api-reference/liquid/platformos-filters |
-| Liquid Tags | https://documentation.platformos.com/api-reference/liquid/platformos-tags |
-| Liquid Objects | https://documentation.platformos.com/api-reference/liquid/platformos-objects |
+| Insites docs and change log | https://docs.insites.io and https://docs.insites.io/change-log |
+| GraphQL schema | `references/graphql/schema/schema.json` (introspected from a live instance) |
+| Liquid filters, tags, objects | `references/liquid/filters/`, `references/liquid/tags/`, `references/liquid/objects/` |
+| What the platform changed this year | `references/platform-changes-2026.md` |

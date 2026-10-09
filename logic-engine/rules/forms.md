@@ -16,7 +16,7 @@ preship_action: "Open 4 PRs replacing {% form %} with plain <form> + authenticit
 ---
 ```
 
-**Rule:** Do NOT use the deprecated `{% form ... %}` Liquid tag. All forms MUST use plain HTML `<form>` tags with `{% render 'modules/insites_core/authenticity_token' %}` (or equivalent CSRF mechanism) for POST, PUT, and DELETE operations.
+**Rule:** Do NOT use the deprecated `{% form ... %}` Liquid tag. All forms MUST use plain HTML `<form>` tags with `{% render 'modules/insites_crm/authenticity_token' %}` (or equivalent CSRF mechanism) for POST, PUT, and DELETE operations.
 
 **Why:** The `{% form %}` tag is deprecated. The platform supports plain HTML forms which give developers full control over markup and integrate cleanly with modern JS, validation libraries, and accessibility tools.
 
@@ -25,7 +25,7 @@ preship_action: "Open 4 PRs replacing {% form %} with plain <form> + authenticit
 ✅ **Correct:**
 ```liquid
 <form action="/account/update" method="post">
-  {% render 'modules/insites_core/authenticity_token', context: context %}
+  {% render 'modules/insites_crm/authenticity_token', context: context %}
   <input type="text" name="user[email]" required>
   <button type="submit">Save</button>
 </form>
@@ -59,7 +59,7 @@ audit_ref: audit/v0-conflicts-batch1.md#rule-r-6
 ---
 ```
 
-**Rule:** All POST, PUT, and DELETE forms MUST include `{% render 'modules/insites_core/authenticity_token' %}` (or equivalent), OR rely on the global CSRF meta-tag pattern in the layout.
+**Rule:** All POST, PUT, and DELETE forms MUST include `{% render 'modules/insites_crm/authenticity_token' %}` (or equivalent), OR rely on the global CSRF meta-tag pattern in the layout.
 
 GET forms do NOT require CSRF tokens — by definition GET should not change state, so CSRF protection isn't applicable.
 
@@ -68,7 +68,7 @@ GET forms do NOT require CSRF tokens — by definition GET should not change sta
 **How to apply:**
 ```liquid
 <form action="/account/update" method="post">
-  {% render 'modules/insites_core/authenticity_token', context: context %}
+  {% render 'modules/insites_crm/authenticity_token', context: context %}
   <!-- form fields -->
 </form>
 ```

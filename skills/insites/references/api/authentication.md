@@ -46,8 +46,8 @@ What a caller without a matching `Authorization` header gets depends on how the 
 
 | Guard | Response on failure |
 |---|---|
-| Front-matter policy `modules/insites_core/has_valid_instance_api_authorization` | **302 redirect to `api/401`**, flash alert `"401 - Unauthorised"` |
-| Inline `modules/insites_core/functions/auth/api_key_guard` + `respond_401` (CRM V2 pages since May 2026) | **401 on the original URL**, body `{ "error": "unauthorized", "message": "Invalid or revoked API key", "type": "authentication_error" }` |
+| Front-matter policy `modules/insites_crm/has_valid_instance_api_authorization` | **302 redirect to `api/401`**, flash alert `"401 - Unauthorised"` |
+| Inline `modules/insites_crm/functions/auth/api_key_guard` + `respond_401` (CRM V2 pages since May 2026) | **401 on the original URL**, body `{ "error": "unauthorized", "message": "Invalid or revoked API key", "type": "authentication_error" }` |
 
 A client that follows redirects on a POST will re-issue it as a GET to `api/401`, so test the failure path of each module you integrate with rather than assuming one shape.
 

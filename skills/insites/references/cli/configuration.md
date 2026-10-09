@@ -22,7 +22,7 @@ This produces a `.insites` file like:
     "instance_uuid": "your-instance-uuid",
     "token": "your-token",
     "email": "dev@example.com",
-    "url": "https://your-instance.staging.oregon.platform-os.com",
+    "url": "https://your-instance.staging-insites.io",
     "key": "your-key"
   }
 }

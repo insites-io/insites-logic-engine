@@ -156,6 +156,22 @@ Tests if string matches regex pattern.
 ```
 Replaces pattern matches with replacement.
 
+### escape_regex
+```liquid
+{%- assign safe = mention | escape_regex -%}
+{%- assign pattern = '@\[' | append: safe | append: '\]' -%}
+{%- assign output = body | replace_regex: pattern, link -%}
+```
+Escapes every character with a meaning in a regular expression, so the result matches
+the input literally: `'Jane.Doe' | escape_regex` is `Jane\.Doe`. Use it on any value that
+goes into `replace_regex`, `matches` or `regex_matches`. Measured on a v6 staging
+instance, 9 October 2026.
+
+### split (arrays)
+`split` applied to a value that is already an array returns it unchanged, so re-applying
+it in a loop no longer corrupts the values; applied to a hash it raises an argument error.
+(26 July 2026 platform release; measured 9 October 2026.)
+
 ### markdown
 ```liquid
 {%- assign html = markdown_string | markdown -%}
@@ -195,8 +211,13 @@ Decodes base64 string.
 ### encrypt
 ```liquid
 {%- assign encrypted = string | encrypt: key -%}
+{%- assign encrypted = padded_plaintext | encrypt: 'aes-128-gcm', cek, nonce -%}
 ```
-Encrypts with AES-256-CBC, returns base64.
+Encrypts with AES-256-CBC, returns base64. An explicit initialization vector passed after
+the key is honoured for symmetric algorithms (it used to be accepted and ignored, a
+random IV always generated): pass raw bytes of the algorithm's IV length, 12 for
+`aes-128-gcm`, 16 for `aes-256-cbc`. Omit it and a random IV is generated as before.
+Asymmetric algorithms (RSA, RSA-OAEP) refuse an IV.
 
 ### decrypt
 ```liquid
@@ -207,9 +228,12 @@ Decrypts AES-256-CBC encrypted string.
 ### jwt_encode
 ```liquid
 {%- assign token = data | jwt_encode: 'HS256', secret -%}
+{%- assign vapid_jwt = claims | jwt_encode: 'ES256', vapid_private_key -%}
 ```
 Creates a JWT from a hash. The algorithm comes first and is required: `jwt_encode: secret` is
-refused with "second argument must be one of following algorithms".
+refused with "second argument must be one of following algorithms". For ES256, ES384 and
+ES512 the key may be a PEM private key or a Base64url-encoded raw private key scalar, the
+form VAPID keys are distributed in.
 
 ### jwt_decode
 ```liquid
@@ -230,6 +254,36 @@ with.
 Creates an HMAC signature. With only the secret it is HMAC-SHA256 as lowercase hex. Pass
 `'sha256', 'base64'` for base64, as some webhook providers send it. There is no `hmac_sha256`
 filter: it answers "undefined filter".
+
+### hkdf
+```liquid
+{%- assign ikm   = shared_secret | hkdf: auth_secret, key_info, 32 -%}
+{%- assign cek   = ikm | hkdf: message_salt, cek_info, 16 -%}
+{%- assign nonce = ikm | hkdf: message_salt, nonce_info, 12 -%}
+```
+Derives a key with HKDF (RFC 5869). Arguments, all optional: salt, info, output length in
+bytes (default 32), hash algorithm (default `sha256`). Input and output are raw bytes, so
+pipe through `base64_encode` to print one. Live on a v6 staging instance, 9 October 2026.
+
+### ecdh_compute
+```liquid
+{%- assign shared_secret = sender_private_key | ecdh_compute: subscription.keys.p256dh -%}
+{%- assign hex = sender_private_key | ecdh_compute: peer_public_key, 'hex' -%}
+```
+Computes an ECDH shared secret from your EC private key and a peer's EC public key, given
+as PEM or as a Base64url raw uncompressed point (what a browser's
+`PushSubscription.getKey('p256dh')` returns). Raw bytes by default, ready for `hkdf`;
+pass `'hex'` or `'base64'` (URL-safe) for an encoded result. With `hkdf` and the `encrypt`
+IV argument this is enough to implement Web Push message encryption (RFC 8291) in Liquid.
+
+### Deprecated aliases
+Every alias of a filter is now published as a deprecated spelling with the canonical
+filter's arity, so an editor lint may start flagging names it used to accept: `compact`,
+`select`, `reject`, `detect`, `any`, `sort_by`, `group_by`, `flatten`, `dig`, `fetch`,
+`to_json`, `markdownify`, `nl2br`, `translate`, `localize`, `to_hash` and others. All keep
+working. `t`, `t_escape` and `l` are the canonical translation and localization spellings;
+`translate`, `translate_escape` and `localize` are the aliases, though their error
+messages still say "translate filter".
 
 ## Utility Filters API
 
