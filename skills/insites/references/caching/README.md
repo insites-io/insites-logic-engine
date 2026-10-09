@@ -1,6 +1,6 @@
 # Caching
 
-> **CLI STATUS:** `insites-cli cache` (clear/stats/inspect) is **not yet available** — this command is currently under development. Do not suggest any `insites-cli cache` subcommands to users.
+> **There is no cache command.** `insites-cli` 5.10.2 has no `cache` subcommand, and the GraphQL schema has no mutation that clears a cache. A cached fragment goes stale only when its `expire` runs out or its key changes, so put a version or the record's `updated_at` in the key.
 
 Insites provides fragment caching via the `{% cache %}` tag to avoid re-executing expensive operations.
 

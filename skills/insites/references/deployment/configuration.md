@@ -75,7 +75,7 @@ export POS_STAGING_TOKEN="token_abc"
 2. **Migration Status** - Latest migrations included
 3. **Asset References** - CDN paths configured
 4. **Secrets** - Stored as constants, never hardcoded
-5. **Validation** - `insites-cli audit` passes
+5. **Validation** - `insites-cli audit` prints `[Audit] 0 rules detected issues.` (it exits 0 either way, so read the line)
 
 ### Required Files
 

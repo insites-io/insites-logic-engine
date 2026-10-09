@@ -170,7 +170,7 @@ Test migrations on staging first:
 ```bash
 insites-cli migrations run staging
 # Verify data integrity
-insites-cli data export staging users data/verify.csv
+insites-cli data export staging --path verify.zip
 ```
 
 ## Continuous Integration Deployment

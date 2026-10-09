@@ -87,13 +87,12 @@ Duplicate keys overwrite each other, causing data loss.
 
 ## Cache Invalidation
 
-### Manual Invalidation
+### Key-Based Invalidation
 
-Clear cache via CLI when content changes:
+There is no command that clears a cache (the CLI has no `cache` subcommand). Put whatever changes with the content into the key, such as a record's `updated_at` or a version constant, so a change produces a new key:
 
-```bash
-insites-cli cache clear 'featured-products-en' staging
-insites-cli cache clear 'product-*' staging  # Wildcard clear
+```liquid
+{%- assign cache_key = 'featured-products-' | append: context.language | append: '-' | append: context.constants.CONTENT_VERSION -%}
 ```
 
 ### Time-Based Invalidation
@@ -108,11 +107,7 @@ Let cache expire naturally:
 
 ### Deployment Invalidation
 
-Clear all caches on deploy:
-
-```bash
-insites-cli cache clear --all staging
-```
+A deploy does not clear fragment caches by command. To start fresh after a release, change the version part of the keys, for example by setting a new `CONTENT_VERSION` with `insites-cli constants set --name CONTENT_VERSION --value "2026-10-09" staging`.
 
 ## Cache Configuration
 

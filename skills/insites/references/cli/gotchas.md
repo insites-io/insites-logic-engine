@@ -47,9 +47,9 @@ Production should only receive through:
 
 **Solution**:
 ```bash
-insites-cli gui serve --port 3001
-# Or kill existing process
-lsof -i :3000 | kill -9
+insites-cli gui serve staging --port 3031
+# Or stop whatever holds the default port, 3030
+lsof -ti :3030 | xargs kill
 ```
 
 ### Migration Conflicts
@@ -158,21 +158,21 @@ insites-cli logsv2 staging --filter "api_call"
 
 **Prevention**:
 ```bash
-# Always backup first
-insites-cli data export dev users data/backup.csv
+# Always back up first (writes a zip archive)
+insites-cli data export dev --path backup.zip
 
-# Then clean
-insites-cli data clean dev test_data
+# Then clean. This removes ALL data on the instance, not one table,
+# and asks you to type CLEAN DATA unless --auto-confirm is given
+insites-cli data clean dev
 ```
 
 ### Import Format Errors
 
-**Issue**: Import fails due to CSV format
+**Issue**: Import fails with "Invalid format ... Must be a valid json file"
 
 **Solution**:
-- Validate CSV format matches schema
-- Check encoding: UTF-8 required
-- Test on dev first: `insites-cli data import dev users data/test.csv`
+- `data import` reads a JSON file, or a zip archive with `--zip`. It does not read CSV, and it takes no table argument.
+- Test on dev first: `insites-cli data import dev --path data.json`, or `insites-cli data import dev --path backup.zip --zip`
 
 ## See Also
 

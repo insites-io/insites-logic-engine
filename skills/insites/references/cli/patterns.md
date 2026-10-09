@@ -78,8 +78,8 @@ insites-cli modules list dev
 Store all secrets as constants:
 
 ```bash
-insites-cli constants set dev API_KEY "key_xyz"
-insites-cli constants set staging WEBHOOK_SECRET "secret_abc"
+insites-cli constants set --name API_KEY --value "key_xyz" dev
+insites-cli constants set --name WEBHOOK_SECRET --value "secret_abc" staging
 ```
 
 Reference in code:
@@ -104,19 +104,19 @@ insites-cli migrations list dev
 ### Backup Before Operations
 
 ```bash
-insites-cli data export dev users data/backup_users.csv
+insites-cli data export dev --path backup.zip     # every table, as a zip archive
 ```
 
 ### Bulk Operations
 
 ```bash
-insites-cli data import staging users data/import_users.csv
+insites-cli data import staging --path data.json    # JSON, or a zip with --zip
 ```
 
 ### Data Cleanup
 
 ```bash
-insites-cli data clean staging test_records
+insites-cli data clean staging    # removes ALL data on the instance; there is no per-table clean
 ```
 
 ## Batch Command Execution

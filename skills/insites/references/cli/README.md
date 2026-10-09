@@ -4,8 +4,8 @@ Command-line tools for Insites development.
 
 > **CLI COMMAND STATUS — read before using any CLI examples:**
 > - `insites-cli logs` → **does not exist**. Use `insites-cli logsv2` (alias: `l2`) instead.
-> - `insites-cli constants` → **not yet available** (under development). See `references/constants/`.
-> - `insites-cli cache` → **not yet available** (under development). See `references/caching/`.
+> - `insites-cli constants list|set|unset` ships in CLI 5.10.2. See `references/constants/`.
+> - There is **no** `insites-cli cache` command. See `references/caching/`.
 > - `insites-cli sessions` → **not yet available** (under development). See `references/sessions/`.
 > - `insites-cli assets` → **not yet available** (under development). See `references/assets/`.
 
@@ -63,7 +63,7 @@ insites-cli migrations list dev                 # List migration states
 
 ### Data
 ```bash
-insites-cli data export dev --path=data.json    # Export data
+insites-cli data export dev --path=data.zip     # Export data (a zip archive)
 insites-cli data import dev --path=data.json    # Import data
 insites-cli data clean dev                      # Clean all data (DANGEROUS)
 ```

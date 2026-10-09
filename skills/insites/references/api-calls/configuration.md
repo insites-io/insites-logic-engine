@@ -87,9 +87,9 @@ Never hardcode API keys. Use Insites constants:
 
 ```bash
 # Set constant
-insites-cli constants set dev EXTERNAL_API_KEY "key_xyz123"
-insites-cli constants set staging EXTERNAL_API_KEY "key_staging"
-insites-cli constants set production EXTERNAL_API_KEY "key_prod"
+insites-cli constants set --name EXTERNAL_API_KEY --value "key_xyz123" dev
+insites-cli constants set --name EXTERNAL_API_KEY --value "key_staging" staging
+insites-cli constants set --name EXTERNAL_API_KEY --value "key_prod" production
 ```
 
 ### Reference in API Call

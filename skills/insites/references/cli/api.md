@@ -107,7 +107,7 @@ insites-cli gui serve [environment]
 |---|---|
 | `serve [environment]` | Serve the GUI for files from the given environment |
 
-`gui serve` does not accept a `--port` flag — it picks an available port and prints the URL on start.
+`gui serve` takes `-p, --port <port>` (default `3030`), `-o, --open` to open a browser when ready, and `-s, --sync` to sync files while it runs.
 
 ---
 
@@ -300,9 +300,9 @@ insites-cli data clean [environment]
 
 | Subcommand | Args | Description |
 |---|---|---|
-| `export [environment]` | env optional | Export instance data to a JSON file |
-| `import [environment]` | env optional | Import instance data from a JSON file |
-| `clean [environment]` | env optional | Remove all stored data (users, models, etc.). **Irreversible.** |
+| `export [environment]` | `-p, --path <file>`, `-e, --export-internal-ids`, `-z, --zip` (on by default) | Export instance data. Writes a zip archive, `data.zip` unless `--path` names another |
+| `import [environment]` | `-p, --path <file>` (default `data.json`), `-z, --zip`, `--raw-ids` | Import a JSON file, or a zip archive with `--zip`. No CSV, and no table argument |
+| `clean [environment]` | `--auto-confirm`, `-i, --include-schema` | Remove all stored data (users, records). Asks you to type `CLEAN DATA` unless `--auto-confirm`; `--include-schema` also removes pages, schemas and other files. **Irreversible.** |
 
 `clean` is destructive and not reversible — only use against staging/dev environments you are willing to wipe.
 

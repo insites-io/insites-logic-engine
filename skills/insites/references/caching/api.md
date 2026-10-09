@@ -57,45 +57,14 @@ Wrap content to be cached.
 
 ## Cache Clearing
 
-### CLI: Clear Specific Cache
+There is no command to clear a cache: `insites-cli` 5.10.2 has no `cache` subcommand (no `clear`, `stats` or `inspect`), and the GraphQL schema has no cache mutation. An entry is replaced when its `expire` runs out or when the page asks for a different key. To make a change show at once, build the key from something the change moves:
 
-```bash
-insites-cli cache clear 'homepage-featured' staging
+```liquid
+{%- assign cache_key = 'product-' | append: product.id | append: '-' | append: product.updated_at -%}
+{% cache cache_key, expire: 3600 %}
+  ...
+{% endcache %}
 ```
-
-### CLI: Clear Pattern
-
-```bash
-insites-cli cache clear 'user-profile-*' staging
-```
-
-Clear all caches matching pattern.
-
-### CLI: Clear All Caches
-
-```bash
-insites-cli cache clear --all staging
-```
-
-Dangerous—use only when necessary.
-
-## Cache Debugging
-
-### Show Cache Statistics
-
-```bash
-insites-cli cache stats staging
-```
-
-Returns hit rate, size, entries count.
-
-### Inspect Cache Entry
-
-```bash
-insites-cli cache inspect 'cache-key' staging
-```
-
-Displays cached content and metadata.
 
 ## Conditional Caching
 

@@ -63,7 +63,7 @@ Deploy and test on staging before production:
 insites-cli deploy staging
 
 # Verify data integrity
-insites-cli data export staging users data/test_export.csv
+insites-cli data export staging --path data/test_export.zip
 
 # Monitor for 24-48 hours
 insites-cli logs staging --follow
@@ -89,10 +89,13 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install CLI
-        run: npm install -g /insites-cli
+        run: npm install -g @insites/insites-cli
 
       - name: Validate
-        run: insites-cli audit
+        # audit exits 0 even when rules fire; fail on its summary line instead
+        run: |
+          insites-cli audit 2>&1 | tee audit.log
+          grep -q '\[Audit\] 0 rules detected issues' audit.log
 
       - name: Deploy to Staging
         run: insites-cli deploy staging
@@ -119,7 +122,7 @@ insites-cli migrations generate staging add_user_columns
 insites-cli deploy staging
 
 # 3. Verify data integrity
-insites-cli data export staging users data/verify.csv
+insites-cli data export staging --path data/verify.zip
 
 # 4. Deploy same migrations to production
 insites-cli deploy production
@@ -171,9 +174,8 @@ ENV=$1
 
 echo "Backing up $ENV before deployment..."
 
-# Export all data types
-insites-cli data export $ENV users data/backup_$(date +%s)_users.csv
-insites-cli data export $ENV products data/backup_$(date +%s)_products.csv
+# Export all data (one zip archive holds every table and the users)
+insites-cli data export $ENV --path data/backup_$(date +%s).zip
 
 # Save migrations state
 insites-cli migrations list $ENV > data/backup_migrations_$(date +%s).txt
@@ -198,7 +200,7 @@ Use feature flags to control deployment:
 Deploy with feature disabled, then enable via constants:
 
 ```bash
-insites-cli constants set production FEATURE_NEW_UI "true"
+insites-cli constants set --name FEATURE_NEW_UI --value "true" production
 ```
 
 ## See Also
