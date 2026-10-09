@@ -206,7 +206,7 @@ Case-sensitive substring search. Works on strings.
 {%- endif -%}
 ```
 
-Evaluates left-to-right. Both conditions must be truthy.
+Both conditions must be truthy.
 
 ### or (Logical OR)
 ```liquid
@@ -215,16 +215,16 @@ Evaluates left-to-right. Both conditions must be truthy.
 {%- endif -%}
 ```
 
-Evaluates left-to-right. At least one must be truthy.
+At least one must be truthy.
 
 ### Combining and/or
 ```liquid
 {%- if a == 1 and b == 2 or c == 3 -%}
-  (a == 1 AND b == 2) OR c == 3
+  a == 1 AND (b == 2 OR c == 3)
 {%- endif -%}
 ```
 
-Evaluates left-to-right, no precedence.
+No precedence: a chain of `and` and `or` is grouped from the right.
 
 ## Inline Conditionals API
 

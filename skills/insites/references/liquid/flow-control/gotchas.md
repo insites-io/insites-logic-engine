@@ -113,9 +113,11 @@ Common pitfalls and how to avoid them when using Insites Liquid flow control.
 ### Problem: and/or Evaluation Order
 ```liquid
 {%- if a == 1 and b == 2 or c == 3 -%}
-  {%- comment %} Evaluates: (a == 1 AND b == 2) OR c == 3 {%- endcomment %}
+  {%- comment %} Evaluates: a == 1 AND (b == 2 OR c == 3) {%- endcomment %}
 {%- endif -%}
 ```
+
+Liquid gives `and` and `or` no precedence. It groups a chain from the right (the `if` tag builds the last pair first), so this is true only when `a == 1`, whatever `c` is.
 
 **Solution:** Restructure for clarity:
 ```liquid
@@ -129,7 +131,7 @@ Common pitfalls and how to avoid them when using Insites Liquid flow control.
 ### Problem: Complex Boolean Logic
 ```liquid
 {%- if user.premium or user.trial and user.trial_active -%}
-  {%- comment %} Confusing: which condition takes priority? {%- endcomment %}
+  {%- comment %} Reads as: user.premium OR (user.trial AND user.trial_active) {%- endcomment %}
 {%- endif -%}
 ```
 

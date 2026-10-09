@@ -55,7 +55,7 @@ Complete reference of Insites-specific Liquid filters organized by category.
 | `to_date` | `{{ str \| to_date }}` | Parse to Date |
 | `localize` | `{{ date \| localize: 'long' }}` | Format date (locale-aware) |
 | `strftime` | `{{ date \| strftime: '%Y-%m-%d' }}` | Format with strftime |
-| `time_diff` | `{{ start \| time_diff: end, 'h' }}` | Duration between dates |
+| `time_diff` | `{{ start \| time_diff: end, 'h' }}` | Duration between dates; milliseconds unless a unit is given |
 | `is_date_before` | `{{ d1 \| is_date_before: d2 }}` | Compare dates |
 | `is_date_in_past` | `{{ date \| is_date_in_past }}` | Check if past |
 | `is_parsable_date` | `{{ val \| is_parsable_date }}` | Check if parseable |

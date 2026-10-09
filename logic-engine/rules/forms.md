@@ -10,15 +10,15 @@ id: forms-no-form-tag
 applies_to: [form]
 severity: error
 evidence: real-project
-evidence_source: "Rule sound. 4 violations in canonical repos must be fixed before shipping (app-portal sign_out, pay_bills; app-seedling sign_out; addon-ecommerce checkout_payment)."
+evidence_source: "A convention, not a deprecation: the CLI 5.10.2 tag reference marks {% form %} current and the v6 CRM module uses it once. 4 uses in canonical repos (app-portal sign_out, pay_bills; app-seedling sign_out; addon-ecommerce checkout_payment)."
 audit_ref: audit/v0-conflicts-batch1.md#rule-r-5
-preship_action: "Open 4 PRs replacing {% form %} with plain <form> + authenticity_token before shipping this rule."
+preship_action: "Open 4 PRs replacing {% form %} with plain <form> + authenticity_token, to keep the canonical repos on the convention."
 ---
 ```
 
-**Rule:** Do NOT use the deprecated `{% form ... %}` Liquid tag. All forms MUST use plain HTML `<form>` tags with `{% render 'modules/insites_crm/authenticity_token' %}` (or equivalent CSRF mechanism) for POST, PUT, and DELETE operations.
+**Rule:** Do NOT use the `{% form ... %}` Liquid tag in pages and partials. All forms MUST use plain HTML `<form>` tags with `{% render 'modules/insites_crm/authenticity_token' %}` (or equivalent CSRF mechanism) for POST, PUT, and DELETE operations.
 
-**Why:** The `{% form %}` tag is deprecated. The platform supports plain HTML forms which give developers full control over markup and integrate cleanly with modern JS, validation libraries, and accessibility tools.
+**Why:** Plain HTML forms give full control over markup and integrate cleanly with modern JS, validation libraries, and accessibility tools. This is a convention. The tag itself is **not** deprecated: the tag reference shipped with CLI 5.10.2 marks `form` current, the CLI audit flags `form_tag` and not `form`, and the v6 CRM module uses `{% form method: 'delete' %}` in `private/forms/sessions/lock_admin.liquid`. Earlier versions of this rule called it deprecated.
 
 **How to apply:**
 
@@ -31,7 +31,7 @@ preship_action: "Open 4 PRs replacing {% form %} with plain <form> + authenticit
 </form>
 ```
 
-❌ **Deprecated (forbidden):**
+❌ **Against the convention:**
 ```liquid
 {% form method: 'post' %}
   <input type="text" name="user[email]">

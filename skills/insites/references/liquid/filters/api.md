@@ -115,10 +115,11 @@ Uses standard strftime format codes.
 
 ### time_diff
 ```liquid
-{%- assign seconds = date1 | time_diff: date2 -%}
-{%- assign seconds = date1 | time_diff: 'now' -%}
+{%- assign ms = start | time_diff: finish -%}
+{%- assign minutes = 'now' | time_diff: '2026-10-08 00:00', 'm' -%}
+{%- assign hours = created_at | time_diff: 'now', 'h', 1 -%}
 ```
-Returns difference in seconds.
+Returns the time from the input to the first argument, in **milliseconds** unless you pass a unit: `d`/`days`, `h`/`hours`, `m`/`minutes`, `s`/`seconds`, `ms`/`milliseconds` (the default). The last argument is the decimal places, 3 by default. Source: the filter reference shipped with CLI 5.10.2. A bare `time_diff` divided by 3600 gives hours times 1000, not hours.
 
 ### iso8601
 ```liquid

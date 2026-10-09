@@ -67,7 +67,7 @@ describe("validators", () => {
     expect(r11).toHaveLength(0);
   });
 
-  it("flags deprecated {% form %} tag", async () => {
+  it("flags the {% form %} tag", async () => {
     const content = "<div>\n{% form method: 'post' %}\n  ...\n{% endform %}\n</div>";
     const result = await validate("app/forms/account/sign_out.liquid", content);
     const r5 = result.violations.filter((v) => v.ruleId === "forms-no-form-tag");

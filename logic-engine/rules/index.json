@@ -148,9 +148,9 @@
       "applies_to": ["form"],
       "severity": "error",
       "evidence": "real-project",
-      "evidence_source": "Rule sound. 4 violations in canonical repos must be fixed before shipping.",
+      "evidence_source": "A convention, not a deprecation: the CLI 5.10.2 tag reference marks the form tag current. 4 uses in canonical repos.",
       "audit_ref": "audit/v0-conflicts-batch1.md#rule-r-5",
-      "preship_action": "Fix 4 deprecated {% form %} usages before shipping (see audit batch 1)."
+      "preship_action": "Replace 4 {% form %} usages in canonical repos to keep them on the convention (see audit batch 1)."
     },
     {
       "id": "modules-always-present",

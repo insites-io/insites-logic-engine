@@ -78,7 +78,7 @@ Advanced patterns, optimization strategies, and professional techniques for Insi
 ```liquid
 {%- assign start_date = 'now' | add_to_time: -30, 'days' -%}
 {%- assign end_date = 'now' -%}
-{%- assign days_elapsed = start_date | time_diff: end_date | divided_by: 86400 -%}
+{%- assign days_elapsed = start_date | time_diff: end_date, 'd' | round -%}
 {%- assign week_number = start_date | strftime: '%V' -%}
 ```
 
@@ -87,7 +87,7 @@ Advanced patterns, optimization strategies, and professional techniques for Insi
 {%- assign event_date = '2025-01-15' -%}
 {%- assign interval = 7 -%}
 {%- assign next_occurrence = event_date | add_to_time: interval, 'days' -%}
-{%- assign days_until = next_occurrence | time_diff: 'now' | divided_by: 86400 -%}
+{%- assign days_until = 'now' | time_diff: next_occurrence, 'd' | floor -%}
 ```
 
 ## Advanced String Processing

@@ -281,7 +281,7 @@ Render a theme partial with configurable search paths.
 
 ## form / include_form
 
-Legacy form rendering tags. Prefer standard HTML forms.
+Form rendering tags. Neither is deprecated: the tag reference shipped with CLI 5.10.2 marks both current, the CLI audit does not flag them (it flags `form_tag`), and the v6 CRM module uses `{% form %}` in `private/forms/sessions/lock_admin.liquid`. The Logic Engine still prefers plain HTML forms (rule `forms-no-form-tag`) for control over the markup.
 
 ```liquid
 {% form %}

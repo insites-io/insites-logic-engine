@@ -122,7 +122,8 @@ updated, so re-measure rather than assume a date.
 - `parse_json` (tag and filter) is deprecated in favour of an `assign` literal for JSON
   written in the template; it remains the way to parse a runtime string. Every deprecated
   tag names its successor; `context_rc`, `function_rc`, `return_rc`, `sign_in_rc`,
-  `try_rc` and `render_form` are registered alternative spellings; `execute_query` and
+  `try_rc` and `render_form` are registered alternative spellings (the CLI 5.10.2 audit
+  still lists `render_form` among its deprecated tags); `execute_query` and
   `query_graph` are deprecated for `graphql`. [tags](liquid/tags/api.md)
 - Deploys touching more than 250 partials no longer leave stale compiled templates;
   deleting a partial expires its `path:` alias; `Duplicate pk` is warned across batches.
