@@ -349,47 +349,19 @@ method: delete
 
 ---
 
-## Phase 5: Using the User Module's Built-in Endpoints
+## Phase 5: Accessing the Current Profile
 
-### 5.1 Available Endpoints
+There are no built-in sign-in, registration or password-reset pages to fall back on: build them as in Phases 1 to 4.
 
-The User Module provides these endpoints automatically:
+### 5.1 Loading the Full Record
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/sessions/new` | GET | Login form (styled) |
-| `/sessions` | POST | Process login |
-| `/sessions` | DELETE | Process logout |
-| `/users/new` | GET | Registration form (styled) |
-| `/users` | POST | Process registration |
-| `/passwords/reset` | GET | Password reset form |
-| `/passwords` | POST | Send reset email |
-
-### 5.2 Using Built-in vs Custom
-
-**Use built-in endpoints when:**
-- You want styled, ready-to-use forms
-- Standard authentication flow is sufficient
-- You're prototyping quickly
-
-**Create custom endpoints when:**
-- You need custom validation logic
-- You're integrating with external systems
-- You need custom redirects after auth
-- You're building API-style authentication
-
-### 5.3 Accessing Current Profile
-
-The User Module provides a helper for the full user profile:
+`context.current_user` carries the id and email only. Load the full record, including roles, with a GraphQL query (see the Logic Engine's authentication reference, `references/authentication/api.md`):
 
 ```liquid
 {% liquid
-  # Method 1: Direct from context (if already loaded)
-  if context.exports.current_profile
-    assign current_profile = context.exports.current_profile
-  else
-    # Method 2: Load via helper
-    function current_profile = 'modules/user/helpers/current_profile'
+  if context.current_user
+    graphql g = 'users/current', id: context.current_user.id
+    assign current_profile = g.users.results.first
   endif
 
   if current_profile
@@ -397,6 +369,8 @@ The User Module provides a helper for the full user profile:
   endif
 %}
 ```
+
+`users/current.graphql` reads `roles: property_array(name: "roles")`. Declare `roles` in `app/user.yml` first, or it reads back `[]` for every user.
 
 ---
 

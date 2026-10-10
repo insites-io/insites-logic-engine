@@ -93,25 +93,7 @@ fields:
 
 ### Form Component
 
-Use the common-styling upload component:
-
-```html
-<form method="POST" action="/products" enctype="multipart/form-data">
-  <input type="hidden" name="authenticity_token" value="{{ context.authenticity_token }}">
-
-  <input type="text" name="product[title]" placeholder="Product title">
-
-  {% include 'components/upload',
-    name: 'product[image]',
-    accept: 'image/*',
-    max_size: 5242880
-  %}
-
-  <button type="submit">Upload</button>
-</form>
-```
-
-**Important:** Set `enctype="multipart/form-data"` on the form element for file uploads.
+There is no upload component. The file goes to storage through a presigned upload, and the form saves only the resulting URL in the `upload` field: see [File Upload](README.md#file-upload) for the three steps (`property_upload_presigned_url`, a browser POST to `upload_url`, then `record_create` or `record_update` with the URL).
 
 ## Spam Protection
 

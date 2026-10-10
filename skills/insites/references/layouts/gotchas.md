@@ -88,7 +88,7 @@ Layout problem?
 ├── Flash messages missing?
 │   ├── Check flash handling block exists before </body>
 │   ├── Check 'from' parameter matches redirect target
-│   ├── Check session module is installed
+│   ├── Check the page set sflash with the session tag before redirecting
 │   └── Check toasts partial is rendering correctly
 ├── yield slot empty?
 │   ├── Verify content_for name matches yield name exactly
