@@ -103,7 +103,7 @@ jobs:
           INSITES_EMAIL: ${{ secrets.STAGING_INSITES_EMAIL }}
           INSITES_TOKEN: ${{ secrets.STAGING_INSITES_TOKEN }}
           INSITES_INSTANCE: ${{ secrets.STAGING_INSITES_INSTANCE }}
-          INSITES_POS_KEY: ${{ secrets.STAGING_INSITES_POS_KEY }}
+          INSITES_POS_KEY: ${{ secrets.STAGING_INSITES_KEY }}
 
       - name: Deploy to Production
         run: insites-cli deploy production
@@ -113,7 +113,7 @@ jobs:
           INSITES_EMAIL: ${{ secrets.PROD_INSITES_EMAIL }}
           INSITES_TOKEN: ${{ secrets.PROD_INSITES_TOKEN }}
           INSITES_INSTANCE: ${{ secrets.PROD_INSITES_INSTANCE }}
-          INSITES_POS_KEY: ${{ secrets.PROD_INSITES_POS_KEY }}
+          INSITES_POS_KEY: ${{ secrets.PROD_INSITES_KEY }}
 ```
 
 ## Migration Management Pattern

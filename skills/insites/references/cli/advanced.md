@@ -168,7 +168,7 @@ jobs:
           INSITES_EMAIL: ${{ secrets.INSITES_EMAIL }}
           INSITES_TOKEN: ${{ secrets.INSITES_TOKEN }}
           INSITES_INSTANCE: ${{ secrets.INSITES_INSTANCE }}
-          INSITES_POS_KEY: ${{ secrets.INSITES_POS_KEY }}
+          INSITES_POS_KEY: ${{ secrets.INSITES_KEY }}
 ```
 
 ### GitLab CI Example
