@@ -21,8 +21,8 @@ Options:
 Examples:
   $0 --opencode
   $0 --claude --global
-  curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/main/install-examples.sh | bash -s -- --opencode
-  curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/main/install-examples.sh | bash -s -- --claude --global
+  curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/master/install-examples.sh | bash -s -- --opencode
+  curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/master/install-examples.sh | bash -s -- --claude --global
 EOF
 }
 
