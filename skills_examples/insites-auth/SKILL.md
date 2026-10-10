@@ -611,7 +611,7 @@ GET  /passwords/reset  # Password reset form
 
 ## References
 
-- [User Authentication Guide](https://documentation.platformos.com/get-started/build-your-first-app/user-authentication)
-- [User Module Documentation](https://documentation.platformos.com/developer-guide/modules/user-module)
-- [Security Best Practices](https://documentation.platformos.com/best-practices/security)
-- [Session Management](https://documentation.platformos.com/api-reference/liquid/tags/sign_in)
+- [Insites Documentation](https://docs.insites.io/)
+- [Authentication reference](https://github.com/insites-io/insites-logic-engine/blob/master/skills/insites/references/authentication/README.md) in the Insites Logic Engine
+- [Authentication gotchas](https://github.com/insites-io/insites-logic-engine/blob/master/skills/insites/references/authentication/gotchas.md)
+- [Sessions reference](https://github.com/insites-io/insites-logic-engine/blob/master/skills/insites/references/sessions/README.md)

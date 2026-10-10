@@ -660,13 +660,13 @@ insites-cli test run staging -n test/auth/login_test
 
 ```bash
 # Run all tests and get JSON response
-curl https://your-instance.staging.oregon.platform-os.com/_tests/run.js
+curl https://<instance>/_tests/run.js
 
 # Run a specific test
-curl "https://your-instance.staging.oregon.platform-os.com/_tests/run.js?name=test/examples/assertions_test"
+curl "https://<instance>/_tests/run.js?name=test/examples/assertions_test"
 
 # List all available tests as JSON
-curl https://your-instance.staging.oregon.platform-os.com/_tests.js
+curl https://<instance>/_tests.js
 ```
 
 ### 3.4 Running Tests via Browser
@@ -963,4 +963,4 @@ function contract = 'modules/tests/helpers/register_error',
 ## References
 
 - [Insites Documentation](https://docs.insites.io/)
-- [pos-module-tests](https://github.com/Platform-OS/pos-module-tests)
+- [Testing reference](https://github.com/insites-io/insites-logic-engine/blob/master/skills/insites/references/testing/README.md) in the Insites Logic Engine

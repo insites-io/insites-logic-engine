@@ -31,7 +31,7 @@ curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/mai
 
 ## Install example skills
 
-Example skills include: `code-review`, `playwright-cli`, `pos-auth`, `pos-crud-generator`, `pos-unit-tests`, `project-init`, and others.
+Example skills: `code-review`, `insites-auth`, `insites-debugging`, `insites-sync`, `insites-unit-tests` and `project-init`.
 
 ```bash
 # Claude Code (local / global)
