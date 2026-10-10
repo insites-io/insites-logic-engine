@@ -14,13 +14,13 @@ Edges and quirks of the CMS module that bite when authoring or consuming file-ba
 
 ---
 
-## 2. Pages must not contain HTML
+## 2. HTML shared between pages belongs in a partial
 
-**Bites:** putting `<div>...</div>` in a page file. `insites-cli audit` does not check this, and the request can return malformed output because the layout already wrapped what should have been delegated.
+**Bites:** copying the same header, card or form markup into several page files. Each copy drifts on its own, and a fix lands in one page and not the others. `insites-cli audit` does not check this.
 
-**Why:** pages are controllers. They fetch data via `{% graphql %}` and delegate rendering to partials. HTML lives in partials only.
+**Why:** the `pages-prefer-partials-for-shared-html` convention. A page may keep its own HTML when the content is simple: static copy, a single form, a system page. HTML that is reused across pages, or that a page composes from three or more distinct blocks, goes in partials rendered with `{% render %}`, which keeps the page focused on routing and fetching data.
 
-**Avoid:** keep page bodies to `{% graphql %}`, `{% function %}`, `{% assign %}`, and `{% render %}` calls. If a page is short and you're tempted to inline a `<p>`, extract it to a partial.
+**Avoid:** when you find yourself pasting markup from one page into another, extract it to a partial and render it from both. Leave a short static page inline.
 
 ---
 
@@ -34,13 +34,13 @@ Edges and quirks of the CMS module that bite when authoring or consuming file-ba
 
 ---
 
-## 4. `{% form %}` tag is not used in Insites
+## 4. Write forms as plain `<form>` elements, by convention
 
-**Bites:** writing `{% form %}...{% endform %}` because that is what the underlying platform's generic docs show. The form renders but CSRF doesn't behave as expected.
+**Bites:** reaching for `{% form %}...{% endform %}`. It works: the tag is current, not deprecated, and the v6 CRM module uses it once (`private/forms/sessions/lock_admin.liquid`). The Logic Engine still prefers plain HTML.
 
-**Why:** Insites uses plain `<form>` elements with explicit CSRF tokens; the `{% form %}` tag is the underlying platform's legacy pattern, not adopted here.
+**Why:** the `forms-no-form-tag` convention. A plain `<form>` gives full control over the markup and works cleanly with JavaScript, validation libraries and accessibility tools.
 
-**Avoid:** write forms as `<form action="..." method="post">...{{ context.csrf_tag }}...</form>` with the explicit CSRF token field. See [`../../forms/`](../../forms/) for the canonical form patterns.
+**Avoid:** write `<form action="..." method="post">` with an explicit hidden `authenticity_token` field set to `{{ context.authenticity_token }}`. See [`../../forms/`](../../forms/) for the canonical form patterns.
 
 ---
 
