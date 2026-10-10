@@ -63,11 +63,11 @@ Offload slow operations (emails, API calls, heavy processing) to background jobs
 ```liquid
 {% liquid
   graphql order = 'orders/create', data: payload
-  background source_name: 'order_confirmation', delay: 0.1, priority: 'default', max_attempts: 3
-    graphql _ = 'emails/send', template: 'order_confirmation', to: email, order_id: order.id
-  endbackground
+  background job_id = 'jobs/order_confirmation', to: email, order_id: order.id, source_name: 'order_confirmation', delay: 0.1, priority: 'default', max_attempts: 3
 %}
 ```
+
+`jobs/order_confirmation` sends the email with `to` and `order_id`, the only page values it can see.
 
 ### Background partial form (preferred for complex jobs)
 

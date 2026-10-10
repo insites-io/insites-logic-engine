@@ -10,9 +10,7 @@ The recommended pattern uses events and consumers for non-blocking email deliver
 
 ```liquid
 {% if user.email %}
-  {% background source_name: 'event:user_welcome', priority: 'default', max_attempts: 3 %}
-    {% graphql _ = 'emails/send_welcome', to: user.email, user_name: user.first_name %}
-  {% endbackground %}
+  {% background job_id = 'jobs/send_welcome', to: user.email, user_name: user.first_name, source_name: 'event:user_welcome', priority: 'default', max_attempts: 3 %}
 {% endif %}
 ```
 
@@ -47,13 +45,9 @@ Send different emails based on user context:
 
 ```liquid
 {% if user.type == 'premium' %}
-  {% background source_name: 'event:premium_user_notification', priority: 'default', max_attempts: 3 %}
-    {% graphql _ = 'emails/send_premium_notification', to: user.email %}
-  {% endbackground %}
+  {% background job_id = 'jobs/send_premium_notification', to: user.email, source_name: 'event:premium_user_notification', priority: 'default', max_attempts: 3 %}
 {% else %}
-  {% background source_name: 'event:user_notification', priority: 'default', max_attempts: 3 %}
-    {% graphql _ = 'emails/send_notification', to: user.email %}
-  {% endbackground %}
+  {% background job_id = 'jobs/send_notification', to: user.email, source_name: 'event:user_notification', priority: 'default', max_attempts: 3 %}
 {% endif %}
 ```
 
@@ -100,11 +94,11 @@ Send verification codes via SMS:
 Schedule an email with a background job:
 
 ```liquid
-{% background delay: 1440, source_name: 'reminder_email' %}
-  {%- assign mail = { "to": user.email, "action_required": true } -%}
-  {%- graphql sent = 'emails/send_reminder', data: mail -%}
-{% endbackground %}
+{%- assign mail = { "to": user.email, "action_required": true } -%}
+{% background job_id = 'jobs/send_reminder', mail: mail, delay: 1440, source_name: 'reminder_email' %}
 ```
+
+The job partial runs `{%- graphql sent = 'emails/send_reminder', data: mail -%}` with the `mail` passed to the tag.
 
 Sends the email after 24 hours: a background job's `delay` is in minutes. `email_send` itself takes no delay for a template send.
 

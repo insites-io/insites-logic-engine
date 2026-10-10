@@ -51,12 +51,16 @@ mutation send($data: HashObject) {
 
 ```liquid
 {% comment %} In command after creating order {% endcomment %}
-{% background source_name: 'event:order_created', priority: 'default', max_attempts: 3 %}
-  {% comment %} Consumer: app/lib/consumers/order_created/send_email.liquid {% endcomment %}
-  {%- assign mail = { "to": order.email, "order_id": order.id, "total": order.total } -%}
-  {% graphql _ = 'emails/send_order_confirmation', data: mail %}
-{% endbackground %}
+{%- assign mail = { "to": order.email, "order_id": order.id, "total": order.total } -%}
+{% background job_id = 'jobs/send_order_confirmation', mail: mail, source_name: 'event:order_created', priority: 'default', max_attempts: 3 %}
 ```
+
+```liquid
+{% comment %} app/views/partials/jobs/send_order_confirmation.liquid {% endcomment %}
+{% graphql _ = 'emails/send_order_confirmation', data: mail %}
+```
+
+The job sees only what is passed to the tag, so build `mail` on the page and pass it.
 
 ## SMS Template
 

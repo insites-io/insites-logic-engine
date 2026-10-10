@@ -48,19 +48,13 @@ Render a partial template inline. Output replaces the tag.
 
 ## background
 
-Execute code asynchronously.
+Run a partial asynchronously. `job_id` is the variable the tag assigns, and every other argument that is not an option becomes a variable inside the partial.
 
 ```liquid
-{% background source_name: 'send_email', delay: 0.1, priority: 'low', max_attempts: 3 %}
-  {% graphql _ = 'emails/send', to: email %}
-{% endbackground %}
+{% background job_id = 'jobs/send_email', email: email, source_name: 'send_email', delay: 0.1, priority: 'low', max_attempts: 3 %}
 ```
 
-Partial form:
-
-```liquid
-{% background job = 'lib/jobs/send_email', email: email, delay: 1, priority: 'high' %}
-```
+A job sees only the variables passed to the tag, so pass everything it needs. The block form (`{% background %}...{% endbackground %}`) is listed as deprecated in the tag reference shipped with CLI 5.10.2, and has the same scope.
 
 ## cache
 

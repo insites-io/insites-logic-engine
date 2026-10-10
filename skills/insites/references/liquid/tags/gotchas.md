@@ -216,29 +216,18 @@ To verify session state:
 
 **Error:** Variables used in a `background` job are nil or undefined at execution time.
 
-**Cause:** Background jobs have limited scope—they only have access to explicitly passed variables, not the calling page context.
+**Cause:** A background job only has the variables passed to the tag, not the calling page's. `context` is available with limits.
 
-**Solution:** Pass all required variables explicitly:
+**Solution:** Pass every value the job needs as a tag argument:
 
 ```liquid
-{% assign order_id = page.order_id %}
-{% assign user_email = page.user.email %}
-
-{% background task: 'send_order_notification', order_id: order_id, user_email: user_email %}
+{% background job_id = 'jobs/send_order_notification', order_id: order.id, user_email: order.user_email %}
 ```
 
-Inside the background job handler:
+Inside `app/views/partials/jobs/send_order_notification.liquid`, `order_id` and `user_email` are plain variables:
 
 ```liquid
-{% function send_order_notification %}
-  {%- comment -%}
-    order_id and user_email are available as function parameters
-  {%- endcomment -%}
-  {% graphql order = 'get_order', id: order_id %}
-  {% function email_service %}
-    {%- comment -%}send email{%- endcomment -%}
-  {% endfunction %}
-{% endfunction %}
+{% graphql order = 'get_order', id: order_id %}
 ```
 
 ---

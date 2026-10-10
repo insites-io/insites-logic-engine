@@ -55,19 +55,13 @@ Renders a partial template. Output is inserted in place. Variables are local.
 
 ## background
 
-Executes enclosed code asynchronously in a background job.
+Runs a partial asynchronously in a background job.
 
 ```liquid
-{% background source_name: 'job_name', delay: 0.5, priority: 'default', max_attempts: 3 %}
-  ... async code ...
-{% endbackground %}
+{% background job_id = 'path/to/partial', arg1: val, source_name: 'job_name', delay: 0.5, priority: 'default', max_attempts: 3 %}
 ```
 
-Partial form:
-
-```liquid
-{% background job = 'path/to/partial', arg1: val, delay: 1, priority: 'high' %}
-```
+A job sees only the variables passed to the tag, so pass everything it needs. The block form (`{% background %}...{% endbackground %}`) is listed as deprecated in the tag reference shipped with CLI 5.10.2, and has the same scope.
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|

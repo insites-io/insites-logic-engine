@@ -112,9 +112,7 @@ cron: '0 2 * * *'
 {% graphql pending_users = 'get_pending_email_users' %}
 
 {% for user in pending_users.users %}
-  {% background source_name: 'event:email_batch_send', priority: 'default', max_attempts: 3 %}
-    {% graphql _ = 'emails/send_batch_notification', to: user.email %}
-  {% endbackground %}
+  {% background job_id = 'jobs/send_batch_notification', to: user.email, source_name: 'event:email_batch_send', priority: 'default', max_attempts: 3 %}
 {% endfor %}
 ```
 

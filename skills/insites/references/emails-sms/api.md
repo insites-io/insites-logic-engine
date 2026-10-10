@@ -68,10 +68,10 @@ Your order #{{ data.order_id }} has been confirmed.
 Neither mutation takes a delay for a template send. Run it in a background job, whose `delay` is in minutes:
 
 ```liquid
-{% background delay: 1440, source_name: 'reminder_email' %}
-  {%- graphql sent = 'emails/send_reminder', data: mail -%}
-{% endbackground %}
+{% background job_id = 'jobs/send_reminder', mail: mail, delay: 1440, source_name: 'reminder_email' %}
 ```
+
+`app/views/partials/jobs/send_reminder.liquid` runs `{%- graphql sent = 'emails/send_reminder', data: mail -%}`. Pass `mail` to the tag: the job sees no other page variable.
 
 ## What the Schema Does Not Have
 
