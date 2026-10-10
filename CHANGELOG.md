@@ -2,6 +2,13 @@
 
 All notable changes to the Insites Logic Engine will be documented in this file.
 
+## [Unreleased]
+
+### Improvement
+- **Moving people and their passwords from another platform** (`authentication/patterns.md`, `graphql/gotchas.md`, TW#26866602, 10 October 2026). `import_users` stores any `encrypted_password` and only bcrypt (`$2a$`, `$2b$`, `$2y$`, any cost) works; any other value makes `authenticate { password }` fail the whole query with `invalid hash` and `user_session_create` call the password corrupted, while a person with no password is safe. The page gives the measured table of formats and the process: import bcrypt as it stands, strip `$wp` from WordPress 6.8+ hashes and check the HMAC-SHA384 pre-hash at sign-in, keep phpass (`$P$`, `$H$`) and MD5 hashes in a table and check them in Liquid with a tested function, then set the instance's own password on the first successful sign-in. Every format was run end to end on a v6 production instance with throwaway accounts.
+- **`digest` takes an output argument** (`liquid/filters/configuration.md`): `'hex'` (default), `'base64'`, or `'none'` for raw bytes; `sha384` measured.
+- **Two literal spellings that leave a page empty** (`liquid/types/gotchas.md`): `assign x = x << y` (write `assign x << y`) and a filter inside a hash literal value. Both are refused on sync with a 422 and no message, and `insites-cli check` passes both.
+
 ## [2.0.0] - 2026-10-09
 
 ### Improvement

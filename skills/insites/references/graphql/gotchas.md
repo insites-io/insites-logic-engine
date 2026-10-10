@@ -120,6 +120,10 @@ The same holds for every admin listing measured on two v6 instances on 7 October
 
 `users(page:, per_page:)` with no `sort` pages in no stable order. Read straight after 232 people were imported, the full read came back as 233 rows holding 199 distinct people (TW#26855353). With `sort: [{ id: { order: ASC } }]` the same read was stable. Give every paged read a sort on a unique field, and treat a repeated id in a listing as a sign to read again.
 
+### `encrypted_password` must be bcrypt, and nothing checks it on import
+
+`import_users` stores any string as `encrypted_password` and answers with ids as usual. Only bcrypt (`$2a$`, `$2b$`, `$2y$`, any cost) works afterwards. For anything else (WordPress `$P$`, `$wp$2y$`, MD5, `$6$`, Argon2, Django, plain text) `authenticate { password }` raises `invalid hash` and the **whole query's result is lost**, and `user_session_create` answers that the password "is corrupted, most likely due to the manual import". Measured on a v6 production instance, 10 October 2026 (TW#26866602). How to move other formats safely is in [authentication patterns](../authentication/patterns.md#moving-people-and-their-passwords-from-another-platform).
+
 ### `constants` answers at most one page
 
 `constants(per_page: 1000)` returns the first 1000 and no `total_entries`. Page with `page:` until a page comes back short; an instance can hold more than 1000 constants, and a reader that stops at one page sees a constant past it as absent.
