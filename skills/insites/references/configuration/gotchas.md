@@ -47,12 +47,7 @@ Hot-reload not supported. Redeploy after config changes.
 {{ context.config.features.enable_review }}   <!-- Returns nil silently -->
 ```
 
-Use `insites-cli config validate` to catch typos:
-
-```bash
-insites-cli config validate
-# Reports unknown keys in configuration
-```
+Nothing validates the keys for you: the CLI has no `config` command. Read a key back with `insites-cli exec liquid <env> "{{ context.config.features.enable_reviews }}"` after a deploy, and treat a blank answer as a likely typo.
 
 ## Environment Variables Not Substituted
 

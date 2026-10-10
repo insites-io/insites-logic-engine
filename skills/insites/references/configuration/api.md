@@ -112,31 +112,9 @@ Access deployment metadata.
 {{ context.deployment.git_hash }}
 ```
 
-## CLI: Show Configuration
+## Changing Configuration
 
-```bash
-insites-cli config show staging
-```
-
-Display current environment configuration.
-
-## CLI: Set Configuration Value
-
-```bash
-insites-cli config set staging \
-  --key 'modules.shipping.enabled' \
-  --value 'true'
-```
-
-Update configuration without editing YAML.
-
-## CLI: Validate Configuration
-
-```bash
-insites-cli config validate
-```
-
-Check configuration file syntax and required keys.
+The CLI has no `config` command. Edit `app/config.yml` and deploy it (`insites-cli deploy <env>`, or `insites-cli sync <env>` while you work); read a value back with `insites-cli exec liquid <env> "{{ context.config.<key> }}"`.
 
 ## Accessing Module Configuration
 

@@ -132,9 +132,7 @@ insites-cli deploy production
 
 ### Check Deployment Status
 
-```bash
-insites-cli env info production
-```
+`insites-cli deploy <env>` waits for the deploy to finish and prints its result. There is no separate status command.
 
 ### View Deployment Logs
 

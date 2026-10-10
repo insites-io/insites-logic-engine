@@ -1,6 +1,6 @@
 # Assets (Static Files & CDN)
 
-> **CLI STATUS:** `insites-cli assets` (upload/list/remove) is **not yet available** — this command is currently under development. Do not suggest any `insites-cli assets` subcommands to users. Assets are deployed as part of `insites-cli deploy` or `insites-cli sync`.
+> **CLI STATUS:** `insites-cli assets` (upload/list/remove) does **not exist**. Do not suggest any `insites-cli assets` subcommands to users. Assets are deployed as part of `insites-cli deploy` or `insites-cli sync`.
 
 Static files (images, fonts, CSS, JavaScript) served via CDN.
 

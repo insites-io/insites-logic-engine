@@ -141,19 +141,9 @@ Monitor cache size in metrics. Use TTL to auto-expire old entries.
 
 ## Partial Cache Invalidation Failures
 
-### Wildcard Clear Not Matching All Keys
+### Stale Content After a Change
 
-```bash
-# WRONG: Pattern doesn't match all variants
-insites-cli cache clear 'user-*' staging
-# Fails to clear 'user-profile-123', 'user-cart-456'
-
-# RIGHT: More specific pattern
-insites-cli cache clear 'user-profile-*' staging
-insites-cli cache clear 'user-cart-*' staging
-```
-
-Test wildcard patterns before using in production.
+There is no CLI command to clear the cache. To make new content show, change the cache key (for example, put the record's `updated_at` or a version number in it) or let `expire` run out.
 
 ## Race Conditions with Cache
 

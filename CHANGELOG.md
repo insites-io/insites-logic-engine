@@ -2,6 +2,14 @@
 
 All notable changes to the Insites Logic Engine will be documented in this file.
 
+## [Unreleased]
+
+### Bug Fix
+- **Only CLI commands that exist are named** (TW#26876510, 10 October 2026). Every `insites-cli` command in the pack was checked against the commands insites-cli 6.0.0 registers. Pages that told readers to run `modules install`, `modules download`, `cache`, `sessions`, `assets`, `config`, `env current`, `env info`, `migrations reset` or `migrations logs` now say what does the job instead, or that nothing does: modules are installed through the Console, `test run` installs the tests module itself, assets go up with `deploy` and `sync`, a cache is refreshed by changing its key, and configuration is edited in `app/config.yml` and deployed. The notes that called the missing commands "under development" now say they do not exist.
+
+### Improvement
+- **insites-cli 6.0.0** (`cli/api.md`, `cli/configuration.md`, `migrations/api.md`): `migrations status` and `migrations retry`, `env refresh-token`, the private-stack `.insites` entry that stores the Insites Console sign-in instead of the instance key, `private` as the default stack for a new environment, and `INSITES_INSTANCE_KEY` (formerly `INSITES_POS_KEY`) for CI.
+
 ## [2.0.0] - 2026-10-09
 
 ### Improvement

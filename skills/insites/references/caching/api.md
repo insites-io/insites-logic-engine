@@ -57,45 +57,9 @@ Wrap content to be cached.
 
 ## Cache Clearing
 
-### CLI: Clear Specific Cache
+There is no CLI command to clear the cache. To make new content show, change the cache key (for example, put the record's `updated_at` or a version number in it) or let `expire` run out.
 
-```bash
-insites-cli cache clear 'homepage-featured' staging
-```
-
-### CLI: Clear Pattern
-
-```bash
-insites-cli cache clear 'user-profile-*' staging
-```
-
-Clear all caches matching pattern.
-
-### CLI: Clear All Caches
-
-```bash
-insites-cli cache clear --all staging
-```
-
-Dangerous—use only when necessary.
-
-## Cache Debugging
-
-### Show Cache Statistics
-
-```bash
-insites-cli cache stats staging
-```
-
-Returns hit rate, size, entries count.
-
-### Inspect Cache Entry
-
-```bash
-insites-cli cache inspect 'cache-key' staging
-```
-
-Displays cached content and metadata.
+There is also no command for cache statistics or for reading a cached entry.
 
 ## Conditional Caching
 

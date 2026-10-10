@@ -1,6 +1,6 @@
 # Caching
 
-> **CLI STATUS:** `insites-cli cache` (clear/stats/inspect) is **not yet available** — this command is currently under development. Do not suggest any `insites-cli cache` subcommands to users.
+> **CLI STATUS:** `insites-cli cache` (clear/stats/inspect) does **not exist**. Do not suggest any `insites-cli cache` subcommands to users.
 
 Insites provides fragment caching via the `{% cache %}` tag to avoid re-executing expensive operations.
 

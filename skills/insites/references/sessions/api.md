@@ -140,21 +140,7 @@ For larger data:
 
 ## CLI Commands
 
-### Debug Session State
-
-```bash
-insites-cli sessions debug [user-id]
-```
-
-Inspect stored session data for specific user.
-
-### Clear User Sessions
-
-```bash
-insites-cli sessions clear [user-id]
-```
-
-Manually clear all sessions for user.
+The CLI has no `sessions` command. Read session state with `insites-cli exec liquid <env> "{{ context.session }}"` in a request context, or from a page while signed in.
 
 ## See Also
 

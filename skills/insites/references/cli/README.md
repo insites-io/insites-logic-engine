@@ -4,10 +4,10 @@ Command-line tools for Insites development.
 
 > **CLI COMMAND STATUS — read before using any CLI examples:**
 > - `insites-cli logs` → **does not exist**. Use `insites-cli logsv2` (alias: `l2`) instead.
-> - `insites-cli constants` → **not yet available** (under development). See `references/constants/`.
-> - `insites-cli cache` → **not yet available** (under development). See `references/caching/`.
-> - `insites-cli sessions` → **not yet available** (under development). See `references/sessions/`.
-> - `insites-cli assets` → **not yet available** (under development). See `references/assets/`.
+> - `insites-cli constants` → **does not exist**. See `references/constants/`.
+> - `insites-cli cache` → **does not exist**. See `references/caching/`.
+> - `insites-cli sessions` → **does not exist**. See `references/sessions/`.
+> - `insites-cli assets` → **does not exist**. See `references/assets/`.
 
 ## insites-cli Commands
 
@@ -42,10 +42,10 @@ See `references/testing/` for writing tests and gating CI.
 
 ### Modules
 ```bash
-insites-cli modules pull <name>               # Pull a module from instance
-insites-cli modules init <name>               # Initialize a new module
-insites-cli modules download <name>             # Download module source
+insites-cli modules pull dev <name>             # Pull a module's public files from an instance
+insites-cli modules init <name>                 # Create modules/<name> from the bundled starter
 insites-cli modules list dev                    # List installed modules
+insites-cli modules remove dev <name>           # Remove a module and its data
 ```
 
 ### Constants
