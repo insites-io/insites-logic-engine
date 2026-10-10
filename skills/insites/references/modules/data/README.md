@@ -1,6 +1,6 @@
 # Data Module
 
-The Insites Data module (POS name `insites_databases`) provides user-definable databases — admin-defined tables with arbitrary columns plus a V2 REST API for reading definitions and CRUD on rows ("database items"). Use it when you need to store structured app-specific data without writing schema YAML, or when an end-user needs to manage their own data tables through IIA.
+The Insites Data module (machine name `insites_databases`) provides user-definable databases — admin-defined tables with arbitrary columns plus a V2 REST API for reading definitions and CRUD on rows ("database items"). Use it when you need to store structured app-specific data without writing schema YAML, or when an end-user needs to manage their own data tables through IIA.
 
 ## Where to look
 

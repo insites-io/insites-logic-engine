@@ -1,6 +1,6 @@
 # Data — V2 REST API
 
-The Data module (POS module name `insites_databases`) exposes a V2 REST API at the `/databases/api/v2/...` URL prefix. It lets external clients read database definitions and CRUD database items (rows in user-defined tables).
+The Data module (machine name `insites_databases`) exposes a V2 REST API at the `/databases/api/v2/...` URL prefix. It lets external clients read database definitions and CRUD database items (rows in user-defined tables).
 
 For authentication, see [`references/api/authentication.md`](../../api/authentication.md). Every request needs an `Authorization` header carrying the raw instance API key. There is no `Bearer` prefix.
 
@@ -29,7 +29,7 @@ For authentication, see [`references/api/authentication.md`](../../api/authentic
 
 ### URL pattern
 
-The URL prefix is `/databases/api/v2/`, not `/data/api/v2/`. The module is named "data" externally but its URL space is "databases" (matches the POS module name `insites_databases`).
+The URL prefix is `/databases/api/v2/`, not `/data/api/v2/`. The module is named "data" externally but its URL space is "databases" (matches the machine name `insites_databases`).
 
 Note the singular `database/:table_id/items` for item endpoints — `:table_id` is the parent database's numeric id; the literal segment is `database` (singular). The databases list and read endpoints use plural `databases`.
 

@@ -2,7 +2,7 @@
 
 The Insites Permissions module (machine name `insites_permissions`, repo `module-v6-permissions`, git tag v6.0.2) manages **profiles**: the platform's user profile schemas that the admin assigns to CRM contacts. Despite the name, on v6 it holds no roles, groups or permission lists that anything reads. It creates, edits and deletes profile schemas, lists the contacts that hold one, removes contacts from one, and writes each change to the event stream.
 
-Source: `pos/modules/insites_permissions/` at master `fc4c3dc` (tag v6.0.2 plus two release-workflow commits that touch nothing under `pos/`). Counts are as counted in module-v6-permissions v6.0.2 on 9 October 2026.
+Source: `modules/insites_permissions/` at master `fc4c3dc` (tag v6.0.2 plus two release-workflow commits that touch nothing in the module tree). Counts are as counted in module-v6-permissions v6.0.2 on 9 October 2026.
 
 ## Where to look
 
