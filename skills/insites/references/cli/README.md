@@ -2,7 +2,7 @@
 
 Command-line tools for Insites development.
 
-> **CLI COMMAND STATUS — read before using any CLI examples:**
+> **CLI COMMAND STATUS: read before using any CLI examples:**
 > - `insites-cli logs <environment>` (alias `l`) streams the instance's logs live and works on every stack. `insites-cli logsv2` (alias `l2`) searches log history, but only where the stack has a log proxy: on the Insites stack (`*.staging-insites.io`, `*.prod01-insites.io`, where v6 instances run) it stops and points you at `logs`.
 > - `insites-cli constants list|set|unset` ships in CLI 5.10.2. See `references/constants/`.
 > - There is **no** `insites-cli cache` command. See `references/caching/`.

@@ -6,7 +6,7 @@ The CLI's top-level commands fall into three groups:
 - **Direct verbs**: `archive`, `audit`, `deploy`, `init`, `logs`, `pull`, `sync`
 - **Subcommand groups**: `constants`, `data`, `duplicate`, `env`, `exec`, `gui`, `logsv2`, `migrations`, `modules`
 
-Run `insites-cli help <command>` for the live signature on any instance — this doc reflects the same source.
+Run `insites-cli help <command>` for the live signature on any instance; this doc reflects the same source.
 
 ---
 
@@ -66,7 +66,7 @@ insites-cli deploy --partial-deploy <environment>
 
 | Option | Description |
 |---|---|
-| `-p, --partial-deploy` | Partial deployment — does not remove data from directories missing in the build |
+| `-p, --partial-deploy` | Partial deployment: does not remove data from directories missing in the build |
 
 Deployment runs the audit (skipped when `CI=true`), then deploys whatever it reports, executes pending migrations, and updates the environment.
 
@@ -74,7 +74,7 @@ Deployment runs the audit (skipped when `CI=true`), then deploys whatever it rep
 
 ## sync
 
-Synchronize local changes to an environment. **Watch mode is the default** — `sync <env>` opens a long-running watcher that pushes changes as files are saved.
+Synchronize local changes to an environment. **Watch mode is the default**: `sync <env>` opens a long-running watcher that pushes changes as files are saved.
 
 ```bash
 insites-cli sync <environment>
@@ -88,10 +88,10 @@ insites-cli sync <environment> -l
 | Option | Default | Description |
 |---|---|---|
 | `-c, --concurrency <number>` | `3` | Maximum concurrent connections to the server |
-| `-f, --file <file>` | — | Sync a single file once and exit (no watcher) |
+| `-f, --file <file>` | none | Sync a single file once and exit (no watcher) |
 | `-l, --livereload` | off | Use livereload to refresh the browser on each sync |
 
-**There is no `--watch` flag** — watch is the default. Use `-f` to opt out and sync exactly one file.
+**There is no `--watch` flag**; watch is the default. Use `-f` to opt out and sync exactly one file.
 
 ---
 
@@ -331,7 +331,7 @@ insites-cli data clean [environment]
 | `import [environment]` | `-p, --path <file>` (default `data.json`), `-z, --zip`, `--raw-ids` | Import a JSON file, or a zip archive with `--zip`. No CSV, and no table argument |
 | `clean [environment]` | `--auto-confirm`, `-i, --include-schema` | Remove all stored data (users, records). Asks you to type `CLEAN DATA` unless `--auto-confirm`; `--include-schema` also removes pages, schemas and other files. **Irreversible.** |
 
-`clean` is destructive and not reversible — only use against staging/dev environments you are willing to wipe.
+`clean` is destructive and not reversible. Only use against staging/dev environments you are willing to wipe.
 
 ---
 
@@ -345,12 +345,12 @@ insites-cli help <command>        # signature for a specific command
 insites-cli help <command> <sub>  # falls back to top-level help (CLI limitation)
 ```
 
-The CLI's help system surfaces the top-level signature for each command but does not currently render per-leaf-subcommand help — if `insites-cli help modules version` returns top-level help, look at the parent command's help (`insites-cli help modules`) for the subcommand signature.
+The CLI's help system surfaces the top-level signature for each command but does not currently render per-leaf-subcommand help. If `insites-cli help modules version` returns top-level help, look at the parent command's help (`insites-cli help modules`) for the subcommand signature.
 
 ---
 
 ## See Also
 
-- [CLI Configuration](./configuration.md) — environment files, auth tokens, env var setup
-- [Advanced CLI Patterns](./advanced.md) — composing commands in CI, scripting
-- [CLI Troubleshooting](./gotchas.md) — common failure modes
+- [CLI Configuration](./configuration.md): environment files, auth tokens, env var setup
+- [Advanced CLI Patterns](./advanced.md): composing commands in CI, scripting
+- [CLI Troubleshooting](./gotchas.md): common failure modes
