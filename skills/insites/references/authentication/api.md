@@ -45,7 +45,7 @@ The foundation of authentication is `context.current_user`, which is populated a
 %}
 ```
 
-The `users/current.graphql` query:
+The `users/current.graphql` query (the `roles` property must be declared in `app/user.yml` first, or it reads back `[]` for everyone; see [configuration](configuration.md#declare-the-roles-property-first)):
 
 ```graphql
 query current($id: ID!) {

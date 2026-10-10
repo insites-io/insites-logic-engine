@@ -39,6 +39,7 @@ app/                              # or modules/<name>/public/ or modules/<name>/
 │   ├── <service-a>/
 │   └── <service-b>/
 ├── schema/                       # Database table definitions (YAML)
+├── user.yml                      # Properties on the user record itself, e.g. roles (seen as app/user.yml)
 ├── user_profile_types/           # Custom user-profile schemas (e.g. crm_contact)
 ├── emails/                       # Email templates
 │   └── autoresponders/

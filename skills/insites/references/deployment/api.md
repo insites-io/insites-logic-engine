@@ -82,15 +82,13 @@ insites-cli migrations list staging
 
 ### Schema Application
 
-Schema changes applied:
+Table schemas in `app/schema/` and user properties in `app/user.yml` are applied. Both use a `properties:` list:
 
 ```yaml
-# app/schema/models/user.yml
+# app/user.yml
 properties:
-  email:
-    type: string
-  name:
-    type: string
+  - name: roles
+    type: array
 ```
 
 ### Asset Upload

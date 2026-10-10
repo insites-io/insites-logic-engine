@@ -155,12 +155,10 @@ insites-cli deploy staging
 ### Schema Files
 
 ```
-app/schema/
-├── types/
-│   └── custom_type.yml
-├── models/
-│   └── user.yml
-└── relations/
+app/
+├── schema/
+│   └── <table>.yml     # one file per table
+└── user.yml            # properties on the user record itself
 ```
 
 Schema applied during deployment.

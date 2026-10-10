@@ -709,7 +709,7 @@ query ($em: String, $non: String, $tok: String!) {
 
 ## Best Practices
 
-1. **Always load the profile from `context.current_user`** -- every protected page starts by checking `context.current_user` and loading the full profile with roles via GraphQL
+1. **Always load the profile from `context.current_user`** -- every protected page starts by checking `context.current_user` and loading the full profile with roles via GraphQL (the `roles` property must be declared in `app/user.yml` first; see [configuration](configuration.md#declare-the-roles-property-first))
 2. **Use `authorization_policies/` for full-page guards** -- this is the cleanest, most maintainable approach
 3. **Use inline role checks for conditional UI** -- `profile.roles contains 'role'` for showing/hiding elements
 4. **Authenticate before fetching data** -- check permissions before running GraphQL queries

@@ -225,14 +225,11 @@ insites-cli deploy staging
 
 **Solution**:
 ```yaml
-# Verify schema syntax
-# app/schema/models/user.yml
+# Verify schema syntax: properties is a list, not a map
+# app/user.yml
 properties:
-  email:
-    type: string
-    required: true
-  name:
-    type: string
+  - name: roles
+    type: array
 ```
 
 ## Deployment Rollback

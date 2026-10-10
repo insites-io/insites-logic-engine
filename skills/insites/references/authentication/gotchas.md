@@ -31,6 +31,34 @@ Common errors and platform constraints when working with authentication and auth
 %}
 ```
 
+### "Every role check fails, for every user"
+
+**Cause:** The instance has no `roles` property on users. A stock instance does not declare one, so `property_array(name: "roles")` reads back `[]` and a `users` filter with `array_contains` on `roles` returns `GraphQL Error: array_contains only works for arrays, roles is` inside the result. The page raises no Liquid error, so the check silently matches nobody.
+
+**Solution:** Declare the property in `app/user.yml`, in the list shape, and deploy:
+
+```yaml
+# app/user.yml
+properties:
+  - name: roles
+    type: array
+```
+
+Then give roles with `user_update` and `value_array`. See [Declare the roles property first](configuration.md#declare-the-roles-property-first).
+
+### "A migration that sets roles fails its deploy"
+
+**Cause:** An inline array literal passed as a `graphql` tag argument, such as `roles: ['member']`. In testing it made the deploy fail.
+
+**Solution:** Build the list in Liquid and pass the variable:
+
+```liquid
+{% liquid
+  assign member_roles = 'member' | split: ','
+  graphql saved = 'users/set_roles', id: user_id, roles: member_roles
+%}
+```
+
 ### "Permission check always returns false"
 
 **Cause:** The action string in the page does not match any entry in your permissions map. Action strings are exact matches -- no wildcards. Or the user's roles array does not include the expected role.
