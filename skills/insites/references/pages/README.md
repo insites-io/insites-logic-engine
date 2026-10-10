@@ -1,8 +1,8 @@
 # Pages (Controllers)
 
-Pages in Insites act primarily as **controllers**. They live in `modules/<name>/public/views/pages/`, fetch data via `{% graphql %}`, and delegate the bulk of rendering to partials via `{% render %}`.
+Pages in Insites act primarily as **controllers**. They live in `app/views/pages/` or `modules/<name>/public/views/pages/`, fetch data via `{% graphql %}`, and delegate the bulk of rendering to partials via `{% render %}`.
 
-> **Module path:** Pages live at `modules/<module_name>/public/views/pages/`. Insites projects organise code by module (see [`references/project-structure.md`](../project-structure.md)); there is no flat top-level `app/views/pages/` directory in canonical Combinate.
+> **Module path:** Pages live in `app/views/pages/` or `modules/<module_name>/public/views/pages/`. Both trees are valid: `app/` holds the site itself, and `modules/<name>/` holds code you want to reuse or package (see [`project-structure.md`](../project-structure.md)).
 
 ## Inline HTML — when it's allowed
 

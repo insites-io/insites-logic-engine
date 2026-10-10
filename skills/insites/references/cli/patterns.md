@@ -14,31 +14,26 @@ insites-cli gui serve
 3. In another terminal, watch file synchronization:
 
 ```bash
-insites-cli sync dev --watch
+insites-cli sync dev
 ```
 
-4. View real-time logs:
+4. View real-time logs (runs until `Ctrl+C`):
 
 ```bash
-insites-cli logsv2 dev --follow
+insites-cli logs dev
 ```
 
 ## Pre-Deployment Validation
 
 ### Linting and Checks
 
-Always run insites-cli audit before deployment:
+Always run insites-cli audit before deployment and read the summary count:
 
 ```bash
 insites-cli audit
 ```
 
-Checks performed:
-- Liquid syntax validation
-- Tag usage correctness
-- Translation file completeness
-- Partial naming conventions
-- Asset references
+Checks performed: deprecated tags, filters and keys; file types per folder; partial name clashes; file names; partials never included. It does not check Liquid syntax, translations or asset references, and it exits 0 either way. Full list in [`api.md`](api.md#audit).
 
 ## Environment Promotion Pipeline
 
@@ -83,8 +78,8 @@ insites-cli modules list dev
 Store all secrets as constants:
 
 ```bash
-insites-cli constants set dev API_KEY "key_xyz"
-insites-cli constants set staging WEBHOOK_SECRET "secret_abc"
+insites-cli constants set --name API_KEY --value "key_xyz" dev
+insites-cli constants set --name WEBHOOK_SECRET --value "secret_abc" staging
 ```
 
 Reference in code:
@@ -109,19 +104,19 @@ insites-cli migrations list dev
 ### Backup Before Operations
 
 ```bash
-insites-cli data export dev users data/backup_users.csv
+insites-cli data export dev --path backup.zip     # every table, as a zip archive
 ```
 
 ### Bulk Operations
 
 ```bash
-insites-cli data import staging users data/import_users.csv
+insites-cli data import staging --path data.json    # JSON, or a zip with --zip
 ```
 
 ### Data Cleanup
 
 ```bash
-insites-cli data clean staging test_records
+insites-cli data clean staging    # removes ALL data on the instance; there is no per-table clean
 ```
 
 ## Batch Command Execution
@@ -133,7 +128,8 @@ insites-cli data clean staging test_records
 ENV=$1
 insites-cli audit
 insites-cli deploy $ENV
-insites-cli logsv2 search
+# Watch the result in another terminal: insites-cli logs $ENV
+# (logs streams until Ctrl+C, so it does not belong inside a script)
 ```
 
 ## See Also

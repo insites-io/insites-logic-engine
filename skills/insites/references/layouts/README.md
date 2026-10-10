@@ -9,7 +9,7 @@ Layouts are wrapper templates that provide the common HTML shell around page con
 Layouts serve as the outermost template layer in Insites rendering. They handle:
 
 1. **HTML document structure** -- DOCTYPE, head, body, meta tags
-2. **Shared assets** -- CSS initialization (common-styling), global scripts
+2. **Shared assets** -- the project stylesheet, global scripts
 3. **Navigation and chrome** -- headers, footers, sidebars shared across pages
 4. **Content injection slots** -- named yield points where pages can inject page-specific assets
 5. **Flash messages** -- toast notifications displayed after redirects
@@ -44,12 +44,12 @@ Page Output → {{ content_for_layout }} inside Layout → Final HTML Response
 
 ```liquid
 <!DOCTYPE html>
-<html class="pos-app">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ context.page.metadata.title }}</title>
-  {% render 'modules/common-styling/init' %}
+  <link rel="stylesheet" href="{{ 'styles/main.css' | asset_url }}">
   {% yield 'head' %}
 </head>
 <body>
@@ -73,7 +73,7 @@ Page Output → {{ content_for_layout }} inside Layout → Final HTML Response
 ## Getting Started
 
 1. The default `app/views/layouts/application.liquid` is created with a new project
-2. Add `{% render 'modules/common-styling/init' %}` in `<head>` for CSS
+2. Link your stylesheet in `<head>` with the `asset_url` filter
 3. Place `{{ content_for_layout }}` where page content should appear
 4. Add `{% yield 'head' %}` and `{% yield 'footer_scripts' %}` for page-specific assets
 5. Include flash message handling before `</body>`
@@ -83,11 +83,11 @@ Page Output → {{ content_for_layout }} inside Layout → Final HTML Response
 
 ```liquid
 <!DOCTYPE html>
-<html class="pos-app">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <title>{{ context.page.metadata.title | default: "My App" }}</title>
-  {% render 'modules/common-styling/init' %}
+  <link rel="stylesheet" href="{{ 'styles/main.css' | asset_url }}">
   {% yield 'head' %}
 </head>
 <body>

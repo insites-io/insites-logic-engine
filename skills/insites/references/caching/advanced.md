@@ -108,9 +108,7 @@ Track which caches depend on each other:
     product-#{id} -> search-results
   {% endcomment %}
 
-  <!-- Manual invalidation of dependencies -->
-  insites-cli cache clear 'product-list' staging
-  insites-cli cache clear 'category-*' staging
+  <!-- No command clears these: build each dependent key from the product's updated_at -->
 {% endif %}
 ```
 

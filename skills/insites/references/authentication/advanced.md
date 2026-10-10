@@ -94,7 +94,7 @@ Usage:
 
 ## Multi-Role Users
 
-Roles are stored as a `property_array` on user records, so users natively support multiple roles. The GraphQL query returns them as an array:
+Roles are stored as a `property_array` on user records, so users support multiple roles once the `roles` property is declared in `app/user.yml` (see [configuration](configuration.md#declare-the-roles-property-first)). The GraphQL query returns them as an array:
 
 ```graphql
 query current($id: ID!) {
@@ -119,6 +119,8 @@ mutation set_roles($id: ID!) {
   }
 }
 ```
+
+To choose the roles at run time, take `$roles: [String!]!` as in [configuration](configuration.md#assigning-roles-to-users) and build the list in Liquid with `split` (`'admin,editor' | split: ','`). An inline array literal as a `graphql` tag argument made a deploy fail in testing.
 
 ### Multi-role permission check
 

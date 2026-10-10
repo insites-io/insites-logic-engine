@@ -193,57 +193,46 @@ Combine multiple factors for granular cache control:
 
 ### Delayed Execution Pattern
 
-Execute a task after a delay:
+Run a partial after a delay, given in minutes:
 
 ```liquid
-{% background task: 'send_welcome_email', user_id: user.id, delay: 300 %}
-
-{%- In event consumer (delayed): -%}
-{% function send_welcome_email %}
-  {% graphql user = 'get_user', id: user_id %}
-  {% if user.user %}
-    {% graphql send = 'send_email', to: user.user.email, template: 'welcome' %}
-  {% endif %}
-{% endfunction %}
+{% background job_id = 'jobs/send_welcome_email', user_id: user.id, delay: 5 %}
 ```
 
-### Retry Pattern with Exponential Backoff
+```liquid
+{% comment %} app/views/partials/jobs/send_welcome_email.liquid {% endcomment %}
+{% graphql user = 'get_user', id: user_id %}
+```
 
-Implement retry logic within the background handler:
+The job sees `user_id` because it was passed. It does not see `user`.
+
+### Retry Pattern
+
+Let the platform retry: `max_attempts` (1 to 5) reruns a job that fails.
 
 ```liquid
-{% function process_payment %}
-  {%- assign max_retries = 3 -%}
-  {%- assign retry_count = 0 -%}
-
-  {% try %}
-    {% graphql charge = 'payment_gateway_charge', amount: amount, user_id: user_id %}
-  {% catch %}
-    {%- if retry_count < max_retries -%}
-      {%- assign retry_count = retry_count | plus: 1 -%}
-      {%- assign delay = 60 | times: retry_count -%}
-      {% background task: 'process_payment', user_id: user_id, amount: amount, delay: delay, retry: true %}
-    {%- else -%}
-      {% log level: 'error', message: 'Payment failed after retries', user_id: user_id %}
-    {%- endif -%}
-  {% endtry %}
-{% endfunction %}
+{% background job_id = 'jobs/process_payment', user_id: user_id, amount: amount, max_attempts: 3 %}
 ```
 
 ### Priority Management Pattern
 
-Use context or metadata to prioritize jobs:
+`priority` takes `low`, `default` or `high`:
 
 ```liquid
-{% assign priority = order.tier == 'vip' | if: 'high' | else: 'normal' %}
-{% background task: 'process_order', order_id: order.id, priority: priority %}
+{% liquid
+  assign priority = 'default'
+  if order.tier == 'vip'
+    assign priority = 'high'
+  endif
+  background job_id = 'jobs/process_order', order_id: order.id, priority: priority
+%}
 ```
 
 **Job Execution Guarantees:**
 
 - Jobs execute at least once (no guarantee of exactly-once)
 - Execution not guaranteed within specified time window
-- Minimum delay is 1 minute
+- `delay` is in minutes and may be fractional (`0.5` is 30 seconds)
 - Jobs may be retried on transient failure
 
 ---

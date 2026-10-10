@@ -1,6 +1,6 @@
 # Locator: Advanced
 
-Hooks, partials other modules render, cross-module dependencies and what is not extensible. Facts from module-v6-locator v6.0.2 and the sibling v6 module trees, read 9 October 2026. Paths are relative to `pos/modules/insites_locator/` unless a module name is given.
+Hooks, partials other modules render, cross-module dependencies and what is not extensible. Facts from module-v6-locator v6.0.2 and the sibling v6 module trees, read 9 October 2026. Paths are relative to `modules/insites_locator/` unless a module name is given.
 
 ---
 
@@ -36,7 +36,7 @@ A count of `modules/<name>/` references across the module tree (9 October 2026):
 | `modules/ins_locator/` | 23 | The custom-field table under its legacy name |
 | `modules/insites_locations/` | 2 | The mistyped `belongs_to` in `enquiry.yml` and `location_faq.yml` |
 
-CRM is a hard dependency: without it no page authorises and no controller renders. The `pos/` tree references no other module; the ecommerce mentions in the repo's `CLAUDE.md` are strings in three Vue files.
+CRM is a hard dependency: without it no page authorises and no controller renders. The module tree references no other module; the ecommerce mentions in the repo's `CLAUDE.md` are strings in three Vue files.
 
 ---
 

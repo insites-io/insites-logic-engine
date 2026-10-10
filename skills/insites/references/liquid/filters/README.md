@@ -55,7 +55,7 @@ Complete reference of Insites-specific Liquid filters organized by category.
 | `to_date` | `{{ str \| to_date }}` | Parse to Date |
 | `localize` | `{{ date \| localize: 'long' }}` | Format date (locale-aware) |
 | `strftime` | `{{ date \| strftime: '%Y-%m-%d' }}` | Format with strftime |
-| `time_diff` | `{{ start \| time_diff: end, 'h' }}` | Duration between dates |
+| `time_diff` | `{{ start \| time_diff: end, 'h' }}` | Duration between dates; milliseconds unless a unit is given |
 | `is_date_before` | `{{ d1 \| is_date_before: d2 }}` | Compare dates |
 | `is_date_in_past` | `{{ date \| is_date_in_past }}` | Check if past |
 | `is_parsable_date` | `{{ val \| is_parsable_date }}` | Check if parseable |
@@ -132,7 +132,16 @@ Complete reference of Insites-specific Liquid filters organized by category.
 
 ## Translation Filter
 
-The `| t` filter is available for i18n when the translation system is configured. It looks up keys from translation YAML files.
+Insites supports translations. Keep one YAML file per language in `app/translations/` (for example `app/translations/en.yml` and `app/translations/de.yml`), or in `modules/<name>/public/translations/` or `private/translations/` for module code. The `| t` filter looks a key up in the current language.
+
+```yaml
+# app/translations/en.yml
+en:
+  app:
+    products:
+      title: "Products"
+    greeting: "Hello %{username}"
+```
 
 ```liquid
 {{ 'app.products.title' | t }}
@@ -140,7 +149,9 @@ The `| t` filter is available for i18n when the translation system is configured
 {{ 'app.missing' | t: default: 'Fallback text' }}
 ```
 
-> **Note:** The translation system requires translation YAML files to be configured. If translations are not set up, using `| t` will produce "translation missing:" errors. Use plain English text for user-facing strings unless you have explicitly configured translations.
+The current language is `context.language` (see `../objects/README.md`). English is the default. A `?language=de` query parameter changes it for the request, and so does `{% context language: 'de' %}` (see `../tags/api.md`). A key missing from that language falls back to English. A key missing everywhere renders `translation missing:` unless you pass `default:`.
+
+Translations are optional. Text written straight into a template works; use translation files when the site serves more than one language. Deploys report duplicate translation keys by file (see `../../platform-changes-2026.md`). The admin GraphQL API manages keys with `admin_translation_set`, `admin_translation_set_json` and `admin_translation_unset`. Public guide: https://docs.insites.io/developers-guide/translations-introduction and https://docs.insites.io/developers-guide/multi-language-page.
 
 ## Asset Filters
 

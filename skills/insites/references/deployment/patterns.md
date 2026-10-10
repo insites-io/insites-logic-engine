@@ -7,7 +7,7 @@
 ```bash
 # 1. Develop and test locally
 insites-cli gui serve
-insites-cli sync dev --watch
+insites-cli sync dev
 
 # 2. Run validation
 insites-cli audit
@@ -15,14 +15,14 @@ insites-cli audit
 # 3. Deploy to staging
 insites-cli deploy staging
 
-# 4. Review staging logs
-insites-cli logsv2 search
+# 4. Review staging logs (streams until Ctrl+C)
+insites-cli logs staging
 
 # 5. Deploy to production
 insites-cli deploy production
 
-# 6. Monitor production
-insites-cli logsv2 search
+# 6. Monitor production (streams until Ctrl+C)
+insites-cli logs production
 ```
 
 ## Pre-Deployment Pattern
@@ -43,11 +43,8 @@ echo "✓ insites-cli audit passed"
 insites-cli env list
 echo "✓ Environment verified"
 
-# 4. Check for errors in logs
-ERROR_COUNT=$(insites-cli logs production --filter error | wc -l)
-if [ $ERROR_COUNT -gt 0 ]; then
-  echo "⚠ Warning: $ERROR_COUNT errors in production logs"
-fi
+# 3. Logs: insites-cli logs streams until Ctrl+C, so it cannot be counted
+#    in a script. Watch it in another terminal: insites-cli logs production --filter error
 
 echo "Ready for deployment"
 ```
@@ -63,13 +60,13 @@ Deploy and test on staging before production:
 insites-cli deploy staging
 
 # Verify data integrity
-insites-cli data export staging users data/test_export.csv
+insites-cli data export staging --path data/test_export.zip
 
-# Monitor for 24-48 hours
-insites-cli logs staging --follow
+# Watch the logs (streams until Ctrl+C)
+insites-cli logs staging
 
-# Check error rates
-insites-cli logs staging --filter error --follow
+# Errors only
+insites-cli logs staging --filter error
 ```
 
 ## CI/CD Deployment Pattern
@@ -89,21 +86,34 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install CLI
-        run: npm install -g /insites-cli
+        run: npm install -g @insites/insites-cli
 
       - name: Validate
-        run: insites-cli audit
+        # audit exits 0 even when rules fire; fail on its summary line instead
+        run: |
+          insites-cli audit 2>&1 | tee audit.log
+          grep -q '\[Audit\] 0 rules detected issues' audit.log
 
+      # The five INSITES_* variables override .insites and the environment
+      # name, so each step carries the full set for its own instance.
       - name: Deploy to Staging
         run: insites-cli deploy staging
         env:
-          POS_STAGING_TOKEN: ${{ secrets.POS_STAGING_TOKEN }}
+          INSITES_URL: ${{ secrets.STAGING_INSITES_URL }}
+          INSITES_EMAIL: ${{ secrets.STAGING_INSITES_EMAIL }}
+          INSITES_TOKEN: ${{ secrets.STAGING_INSITES_TOKEN }}
+          INSITES_INSTANCE: ${{ secrets.STAGING_INSITES_INSTANCE }}
+          INSITES_POS_KEY: ${{ secrets.STAGING_INSITES_KEY }}
 
       - name: Deploy to Production
         run: insites-cli deploy production
         if: success()
         env:
-          POS_PROD_TOKEN: ${{ secrets.POS_PROD_TOKEN }}
+          INSITES_URL: ${{ secrets.PROD_INSITES_URL }}
+          INSITES_EMAIL: ${{ secrets.PROD_INSITES_EMAIL }}
+          INSITES_TOKEN: ${{ secrets.PROD_INSITES_TOKEN }}
+          INSITES_INSTANCE: ${{ secrets.PROD_INSITES_INSTANCE }}
+          INSITES_POS_KEY: ${{ secrets.PROD_INSITES_KEY }}
 ```
 
 ## Migration Management Pattern
@@ -119,7 +129,7 @@ insites-cli migrations generate staging add_user_columns
 insites-cli deploy staging
 
 # 3. Verify data integrity
-insites-cli data export staging users data/verify.csv
+insites-cli data export staging --path data/verify.zip
 
 # 4. Deploy same migrations to production
 insites-cli deploy production
@@ -171,9 +181,8 @@ ENV=$1
 
 echo "Backing up $ENV before deployment..."
 
-# Export all data types
-insites-cli data export $ENV users data/backup_$(date +%s)_users.csv
-insites-cli data export $ENV products data/backup_$(date +%s)_products.csv
+# Export all data (one zip archive holds every table and the users)
+insites-cli data export $ENV --path data/backup_$(date +%s).zip
 
 # Save migrations state
 insites-cli migrations list $ENV > data/backup_migrations_$(date +%s).txt
@@ -198,7 +207,7 @@ Use feature flags to control deployment:
 Deploy with feature disabled, then enable via constants:
 
 ```bash
-insites-cli constants set production FEATURE_NEW_UI "true"
+insites-cli constants set --name FEATURE_NEW_UI --value "true" production
 ```
 
 ## See Also

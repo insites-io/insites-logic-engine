@@ -7,12 +7,11 @@
 Send emails without delaying the user's response:
 
 ```liquid
-{% background source_name: 'send_welcome_email' %}
-  {% include 'emails/welcome',
-    user_id: user.id,
-    email: user.email,
-    name: user.name %}
-{% endbackground %}
+{% background job_id = 'emails/welcome',
+  source_name: 'send_welcome_email',
+  user_id: user.id,
+  email: user.email,
+  name: user.name %}
 
 Response returned to user immediately
 ```
@@ -33,11 +32,11 @@ Response returned to user immediately
 Execute tasks after a delay:
 
 ```liquid
-{% background delay: 30, source_name: 'send_reminder' %}
-  {% include 'notifications/reminder',
-    user_id: user.id,
-    message: 'Your session expires in 30 minutes' %}
-{% endbackground %}
+{% background job_id = 'notifications/reminder',
+  delay: 30,
+  source_name: 'send_reminder',
+  user_id: user.id,
+  message: 'Your session expires in 30 minutes' %}
 ```
 
 **Use Cases**:
@@ -56,18 +55,19 @@ Execute tasks after a delay:
 Call external services with built-in retry logic:
 
 ```liquid
-{% background max_attempts: 3, priority: 'default', source_name: 'sync_to_crm' %}
-  {% include 'integrations/crm-sync',
-    contact_id: contact.id,
-    action: 'create',
-    data: contact.data %}
-{% endbackground %}
+{% background job_id = 'integrations/crm-sync',
+  max_attempts: 3,
+  priority: 'default',
+  source_name: 'sync_to_crm',
+  contact_id: contact.id,
+  action: 'create',
+  data: contact.data %}
 ```
 
 **Advantages**:
 - Handles temporary API failures automatically
 - Exponential backoff between retries
-- Logged attempts visible in `insites-cli logs`
+- Each attempt shows in `insites-cli logs` if the job writes a `{% log %}` entry
 - Non-blocking (doesn't slow down user request)
 
 **Configuration**:
@@ -80,12 +80,11 @@ Call external services with built-in retry logic:
 Move CPU-intensive tasks to background:
 
 ```liquid
-{% background source_name: 'generate_pdf_report' %}
-  {% include 'reports/pdf-generator',
-    data_id: data.id,
-    format: 'pdf',
-    include_charts: true %}
-{% endbackground %}
+{% background job_id = 'reports/pdf-generator',
+  source_name: 'generate_pdf_report',
+  data_id: data.id,
+  format: 'pdf',
+  include_charts: true %}
 ```
 
 **Benefits**:
@@ -100,13 +99,15 @@ Move CPU-intensive tasks to background:
 Asynchronously create and store reports:
 
 ```liquid
-{% background delay: 1, priority: 'low', max_attempts: 1, source_name: 'monthly_report' %}
-  {% include 'reports/monthly-analytics',
-    account_id: account.id,
-    period: 'monthly',
-    month: month,
-    year: year %}
-{% endbackground %}
+{% background job_id = 'reports/monthly-analytics',
+  delay: 1,
+  priority: 'low',
+  max_attempts: 1,
+  source_name: 'monthly_report',
+  account_id: account.id,
+  period: 'monthly',
+  month: month,
+  year: year %}
 ```
 
 **Pattern**:
@@ -120,11 +121,10 @@ Process multiple items asynchronously:
 
 ```liquid
 {% for item in items %}
-  {% background source_name: 'process_item' %}
-    {% include 'processors/item-processor',
-      item_id: item.id,
-      item_data: item %}
-  {% endbackground %}
+  {% background job_id = 'processors/item-processor',
+    source_name: 'process_item',
+    item_id: item.id,
+    item_data: item %}
 {% endfor %}
 ```
 
@@ -138,12 +138,12 @@ Process multiple items asynchronously:
 Handle incoming webhooks asynchronously:
 
 ```liquid
-{% background max_attempts: 2, source_name: 'webhook_handler' %}
-  {% include 'webhooks/process',
-    event_type: webhook.event_type,
-    payload: webhook.data,
-    timestamp: webhook.timestamp %}
-{% endbackground %}
+{% background job_id = 'webhooks/process',
+  max_attempts: 2,
+  source_name: 'webhook_handler',
+  event_type: webhook.event_type,
+  payload: webhook.data,
+  timestamp: webhook.timestamp %}
 ```
 
 **Benefit**: Return success immediately while processing webhook asynchronously
@@ -153,9 +153,7 @@ Handle incoming webhooks asynchronously:
 ### Background Jobs
 
 ```liquid
-{% background source_name: 'send_email' %}
-  {% include 'emails/transactional', user_id: user.id %}
-{% endbackground %}
+{% background job_id = 'emails/transactional', source_name: 'send_email', user_id: user.id %}
 ```
 
 **Pros**:
@@ -212,9 +210,10 @@ Use both for complex workflows:
 
 {% trigger_event 'order.created', order_id: order.id %}
 
-{% background delay: 5, source_name: 'send_confirmation_email' %}
-  {% include 'emails/order-confirmation', order_id: order.id %}
-{% endbackground %}
+{% background job_id = 'emails/order-confirmation',
+  delay: 5,
+  source_name: 'send_confirmation_email',
+  order_id: order.id %}
 ```
 
 **Flow**:
@@ -229,34 +228,36 @@ Prioritize jobs strategically:
 
 ```liquid
 {% comment %} High priority - critical for user experience {% endcomment %}
-{% background priority: 'high', max_attempts: 5, source_name: 'payment_processing' %}
-  {% include 'payments/process', order_id: order.id %}
-{% endbackground %}
+{% background job_id = 'payments/process',
+  priority: 'high',
+  max_attempts: 5,
+  source_name: 'payment_processing',
+  order_id: order.id %}
 
 {% comment %} Default priority - standard operations {% endcomment %}
-{% background priority: 'default', max_attempts: 2, source_name: 'send_email' %}
-  {% include 'emails/transactional', user_id: user.id %}
-{% endbackground %}
+{% background job_id = 'emails/transactional',
+  priority: 'default',
+  max_attempts: 2,
+  source_name: 'send_email',
+  user_id: user.id %}
 
 {% comment %} Low priority - non-urgent tasks {% endcomment %}
-{% background priority: 'low', max_attempts: 1, source_name: 'log_analytics' %}
-  {% include 'analytics/log-event', event_type: 'user_visit' %}
-{% endbackground %}
+{% background job_id = 'analytics/log-event',
+  priority: 'low',
+  max_attempts: 1,
+  source_name: 'log_analytics',
+  event_type: 'user_visit' %}
 ```
 
 ## Monitoring and Debugging
 
-Track job execution via logs:
+Write a log entry from inside the job with a type you can filter on, for example `{% log note, type: 'send_email' %}`, then stream it (until `Ctrl+C`):
 
 ```bash
-insites-cli logs | grep 'send_email'
+insites-cli logs staging --filter send_email
 ```
 
-Parse logs to identify failures:
-
-```bash
-insites-cli logs | grep 'FAILED'
-```
+`insites-cli logs` does not print `source_name`, so `grep` finds a job only by text its own entries contain.
 
 ## See Also
 

@@ -127,23 +127,19 @@ Alternative: Use the function without explicit return (Insites will return the l
 
 **Solution:** Verify the path mapping:
 
-- Partials live in `/app/views/partials/`
-- Use relative paths from the partials directory
-- File must end in `.liquid`
+- A path with no prefix reads `app/views/partials/`: `{% render 'header' %}` reads `app/views/partials/header.liquid`
+- A path that starts `modules/<name>/` reads that module's `public/views/partials/` or `private/views/partials/`: `{% render 'modules/my_module/card' %}` reads `modules/my_module/public/views/partials/card.liquid`
+- Leave out `views/partials/` and the `.liquid` extension
 
 ```liquid
-{% render 'partials/header' %}          {%- correct --%}
-{% render 'app/views/partials/header' %} {%- incorrect --%}
-{% render 'header.liquid' %}             {%- incorrect, omit extension --%}
+{% render 'header' %}                      {% comment %} correct {% endcomment %}
+{% render 'modules/my_module/card', item: product %} {% comment %} correct {% endcomment %}
+{% render 'app/views/partials/header' %}   {% comment %} incorrect {% endcomment %}
+{% render 'partials/header' %}             {% comment %} incorrect: reads app/views/partials/partials/header.liquid {% endcomment %}
+{% render 'header.liquid' %}               {% comment %} incorrect, omit extension {% endcomment %}
 ```
 
-If partial is in a module:
-
-```liquid
-{% render 'modules/my_module/partials/card', item: product %}
-```
-
-Check `/app/views/partials/` directory structure matches your include paths.
+See [`project-structure.md`](../../project-structure.md) for how paths resolve in both trees.
 
 ---
 
@@ -220,29 +216,18 @@ To verify session state:
 
 **Error:** Variables used in a `background` job are nil or undefined at execution time.
 
-**Cause:** Background jobs have limited scope—they only have access to explicitly passed variables, not the calling page context.
+**Cause:** A background job only has the variables passed to the tag, not the calling page's. `context` is available with limits.
 
-**Solution:** Pass all required variables explicitly:
+**Solution:** Pass every value the job needs as a tag argument:
 
 ```liquid
-{% assign order_id = page.order_id %}
-{% assign user_email = page.user.email %}
-
-{% background task: 'send_order_notification', order_id: order_id, user_email: user_email %}
+{% background job_id = 'jobs/send_order_notification', order_id: order.id, user_email: order.user_email %}
 ```
 
-Inside the background job handler:
+Inside `app/views/partials/jobs/send_order_notification.liquid`, `order_id` and `user_email` are plain variables:
 
 ```liquid
-{% function send_order_notification %}
-  {%- comment -%}
-    order_id and user_email are available as function parameters
-  {%- endcomment -%}
-  {% graphql order = 'get_order', id: order_id %}
-  {% function email_service %}
-    {%- comment -%}send email{%- endcomment -%}
-  {% endfunction %}
-{% endfunction %}
+{% graphql order = 'get_order', id: order_id %}
 ```
 
 ---
@@ -336,7 +321,7 @@ Use try/catch for safe operations (parsing, type coercion):
    - Continue to step 3
 
 3. **Are you calling `{% render %}`?**
-   - Partial not found → Verify path in `/app/views/partials/`
+   - Partial not found → Verify path in `app/views/partials/` or `modules/<name>/{public,private}/views/partials/`
    - Partial found → Continue to step 4
 
 4. **Are you using `parse_json` or `session`?**

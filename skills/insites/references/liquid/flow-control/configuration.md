@@ -62,8 +62,10 @@ Compact matching of multiple values per when.
 - No regex matching in conditions
 
 ### Boolean Operators
-- `and` - Logical AND (evaluated left-to-right)
-- `or` - Logical OR (evaluated left-to-right)
+- `and` - Logical AND
+- `or` - Logical OR
+
+Neither binds tighter: a chain is grouped from the right.
 
 **Important:** No `not` operator, no parentheses, no `&&` or `||`.
 
@@ -120,9 +122,9 @@ Use `unless` instead of `if not`.
 ## Logical Operator Precedence
 
 ### and vs or
-Evaluated left-to-right (not traditional precedence):
+Grouped from the right, with no precedence between them:
 ```liquid
-{%- comment %} (a == 1 and b == 2) or c == 3 {%- endcomment %}
+{%- comment %} a == 1 and (b == 2 or c == 3) {%- endcomment %}
 {%- if a == 1 and b == 2 or c == 3 -%}
   This is misleading - use separate conditions
 {%- endif -%}

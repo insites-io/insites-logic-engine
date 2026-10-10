@@ -16,8 +16,8 @@ Options:
   -h, --help      Show this help message
 
 Examples:
-  curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/main/claude-install.sh | bash
-  curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/main/claude-install.sh | bash -s -- --global
+  curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/master/claude-install.sh | bash
+  curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/master/claude-install.sh | bash -s -- --global
 EOF
 }
 

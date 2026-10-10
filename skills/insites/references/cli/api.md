@@ -3,10 +3,10 @@
 Complete reference for `insites-cli`. All command signatures verified against `insites-cli help <command>` output.
 
 The CLI's top-level commands fall into three groups:
-- **Direct verbs** — `archive`, `audit`, `deploy`, `init`, `pull`, `sync`
-- **Subcommand groups** — `constants`, `data`, `duplicate`, `env`, `exec`, `gui`, `logsv2`, `migrations`, `modules`
+- **Direct verbs**: `archive`, `audit`, `deploy`, `init`, `logs`, `pull`, `sync`
+- **Subcommand groups**: `constants`, `data`, `duplicate`, `env`, `exec`, `gui`, `logsv2`, `migrations`, `modules`
 
-Run `insites-cli help <command>` for the live signature on any instance — this doc reflects the same source.
+Run `insites-cli help <command>` for the live signature on any instance; this doc reflects the same source.
 
 ---
 
@@ -27,13 +27,29 @@ insites-cli archive -o ./tmp/release.zip
 
 ## audit
 
-Check the project for deprecations, recommendations, and errors. Used in pre-commit and pre-deploy gates.
+Scan the project for deprecated code and file-layout faults.
 
 ```bash
 insites-cli audit
 ```
 
-No options. The audit traverses `app/` and reports any rules that fire. Exit code is non-zero on errors, zero on warnings/info only.
+No options, and no arguments: `insites-cli audit app/views/pages/` scans the whole project. It reads `app/` and `modules/`, prints `[Audit] N rules detected issues.`, then lists each rule's message and files.
+
+**It exits 0 whether or not a rule fires.** A CI step such as `insites-cli audit || exit 1` never fails. To gate on it, fail when the summary count is not 0.
+
+What it checks (CLI 5.10.2, `lib/audit/`):
+
+| Check | Fires on |
+|---|---|
+| Deprecated tags | A fixed list of retired tags, such as `form_tag`, `input`, `select`, `query_graph`, `will_paginate` |
+| Deprecated filters | A fixed list of retired filters, such as `to_money`, `timeago`, `strip_tags`, `pagination_links` |
+| Deprecated keys | `enable_profiler: true` in a page; `[]` after an input name; `resource_id:` on `include_form`; `configuration:` in a form (use `fields`); `attribute_type:` or `custom_attributes:` in a profile or model type (use `type`, `properties`); `headers:` in an API call (use `request_headers`); a model `name:` that is not snake_case |
+| File types per folder | A non-`.liquid` file in `forms`, `authorization_policies`, `notifications`, `emails`, `api_calls` or `smses`; a non-`.yml` file in `user_profile_types` or `model_schemas`; a non-`.graphql` file in `graphql` |
+| Partial name clash | A partial and an underscore twin at the same path (`card.liquid` and `_card.liquid`) |
+| File names | A character outside letters, digits, spaces and `- _ ~ @ % + . / \ ( ) ' & ]` |
+| Partials never included | A partial no `include` or `function` call names. `render` calls are not counted, so a partial used only through `render` is listed. The check turns itself off when any `include` or `function` takes a variable, which includes every `{% function result = '...' %}` |
+
+It does not check Liquid syntax, GraphQL, page front matter, HTML in pages, GraphQL in partials, translations, or credentials. Those are conventions; see `SKILL.md` section 2.
 
 ---
 
@@ -50,15 +66,15 @@ insites-cli deploy --partial-deploy <environment>
 
 | Option | Description |
 |---|---|
-| `-p, --partial-deploy` | Partial deployment — does not remove data from directories missing in the build |
+| `-p, --partial-deploy` | Partial deployment: does not remove data from directories missing in the build |
 
-Deployment runs the audit, syncs files, executes pending migrations, and updates the environment.
+Deployment runs the audit (skipped when `CI=true`), then deploys whatever it reports, executes pending migrations, and updates the environment.
 
 ---
 
 ## sync
 
-Synchronize local changes to an environment. **Watch mode is the default** — `sync <env>` opens a long-running watcher that pushes changes as files are saved.
+Synchronize local changes to an environment. **Watch mode is the default**: `sync <env>` opens a long-running watcher that pushes changes as files are saved.
 
 ```bash
 insites-cli sync <environment>
@@ -72,10 +88,10 @@ insites-cli sync <environment> -l
 | Option | Default | Description |
 |---|---|---|
 | `-c, --concurrency <number>` | `3` | Maximum concurrent connections to the server |
-| `-f, --file <file>` | — | Sync a single file once and exit (no watcher) |
+| `-f, --file <file>` | none | Sync a single file once and exit (no watcher) |
 | `-l, --livereload` | off | Use livereload to refresh the browser on each sync |
 
-**There is no `--watch` flag** — watch is the default. Use `-f` to opt out and sync exactly one file.
+**There is no `--watch` flag**; watch is the default. Use `-f` to opt out and sync exactly one file.
 
 ---
 
@@ -91,31 +107,58 @@ insites-cli gui serve [environment]
 |---|---|
 | `serve [environment]` | Serve the GUI for files from the given environment |
 
-`gui serve` does not accept a `--port` flag — it picks an available port and prints the URL on start.
+`gui serve` takes `-p, --port <port>` (default `3030`), `-o, --open` to open a browser when ready, and `-s, --sync` to sync files while it runs.
+
+---
+
+## logs
+
+Stream an instance's logs to the terminal. It reads from the instance itself, so it works on every stack.
+
+```bash
+insites-cli logs staging
+insites-cli logs staging --filter error
+insites-cli logs staging --interval 1000 -q
+```
+
+(Alias: `l`)
+
+| Option | Default | Description |
+|---|---|---|
+| `--interval <ms>` | `3000` | Time between polls, in milliseconds |
+| `--filter <type>` | none | Show only entries of this type, compared without case. An entry with no type counts as `error`. `{% log x, type: 'debug' %}` writes an entry of type `debug` |
+| `-q, --quiet` | off | Print the message only, without the path, page, partial and user line |
+
+It runs until you press `Ctrl+C`. It never exits on its own, so `$(insites-cli logs ...)` and `insites-cli logs ... | wc -l` never finish. It has no `--follow`, `--tail` or `--source-name` option; each is rejected as an unknown option. To narrow by text, pipe it: `insites-cli logs staging | grep send_email`.
 
 ---
 
 ## logsv2
 
-Display logs and errors. **`logsv2` has subcommands, not flags** — pick the one you need.
+Search log history, and manage alerts and reports. **`logsv2` takes a subcommand first, then the environment.** `insites-cli logsv2 staging` is rejected as an unknown command.
 
 ```bash
-insites-cli logsv2 search
-insites-cli logsv2 searchAround
-insites-cli logsv2 alerts
-insites-cli logsv2 reports
+insites-cli logsv2 search staging --size 50
+insites-cli logsv2 search staging --start_time <t> --end_time <t> --json
+insites-cli logsv2 searchAround staging --key 1701428187696722
+insites-cli logsv2 alerts list staging
+insites-cli logsv2 reports staging --json
 ```
 
 (Alias: `l2`)
 
-| Subcommand | Description |
+| Subcommand | Options |
 |---|---|
-| `search` | Search logs |
-| `searchAround` | Search the stream for records around a timestamp |
-| `alerts` | Manage alerts |
-| `reports` | Predefined reports based on logs |
+| `search [environment]` | `--sql <sql>`, `--size <n>` (default 10), `--from <n>` (default 0), `--start_time`, `--end_time`, `--json` |
+| `searchAround [environment]` | `--key <timestamp>`, `--stream_name <name>` (default `logs`), `--size <n>` (default 10), `--json` |
+| `alerts list [environment]` | `--json` |
+| `alerts add [environment]` | `--name`, `--keyword`, `--url`, `--operator` (default `Contains`), `--column` (default `message`), `--channel`, `--json` |
+| `alerts trigger [environment]` | `--name`, `--json` |
+| `reports [environment]` | `--json` |
 
-The CLI's per-subcommand help does not surface argument detail beyond what's shown here; check `insites-cli logsv2 search` interactive output (or your instance's docs) for filter/range arguments.
+None of them takes `--filter`. `alerts rm` is listed in the help, but CLI 5.10.2 ships no script for it, so it fails.
+
+**`logsv2` needs a log proxy, and only the shared stack has one.** On the Insites stack (`*.staging-insites.io` and `*.prod01-insites.io` hosts, where v6 instances run) every `logsv2` subcommand prints `logsv2 is not available on the Insites dedicated stack: it publishes no log proxy` and stops. Use `insites-cli logs` there, or set `LOGS_PROXY_URL` to a proxy that serves the instance.
 
 ---
 
@@ -284,11 +327,11 @@ insites-cli data clean [environment]
 
 | Subcommand | Args | Description |
 |---|---|---|
-| `export [environment]` | env optional | Export instance data to a JSON file |
-| `import [environment]` | env optional | Import instance data from a JSON file |
-| `clean [environment]` | env optional | Remove all stored data (users, models, etc.). **Irreversible.** |
+| `export [environment]` | `-p, --path <file>`, `-e, --export-internal-ids`, `-z, --zip` (on by default) | Export instance data. Writes a zip archive, `data.zip` unless `--path` names another |
+| `import [environment]` | `-p, --path <file>` (default `data.json`), `-z, --zip`, `--raw-ids` | Import a JSON file, or a zip archive with `--zip`. No CSV, and no table argument |
+| `clean [environment]` | `--auto-confirm`, `-i, --include-schema` | Remove all stored data (users, records). Asks you to type `CLEAN DATA` unless `--auto-confirm`; `--include-schema` also removes pages, schemas and other files. **Irreversible.** |
 
-`clean` is destructive and not reversible — only use against staging/dev environments you are willing to wipe.
+`clean` is destructive and not reversible. Only use against staging/dev environments you are willing to wipe.
 
 ---
 
@@ -302,12 +345,12 @@ insites-cli help <command>        # signature for a specific command
 insites-cli help <command> <sub>  # falls back to top-level help (CLI limitation)
 ```
 
-The CLI's help system surfaces the top-level signature for each command but does not currently render per-leaf-subcommand help — if `insites-cli help modules version` returns top-level help, look at the parent command's help (`insites-cli help modules`) for the subcommand signature.
+The CLI's help system surfaces the top-level signature for each command but does not currently render per-leaf-subcommand help. If `insites-cli help modules version` returns top-level help, look at the parent command's help (`insites-cli help modules`) for the subcommand signature.
 
 ---
 
 ## See Also
 
-- [CLI Configuration](./configuration.md) — environment files, auth tokens, env var setup
-- [Advanced CLI Patterns](./advanced.md) — composing commands in CI, scripting
-- [CLI Troubleshooting](./gotchas.md) — common failure modes
+- [CLI Configuration](./configuration.md): environment files, auth tokens, env var setup
+- [Advanced CLI Patterns](./advanced.md): composing commands in CI, scripting
+- [CLI Troubleshooting](./gotchas.md): common failure modes

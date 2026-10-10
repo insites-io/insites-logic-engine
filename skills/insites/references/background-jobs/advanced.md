@@ -7,9 +7,10 @@
 Insites automatically implements exponential backoff between retries. The wait time increases with each attempt:
 
 ```liquid
-{% background max_attempts: 5, source_name: 'unreliable_api' %}
-  {% include 'integrations/flaky-service', endpoint: 'https://api.example.com' %}
-{% endbackground %}
+{% background job_id = 'integrations/flaky-service',
+  max_attempts: 5,
+  source_name: 'unreliable_api',
+  endpoint: 'https://api.example.com' %}
 ```
 
 **Backoff Schedule** (approximate):
@@ -28,35 +29,36 @@ Insites automatically implements exponential backoff between retries. The wait t
 
 ```liquid
 {% comment %} Critical operation - maximum retries {% endcomment %}
-{% background max_attempts: 5, priority: 'high', source_name: 'payment_gateway' %}
-  {% include 'payments/process-charge', order_id: order.id %}
-{% endbackground %}
+{% background job_id = 'payments/process-charge',
+  max_attempts: 5,
+  priority: 'high',
+  source_name: 'payment_gateway',
+  order_id: order.id %}
 
 {% comment %} Standard operation - moderate retries {% endcomment %}
-{% background max_attempts: 3, priority: 'default', source_name: 'send_email' %}
-  {% include 'emails/transactional', user_id: user.id %}
-{% endbackground %}
+{% background job_id = 'emails/transactional',
+  max_attempts: 3,
+  priority: 'default',
+  source_name: 'send_email',
+  user_id: user.id %}
 
 {% comment %} Non-critical - single attempt {% endcomment %}
-{% background max_attempts: 1, priority: 'low', source_name: 'analytics_log' %}
-  {% include 'analytics/track-event', event: 'page_view' %}
-{% endbackground %}
+{% background job_id = 'analytics/track-event',
+  max_attempts: 1,
+  priority: 'low',
+  source_name: 'analytics_log',
+  event: 'page_view' %}
 ```
 
 ### Detecting and Handling Failures
 
-Monitor retry attempts in logs:
+To watch attempts, log from inside the job with a type you can filter on, for example `{% log note, type: 'processing_order' %}`, then:
 
 ```bash
-insites-cli logs | grep 'attempt'
+insites-cli logs staging --filter processing_order
 ```
 
-Example output:
-```
-[attempt 1/3] - processing_order - FAILED
-[attempt 2/3] - processing_order - FAILED
-[attempt 3/3] - processing_order - SUCCESS
-```
+`insites-cli logs` prints each entry as `[time] - type: message`. Whether the platform logs each attempt itself was not measured.
 
 ---
 
@@ -68,10 +70,7 @@ Execute jobs at intervals to prevent queue overload:
 
 ```liquid
 {% for user in users_to_notify %}
-  {% background delay: forloop.index, source_name: 'send_batch_email' %}
-    {% assign delay_seconds = forloop.index | times: 60 %}
-    {% include 'emails/bulk-notification', user_id: user.id %}
-  {% endbackground %}
+  {% background job_id = 'emails/bulk_notification', delay: forloop.index, source_name: 'send_batch_email', user_id: user.id %}
 {% endfor %}
 ```
 
@@ -88,9 +87,10 @@ Schedule jobs for specific times:
 {% assign delay_minutes = delay_seconds | divided_by: 60.0 %}
 
 {% if delay_minutes > 0 %}
-  {% background delay: delay_minutes, source_name: 'scheduled_notification' %}
-    {% include 'notifications/send', message: message %}
-  {% endbackground %}
+  {% background job_id = 'notifications/send',
+    delay: delay_minutes,
+    source_name: 'scheduled_notification',
+    message: message %}
 {% endif %}
 ```
 
@@ -100,19 +100,19 @@ Sequence operations with delays:
 
 ```liquid
 {% comment %} Step 1: Process order immediately {% endcomment %}
-{% background source_name: 'process_order' %}
-  {% include 'orders/process', order_id: order.id %}
-{% endbackground %}
+{% background job_id = 'orders/process', source_name: 'process_order', order_id: order.id %}
 
 {% comment %} Step 2: Send confirmation after 1 minute {% endcomment %}
-{% background delay: 1, source_name: 'send_confirmation' %}
-  {% include 'emails/order-confirmation', order_id: order.id %}
-{% endbackground %}
+{% background job_id = 'emails/order-confirmation',
+  delay: 1,
+  source_name: 'send_confirmation',
+  order_id: order.id %}
 
 {% comment %} Step 3: Follow-up after 24 hours {% endcomment %}
-{% background delay: 1440, source_name: 'send_followup' %}
-  {% include 'emails/order-followup', order_id: order.id %}
-{% endbackground %}
+{% background job_id = 'emails/order-followup',
+  delay: 1440,
+  source_name: 'send_followup',
+  order_id: order.id %}
 ```
 
 (Note: For precise scheduling, consider external cron-based systems)
@@ -130,9 +130,10 @@ Use background jobs for fire-and-forget async tasks, events for event-driven wor
 {% trigger_event 'order.created', order_id: order.id %}
 
 {% comment %} Queue background job for specific async task {% endcomment %}
-{% background delay: 5, source_name: 'send_order_confirmation' %}
-  {% include 'emails/confirmation', order_id: order.id %}
-{% endbackground %}
+{% background job_id = 'emails/confirmation',
+  delay: 5,
+  source_name: 'send_order_confirmation',
+  order_id: order.id %}
 ```
 
 **Advantages**:
@@ -148,14 +149,16 @@ Use background jobs for fire-and-forget async tasks, events for event-driven wor
 {% trigger_event 'order.created', order_id: order.id %}
 
 {% comment %} Background job handles email (fire-and-forget) {% endcomment %}
-{% background priority: 'default', source_name: 'send_email' %}
-  {% include 'emails/order-notification', order_id: order.id %}
-{% endbackground %}
+{% background job_id = 'emails/order-notification',
+  priority: 'default',
+  source_name: 'send_email',
+  order_id: order.id %}
 
 {% comment %} Background job handles analytics (non-urgent) {% endcomment %}
-{% background priority: 'low', source_name: 'track_conversion' %}
-  {% include 'analytics/log-conversion', order_id: order.id %}
-{% endbackground %}
+{% background job_id = 'analytics/log-conversion',
+  priority: 'low',
+  source_name: 'track_conversion',
+  order_id: order.id %}
 ```
 
 ---
@@ -165,44 +168,31 @@ Use background jobs for fire-and-forget async tasks, events for event-driven wor
 ### Structured Logging in Background Jobs
 
 ```liquid
-{% background source_name: 'monitored_job' %}
-  {% assign start_time = 'now' | date: '%s' %}
-
-  Processing...
-
-  {% assign end_time = 'now' | date: '%s' %}
-  {% assign duration = end_time | minus: start_time %}
-
-  {% log "Job completed in " | append: duration | append: " seconds" %}
-{% endbackground %}
+{% comment %} app/views/partials/jobs/monitored.liquid, queued with {% background job_id = 'jobs/monitored', source_name: 'monitored_job' %} {% endcomment %}
+{% liquid
+  assign start_time = 'now' | date: '%s' | plus: 0
+  # ... the job's work ...
+  assign end_time = 'now' | date: '%s' | plus: 0
+  assign duration = end_time | minus: start_time
+  assign note = 'job completed in ' | append: duration | append: ' seconds'
+  log note, type: 'monitored_job'
+%}
 ```
 
 ### Filtering Logs by Status
 
-View only failed jobs:
+`--filter` matches a type. Give success and failure different types in the job (`{% log note, type: 'job_failed' %}`), then:
 
 ```bash
-insites-cli logs | grep 'FAILED'
-```
-
-View only successful jobs:
-
-```bash
-insites-cli logs | grep 'SUCCESS'
+insites-cli logs staging --filter job_failed
 ```
 
 ### Performance Analysis
 
-Track job execution times:
+Log the duration from inside the job (as in the example above), then stream it. `insites-cli logs` never ends on its own, so `| tail` never prints; save to a file and read it after `Ctrl+C`:
 
 ```bash
-insites-cli logs | grep 'send_email' | tail -20
-```
-
-Identify slow jobs:
-
-```bash
-insites-cli logs | grep 'attempt' | grep -E '[5-9]\d{2}ms|[1-9]\d{3}ms'
+insites-cli logs staging | grep send_email | tee send_email.log
 ```
 
 ### Debugging Failed Jobs
@@ -211,21 +201,21 @@ When a job fails:
 
 1. Check logs for error message:
    ```bash
-   insites-cli logs --source-name='failing_job'
+   insites-cli logs staging --filter error
    ```
 
 2. Review the included partial for syntax errors
 
-3. Verify all parameters are passed correctly:
+3. Verify every value the job needs is passed to the tag. The job sees nothing else from the page:
    ```liquid
-   {% include 'email', user_id: user.id, email: user.email %}
+   {% background job_id = 'email', user_id: user.id, email: user.email %}
    ```
 
 4. Test the partial outside background context first
 
 5. Increase `max_attempts` if failure is intermittent:
    ```liquid
-   {% background max_attempts: 3, source_name: 'retry_job' %}
+   {% background job_id = 'email', max_attempts: 3, source_name: 'retry_job', user_id: user.id %}
    ```
 
 ---
@@ -241,14 +231,16 @@ Balance priority distribution to prevent queue starvation:
 {% assign high_priority_count = 0 %}
 {% for job in jobs %}
   {% if job.critical %}
-    {% background priority: 'high', source_name: 'critical_' | append: job.id %}
-      {% include 'processors/critical', job_id: job.id %}
-    {% endbackground %}
+    {% background job_id = 'processors/critical',
+      priority: 'high',
+      source_name: 'critical_' | append: job.id,
+      job_id: job.id %}
     {% assign high_priority_count = high_priority_count | plus: 1 %}
   {% else %}
-    {% background priority: 'default', source_name: 'standard_' | append: job.id %}
-      {% include 'processors/standard', job_id: job.id %}
-    {% endbackground %}
+    {% background job_id = 'processors/standard',
+      priority: 'default',
+      source_name: 'standard_' | append: job.id,
+      job_id: job.id %}
   {% endif %}
 {% endfor %}
 ```
@@ -266,15 +258,15 @@ Process multiple items efficiently:
   {% assign item_index = item_index | plus: 1 %}
 
   {% if item_index == 1 %}
-    {% capture batch_items %}[{{ item.id }}{% endcomment %}
+    {% capture batch_items %}{{ item.id }}{% endcapture %}
   {% else %}
     {% capture batch_items %}{{ batch_items }},{{ item.id }}{% endcapture %}
   {% endif %}
 
   {% if item_index == batch_size or forloop.last %}
-    {% background source_name: 'process_batch' %}
-      {% include 'processors/batch-handler', item_ids: batch_items %}
-    {% endbackground %}
+    {% background job_id = 'processors/batch-handler',
+      source_name: 'process_batch',
+      item_ids: batch_items %}
     {% assign item_index = 0 %}
   {% endif %}
 {% endfor %}
@@ -288,9 +280,9 @@ Aggregate requests and process them together:
 
 ```liquid
 {% comment %} Queue job 1 second in future (allows other jobs to be added) {% endcomment %}
-{% background delay: 0.016, source_name: 'aggregated_batch' %}
-  {% include 'processors/batch-all-pending-items' %}
-{% endbackground %}
+{% background job_id = 'processors/batch-all-pending-items',
+  delay: 0.016,
+  source_name: 'aggregated_batch' %}
 ```
 
 Allows requests in the next second to batch together before processing.
@@ -304,11 +296,11 @@ Allows requests in the next second to batch together before processing.
 Design jobs to safely execute multiple times:
 
 ```liquid
-{% background max_attempts: 3, source_name: 'idempotent_charge' %}
-  {% include 'payments/charge-with-idempotency',
-    order_id: order.id,
-    idempotency_key: order.id | append: '-' | append: order.created_at %}
-{% endbackground %}
+{% background job_id = 'payments/charge-with-idempotency',
+  max_attempts: 3,
+  source_name: 'idempotent_charge',
+  order_id: order.id,
+  idempotency_key: order.id | append: '-' | append: order.created_at %}
 ```
 
 **Pattern**: Use unique identifiers to prevent duplicate operations.
@@ -318,12 +310,11 @@ Design jobs to safely execute multiple times:
 Check state before executing:
 
 ```liquid
-{% background source_name: 'safe_state_change' %}
-  {% include 'state-manager/update-if-needed',
-    entity_id: entity.id,
-    expected_state: 'pending',
-    new_state: 'processing' %}
-{% endbackground %}
+{% background job_id = 'state-manager/update-if-needed',
+  source_name: 'safe_state_change',
+  entity_id: entity.id,
+  expected_state: 'pending',
+  new_state: 'processing' %}
 ```
 
 The included partial verifies state hasn't changed before updating.
@@ -333,11 +324,11 @@ The included partial verifies state hasn't changed before updating.
 Define cleanup actions:
 
 ```liquid
-{% background max_attempts: 1, source_name: 'operation_with_cleanup' %}
-  {% include 'operations/risky-operation',
-    operation_id: operation.id,
-    with_cleanup: true %}
-{% endbackground %}
+{% background job_id = 'operations/risky-operation',
+  max_attempts: 1,
+  source_name: 'operation_with_cleanup',
+  operation_id: operation.id,
+  with_cleanup: true %}
 ```
 
 The partial includes cleanup logic in error handlers.
@@ -352,12 +343,12 @@ Use descriptive, hierarchical names:
 
 ```liquid
 {% comment %} Good {% endcomment %}
-{% background source_name: 'email_send_welcome' %}...{% endbackground %}
-{% background source_name: 'payment_process_charge' %}...{% endbackground %}
-{% background source_name: 'analytics_track_event' %}...{% endbackground %}
+{% background job_id = 'emails/welcome', source_name: 'email_send_welcome', user_id: user.id %}
+{% background job_id = 'payments/charge', source_name: 'payment_process_charge', order_id: order.id %}
+{% background job_id = 'analytics/track', source_name: 'analytics_track_event', event: 'signup' %}
 
-{% comment %} Avoid single words or auto-generated names {% endcomment %}
-{% background source_name: 'job' %}...{% endcomment %} {% comment %} NOT DESCRIPTIVE {% endcomment %}
+{% comment %} Avoid single words or auto-generated names: not descriptive {% endcomment %}
+{% background job_id = 'emails/welcome', source_name: 'job', user_id: user.id %}
 ```
 
 ### Testing Jobs
@@ -369,9 +360,10 @@ Test partials in isolation before wrapping in background:
 {% include 'emails/welcome', user_id: 123, email: 'user@example.com' %}
 
 {% comment %} Then wrap in background {% endcomment %}
-{% background source_name: 'test_email' %}
-  {% include 'emails/welcome', user_id: 123, email: 'user@example.com' %}
-{% endbackground %}
+{% background job_id = 'emails/welcome',
+  source_name: 'test_email',
+  user_id: 123,
+  email: 'user@example.com' %}
 ```
 
 ### Monitoring Alerts
@@ -379,8 +371,8 @@ Test partials in isolation before wrapping in background:
 Set up alerts for failed jobs:
 
 ```bash
-{% comment %} Monitor for consistent failures {% endcomment %}
-insites-cli logs | grep 'FAILED' | grep 'send_email'
+# Watch for failures the job logs itself, e.g. {% log note, type: 'send_email_failed' %}
+insites-cli logs production --filter send_email_failed
 ```
 
 If pattern detected, investigate and fix.

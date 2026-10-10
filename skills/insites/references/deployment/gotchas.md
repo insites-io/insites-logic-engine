@@ -9,7 +9,6 @@ Never synchronize directly to production:
 ```bash
 # WRONG - Never do this!
 insites-cli sync production
-insites-cli sync production --watch
 ```
 
 ### Why This Is Dangerous
@@ -38,9 +37,9 @@ Deployment includes:
 
 ## Deployment Validation Failures
 
-### Linting (insites-cli audit) Failure
+### Linting (insites-cli audit) Findings
 
-**Issue**: Deployment blocked by validation errors
+**Issue**: The deploy printed audit findings. The audit never blocks a deploy; validation errors that stop one come from the platform (see below).
 
 **Solution**:
 ```bash
@@ -71,7 +70,7 @@ insites-cli deploy staging
 
 **Translation Missing**:
 ```yaml
-# Add to config/translations.yml
+# Add to app/translations/en.yml
 en:
   errors:
     not_found: "Page not found"
@@ -111,7 +110,7 @@ these: nothing else reports them.
 **Problem**: Database inconsistency
 
 **Solution**:
-1. Investigate error: `insites-cli logsv2 staging --filter migration`
+1. Investigate error: `insites-cli logs staging | grep -i migration` (`--filter` matches an entry's type, not its text)
 2. Fix migration file
 3. Create compensating migration
 4. Rerun deployment
@@ -161,8 +160,8 @@ insites-cli migrations list staging
 # Verify file structure
 ls -la app/views/
 
-# Explicit sync with verbose output
-insites-cli sync dev --verbose
+# Sync with the CLI's debug output (there is no --verbose option)
+DEBUG=1 insites-cli sync dev
 
 # Note: insites-cli env clear-cache does not exist.
 # Manually verify your .insites file if sync issues persist.
@@ -177,8 +176,8 @@ insites-cli sync dev --verbose
 # Deploy all at once instead
 insites-cli deploy staging
 
-# Or debug individual files
-insites-cli sync dev --verbose --include "app/views/pages"
+# Or debug one file at a time (DEBUG prints the CLI's debug lines)
+DEBUG=1 insites-cli sync dev -f app/views/pages/home.liquid
 ```
 
 ## Asset Deployment
@@ -226,14 +225,11 @@ insites-cli deploy staging
 
 **Solution**:
 ```yaml
-# Verify schema syntax
-# app/schema/models/user.yml
+# Verify schema syntax: properties is a list, not a map
+# app/user.yml
 properties:
-  email:
-    type: string
-    required: true
-  name:
-    type: string
+  - name: roles
+    type: array
 ```
 
 ## Deployment Rollback
@@ -270,7 +266,7 @@ insites-cli deploy production
 - Verify `.insites` file (JSON): `cat .insites | python3 -m json.tool | head -10`
 - Check token in dashboard
 - Regenerate if expired
-- Use environment variables: `export POS_TOKEN=`
+- In CI, set all five of `INSITES_URL`, `INSITES_EMAIL`, `INSITES_TOKEN`, `INSITES_INSTANCE` and `INSITES_POS_KEY`; with any one missing the CLI ignores them and reads `.insites` (see [configuration](configuration.md#credentials-from-environment-variables))
 
 ### Mismatched Environment
 

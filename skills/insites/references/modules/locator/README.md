@@ -2,7 +2,7 @@
 
 The Insites Locator module (machine name `insites_locator`, repo `module-v6-locator`) stores the data behind a store or branch finder: **locations** with addresses, coordinates, weekly opening hours and media; **categories** that group them; **enquiries** raised against a location; and per-location **FAQs**, **custom fields** and **system fields**. It exposes a V2 REST API and 23 controller aliases, and it is administered through the IIA admin UI.
 
-Paths below are relative to `pos/modules/insites_locator/` in `module-v6-locator`, read on `origin/master` at `v6.0.2-2-g5242b65` (two release-workflow commits after the v6.0.2 tag) on 9 October 2026.
+Paths below are relative to `modules/insites_locator/` in `module-v6-locator`, read on `origin/master` at `v6.0.2-2-g5242b65` (two release-workflow commits after the v6.0.2 tag) on 9 October 2026.
 
 ## Where to look
 

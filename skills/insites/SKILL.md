@@ -16,21 +16,32 @@ Follow these rules as written. Where they say "never" or "must", treat that lite
 
 ## 2. Pre-flight validation
 
-After every file change, run the linter:
+After every file change, run the audit and fix what it reports:
 
 ```bash
 insites-cli audit
 ```
 
-The audit must pass with zero errors before deployment. The hard requirements it enforces:
+It reads `app/` and `modules/`, prints `[Audit] N rules detected issues.`, and lists the files for each. It takes no arguments. It exits 0 even when a rule fires, so read the count, not the exit code. `insites-cli deploy` runs the same audit first (unless `CI=true`) and deploys anyway. What it checks (CLI 5.10.2):
 
-- Partial filenames have no underscore prefix
-- `render 'path/name'` resolves to `app/views/partials/path/name.liquid`
-- Pages have one HTTP method each
-- Pages contain no raw HTML/JS/CSS — delegate to partials
-- Partials never call `{% graphql %}` — pages own data fetching
-- User-facing text is hardcoded directly in English
-- No hardcoded credentials — use `context.constants`
+- **Deprecated tags and filters.** A fixed list of retired Liquid tags (`form_tag`, `input`, `query_graph` and others) and filters (`to_money`, `timeago` and others).
+- **Deprecated keys.** `enable_profiler: true` in a page, `[]` after an input name, `resource_id:` on `include_form`, `configuration:` in a form, `attribute_type:` and `custom_attributes:` in a profile or model type, `headers:` in an API call (use `request_headers`), and model names that are not snake_case.
+- **File types per folder.** Only `.liquid` in `forms`, `authorization_policies`, `emails`, `smses`, `api_calls` and `notifications`; only `.yml` in `user_profile_types` and `model_schemas`; only `.graphql` in `graphql`.
+- **Partial name clashes.** A partial and an underscore twin at the same path (`card.liquid` and `_card.liquid`).
+- **File names.** Characters outside letters, digits, spaces and `- _ ~ @ % + . / \ ( ) ' & ]`.
+- **Partials never included.** It counts `include` and `function` calls only, so a partial used only through `render` is listed. It skips this check when any `include` or `function` takes a variable, which includes every `{% function result = '...' %}`.
+
+It does not check Liquid syntax, GraphQL, page front matter, HTML in pages, or credentials. See `references/cli/api.md`.
+
+**Conventions (not checked by the audit).** The Logic Engine rules in `logic-engine/rules/` hold these:
+
+- Partial file names have no leading underscore (`partials-no-underscore-prefix`).
+- Each page declares one HTTP method (`pages-one-http-method`).
+- HTML reused across pages, or built from several UI blocks, goes in partials. A simple page can keep its own HTML (`pages-prefer-partials-for-shared-html`).
+- Presentation partials (cards, headers, layouts, nav) do not call `{% graphql %}`. Block, calculation and callback partials may, and a reusable query goes in a partial called with `{% function %}` (`graphql-in-partials-restricted`). This is a convention: the platform runs `{% graphql %}` inside a partial.
+- Secrets come from `context.constants`, never from the template (`use-context-constants-for-secrets`).
+
+User-facing text can be written in the template or kept in translations. See **Translation Filter** in `references/liquid/filters/README.md`.
 
 ## 3. Decision trees
 
@@ -233,7 +244,7 @@ Need Liquid help?
 │   ├─ Validation → is_email_valid, is_json_valid, matches, etc.
 │   ├─ Currency/pricing → pricify, pricify_cents, amount_to_fractional, etc.
 │   ├─ Cryptography → encrypt, decrypt, digest, compute_hmac, jwt_encode/decode
-│   ├─ Translation → t (translate), t_escape
+│   ├─ Translation → t (translate), t_escape; files in app/translations/<locale>.yml (see Translation Filter in liquid/filters/README.md)
 │   └─ Assets → asset_url, asset_path
 ├─ Objects (global data) → liquid/objects/
 │   ├─ context.params → HTTP parameters
@@ -300,7 +311,7 @@ Need integrations?
 ```
 Need deployment?
 ├─ Deploy to environment → deployment/ (insites-cli deploy)
-├─ Watch logs → cli/ (insites-cli logsv2)
+├─ Watch logs → cli/ (insites-cli logs)
 ├─ Run Liquid/GraphQL ad-hoc → cli/ (insites-cli exec)
 ├─ Pull a module's code from an instance → cli/ (insites-cli modules pull)
 ├─ Set environment constants → constants/ (insites-cli constants set)
@@ -440,8 +451,8 @@ Use the decision trees above to identify which category applies, then load the m
 Pages fetch data via `{% graphql %}` and delegate the bulk of rendering to partials via `{% render %}`. Small amounts of page-specific inline HTML are acceptable in practice (a wrapper element, a one-off heading, the body of a `.json.liquid` page) — what's *not* acceptable is duplicating markup that other pages could reuse, or putting form/card/list markup inline. Rule of thumb: more than ~10 lines of HTML in a page → extract a partial.
 → `references/pages/`, `references/partials/`
 
-### 2. Pages own data fetching
-Pages call `{% graphql %}` and pass results to partials as render arguments. New code should not put `{% graphql %}` inside a partial. **Caveat:** existing addons (notably older `addon-*` repos) contain partials that call GraphQL directly — treat that as legacy debt. When working inside one of those addons, follow the local convention until a refactor is in scope; for new code in `app-portal` / `app-seedling`-style repos, keep GraphQL in pages.
+### 2. Pages own the data they show
+A page fetches what it displays and passes it to partials as render arguments, so presentation partials (cards, headers, layouts, nav) never query. Block, calculation and callback partials may call `{% graphql %}`, and a query used in more than one place goes in a partial called with `{% function %}`. This is the `graphql-in-partials-restricted` convention, not a platform limit: the platform runs `{% graphql %}` inside a partial.
 → `references/graphql/`, `references/partials/`
 
 ### 3. State changes live in form `callback_actions`
@@ -462,47 +473,50 @@ Statements within `{% liquid %}` blocks must stay on a single line each, except 
 
 ## Project Structure
 
-Insites projects organise code by **module**, not by a flat root layout. Every project has a top-level `modules/` directory containing one or more module folders (e.g. `modules/dashboard/`, `modules/website/`). Each module keeps its code under `public/` (reachable by other modules and the app), `private/` (internal to the module), or both. Which to use is your call per file; the directory layout is identical under either.
+**A project has two code trees, and both are valid. `app/` holds the site itself. `modules/<name>/` holds code you want to reuse or package.** A project can use either or both. `insites-cli sync` and `insites-cli deploy` read whichever of the two exist.
+
+A module keeps its code under `public/` (callable from `app/` and other modules), `private/` (internal to the module), or both. Both use the same layout as `app/`.
 
 ```
 project-root/
-├── app.yml                            # Project-level configuration
-├── modules/
-│   ├── <module>/                      # e.g. dashboard, website, portal
-│   │   ├── public/
-│   │   │   ├── views/
-│   │   │   │   ├── pages/             # Routed Liquid pages
-│   │   │   │   ├── layouts/           # Page wrappers (e.g. portal_default)
-│   │   │   │   └── partials/          # Reusable template snippets
-│   │   │   ├── forms/                 # Form definitions (YAML + Liquid callback_actions)
-│   │   │   ├── graphql/               # Queries + mutations grouped by domain
-│   │   │   ├── authorization_policies/
-│   │   │   ├── api_calls/             # Third-party API integrations grouped by service
-│   │   │   ├── schema/                # Database table definitions (YAML)
-│   │   │   ├── user_profile_types/    # Custom user-profile schemas
-│   │   │   ├── emails/                # Email templates
-│   │   │   ├── migrations/            # Data seeding and schema migrations
-│   │   │   └── assets/                # Module-scoped JS/CSS/images
-│   │   ├── private/                   # Optional: same layout, internal to this module
-│   │   └── test/                      # Module-level test fixtures (if any)
-│   └── <another-module>/
-└── package.json                       # (optional) Node.js dependencies
+├── app/                               # The site itself
+│   ├── views/
+│   │   ├── pages/                     # Routed Liquid pages
+│   │   ├── layouts/                   # Page wrappers
+│   │   └── partials/                  # Reusable template snippets
+│   ├── forms/                         # Form definitions (YAML + Liquid callback_actions)
+│   ├── graphql/                       # Queries + mutations grouped by domain
+│   ├── authorization_policies/
+│   ├── api_calls/                     # Third-party API integrations grouped by service
+│   ├── schema/                        # Database table definitions (YAML)
+│   ├── user_profile_types/            # Custom user-profile schemas
+│   ├── emails/                        # Email templates
+│   ├── smses/                         # SMS templates
+│   ├── translations/                  # One YAML file per language
+│   ├── migrations/                    # Data seeding and schema migrations
+│   └── assets/                        # JS/CSS/images
+└── modules/                           # Code to reuse or package
+    └── <module>/                      # e.g. dashboard, website, portal
+        ├── public/                    # Same layout as app/
+        ├── private/                   # Same layout as app/, internal to this module
+        └── test/                      # Module-level tests (if any)
 ```
 
-**Module-prefixed paths.** Render, include, and graphql calls always start with the module name:
+**How paths resolve.** A path with no prefix reads `app/`. A path that starts `modules/<name>/` reads that module's `public/` or `private/` tree:
 
-```liquid
-{% render 'modules/dashboard/path/to/partial' %}
-{% include 'modules/dashboard/path/to/partial' %}
-{% graphql x = 'modules/dashboard/account/get_user' %}
-```
+| Call | `app/` | `modules/<name>/` |
+|---|---|---|
+| `{% render %}`, `{% function %}`, `{% include %}` | `'path/name'` → `app/views/partials/path/name.liquid` | `'modules/<name>/path/name'` → `modules/<name>/public/views/partials/path/name.liquid` or `private/views/partials/...` |
+| `{% graphql %}` | `'path/name'` → `app/graphql/path/name.graphql` | `'modules/<name>/path/name'` → `modules/<name>/public/graphql/path/name.graphql` or `private/graphql/...` |
+| `layout:` | `name` → `app/views/layouts/name.liquid` | `modules/<name>/name` → `modules/<name>/public/views/layouts/name.liquid` or `private/views/layouts/...` |
+| `authorization_policies:` | `name` → `app/authorization_policies/name.liquid` | `modules/<name>/name` → `modules/<name>/public/authorization_policies/name.liquid` or `private/...` |
 
-For the full canonical layout reference (per-directory purpose, naming conventions, examples), see [`references/project-structure.md`](references/project-structure.md).
+For the per-directory reference, see [`references/project-structure.md`](references/project-structure.md).
 
 ### Cross-module conventions
 
 - **No `app/lib/commands/` directory.** State-changing logic lives inline in pages or in `forms/<name>.liquid` `callback_actions` blocks.
-- **No `app/lib/queries/` directory.** GraphQL files live at `modules/<module>/public/graphql/<domain>/<operation>.graphql` and are called directly from pages or forms.
+- **No `app/lib/queries/` directory.** GraphQL files live at `app/graphql/<domain>/<operation>.graphql` or `modules/<module>/public/graphql/<domain>/<operation>.graphql` and are called directly from pages or forms.
 - **Layouts are namespaced.** E.g. `portal_default`, `portal_form`, `dashboard_default`.
 
 ## File Extension Conventions
@@ -529,8 +543,8 @@ For the full canonical layout reference (per-directory purpose, naming conventio
 - Using `{% form %}` tag for HTML forms (use plain `<form>` with CSRF token)
 - Bypassing security (CSRF tokens, authorization)
 - Direct database access outside GraphQL
-- Deploying without running `insites-cli audit`
-- Syncing files outside `./app/`
+- Deploying without reading the `insites-cli audit` report (it never blocks a deploy)
+- Putting code outside `app/` and `modules/` (the CLI syncs and deploys nothing else)
 - Hardcoding API keys or secrets (use `context.constants`)
 
 ## Documentation Links

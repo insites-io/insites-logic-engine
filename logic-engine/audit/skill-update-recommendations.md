@@ -12,9 +12,9 @@
 
 The v0 corpus audit (see [`v0-conflicts.md`](v0-conflicts.md)) audited 25 candidate rules extracted from `insites-ai-tool/skills/insites/SKILL.md` and its references. Of those 25, 5 were contradicted at scale by real production code, 4 were correct in intent but violated in the canonical reference repos themselves, 3 were absent from real practice (~aspirational), and 2 were factually wrong about platform mechanics.
 
-**Root cause:** The existing skill content was generated from PlatformOS documentation. PlatformOS uses a different file/folder structure than Combinate uses to build templates in production. The "wrong" rules aren't author errors — they're inherited from a different platform's conventions. Trying to enforce them against real Combinate code surfaces violations everywhere because the rules don't describe what the team actually builds.
+**Root cause:** The existing skill content was generated from general documentation that describes a different file/folder structure from the one Combinate uses to build templates in production. The "wrong" rules aren't author errors — they're inherited from conventions that do not match how Insites projects are built. Trying to enforce them against real Combinate code surfaces violations everywhere because the rules don't describe what the team actually builds.
 
-**The fix:** stop sourcing skills from PlatformOS docs. Use `app-portal` (Combinate's working production project) as the canonical reference. Rewrite the skill content section by section based on what that codebase actually does.
+**The fix:** stop sourcing skills from that general documentation. Use `app-portal` (Combinate's working production project) as the canonical reference. Rewrite the skill content section by section based on what that codebase actually does.
 
 This document is structured to make the rewrite incremental: section 2 establishes the layout, sections 3–9 cover canonical anatomies (one per file kind), section 10 lists patterns the existing skill misses entirely, and section 11 recommends the order in which Ezekiel should ship follow-up PRs.
 
@@ -507,9 +507,9 @@ Pages frequently include patterns like `{%- if context.current_user -%}{%- redir
 
 Each entry below points to a specific rule in [`v0-conflicts.md`](v0-conflicts.md) and groups them by the action needed.
 
-### 11.1 Rules to drop or rewrite (PlatformOS artefacts)
+### 11.1 Rules to drop or rewrite (inherited artefacts)
 
-These rules came from PlatformOS docs and don't reflect Combinate practice. Drop the originals; the engine ships the rewrites listed in [`logic-engine/rules/`](../rules/).
+These rules came from the general documentation the early content was generated from and don't reflect Combinate practice. Drop the originals; the engine ships the rewrites listed in [`logic-engine/rules/`](../rules/).
 
 | Original rule | Action | Replaced by |
 |---|---|---|
@@ -549,7 +549,7 @@ Each item is a small, reviewable PR Ezekiel can ship one at a time. Order is imp
 | Step | PR title | Touches |
 |---|---|---|
 | 1 | `skills: fix project layout — modules-based structure` | `SKILL.md` Project Structure section + `references/project-structure.md` (new) |
-| 2 | `skills: drop PlatformOS-derived rules superseded by audit` | Remove R-1 (pages-no-html), R-2 (graphql-not-in-partials), R-8 (modules-never-install), R-17 (never-edit-modules-folder) from any rule lists in skills |
+| 2 | `skills: drop inherited rules superseded by audit` | Remove R-1 (pages-no-html), R-2 (graphql-not-in-partials), R-8 (modules-never-install), R-17 (never-edit-modules-folder) from any rule lists in skills |
 | 3 | `skills: rewrite Pages section based on app-portal anatomy` | `SKILL.md` Pages section + `references/pages/*.md` |
 | 4 | `skills: rewrite Partials section + clarify render/include` | `SKILL.md` Partials section + `references/partials/*.md` |
 | 5 | `skills: rewrite Forms section — fields validation + callback_actions` | `SKILL.md` Forms section + `references/forms/*.md` |

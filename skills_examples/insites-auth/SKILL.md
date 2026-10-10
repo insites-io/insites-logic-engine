@@ -310,7 +310,7 @@ method: delete
 
 ```liquid
 <!DOCTYPE html>
-<html class="pos-app">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -349,47 +349,19 @@ method: delete
 
 ---
 
-## Phase 5: Using the User Module's Built-in Endpoints
+## Phase 5: Accessing the Current Profile
 
-### 5.1 Available Endpoints
+There are no built-in sign-in, registration or password-reset pages to fall back on: build them as in Phases 1 to 4.
 
-The User Module provides these endpoints automatically:
+### 5.1 Loading the Full Record
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/sessions/new` | GET | Login form (styled) |
-| `/sessions` | POST | Process login |
-| `/sessions` | DELETE | Process logout |
-| `/users/new` | GET | Registration form (styled) |
-| `/users` | POST | Process registration |
-| `/passwords/reset` | GET | Password reset form |
-| `/passwords` | POST | Send reset email |
-
-### 5.2 Using Built-in vs Custom
-
-**Use built-in endpoints when:**
-- You want styled, ready-to-use forms
-- Standard authentication flow is sufficient
-- You're prototyping quickly
-
-**Create custom endpoints when:**
-- You need custom validation logic
-- You're integrating with external systems
-- You need custom redirects after auth
-- You're building API-style authentication
-
-### 5.3 Accessing Current Profile
-
-The User Module provides a helper for the full user profile:
+`context.current_user` carries the id and email only. Load the full record, including roles, with a GraphQL query (see the Logic Engine's authentication reference, `references/authentication/api.md`):
 
 ```liquid
 {% liquid
-  # Method 1: Direct from context (if already loaded)
-  if context.exports.current_profile
-    assign current_profile = context.exports.current_profile
-  else
-    # Method 2: Load via helper
-    function current_profile = 'modules/user/helpers/current_profile'
+  if context.current_user
+    graphql g = 'users/current', id: context.current_user.id
+    assign current_profile = g.users.results.first
   endif
 
   if current_profile
@@ -397,6 +369,8 @@ The User Module provides a helper for the full user profile:
   endif
 %}
 ```
+
+`users/current.graphql` reads `roles: property_array(name: "roles")`. Declare `roles` in `app/user.yml` first, or it reads back `[]` for every user.
 
 ---
 
@@ -445,7 +419,7 @@ The User Module provides a helper for the full user profile:
 insites-cli deploy staging
 
 # Watch logs for errors
-insites-cli logsv2 staging
+insites-cli logs staging
 
 # Open GUI to inspect users
 insites-cli gui serve staging
@@ -471,7 +445,7 @@ insites-cli test run staging
 insites-cli test run staging test/user_test
 
 # Run with logs visible
-insites-cli logsv2 staging &
+insites-cli logs staging &
 insites-cli test run staging test/auth
 ```
 Verify that all tests passed.
@@ -611,7 +585,7 @@ GET  /passwords/reset  # Password reset form
 
 ## References
 
-- [User Authentication Guide](https://documentation.platformos.com/get-started/build-your-first-app/user-authentication)
-- [User Module Documentation](https://documentation.platformos.com/developer-guide/modules/user-module)
-- [Security Best Practices](https://documentation.platformos.com/best-practices/security)
-- [Session Management](https://documentation.platformos.com/api-reference/liquid/tags/sign_in)
+- [Insites Documentation](https://docs.insites.io/)
+- [Authentication reference](https://github.com/insites-io/insites-logic-engine/blob/master/skills/insites/references/authentication/README.md) in the Insites Logic Engine
+- [Authentication gotchas](https://github.com/insites-io/insites-logic-engine/blob/master/skills/insites/references/authentication/gotchas.md)
+- [Sessions reference](https://github.com/insites-io/insites-logic-engine/blob/master/skills/insites/references/sessions/README.md)

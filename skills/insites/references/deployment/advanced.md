@@ -6,14 +6,13 @@
 
 Maintain two identical production instances:
 
-```yaml
-production_blue:
-  url: https://blue-instance.prod01-insites.io
-  token: ${BLUE_TOKEN}
+Add both with `insites-cli env add`, so `.insites` holds two entries:
 
-production_green:
-  url: https://green-instance.prod01-insites.io
-  token: ${GREEN_TOKEN}
+```json
+{
+  "production_blue": { "url": "https://blue-instance.prod01-insites.io", "email": "...", "instance_uuid": "...", "token": "...", "key": "..." },
+  "production_green": { "url": "https://green-instance.prod01-insites.io", "email": "...", "instance_uuid": "...", "token": "...", "key": "..." }
+}
 ```
 
 ### Deployment Strategy
@@ -45,17 +44,17 @@ insites-cli deploy production_green
 ```bash
 # 1. Deploy with feature disabled
 insites-cli deploy production
-insites-cli constants set production CANARY_NEW_FEATURE "false"
+insites-cli constants set --name CANARY_NEW_FEATURE --value "false" production
 
 # 2. Enable for small percentage
-insites-cli constants set production CANARY_PERCENTAGE "10"
+insites-cli constants set --name CANARY_PERCENTAGE --value "10" production
 
 # 3. Monitor metrics
-insites-cli logs production --filter error --follow
+insites-cli logs production --filter error
 
 # 4. Gradually increase
-insites-cli constants set production CANARY_PERCENTAGE "50"
-insites-cli constants set production CANARY_PERCENTAGE "100"
+insites-cli constants set --name CANARY_PERCENTAGE --value "50" production
+insites-cli constants set --name CANARY_PERCENTAGE --value "100" production
 ```
 
 ## Database Migration Strategies
@@ -83,7 +82,7 @@ insites-cli migrations generate production remove_old_user_field
 insites-cli migrations generate prod add_user_profile
 
 # 2. Backfill data
-insites-cli data import prod user_profiles data/profiles.csv
+insites-cli data import prod --path data/profiles.json    # JSON, or a zip with --zip; no CSV, no table argument
 
 # 3. Switch code to new schema
 git checkout new-schema-branch
@@ -108,9 +107,10 @@ wait
 
 ### Incremental Asset Deployment
 
+`sync` has no folder option, and production should not be synced. A partial deploy leaves files that are missing from the build in place:
+
 ```bash
-# Only deploy changed assets
-insites-cli sync production --include "app/assets/stylesheets"
+insites-cli deploy production -p
 ```
 
 ## Deployment Verification
@@ -122,11 +122,8 @@ insites-cli sync production --include "app/assets/stylesheets"
 verify_deployment() {
   ENV=$1
 
-  # Check logs for critical errors
-  ERRORS=$(insites-cli logs $ENV --filter "critical_error" | wc -l)
-  if [ $ERRORS -gt 0 ]; then
-    return 1
-  fi
+  # insites-cli logs streams until Ctrl+C, so it cannot be counted here.
+  # Watch it in another terminal: insites-cli logs $ENV --filter error
 
   # Run health check endpoint
   RESPONSE=$(curl -s https://$ENV-instance.prod01-insites.io/health)
@@ -158,7 +155,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: npm install -g /insites-cli
+      - run: npm install -g @insites/insites-cli
       - run: insites-cli audit
 
   deploy_staging:
@@ -166,10 +163,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: npm install -g /insites-cli
+      - run: npm install -g @insites/insites-cli
       - run: insites-cli deploy staging
         env:
-          POS_TOKEN: ${{ secrets.POS_STAGING_TOKEN }}
+          INSITES_URL: ${{ secrets.STAGING_INSITES_URL }}
+          INSITES_EMAIL: ${{ secrets.STAGING_INSITES_EMAIL }}
+          INSITES_TOKEN: ${{ secrets.STAGING_INSITES_TOKEN }}
+          INSITES_INSTANCE: ${{ secrets.STAGING_INSITES_INSTANCE }}
+          INSITES_POS_KEY: ${{ secrets.STAGING_INSITES_KEY }}
 
   deploy_production:
     needs: deploy_staging
@@ -177,10 +178,14 @@ jobs:
     if: success()
     steps:
       - uses: actions/checkout@v2
-      - run: npm install -g /insites-cli
+      - run: npm install -g @insites/insites-cli
       - run: insites-cli deploy production
         env:
-          POS_TOKEN: ${{ secrets.POS_PROD_TOKEN }}
+          INSITES_URL: ${{ secrets.PROD_INSITES_URL }}
+          INSITES_EMAIL: ${{ secrets.PROD_INSITES_EMAIL }}
+          INSITES_TOKEN: ${{ secrets.PROD_INSITES_TOKEN }}
+          INSITES_INSTANCE: ${{ secrets.PROD_INSITES_INSTANCE }}
+          INSITES_POS_KEY: ${{ secrets.PROD_INSITES_KEY }}
 ```
 
 ## Disaster Recovery
@@ -191,9 +196,8 @@ jobs:
 #!/bin/bash
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
-# Backup all data
-insites-cli data export production users data/backup_${TIMESTAMP}_users.csv
-insites-cli data export production products data/backup_${TIMESTAMP}_products.csv
+# Backup all data (one zip archive)
+insites-cli data export production --path data/backup_${TIMESTAMP}.zip
 
 # Save current state
 insites-cli migrations list production > data/backup_${TIMESTAMP}_migrations.txt
@@ -209,8 +213,10 @@ insites-cli deploy production
 BACKUP_TIMESTAMP=$1
 
 # Restore from backup if needed
-insites-cli data clean production users
-insites-cli data import production users data/backup_${BACKUP_TIMESTAMP}_users.csv
+# data clean removes ALL data on the instance, not one table,
+# and asks you to type CLEAN DATA
+insites-cli data clean production
+insites-cli data import production --path data/backup_${BACKUP_TIMESTAMP}.zip --zip
 
 # Revert code
 git checkout production/stable
@@ -224,14 +230,11 @@ insites-cli deploy production
 ### Deployment Metrics
 
 ```bash
-# Monitor deployment completion
-watch -n 5 'insites-cli logs production --filter deployment'
+# Stream errors after a deploy; it runs until Ctrl+C
+insites-cli logs production --filter error
 
-# Check error rates post-deployment
-insites-cli logs production --filter error | tail -20
-
-# Verify performance
-insites-cli logs production --filter slow_query
+# Keep a copy to read afterwards
+insites-cli logs production --filter error | tee deploy-errors.log
 ```
 
 ### Custom Monitoring

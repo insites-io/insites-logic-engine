@@ -15,15 +15,16 @@ TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
 echo "Starting deployment to $ENV at $TIMESTAMP"
 
-# Run validation
-insites-cli audit || exit 1
+# Run validation. audit exits 0 even when rules fire, so
+# "insites-cli audit || exit 1" can never fail: gate on the summary line
+insites-cli audit 2>&1 | tee audit.log
+grep -q '\[Audit\] 0 rules detected issues' audit.log || exit 1
 
 # Deploy
 insites-cli deploy $ENV
 
-# Check for errors via logsv2 search subcommand
-echo "Checking logs for errors..."
-insites-cli logsv2 search
+# logs streams until Ctrl+C, so watch it in another terminal rather than here:
+#   insites-cli logs $ENV --filter error
 
 echo "Deployment completed successfully"
 ```
@@ -54,19 +55,23 @@ done
 ### Real-time Log Monitoring
 
 ```bash
-insites-cli logsv2 dev --follow --filter "error"
+insites-cli logs dev --filter error
 ```
 
 ### Log Export to File
 
+`logs` streams until you stop it, so the file grows until `Ctrl+C`:
+
 ```bash
-insites-cli logsv2 staging > logs.txt 2>&1
+insites-cli logs staging -q | tee logs.txt
 ```
 
 ### Pattern-based Filtering
 
+`--filter` matches an entry's type, not a pattern. Pipe the stream to match text:
+
 ```bash
-insites-cli logsv2 dev --filter "api_call.*timeout"
+insites-cli logs dev | grep -E 'api_call.*timeout'
 ```
 
 ## Constants Management at Scale
@@ -78,9 +83,9 @@ insites-cli logsv2 dev --filter "api_call.*timeout"
 ENV=$1
 
 # Load from environment variables
-insites-cli constants set $ENV DATABASE_URL "$DATABASE_URL"
-insites-cli constants set $ENV API_KEY "$API_KEY"
-insites-cli constants set $ENV WEBHOOK_SECRET "$WEBHOOK_SECRET"
+insites-cli constants set --name DATABASE_URL --value "$DATABASE_URL" $ENV
+insites-cli constants set --name API_KEY --value "$API_KEY" $ENV
+insites-cli constants set --name WEBHOOK_SECRET --value "$WEBHOOK_SECRET" $ENV
 ```
 
 ### Constants Versioning
@@ -122,24 +127,21 @@ insites-cli migrations generate dev remove_feature_flag
 
 ```bash
 #!/bin/bash
-# Export from staging
-insites-cli data export staging users data/users.csv
+# Export from staging (a zip archive by default)
+insites-cli data export staging --path staging.zip
 
-# Transform if needed
-# ... processing script ...
-
-# Import to dev
-insites-cli data import dev users data/users_processed.csv
+# Import to dev: a zip with --zip, or a JSON file without it
+insites-cli data import dev --path staging.zip --zip
 ```
 
 ### Cleanup Strategy
 
 ```bash
-# Verify before cleanup
-insites-cli data export dev test_records data/backup_test.csv
+# Back up before cleanup
+insites-cli data export dev --path backup.zip
 
-# Then cleanup
-insites-cli data clean dev test_records
+# Then clean. This removes ALL data on the instance; there is no per-table clean
+insites-cli data clean dev
 ```
 
 ## CI/CD Integration
@@ -155,11 +157,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: npm install -g /insites-cli
-      - run: insites-cli audit
+      - run: npm install -g @insites/insites-cli
+      # audit exits 0 even when rules fire; fail on its summary line instead
+      - run: |
+          insites-cli audit 2>&1 | tee audit.log
+          grep -q '\[Audit\] 0 rules detected issues' audit.log
       - run: insites-cli deploy staging
         env:
-          POS_TOKEN: ${{ secrets.POS_TOKEN }}
+          INSITES_URL: ${{ secrets.INSITES_URL }}
+          INSITES_EMAIL: ${{ secrets.INSITES_EMAIL }}
+          INSITES_TOKEN: ${{ secrets.INSITES_TOKEN }}
+          INSITES_INSTANCE: ${{ secrets.INSITES_INSTANCE }}
+          INSITES_POS_KEY: ${{ secrets.INSITES_KEY }}
 ```
 
 ### GitLab CI Example
@@ -168,8 +177,9 @@ jobs:
 deploy:
   image: node:16
   script:
-    - npm install -g /insites-cli
-    - insites-cli audit
+    - npm install -g @insites/insites-cli
+    - insites-cli audit 2>&1 | tee audit.log
+    - grep -q '\[Audit\] 0 rules detected issues' audit.log   # audit itself always exits 0
     - insites-cli deploy $CI_ENVIRONMENT_NAME
   only:
     - main
@@ -179,10 +189,10 @@ deploy:
 
 ### Selective Sync
 
-Sync only specific directories:
+`sync` has no directory option. Leave paths out with `.insitesignore`, or push one file with `-f`:
 
 ```bash
-insites-cli sync dev --watch --include "app/views"
+insites-cli sync dev -f app/views/pages/home.liquid
 ```
 
 ### Parallel Operations
@@ -191,10 +201,10 @@ Use multiple terminal sessions:
 
 ```bash
 # Terminal 1: Watch and sync
-insites-cli sync dev --watch
+insites-cli sync dev
 
 # Terminal 2: Monitor logs
-insites-cli logsv2 dev --follow
+insites-cli logs dev
 
 # Terminal 3: Local development
 insites-cli gui serve
@@ -204,28 +214,27 @@ insites-cli gui serve
 
 ### Verbose Output
 
-Enable detailed logging:
+The CLI has no `--verbose` option. Set `DEBUG` to print its debug lines:
 
 ```bash
-insites-cli deploy dev --verbose
+DEBUG=1 insites-cli deploy dev
 ```
 
-### Dry Run Deployments
+### Checking a Build Without Deploying
 
-Preview changes without applying:
+`deploy` has no `--dry-run` option. Build the archive and run the audit locally instead; neither touches the instance:
 
 ```bash
-insites-cli deploy dev --dry-run
+insites-cli archive              # writes ./tmp/release.zip; -o picks another path
+insites-cli audit                # the same report a deploy prints first
 ```
 
 ### Environment Inspection
 
-View current environment:
+There is no `env info` or `env current` command. `env list` prints every environment in `.insites` with its stack, instance and email:
 
 ```bash
-# Note: insites-cli env current does not exist.
-# Check your .insites file directly to verify environment configuration.
-insites-cli env info dev
+insites-cli env list
 ```
 
 ## See Also

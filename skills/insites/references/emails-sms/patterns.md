@@ -10,9 +10,7 @@ The recommended pattern uses events and consumers for non-blocking email deliver
 
 ```liquid
 {% if user.email %}
-  {% background source_name: 'event:user_welcome', priority: 'default', max_attempts: 3 %}
-    {% graphql _ = 'emails/send_welcome', to: user.email, user_name: user.first_name %}
-  {% endbackground %}
+  {% background job_id = 'jobs/send_welcome', to: user.email, user_name: user.first_name, source_name: 'event:user_welcome', priority: 'default', max_attempts: 3 %}
 {% endif %}
 ```
 
@@ -32,17 +30,14 @@ events: ['user/welcome']
 GraphQL query in `app/graphql/send_welcome_email.graphql`:
 
 ```graphql
-mutation SendWelcomeEmail($user_id: ID!) {
-  user(id: $user_id) {
-    id
-    email
-    name
-    email_send(template: "welcome") {
-      success
-    }
+mutation send_welcome($data: HashObject) {
+  email_send(template: { name: "welcome" }, data: $data) {
+    is_scheduled_to_send
   }
 }
 ```
+
+Build `data` in Liquid as one variable (`{ "to": user.email, "name": user.name }`) and pass it whole; see [api.md](api.md#email_send).
 
 ## Conditional Email Sending
 
@@ -50,13 +45,9 @@ Send different emails based on user context:
 
 ```liquid
 {% if user.type == 'premium' %}
-  {% background source_name: 'event:premium_user_notification', priority: 'default', max_attempts: 3 %}
-    {% graphql _ = 'emails/send_premium_notification', to: user.email %}
-  {% endbackground %}
+  {% background job_id = 'jobs/send_premium_notification', to: user.email, source_name: 'event:premium_user_notification', priority: 'default', max_attempts: 3 %}
 {% else %}
-  {% background source_name: 'event:user_notification', priority: 'default', max_attempts: 3 %}
-    {% graphql _ = 'emails/send_notification', to: user.email %}
-  {% endbackground %}
+  {% background job_id = 'jobs/send_notification', to: user.email, source_name: 'event:user_notification', priority: 'default', max_attempts: 3 %}
 {% endif %}
 ```
 
@@ -100,22 +91,16 @@ Send verification codes via SMS:
 
 ## Scheduled Email Dispatch
 
-Schedule emails with delay parameter:
+Schedule an email with a background job:
 
-```graphql
-mutation ScheduleEmail {
-  email_send(
-    template: "reminder"
-    to: "user@example.com"
-    data: { action_required: true }
-    delay: 86400
-  ) {
-    success
-  }
-}
+```liquid
+{%- assign mail = { "to": user.email, "action_required": true } -%}
+{% background job_id = 'jobs/send_reminder', mail: mail, delay: 1440, source_name: 'reminder_email' %}
 ```
 
-Delays email by 24 hours (86400 seconds).
+The job partial runs `{%- graphql sent = 'emails/send_reminder', data: mail -%}` with the `mail` passed to the tag.
+
+Sends the email after 24 hours: a background job's `delay` is in minutes. `email_send` itself takes no delay for a template send.
 
 ## Multi-Language Emails
 
@@ -133,29 +118,48 @@ Support multiple language templates:
 
 Create separate templates: `welcome_en.liquid`, `welcome_es.liquid`, etc.
 
-## Email Queuing Pattern
+## Sending One Email to Many People
 
-Queue emails for batch processing:
+There is no email queue to build. `email_send` schedules each message and answers `is_scheduled_to_send`, so a batch is one `email_send` per recipient through a registered template. Run the loop in a background job so the request that starts it does not wait.
+
+The template, `app/emails/batch_notification.liquid`:
+
+```liquid
+---
+to: '{{ data.to }}'
+from: 'support@example.com'
+subject: 'An update for you'
+layout: 'mailer'
+---
+Hello {{ data.first_name }},
+```
+
+The mutation, `app/graphql/emails/send_batch_notification.graphql`:
 
 ```graphql
-mutation QueueEmail($user_id: ID!) {
-  model_create(
-    model: {
-      model_name: "email_queue"
-      properties: {
-        user_id: $user_id
-        template: "batch_notification"
-        status: "pending"
-        created_at: "now"
-      }
-    }
-  ) {
-    success
+mutation send_batch_notification($data: HashObject) {
+  email_send(template: { name: "batch_notification" }, data: $data) {
+    is_scheduled_to_send
   }
 }
 ```
 
-Process queue with scheduled event consumer.
+The job, `app/views/partials/emails/send_batch.liquid`. It sees only what the `background` tag passes it:
+
+```liquid
+{%- for r in recipients -%}
+  {%- assign mail = { "to": r.email, "first_name": r.first_name } -%}
+  {%- graphql sent = 'emails/send_batch_notification', data: mail -%}
+{%- endfor -%}
+```
+
+Start it from the page:
+
+```liquid
+{% background job_id = 'emails/send_batch', source_name: 'batch_notification', max_attempts: 1, recipients: recipients %}
+```
+
+Pass `data` as one variable, never as a GraphQL object literal: the literal form answers `is_scheduled_to_send: true` and sends nothing (see [api.md](api.md#email_send)). `insites-cli check` flags the query inside the loop (`NestedGraphQLQuery`); here that is expected, because `email_send` takes one message per call. Keep `max_attempts: 1` unless the job records who it has already sent to, or a retry sends the whole batch again.
 
 ## See Also
 

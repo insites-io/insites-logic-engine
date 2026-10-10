@@ -6,7 +6,7 @@ module_version: "6.1.2"
 stability: stable
 safe_in_function: true
 http_twin: GET /crm/api/v2/contacts
-source: pos/modules/insites_crm/private/views/partials/controllers/_external/v2/contacts/get_contacts.liquid
+source: modules/insites_crm/private/views/partials/controllers/_external/v2/contacts/get_contacts.liquid
 verified: 2026-10-09
 related:
   - crm/controller/contacts/get

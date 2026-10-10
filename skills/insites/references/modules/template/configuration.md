@@ -15,7 +15,7 @@ insites-cli deploy staging
 
 Set in the Insites Console or:
 ```bash
-insites-cli constants set staging MODULE_API_KEY "value"
+insites-cli constants set --name MODULE_API_KEY --value "value" staging
 ```
 
 ## Dependencies

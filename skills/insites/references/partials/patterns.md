@@ -6,12 +6,12 @@ Presentational partials receive all data as parameters and produce HTML.
 
 ```liquid
 {% comment %} app/views/partials/products/card.liquid {% endcomment %}
-<div class="pos-card">
-  <h3 class="pos-card__title">{{ product.title }}</h3>
+<div class="card">
+  <h3 class="card__title">{{ product.title }}</h3>
   {% if show_price %}
-    <p class="pos-card__price">{{ product.price | pricify }}</p>
+    <p class="card__price">{{ product.price | pricify }}</p>
   {% endif %}
-  <a href="/products/{{ product.id }}" class="pos-button">View</a>
+  <a href="/products/{{ product.id }}" class="button">View</a>
 </div>
 ```
 
@@ -25,15 +25,30 @@ Called from a page:
 
 ## Function Partial Pattern (Query Wrapper)
 
-Wrap a GraphQL call location in a query partial so the actual graphql tag stays in the page layer but the query logic is reusable.
+Put a query used in several places in its own partial, run it there, and return the result. Call it with `{% function %}`; the caller then passes the result on to presentation partials.
 
 ```liquid
-{% comment %} app/views/partials/lib/queries/products/search.liquid {% endcomment %}
-{% comment %} NOTE: This is called from pages which pass graphql results {% endcomment %}
-{% assign filtered = products | array_select: available: true %}
-{% assign sorted = filtered | array_sort_by: 'title' %}
-{% return sorted %}
+{% comment %}
+  app/views/partials/queries/products/list.liquid
+  Called as: function products = 'queries/products/list', limit: 20
+{% endcomment %}
+{%- graphql r, limit: limit -%}
+  query ($limit: Int) {
+    records(per_page: $limit, filter: { table: { value: "product" } }) {
+      results { id properties }
+    }
+  }
+{%- endgraphql -%}
+{%- return r.records.results -%}
 ```
+
+```liquid
+{% comment %} In the page {% endcomment %}
+{%- function products = 'queries/products/list', limit: 20 -%}
+{%- render 'products/grid', products: products -%}
+```
+
+The platform runs `{% graphql %}` inside a partial called this way: `signin/take_slot` in [authentication patterns](../authentication/patterns.md) does the same with a mutation, measured on a production instance on 9 October 2026.
 
 ## Command Partial Pattern
 
@@ -76,15 +91,15 @@ Wrap a GraphQL call location in a query partial so the actual graphql tag stays 
 <form method="post" action="/products">
   <input type="hidden" name="authenticity_token" value="{{ context.authenticity_token }}">
 
-  <div class="pos-form-group {% if product.errors.title %}pos-form-group--error{% endif %}">
+  <div class="form-group {% if product.errors.title %}form-group--error{% endif %}">
     <label for="title">Title</label>
     <input type="text" id="title" name="product[title]" value="{{ product.title }}">
     {% if product.errors.title %}
-      <span class="pos-form-error">{{ product.errors.title | join: ', ' }}</span>
+      <span class="form-error">{{ product.errors.title | join: ', ' }}</span>
     {% endif %}
   </div>
 
-  <button type="submit" class="pos-button pos-button--primary">Save</button>
+  <button type="submit" class="button button--primary">Save</button>
 </form>
 ```
 
@@ -202,7 +217,7 @@ Called as:
 
 **Before** — same card markup in 3 different list pages:
 ```liquid
-<div class="pos-card">
+<div class="card">
   <h3>{{ item.title }}</h3>
   <p>{{ item.description | truncate: 100 }}</p>
   <a href="/{{ resource }}/{{ item.id }}">View</a>
@@ -212,12 +227,12 @@ Called as:
 **After** — one reusable partial:
 ```liquid
 {% comment %} app/views/partials/shared/card.liquid {% endcomment %}
-<div class="pos-card">
+<div class="card">
   <h3>{{ title }}</h3>
   {% if description %}
     <p>{{ description | truncate: 100 }}</p>
   {% endif %}
-  <a href="{{ url }}" class="pos-button">{{ link_text | default: 'View' }}</a>
+  <a href="{{ url }}" class="button">{{ link_text | default: 'View' }}</a>
 </div>
 ```
 
@@ -265,8 +280,8 @@ authorization_policies:
 
 ## Best Practices
 
-1. **Never call GraphQL from partials** — receive data from pages as parameters
-2. **Use plain English text for user-facing strings**
+1. **Presentation partials take their data as parameters.** Only block, calculation and callback partials, and query wrappers called with `function`, run GraphQL (`graphql-in-partials-restricted`)
+2. **Write clear user-facing strings**, in the partial or in translations when the site serves more than one language
 3. **No underscore prefix** — `card.liquid` not `_card.liquid`
 4. **Keep partials focused** — one component or one function per file
 5. **Use function for data, render for HTML** — clear separation of concerns

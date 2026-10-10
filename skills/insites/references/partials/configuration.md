@@ -7,7 +7,7 @@ All partials reside in `app/views/partials/`. The path in render/function maps d
 - `{% render 'products/card' %}` → `app/views/partials/products/card.liquid`
 - `{% function r = 'lib/commands/products/create' %}` → `app/views/partials/lib/commands/products/create.liquid`
 
-> **Module path:** In modules, partials live in `modules/<module_name>/public/views/partials/` (accessible to the app and other modules) or `modules/<module_name>/private/views/partials/` (internal only). The render/function path remains the same — the platform resolves the module prefix automatically.
+> **Module path:** In modules, partials live in `modules/<module_name>/public/views/partials/` (accessible to the app and other modules) or `modules/<module_name>/private/views/partials/` (internal only). Call them with the module prefix: `{% render 'modules/<module_name>/products/card' %}` reads `modules/<module_name>/public/views/partials/products/card.liquid` or the same path under `private/`. Both trees are valid: `app/` holds the site itself, and `modules/<name>/` holds code you want to reuse or package (see [`project-structure.md`](../project-structure.md)).
 
 ## Naming Rules
 

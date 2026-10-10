@@ -80,7 +80,7 @@ cd <PROJECT_ROOT> && insites-cli deploy staging
 Inspect staging logs for errors:
 
 ```bash
-cd <PROJECT_ROOT> && insites-cli logsv2 staging
+cd <PROJECT_ROOT> && insites-cli logs staging
 ```
 
 Any errors in logs constitute failure.

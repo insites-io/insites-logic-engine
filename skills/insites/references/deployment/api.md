@@ -12,18 +12,20 @@ insites-cli deploy production
 ```
 
 Deployment process:
-1. Validates with insites-cli audit
-2. Syncs all files
+1. Runs insites-cli audit and prints its report (skipped when `CI=true`; it never stops the deploy)
+2. Syncs all files in `app/` and `modules/`
 3. Executes pending migrations
 4. Applies schema updates
 5. Uploads assets to CDN
 
 ### Deployment with Options
 
+`deploy` takes two options, and has no `--force`, `--skip-tests` or `--verbose`:
+
 ```bash
-insites-cli deploy production --force
-insites-cli deploy staging --skip-tests
-insites-cli deploy dev --verbose
+insites-cli deploy staging -p                 # partial: keep files in folders missing from the build
+insites-cli deploy production --stack <name>  # override the stack read from the environment
+DEBUG=1 insites-cli deploy dev                # print the CLI's debug lines
 ```
 
 ## Sync Command
@@ -39,11 +41,11 @@ File sync only - no migrations or schema changes.
 
 ### Watch Mode
 
-Continuous synchronization:
+`sync` watches by default and has no `--watch` or `--filter` option:
 
 ```bash
-insites-cli sync dev --watch
-insites-cli sync staging --watch --filter "app/views"
+insites-cli sync dev
+insites-cli sync staging -f app/views/pages/home.liquid   # one file, then exit
 ```
 
 ## Deployment Lifecycle
@@ -56,22 +58,18 @@ Runs automatically:
 insites-cli audit
 ```
 
-Validates:
-- Liquid syntax
-- Tag correctness
-- Partial references
-- Translation keys
+Reports deprecated tags, filters and keys, file types per folder, partial name clashes, file names and partials never included. It does not validate Liquid syntax or translations, and the deploy goes ahead whatever it finds. See [`../cli/api.md`](../cli/api.md#audit).
 
 ### Sync Phase
 
 Files synchronized:
 
 ```
-app/views/
-app/api_calls/
-app/lib/
-config/
+app/
+modules/
 ```
+
+The CLI deploys these two trees and nothing else.
 
 ### Migration Phase
 
@@ -84,15 +82,13 @@ insites-cli migrations list staging
 
 ### Schema Application
 
-Schema changes applied:
+Table schemas in `app/schema/` and user properties in `app/user.yml` are applied. Both use a `properties:` list:
 
 ```yaml
-# app/schema/models/user.yml
+# app/user.yml
 properties:
-  email:
-    type: string
-  name:
-    type: string
+  - name: roles
+    type: array
 ```
 
 ### Asset Upload
@@ -106,47 +102,33 @@ Assets pushed to CDN:
 
 ## Environment-Specific Deployment
 
-### Development Deployment
+The environment name is a key in `.insites`, and the deploy does the same work whatever it is called. No environment runs tests or extra checks: run `insites-cli test run staging` yourself before you deploy to production.
 
 ```bash
 insites-cli deploy development
-# Fast, minimal checks
-```
-
-### Staging Deployment
-
-```bash
 insites-cli deploy staging
-# Full validation, runnable tests
-```
-
-### Production Deployment
-
-```bash
 insites-cli deploy production
-# Full validation, mandatory tests
-# No --skip-tests allowed
 ```
 
 ## Deployment Status and Monitoring
 
 ### Check Deployment Status
 
-```bash
-insites-cli env info production
-```
+The deploy command waits for the instance and ends with `Deploy succeeded after <time>` or `Deploy failed.` and the reason. There is no separate status command (`env info` does not exist); `insites-cli env list` only shows which environments are configured.
 
 ### View Deployment Logs
 
 ```bash
 insites-cli logs production
-insites-cli logs production --filter "deployment"
+insites-cli logs production --filter error
 ```
 
 ### Monitor in Progress
 
+`insites-cli logs` always follows: it streams until you press `Ctrl+C` and has no `--follow` option. Run it in a second terminal while the deploy runs:
+
 ```bash
-insites-cli logs production --follow
+insites-cli logs production
 ```
 
 ## Rollback Procedures
@@ -174,7 +156,7 @@ Test migrations on staging first:
 ```bash
 insites-cli migrations run staging
 # Verify data integrity
-insites-cli data export staging users data/verify.csv
+insites-cli data export staging --path verify.zip
 ```
 
 ## Continuous Integration Deployment

@@ -81,25 +81,9 @@ layout: 'mailer'
 
 Pass nested objects to templates:
 
-```graphql
-mutation SendOrderEmail($order_id: ID!) {
-  email_send(
-    template: "order_confirmation"
-    to: "user@example.com"
-    data: {
-      order: {
-        id: $order_id
-        items: [
-          { name: "Product A", price: 29.99, qty: 2 }
-          { name: "Product B", price: 49.99, qty: 1 }
-        ]
-        total: 109.97
-      }
-    }
-  ) {
-    success
-  }
-}
+```liquid
+{%- assign mail = { "to": "user@example.com", "order": { "id": order.id, "items": order.items, "total": order.total } } -%}
+{%- graphql sent = 'emails/send_order_confirmation', data: mail -%}
 ```
 
 Access in template:
@@ -128,9 +112,7 @@ cron: '0 2 * * *'
 {% graphql pending_users = 'get_pending_email_users' %}
 
 {% for user in pending_users.users %}
-  {% background source_name: 'event:email_batch_send', priority: 'default', max_attempts: 3 %}
-    {% graphql _ = 'emails/send_batch_notification', to: user.email %}
-  {% endbackground %}
+  {% background job_id = 'jobs/send_batch_notification', to: user.email, source_name: 'event:email_batch_send', priority: 'default', max_attempts: 3 %}
 {% endfor %}
 ```
 
@@ -138,46 +120,31 @@ cron: '0 2 * * *'
 
 Create variants and track performance:
 
-```graphql
-mutation SendABTestEmail(
-  $user_id: ID!
-  $variant: String!
-) {
-  email_send(
-    template: "newsletter_{{ variant }}"
-    to: "user@example.com"
-    data: {
-      user_id: $user_id
-      variant: $variant
-      test_id: "nl_2024_01"
-    }
-  ) {
-    success
-  }
+```liquid
+{%- assign template_name = 'newsletter_' | append: variant -%}
+{%- assign mail = { "to": "user@example.com", "user_id": user_id, "variant": variant, "test_id": "nl_2024_01" } -%}
+{%- graphql sent, name: template_name, d: mail -%}
+mutation ($name: String!, $d: HashObject) {
+  email_send(template: { name: $name }, data: $d) { is_scheduled_to_send }
 }
+{%- endgraphql -%}
 ```
+
+GraphQL does not run Liquid, so a template name built from a variable goes in as a GraphQL variable.
 
 ## SMS with Conversation Context
 
 Maintain SMS conversation history:
 
 ```graphql
-mutation SendContextualSMS(
-  $phone: String!
-  $conversation_id: ID!
-) {
-  sms_send(
-    template: "contextual_reply"
-    to: $phone
-    data: {
-      conversation_id: $conversation_id
-      previous_context: "user_requested_support"
-    }
-  ) {
-    success
+mutation send_contextual_sms($data: HashObject) {
+  sms_send(template: { name: "contextual_reply" }, data: $data) {
+    is_scheduled_to_send
   }
 }
 ```
+
+with `data` built in Liquid: `{ "to": phone, "conversation_id": conversation_id, "previous_context": "user_requested_support" }`.
 
 ## Email Retry Logic
 

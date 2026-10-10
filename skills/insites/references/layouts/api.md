@@ -53,7 +53,6 @@ Renders a partial template. Used in layouts for shared components.
 ```liquid
 {% render 'shared/navigation' %}
 {% render 'shared/footer' %}
-{% render 'modules/common-styling/init' %}
 {% render 'shared/toasts', params: flash %}
 ```
 

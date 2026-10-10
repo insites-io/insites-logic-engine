@@ -2,10 +2,10 @@
 
 Command-line tools for Insites development.
 
-> **CLI COMMAND STATUS — read before using any CLI examples:**
-> - `insites-cli logs` → **does not exist**. Use `insites-cli logsv2` (alias: `l2`) instead.
-> - `insites-cli constants` → **not yet available** (under development). See `references/constants/`.
-> - `insites-cli cache` → **not yet available** (under development). See `references/caching/`.
+> **CLI COMMAND STATUS: read before using any CLI examples:**
+> - `insites-cli logs <environment>` (alias `l`) streams the instance's logs live and works on every stack. `insites-cli logsv2` (alias `l2`) searches log history, but only where the stack has a log proxy: on the Insites stack (`*.staging-insites.io`, `*.prod01-insites.io`, where v6 instances run) it stops and points you at `logs`.
+> - `insites-cli constants list|set|unset` ships in CLI 5.10.2. See `references/constants/`.
+> - There is **no** `insites-cli cache` command. See `references/caching/`.
 > - `insites-cli sessions` → **not yet available** (under development). See `references/sessions/`.
 > - `insites-cli assets` → **not yet available** (under development). See `references/assets/`.
 
@@ -25,8 +25,8 @@ insites-cli gui serve dev                       # Start GraphQL GUI explorer
 
 ### Debugging
 ```bash
-insites-cli logsv2 dev                          # Watch real-time logs (alias: l2)
-insites-cli logsv2 dev --filter type:error      # Filter error logs
+insites-cli logs dev                            # Stream live logs until Ctrl+C (alias: l)
+insites-cli logs dev --filter error             # Only entries whose type is "error"
 insites-cli exec liquid dev '<code>'            # Execute Liquid snippet
 insites-cli exec graphql dev '<query>'          # Execute GraphQL query
 ```
@@ -63,30 +63,28 @@ insites-cli migrations list dev                 # List migration states
 
 ### Data
 ```bash
-insites-cli data export dev --path=data.json    # Export data
+insites-cli data export dev --path=data.zip     # Export data (a zip archive)
 insites-cli data import dev --path=data.json    # Import data
 insites-cli data clean dev                      # Clean all data (DANGEROUS)
 ```
 
 ## Linting (insites-cli audit)
 
-**Must run after EVERY file change.**
+**Run after every file change and read the report.**
 
 ```bash
-insites-cli audit                            # Lint all files
-insites-cli audit app/views/pages/           # Lint specific directory
+insites-cli audit                            # Scans app/ and modules/; takes no arguments
 ```
 
 ### What it checks
 
-- Liquid syntax errors
-- Invalid tag/filter usage
-- Missing translations
-- Broken partial references
-- Incorrect file naming
-- Deprecated patterns
+- Deprecated tags, filters and front-matter keys
+- File types in the wrong folder
+- A partial and its underscore twin at the same path
+- Characters not allowed in file names
+- Partials no `include` or `function` call names
 
-### Must pass with 0 errors before deployment.
+It does not check Liquid syntax, translations or credentials. It exits 0 even when a rule fires, so read the `[Audit] N rules detected issues.` line. Full list in [`api.md`](api.md#audit).
 
 ## Environment Configuration
 
@@ -109,7 +107,7 @@ Generate with: `insites-cli env add dev --email dev@example.com --instance-uuid 
 
 ```bash
 # Terminal 1: Watch logs
-insites-cli logsv2 dev
+insites-cli logs dev
 
 # Terminal 2: Make changes and observe
 insites-cli sync dev

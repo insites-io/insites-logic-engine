@@ -49,13 +49,28 @@ Add before `</body>` in your layout:
 {% redirect_to '/products' %}
 ```
 
-## Client-Side Toasts (JavaScript)
+## Messages from JavaScript
+
+Insites has no JavaScript toast helper. To show a message from a script, write it into the status region your `shared/toasts` partial renders in the layout. The region and the function below are project code, not a platform API:
+
+```html
+<!-- in app/views/partials/shared/toasts.liquid, rendered by the layout -->
+<div id="flash" class="flash" role="status" aria-live="polite" hidden></div>
+```
 
 ```javascript
-new pos.modules.toast('success', 'Saved successfully!');
-new pos.modules.toast('error', 'Something went wrong');
-new pos.modules.toast('warning', 'Please check your input');
-new pos.modules.toast('info', 'Processing your request...');
+// project code, for example app/assets/scripts/flash.js
+function showFlash(type, message) {
+  const el = document.getElementById('flash');
+  el.className = 'flash ' + type;   // notice, alert, warning or info
+  el.textContent = message;         // textContent, never innerHTML
+  el.hidden = false;
+}
+```
+
+```javascript
+showFlash('notice', 'Saved successfully!');
+showFlash('alert', 'Something went wrong');
 ```
 
 ## Flash Message Types

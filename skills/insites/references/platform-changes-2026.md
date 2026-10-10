@@ -59,8 +59,9 @@ updated, so re-measure rather than assume a date.
 ## 19 May: asset cache control, policies by name
 
 - `cache_control` on `admin_assets_create` and `admin_asset_update` sets the stored
-  object's `Cache-Control` header. The `url` argument of `admin_assets_create` is
-  deprecated and ignored. [graphql](graphql/api.md), [assets](assets/api.md)
+  object's `Cache-Control` header. The notes call the `url` argument of
+  `admin_assets_create` deprecated and ignored, but the bundled schema still requires it:
+  send it and do not rely on its value. [graphql](graphql/api.md), [assets](assets/api.md)
 - `admin_page_create` and `admin_page_update` take `authorization_policies` as policy
   names, beside `authorization_policy_ids`. [graphql](graphql/api.md)
 - `asset_url`'s `?updated=` is one per-instance timestamp bumped whenever any asset
@@ -121,7 +122,8 @@ updated, so re-measure rather than assume a date.
 - `parse_json` (tag and filter) is deprecated in favour of an `assign` literal for JSON
   written in the template; it remains the way to parse a runtime string. Every deprecated
   tag names its successor; `context_rc`, `function_rc`, `return_rc`, `sign_in_rc`,
-  `try_rc` and `render_form` are registered alternative spellings; `execute_query` and
+  `try_rc` and `render_form` are registered alternative spellings (the CLI 5.10.2 audit
+  still lists `render_form` among its deprecated tags); `execute_query` and
   `query_graph` are deprecated for `graphql`. [tags](liquid/tags/api.md)
 - Deploys touching more than 250 partials no longer leave stale compiled templates;
   deleting a partial expires its `path:` alias; `Duplicate pk` is warned across batches.

@@ -1,6 +1,6 @@
 # Assets: Configuration
 
-What an administrator sets up in IIA, and what deploying the module seeds. Paths are relative to `pos/modules/insites_assets/` in module-v6-assets v6.1.0, read on 9 October 2026.
+What an administrator sets up in IIA, and what deploying the module seeds. Paths are relative to `modules/insites_assets/` in module-v6-assets v6.1.0, read on 9 October 2026.
 
 ## IIA screens
 

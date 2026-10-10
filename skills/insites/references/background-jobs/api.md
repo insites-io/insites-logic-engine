@@ -3,16 +3,18 @@
 ## Complete Tag Syntax
 
 ```liquid
-{% background [delay: value] [priority: 'level'] [max_attempts: count] [source_name: 'name'] %}
-  [job content]
-{% endbackground %}
+{% background job_id = 'path/to/partial' [, delay: value] [, priority: 'level'] [, max_attempts: count] [, source_name: 'name'] [, name: value ...] %}
 ```
+
+`job_id` is the variable the tag assigns; `'path/to/partial'` is the partial the job runs. Every argument that is not one of the four options becomes a variable inside the partial, and those are the only page variables the job can see.
+
+The block form, `{% background ... %}...{% endbackground %}`, is listed as deprecated in the tag reference shipped with CLI 5.10.2. It has the same scope: the block sees only what is passed to the tag.
 
 ## Parameter Reference
 
 ### delay
 ```liquid
-{% background delay: 0 %}...{% endbackground %}
+{% background job_id = 'jobs/example', delay: 0 %}
 ```
 - **Type**: Float
 - **Unit**: Minutes
@@ -22,7 +24,7 @@
 
 ### priority
 ```liquid
-{% background priority: 'default' %}...{% endbackground %}
+{% background job_id = 'jobs/example', priority: 'default' %}
 ```
 - **Type**: String (quoted)
 - **Values**: `'low'`, `'default'`, `'high'`
@@ -31,7 +33,7 @@
 
 ### max_attempts
 ```liquid
-{% background max_attempts: 1 %}...{% endbackground %}
+{% background job_id = 'jobs/example', max_attempts: 1 %}
 ```
 - **Type**: Integer
 - **Range**: 1–5
@@ -47,44 +49,48 @@
 
 ### source_name
 ```liquid
-{% background source_name: 'my_job_name' %}...{% endbackground %}
+{% background job_id = 'jobs/example', source_name: 'my_job_name' %}
 ```
 - **Type**: String (quoted)
 - **Default**: Auto-generated (not recommended for production)
 - **Format**: Alphanumeric, hyphens, underscores
-- **Visibility**: Appears in `insites-cli logs` output for filtering and debugging
+- **Visibility**: Names the job. `insites-cli logs` does not print it, so log from inside the job with a `type:` you can filter on (see Monitoring below)
 
 ## Full API Example
 
 ```liquid
-{% background delay: 2.5, priority: 'high', max_attempts: 3, source_name: 'process_payment' %}
-  {% assign customer_id = order.customer_id %}
-  {% assign amount = order.total %}
-
-  Processing payment for customer {{ customer_id }}: ${{ amount }}
-{% endbackground %}
+{% background job_id = 'payments/process',
+  delay: 2.5,
+  priority: 'high',
+  max_attempts: 3,
+  source_name: 'process_payment',
+  customer_id: order.customer_id,
+  amount: order.total %}
 ```
+
+Inside `app/views/partials/payments/process.liquid`, `customer_id` and `amount` are set. `order` is not, because it was not passed.
 
 ## Calling Partials from Background
 
 ### Basic Partial Call
 
 ```liquid
-{% background source_name: 'email_job' %}
-  {% include 'emails/transactional', user_id: user.id, email: user.email %}
-{% endbackground %}
+{% background job_id = 'emails/transactional',
+  source_name: 'email_job',
+  user_id: user.id,
+  email: user.email %}
 ```
 
 ### Partial with Multiple Parameters
 
 ```liquid
-{% background max_attempts: 2, source_name: 'generate_invoice' %}
-  {% include 'invoicing/create',
-    order_id: order.id,
-    customer_id: customer.id,
-    amount: order.total,
-    currency: 'USD' %}
-{% endbackground %}
+{% background job_id = 'invoicing/create',
+  max_attempts: 2,
+  source_name: 'generate_invoice',
+  order_id: order.id,
+  customer_id: customer.id,
+  amount: order.total,
+  currency: 'USD' %}
 ```
 
 ### Nested Includes
@@ -92,111 +98,84 @@
 Partials called from background jobs can themselves include other partials:
 
 ```liquid
-{% background source_name: 'complex_workflow' %}
-  {% include 'workflows/multi-step',
-    entity_id: entity.id,
-    context: 'background_job' %}
-{% endbackground %}
+{% background job_id = 'workflows/multi-step',
+  source_name: 'complex_workflow',
+  entity_id: entity.id,
+  mode: 'background_job' %}
 ```
 
-**Note**: All nested includes operate in the same limited background job scope.
+**Note**: A nested include sees what the job partial passes to it, and the job partial sees only what the tag passed.
 
 ## Accessing Variables in Background Jobs
 
-### Direct Assignment
+### Only Passed Variables
 
 ```liquid
-{% background source_name: 'use_variables' %}
-  {% assign username = user.name %}
-  {% assign created_at = user.created_at %}
-
-  User: {{ username }}
-  Joined: {{ created_at }}
-{% endbackground %}
+{% assign username = user.name %}
+{% background job_id = 'jobs/welcome', name: user.name, joined: user.created_at %}
 ```
+
+In `jobs/welcome`, `name` and `joined` are set. `username` is blank: it was assigned on the page and not passed.
 
 ### From Passed Parameters
 
 ```liquid
-{% background source_name: 'param_job' %}
-  {% include 'processor',
-    data: my_collection,
-    config: job_config %}
-{% endbackground %}
+{% background job_id = 'processor',
+  source_name: 'param_job',
+  data: my_collection,
+  config: job_config %}
 ```
 
 ### Available Context
 
-Background jobs have access to:
-- Model data passed explicitly via parameters
-- Liquid variables assigned within the background block
-- Filters and tags (standard Liquid)
+The tag reference shipped with CLI 5.10.2 says a job has access only to the variables passed to the tag. `context` is available by default, with limits: page and layout metadata, the device and constants must be passed explicitly if the job uses them. Since 20 April 2026 a job receives `context.environment` and `context.location.host` from the request that queued it.
 
-Background jobs do **not** have access to:
-- Request parameters (`params`)
-- Session data (`context.current_user`)
-- Cookies or headers
-- Parent page variables (must be reassigned)
+So pass what the job needs, including anything read from the request (`context.params`, the current user's id), as tag arguments. A variable assigned on the page is never visible inside the job unless it is passed.
 
 ## Monitoring with insites-cli logs
 
-### View All Job Logs
+`insites-cli logs <environment>` streams the instance's log entries until you press `Ctrl+C`. It prints each one as `[time] - type: message`, with the path, page and partial underneath when the entry has them. It does not print `source_name`, its only filter is `--filter <type>`, and it has no `--source-name` or `--tail` option.
+
+So give the job a log entry of its own, with a type you can filter on. Inside the job's partial:
+
+```liquid
+{%- assign note = 'sent welcome email to ' | append: email -%}
+{%- log note, type: 'send_email' -%}
+```
+
+Then:
 
 ```bash
-insites-cli logs
+insites-cli logs staging --filter send_email
+insites-cli logs staging | grep process_payment
 ```
 
-### Filter by Source Name
-
-```bash
-insites-cli logs | grep 'send_email'
-```
-
-### View Specific Job
-
-```bash
-insites-cli logs --source-name='process_payment'
-```
-
-### Monitor in Real-Time
-
-```bash
-insites-cli logs --tail
-```
-
-### Log Output Format
-
-```
-[2024-01-15 14:32:45] background job: send_email (attempt 1/2) - SUCCESS
-[2024-01-15 14:32:50] background job: process_payment (attempt 1/3) - FAILED
-[2024-01-15 14:32:55] background job: process_payment (attempt 2/3) - SUCCESS
-```
+Whether the platform writes an entry of its own for each attempt or failure was not measured. Do not rely on one.
 
 ## Error Scenarios
 
 ### Job Failure and Retry
 
 ```liquid
-{% background max_attempts: 3, source_name: 'api_call' %}
-  {% include 'integrations/external-api', endpoint: 'https://api.example.com' %}
-{% endbackground %}
+{% background job_id = 'integrations/external-api',
+  max_attempts: 3,
+  source_name: 'api_call',
+  endpoint: 'https://api.example.com' %}
 ```
 
 If the included partial fails:
-1. Logs: "api_call (attempt 1/3) - FAILED"
+1. The attempt fails
 2. Wait: Exponential backoff
 3. Retry: Attempt 2/3 begins
-4. If all attempts fail: Final failure logged
+4. If all attempts fail, the job stops (whether the platform logs that was not measured)
 
 ### Job Success
 
 ```liquid
-{% background source_name: 'completed_job' %}
-  Job execution completes successfully
-{% endbackground %}
+{% background job_id = 'jobs/example', source_name: 'completed_job' %}
 ```
 
-Logs: "completed_job (attempt 1/1) - SUCCESS"
+Nothing appears in `insites-cli logs` unless the job writes a `{% log %}` entry itself.
 
 ## Constraints
 
@@ -214,9 +193,7 @@ Logs: "completed_job (attempt 1/1) - SUCCESS"
 The `{% background %}` tag returns immediately and does not block execution:
 
 ```liquid
-{% background source_name: 'async_task' %}
-  This executes asynchronously
-{% endbackground %}
+{% background job_id = 'jobs/example', source_name: 'async_task' %}
 
 Response sent to user immediately (doesn't wait for background job)
 ```

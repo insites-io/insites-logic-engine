@@ -4,11 +4,11 @@ Common errors, limits, and troubleshooting for GraphQL in Insites.
 
 ## Common Errors
 
-### "Liquid error: graphql tag is not allowed in partials"
+### GraphQL in a partial
 
-**Cause:** You placed a `{% graphql %}` tag inside a partial file (`app/views/partials/`). Insites prohibits GraphQL calls from partials.
+**The platform runs it.** A partial called with `{% function %}` that holds an inline `{% graphql %}` mutation and returns the result ran on a production instance on 9 October 2026 (`signin/take_slot` in [authentication patterns](../authentication/patterns.md)). No Liquid error forbids the tag in a partial.
 
-**Solution:** Move the `{% graphql %}` call to the page that renders the partial. Pass the query result to the partial as a variable: `{% render 'my_partial', products: result.records.results %}`.
+**Where it belongs is a convention**, `graphql-in-partials-restricted`: presentation partials (cards, headers, layouts, nav) take their data as parameters, and block, calculation and callback partials may query. A query used in several places goes in a partial called with `{% function %}`. `insites-cli audit` does not check this. `insites-cli check` (`NestedGraphQLQuery`) follows `function` and `render` calls into partials and flags a query that runs inside a loop.
 
 ### "QueryNotFound: 'products/serch'"
 
@@ -124,6 +124,14 @@ The same holds for every admin listing measured on two v6 instances on 7 October
 
 `constants(per_page: 1000)` returns the first 1000 and no `total_entries`. Page with `page:` until a page comes back short; an instance can hold more than 1000 constants, and a reader that stops at one page sees a constant past it as absent.
 
+### A read-then-write counter lets concurrent requests through
+
+Measured on a production instance on 9 October 2026 with sixteen sessions posting at once: a count read and written back through `records_update_all` with a filter on the old value let 14 of 16 guesses through a limit of 5, and `increment: 1` let two of sixteen racing requests both win, twice. Neither is a compare-and-swap. A unique `external_id` is: create one row per slot with `external_id: "<key>-<n>"`, and exactly one racing create succeeds while the rest fail with "External has already been taken". Worked example: [`signin/take_slot`](../authentication/patterns.md#what-both-variants-share).
+
+### A property written through `value` is text
+
+A property written with `value` is stored as text, so a later `value_int` filter does not match it; written with `value_int` or `increment`, both filters match. And a **number** passed as `value` fails the whole mutation with no exception: the result holds only an `errors` key and nothing is written. Pass a string (`value: "{{ n }}"`, or `n | append: ''` before binding it as a variable).
+
 ## Troubleshooting Flowchart
 
 ```
@@ -131,8 +139,6 @@ GraphQL issue?
 ├── Query returns error?
 │   ├── "QueryNotFound"
 │   │   └── Fix: Check file path and spelling (relative to app/graphql/)
-│   ├── "not allowed in partials"
-│   │   └── Fix: Move {% graphql %} to page, pass data to partial
 │   ├── "Variable ... invalid value"
 │   │   └── Fix: Ensure all required (!) variables are provided and non-nil
 │   └── "Cannot query field"

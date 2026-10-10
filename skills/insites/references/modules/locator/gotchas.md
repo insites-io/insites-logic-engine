@@ -1,6 +1,6 @@
 # Locator: Gotchas
 
-Edges visible in the module source (module-v6-locator v6.0.2, read 9 October 2026; paths relative to `pos/modules/insites_locator/`). Each entry: **what bites**, **why**, **how to avoid**.
+Edges visible in the module source (module-v6-locator v6.0.2, read 9 October 2026; paths relative to `modules/insites_locator/`). Each entry: **what bites**, **why**, **how to avoid**.
 
 ---
 

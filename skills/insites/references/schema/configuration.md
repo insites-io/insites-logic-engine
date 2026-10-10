@@ -28,7 +28,7 @@ properties:
   - name: title
     type: string
   - name: description
-    type: text
+    type: string
   - name: price
     type: float
 ```
@@ -45,7 +45,7 @@ properties:
 | Type | Storage | Use Case | GraphQL Accessor |
 |------|---------|----------|------------------|
 | `string` | Short text, indexed | Titles, names, slugs, IDs | `property(name:)` |
-| `text` | Long text, not indexed by default | Descriptions, body content | `property(name:)` |
+| `text` | **Deprecated.** The schema's `PropertyTypeEnum` says "deprecated, please use string"; `string` holds long text | Do not use | `property(name:)` |
 | `integer` | Whole numbers | Quantities, counts, ages | `property_int(name:)` |
 | `float` | Decimal numbers | Prices, ratings, coordinates | `property_float(name:)` |
 | `boolean` | `true` / `false` | Flags, toggles, status | `property_boolean(name:)` |
@@ -168,7 +168,7 @@ properties:
   - name: slug
     type: string
   - name: body
-    type: text
+    type: string
   - name: author_id
     type: string
   - name: category_id

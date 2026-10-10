@@ -4,35 +4,30 @@
 
 ### Error 1: Variable Not Accessible in Background Job
 
-**Symptom**: Job runs but can't access variables from parent scope.
+**Symptom**: Job runs but a variable from the page is blank inside it.
 
 ```liquid
 {% assign username = user.name %}
-
-{% background source_name: 'use_name' %}
-  {{ username }}  {% comment %} ERROR: undefined {% endcomment %}
-{% endbackground %}
+{% background job_id = 'jobs/greet', source_name: 'use_name' %}
 ```
 
-**Cause**: Background jobs run in isolated scope; parent variables aren't automatically inherited.
+`jobs/greet` prints `{{ username }}` and gets nothing.
 
-**Solution**: Reassign variables inside the background block:
+**Cause**: A job sees only the variables passed to the tag. Page variables are never inherited, and this is the same in the deprecated block form.
+
+**Solution**: Pass the value as a tag argument. Reassigning it inside the job does not work, because `user` is not visible there either:
 
 ```liquid
-{% assign username = user.name %}
-
-{% background source_name: 'use_name' %}
-  {% assign username = user.name %}
-  Hello {{ username }}
-{% endbackground %}
+{% background job_id = 'jobs/greet', source_name: 'use_name', username: user.name %}
 ```
 
-Or pass through partial parameters:
+For a job that sends mail, pass everything the template needs:
 
 ```liquid
-{% background source_name: 'send_email' %}
-  {% include 'emails/template', username: user.name, email: user.email %}
-{% endbackground %}
+{% background job_id = 'emails/template',
+  source_name: 'send_email',
+  username: user.name,
+  email: user.email %}
 ```
 
 ---
@@ -46,17 +41,15 @@ Or pass through partial parameters:
 **Solution**: Check logs for execution status:
 
 ```bash
-insites-cli logs --source-name='your_job_name'
+insites-cli logs staging --filter error
 ```
 
-Look for:
-- Failed attempts (indicates execution, but with errors)
-- No logs at all (indicates job not reached background processor)
+`insites-cli logs` has no `--source-name` option and does not print the source name. Add `{% log note, type: 'your_job_name' %}` inside the job and run `insites-cli logs staging --filter your_job_name` to see whether it runs.
 
 If no logs appear, verify:
 - Job source_name is spelled correctly
 - Background tag syntax is valid (check for missing quotes/parameters)
-- insites-cli logs connection is working
+- `insites-cli logs <environment>` shows other entries, so the stream itself works
 
 ---
 
@@ -68,9 +61,7 @@ If no logs appear, verify:
 
 ```liquid
 {% comment %} WRONG: Everything marked high priority {% endcomment %}
-{% background priority: 'high', source_name: 'analytics_log' %}
-  {% include 'analytics/log' %}
-{% endbackground %}
+{% background job_id = 'analytics/log', priority: 'high', source_name: 'analytics_log' %}
 ```
 
 **Solution**: Reserve high priority for critical tasks only:
@@ -79,19 +70,13 @@ If no logs appear, verify:
 {% comment %} Correct: Use appropriate priorities {% endcomment %}
 
 {% comment %} Critical - payment processing {% endcomment %}
-{% background priority: 'high', source_name: 'payment' %}
-  ...
-{% endbackground %}
+{% background job_id = 'payments/process', priority: 'high', source_name: 'payment', order_id: order.id %}
 
 {% comment %} Standard - email notifications {% endcomment %}
-{% background priority: 'default', source_name: 'email' %}
-  ...
-{% endbackground %}
+{% background job_id = 'emails/notify', priority: 'default', source_name: 'email', user_id: user.id %}
 
 {% comment %} Non-urgent - analytics {% endcomment %}
-{% background priority: 'low', source_name: 'analytics' %}
-  ...
-{% endbackground %}
+{% background job_id = 'analytics/log', priority: 'low', source_name: 'analytics', event: 'visit' %}
 ```
 
 ---
@@ -101,9 +86,7 @@ If no logs appear, verify:
 **Symptom**: Partial included in background job can't find variables.
 
 ```liquid
-{% background source_name: 'include_partial' %}
-  {% include 'my/partial' %}
-{% endbackground %}
+{% background job_id = 'my/partial', source_name: 'include_partial' %}
 ```
 
 Partial expects `user` variable but it's undefined.
@@ -113,12 +96,11 @@ Partial expects `user` variable but it's undefined.
 **Solution**: Pass all required parameters explicitly:
 
 ```liquid
-{% background source_name: 'include_partial' %}
-  {% include 'my/partial',
-    user_id: user.id,
-    user_email: user.email,
-    user_name: user.name %}
-{% endbackground %}
+{% background job_id = 'my/partial',
+  source_name: 'include_partial',
+  user_id: user.id,
+  user_email: user.email,
+  user_name: user.name %}
 ```
 
 ---
@@ -133,16 +115,12 @@ Partial expects `user` variable but it's undefined.
 
 ```liquid
 {% comment %} Instead of one long job {% endcomment %}
-{% background source_name: 'heavy_computation' %}
-  {% comment %} This might timeout after 5 minutes {% endcomment %}
-  {% include 'reports/generate-100k-rows' %}
-{% endbackground %}
+{% comment %} This might time out after 5 minutes {% endcomment %}
+{% background job_id = 'reports/generate_100k_rows', source_name: 'heavy_computation' %}
 
 {% comment %} Break into chunks {% endcomment %}
 {% for batch in data_batches %}
-  {% background source_name: 'process_batch' %}
-    {% include 'processors/batch', data: batch %}
-  {% endbackground %}
+  {% background job_id = 'processors/batch', source_name: 'process_batch', data: batch %}
 {% endfor %}
 ```
 
@@ -158,20 +136,16 @@ Partial expects `user` variable but it's undefined.
 
 ```liquid
 {% comment %} Check logs for error details {% endcomment %}
-{% comment %} insites-cli logs --source-name='failing_job' {% endcomment %}
+{% comment %} insites-cli logs staging --filter error {% endcomment %}
 
 {% comment %} Fix the partial, then requeue {% endcomment %}
-{% background max_attempts: 1, source_name: 'fixed_job' %}
-  {% include 'fixed/partial' %}
-{% endbackground %}
+{% background job_id = 'fixed/partial', max_attempts: 1, source_name: 'fixed_job' %}
 ```
 
 Always set reasonable `max_attempts` limit:
 
 ```liquid
-{% background max_attempts: 3, source_name: 'safe_job' %}
-  ...
-{% endbackground %}
+{% background job_id = 'jobs/safe', max_attempts: 3, source_name: 'safe_job' %}
 ```
 
 ---
@@ -181,8 +155,8 @@ Always set reasonable `max_attempts` limit:
 ### Mistake 1: Assuming Execution Order
 
 ```liquid
-{% background source_name: 'job_1' %}...{% endbackground %}
-{% background source_name: 'job_2' %}...{% endbackground %}
+{% background job_id = 'jobs/first', source_name: 'job_1' %}
+{% background job_id = 'jobs/second', source_name: 'job_2' %}
 
 {% comment %} ERROR: job_2 might execute before job_1 {% endcomment %}
 ```
@@ -190,8 +164,8 @@ Always set reasonable `max_attempts` limit:
 **Fix**: If order matters, use delay:
 
 ```liquid
-{% background source_name: 'job_1' %}...{% endbackground %}
-{% background delay: 1, source_name: 'job_2' %}...{% endbackground %}
+{% background job_id = 'jobs/first', source_name: 'job_1' %}
+{% background job_id = 'jobs/second', delay: 1, source_name: 'job_2' %}
 ```
 
 ---
@@ -199,48 +173,42 @@ Always set reasonable `max_attempts` limit:
 ### Mistake 2: Not Passing Required Data
 
 ```liquid
-{% background source_name: 'send_email' %}
-  {% include 'emails/template' %}
-  {% comment %} Partial expects user data but receives nothing {% endcomment %}
-{% endbackground %}
+{% comment %} The partial expects user data but receives nothing {% endcomment %}
+{% background job_id = 'emails/template', source_name: 'send_email' %}
 ```
 
 **Fix**: Explicitly pass all parameters:
 
 ```liquid
-{% background source_name: 'send_email' %}
-  {% include 'emails/template', user_id: user.id, email: user.email %}
-{% endbackground %}
+{% background job_id = 'emails/template',
+  source_name: 'send_email',
+  user_id: user.id,
+  email: user.email %}
 ```
 
 ---
 
-### Mistake 3: Using Request Context in Background
+### Mistake 3: Reading the Request Inside the Job
 
 ```liquid
-{% background source_name: 'use_params' %}
-  {{ params.foo }}  {% comment %} ERROR: params not available {% endcomment %}
-  {{ context.current_user.name }}  {% comment %} ERROR: not available {% endcomment %}
-{% endbackground %}
+{% background job_id = 'jobs/use_params', source_name: 'use_params' %}
 ```
 
-**Fix**: Pass required data explicitly:
+`jobs/use_params` reads `context.params.foo` and the current user's name, and cannot rely on either: the tag reference says a job has only the variables passed to it, and only a limited `context`.
+
+**Fix**: Read the request on the page and pass the values:
 
 ```liquid
-{% assign query_param = params.foo %}
-{% assign user_name = context.current_user.name %}
-
-{% background source_name: 'use_params' %}
-  {% assign foo = query_param %}
-  {% assign name = user_name %}
-  {{ foo }} {{ name }}
-{% endbackground %}
+{% background job_id = 'jobs/use_params',
+  source_name: 'use_params',
+  foo: context.params.foo,
+  name: context.current_user.name %}
 ```
 
 Two context values no longer need passing: since the 20 April 2026 platform release a
 background job receives the same `context.environment` and `context.location.host` as
 the web request that queued it, so environment branching and host-aware URLs work
-inside the block. `params` and `current_user` still do not.
+inside the job.
 
 ---
 
@@ -262,9 +230,9 @@ inside the block. `params` and `current_user` still do not.
 ```
 Is job executing?
 ├─ YES
-│  └─ Check logs: insites-cli logs --source-name='name'
-│     ├─ SUCCESS? → Job working correctly
-│     └─ FAILED? → Check error message, fix partial, retry
+│  └─ Check logs: insites-cli logs <env> --filter <type the job logs>
+│     ├─ Its entries appear? → Job is running
+│     └─ Errors? → Check error message, fix partial, retry
 │
 └─ NO
    ├─ Is syntax correct?
@@ -279,15 +247,15 @@ Is job executing?
    │  └─ NO → Contact platform support
    │  └─ YES → Check insites-cli logs for system errors
    │
-   └─ Enable debug logging in insites-cli logs
+   └─ Add {% log %} calls inside the job and watch insites-cli logs <env>
 ```
 
 ---
 
 ## Prevention Checklist
 
-- [ ] Always assign variables inside background block
-- [ ] Pass all required data to included partials
+- [ ] Pass every value the job needs as a tag argument
+- [ ] Pass what an included partial needs from inside the job
 - [ ] Use descriptive `source_name` for debugging
 - [ ] Set reasonable `max_attempts` (avoid infinite retries)
 - [ ] Use appropriate `priority` levels

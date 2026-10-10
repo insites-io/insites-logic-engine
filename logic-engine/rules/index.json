@@ -10,7 +10,7 @@
       "applies_to": ["partial"],
       "severity": "error",
       "evidence": "real-project",
-      "evidence_source": "100% compliance across 438 partials in app-portal, app-seedling, addon-ecommerce, addon-events. Pending cli-audit verification to upgrade evidence.",
+      "evidence_source": "100% compliance across 438 partials in app-portal, app-seedling, addon-ecommerce, addon-events. insites-cli audit (5.10.2) does not flag a lone underscore partial, only a partial with an underscore twin at the same path, so the evidence stays real-project.",
       "audit_ref": "audit/v0-conflicts-batch1.md#rule-r-3"
     },
     {
@@ -37,7 +37,7 @@
       "applies_to": ["graphql"],
       "severity": "info",
       "evidence": "real-project",
-      "evidence_source": "100% compliance across 20+ GraphQL files. All tables use modules/{name}/... format.",
+      "evidence_source": "100% compliance across 20+ GraphQL files for module tables (modules/{name}/...). app/schema tables use their plain file name, measured 9 October 2026.",
       "audit_ref": "audit/v0-conflicts-batch2.md#rule-r-15"
     },
     {
@@ -148,9 +148,9 @@
       "applies_to": ["form"],
       "severity": "error",
       "evidence": "real-project",
-      "evidence_source": "Rule sound. 4 violations in canonical repos must be fixed before shipping.",
+      "evidence_source": "A convention, not a deprecation: the CLI 5.10.2 tag reference marks the form tag current. 4 uses in canonical repos.",
       "audit_ref": "audit/v0-conflicts-batch1.md#rule-r-5",
-      "preship_action": "Fix 4 deprecated {% form %} usages before shipping (see audit batch 1)."
+      "preship_action": "Replace 4 {% form %} usages in canonical repos to keep them on the convention (see audit batch 1)."
     },
     {
       "id": "modules-always-present",

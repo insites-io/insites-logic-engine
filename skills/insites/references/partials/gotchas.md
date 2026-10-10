@@ -19,11 +19,11 @@
 {% render 'products/card', product: product, user: profile %}
 ```
 
-### "GraphQL tag in partial causes error or is ignored"
+### "Should this partial call `{% graphql %}`?"
 
-**Cause:** GraphQL calls should only be made in pages. Using `{% graphql %}` in partials violates the architecture rule and may fail with insites-cli audit.
+**Cause:** That depends on the kind of partial, not on the platform, which runs `{% graphql %}` inside a partial. The `graphql-in-partials-restricted` convention keeps queries out of presentation partials (cards, headers, layouts, nav), which run once per render, and allows them in block, calculation and callback partials. `insites-cli audit` does not check this.
 
-**Solution:** Move the GraphQL call to the page and pass the result to the partial as a parameter.
+**Solution:** For a presentation partial, fetch in the page and pass the result as a parameter. For a query used in several places, put it in a partial called with `{% function %}` (see [the query wrapper pattern](patterns.md#function-partial-pattern-query-wrapper)).
 
 ### "Function returns nil"
 
@@ -35,7 +35,7 @@
 
 **Cause:** Insites does NOT use underscore prefixes for partials (unlike Rails/Shopify conventions).
 
-**Solution:** Rename `_card.liquid` to `card.liquid`. The insites-cli audit linter flags this.
+**Solution:** Rename `_card.liquid` to `card.liquid`. `insites-cli audit` flags it only when `card.liquid` and `_card.liquid` both exist at the same path; a lone `_card.liquid` passes.
 
 ### "Export variable not accessible"
 
@@ -43,11 +43,11 @@
 
 **Solution:** Always provide namespace: `{% export var, namespace: 'ns' %}`. Access via `{{ context.exports.ns.var }}`.
 
-### "Hardcoded text flagged by linter"
+### "Should user-facing text be hardcoded?"
 
-**Cause:** User-facing strings should be clear and descriptive.
+**Cause:** Nothing flags it. `insites-cli audit` does not check user-facing text.
 
-**Solution:** Use plain, descriptive English text for user-facing strings. For example: `<h1>Products</h1>`.
+**Solution:** Text written in the partial works (`<h1>Products</h1>`). When the site serves more than one language, move it to translation files and read it with `{{ 'app.products.title' | t }}` (see Translation Filter in [`liquid/filters/README.md`](../liquid/filters/README.md#translation-filter)).
 
 ## Limits
 
@@ -77,7 +77,7 @@ Partial problem?
 └── Linter errors?
     ├── No underscore prefix in filenames
     ├── Use clear, descriptive text for user-facing strings
-    └── No GraphQL calls in partials
+    └── No GraphQL in presentation partials (convention, not checked)
 ```
 
 ## See Also

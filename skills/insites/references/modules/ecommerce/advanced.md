@@ -1,6 +1,6 @@
 # Ecommerce — Advanced
 
-Extension points, the public partials other code may render, and the module's cross-module dependencies in both directions. Source: module-v6-ecommerce v6.0.2 and the ten sibling v6 module trees, read on 9 October 2026. Paths are relative to `pos/modules/insites_ecommerce/`.
+Extension points, the public partials other code may render, and the module's cross-module dependencies in both directions. Source: module-v6-ecommerce v6.0.2 and the ten sibling v6 module trees, read on 9 October 2026. Paths are relative to `modules/insites_ecommerce/`.
 
 ---
 

@@ -147,11 +147,13 @@ Flash messages from form submissions.
 Information about installed modules (version, subscription status).
 
 ### context.visitor
-Browser visitor info.
+Browser visitor info. The CLI's object reference lists one property, `ip`; its value has not been measured.
 
 ```liquid
 {{ context.visitor.ip }}
 ```
+
+For the visitor's network address, read `context.headers.HTTP_X_REAL_IP`, or the **first** `X-Forwarded-For` entry. The edge replaces both headers, so a client cannot forge them; the last `X-Forwarded-For` entry is an internal proxy address. See [gotchas](gotchas.md#problem-reading-the-visitors-address-from-the-wrong-header).
 
 ### context.exports
 Variables exported from partials via the `export` tag.

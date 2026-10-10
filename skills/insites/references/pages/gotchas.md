@@ -26,7 +26,7 @@ Common errors, limits, and debugging guidance for page files.
 
 **Cause:** Two page files define the same slug and method combination.
 
-**Solution:** Ensure each slug + method pair is unique. Use `insites-cli audit` to detect conflicts before deploying.
+**Solution:** Ensure each slug + method pair is unique. `insites-cli audit` does not check routes; search your pages' front matter for the slug.
 
 ### "Page renders blank content"
 
@@ -89,8 +89,8 @@ Page not working?
 ├── Getting 404?
 │   ├── Check slug matches URL exactly
 │   ├── Check method matches request method
-│   ├── Check file is in app/views/pages/
-│   └── Run insites-cli audit for conflicts
+│   ├── Check file is in app/views/pages/ or modules/<name>/public/views/pages/
+│   └── Search front matter for a second page with the same slug and method
 ├── Getting blank page?
 │   ├── Check partial path is correct
 │   ├── Check partial file exists

@@ -35,20 +35,12 @@ Not: `layout: 'app/views/layouts/mailer'`
 
 Data passed to email must be in `data` object:
 
-```graphql
-mutation {
-  email_send(
-    template: "welcome"
-    to: "user@example.com"
-    data: {
-      user_name: "John"
-      company: "Acme"
-    }
-  ) {
-    success
-  }
-}
+```liquid
+{%- assign mail = { "to": "user@example.com", "user_name": "John", "company": "Acme" } -%}
+{%- graphql sent = 'emails/send_welcome', data: mail -%}
 ```
+
+with `emails/send_welcome.graphql` holding `email_send(template: { name: "welcome" }, data: $data)`. A GraphQL object literal with variables inside it as `data` answers `is_scheduled_to_send: true` and sends nothing.
 
 Access as `{{ data.user_name }}`, not `{{ user_name }}`.
 
@@ -106,14 +98,9 @@ SMS has 160-character limit (or 153 with multi-part). Check encoding:
 Validate phone format before sending:
 
 ```graphql
-mutation SendSMS($phone: String!) {
-  sms_send(
-    template: "verification"
-    to: $phone
-    data: { code: "123456" }
-  ) {
-    success
-    errors
+mutation send_sms($data: HashObject) {
+  sms_send(template: { name: "verification" }, data: $data) {
+    is_scheduled_to_send
   }
 }
 ```

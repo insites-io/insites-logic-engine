@@ -8103,7 +8103,7 @@ input RecordsFilterInput {
   table: StringFilter
 
   &quot;&quot;&quot;
-  pOS ID of the Table to which records should belong
+  ID of the Table to which records should belong
   &quot;&quot;&quot;
   table_id: UniqIdFilter
   updated_at: DateFilter
@@ -12827,7 +12827,7 @@ type Version {
   resource: HashObject
 
   &quot;&quot;&quot;
-  most of the time ID of a User who performed the event. Can be something else if action was taken by pOS support team
+  most of the time ID of a User who performed the event. Can be something else if action was taken by Insites support
   &quot;&quot;&quot;
   whodunnit: String
 }
