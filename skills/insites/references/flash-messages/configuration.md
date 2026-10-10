@@ -70,10 +70,10 @@ Recommended layout structure for flash messages:
 
 ```liquid
 <!DOCTYPE html>
-<html class="pos-app">
+<html lang="en">
 <head>
   <title>{{ context.page.metadata.title | default: "My App" }}</title>
-  {% render 'modules/common-styling/init' %}
+  <link rel="stylesheet" href="{{ 'styles/main.css' | asset_url }}">
 </head>
 <body>
   {{ content_for_layout }}

@@ -114,20 +114,18 @@ Render flash messages in layout:
 {% endif %}
 ```
 
-## JavaScript Toast from Server
+## Flash Rendered by the Layout Partial
 
-Trigger toast notifications from server actions:
+Render the flash from session in the `shared/toasts` partial the layout calls, with no script at all:
 
 ```liquid
-<script>
-  {%- assign flash = context.session.sflash | parse_json -%}
-  {% if flash.notice %}
-    new pos.modules.toast('success', '{{ flash.notice }}');
-  {% endif %}
-  {% if flash.alert %}
-    new pos.modules.toast('error', '{{ flash.alert }}');
-  {% endif %}
-</script>
+{% comment %} app/views/partials/shared/toasts.liquid {% endcomment %}
+{% if params.notice %}
+  <div class="flash notice" role="status">{{ params.notice }}</div>
+{% endif %}
+{% if params.alert %}
+  <div class="flash alert" role="alert">{{ params.alert }}</div>
+{% endif %}
 ```
 
 ## Persistent Flash Across Pages
@@ -183,9 +181,9 @@ fetch('/api/form-submit', {
 .then(response => response.json())
 .then(data => {
   if (data.success) {
-    new pos.modules.toast('success', data.message);
+    showFlash('notice', data.message);   // project code, see api.md
   } else {
-    new pos.modules.toast('error', data.error);
+    showFlash('alert', data.error);
   }
 });
 ```

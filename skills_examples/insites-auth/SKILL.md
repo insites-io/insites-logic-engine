@@ -310,7 +310,7 @@ method: delete
 
 ```liquid
 <!DOCTYPE html>
-<html class="pos-app">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">

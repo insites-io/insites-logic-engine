@@ -73,18 +73,18 @@ Without this tag, page content will not appear in the response.
 | `breadcrumbs`      | Above content   | Page-specific breadcrumb navigation       |
 | `sidebar`          | Beside content  | Page-specific sidebar content             |
 
-## Common-Styling Initialization
+## Stylesheets
 
-The `pos-app` class on `<html>` and the `common-styling/init` partial are required for the common-styling CSS framework:
+Insites does not inject a CSS framework into your layout. Link the project's own stylesheet from `app/assets/` with the `asset_url` filter, which returns the CDN address:
 
 ```liquid
-<html class="pos-app">
+<html lang="en">
 <head>
-  {% render 'modules/common-styling/init' %}
+  <link rel="stylesheet" href="{{ 'styles/main.css' | asset_url }}">
 </head>
 ```
 
-This renders the CSS links and configuration needed by the design system. Without `class="pos-app"`, common-styling components will not render correctly.
+The Insites module layouts work the same way: `system_pages.liquid` in module-v6-system-pages links `{{ 'css/system_pages.min.css' | asset_url }}` and sets `lang` on `<html>`. See [assets](../assets/README.md).
 
 ## Flash Message Configuration
 
@@ -128,13 +128,13 @@ Access page front matter metadata via `context.page.metadata`:
 
 ```liquid
 <!DOCTYPE html>
-<html class="pos-app">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ context.page.metadata.title | default: "My App" }}</title>
   <meta name="description" content="{{ context.page.metadata.description }}">
-  {% render 'modules/common-styling/init' %}
+  <link rel="stylesheet" href="{{ 'styles/main.css' | asset_url }}">
   {% yield 'head' %}
 </head>
 <body>

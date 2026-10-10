@@ -10,15 +10,15 @@ Common errors, limits, and debugging guidance for layout files.
 
 **Solution:** Add `{{ content_for_layout }}` to the layout body. Every layout must include this exactly once.
 
-### "Common-styling components look broken"
+### "Styles not applied"
 
-**Cause:** The `<html>` tag is missing `class="pos-app"` or `{% render 'modules/common-styling/init' %}` is not in `<head>`.
+**Cause:** The layout does not link the stylesheet, or the path passed to `asset_url` does not match a file under `app/assets/`.
 
-**Solution:** Ensure both are present:
+**Solution:** Link the stylesheet in `<head>` with the path relative to `app/assets/`:
 ```liquid
-<html class="pos-app">
+<html lang="en">
 <head>
-  {% render 'modules/common-styling/init' %}
+  <link rel="stylesheet" href="{{ 'styles/main.css' | asset_url }}">
 </head>
 ```
 
@@ -82,8 +82,8 @@ Layout problem?
 │   ├── Check page front matter layout value is correct
 │   └── Check layout file exists in app/views/layouts/
 ├── Styling broken?
-│   ├── Check <html class="pos-app"> is present
-│   ├── Check common-styling/init is rendered in <head>
+│   ├── Check the stylesheet <link> is in <head>
+│   ├── Check the asset_url path matches a file in app/assets/
 │   └── Check yield 'head' is in <head> for page CSS
 ├── Flash messages missing?
 │   ├── Check flash handling block exists before </body>

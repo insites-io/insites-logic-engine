@@ -131,7 +131,7 @@ When a form definition's `callback_actions` block sets errors (via `form_set_err
 
 ```liquid
 {% if form.errors %}
-  <div class="pos-alert pos-alert--error">
+  <div class="alert alert--error">
     {% for error in form.errors %}
       <p>{{ error[0] }}: {{ error[1] | join: ', ' }}</p>
     {% endfor %}
