@@ -156,6 +156,21 @@ different value, and no deploy error points at it: search for those three sequen
 {% assign value = data.level1.level2.level3 | default: "fallback" %}
 ```
 
+### A page that renders nothing: `x = x << y`, or a filter inside a literal
+
+Two spellings are refused when the file is synced, with HTTP 422 and no message, and a page carrying either can end up answering 200 with an **empty body** and nothing in the log (measured on a v6 production instance, 10 October 2026):
+
+```liquid
+{%- assign bytes = bytes << b -%}                 {%- comment -%} refused {%- endcomment -%}
+{%- assign bytes << b -%}                         {%- comment -%} the append form {%- endcomment -%}
+
+{%- assign u = { "slug": em | split: '@' | first } -%}   {%- comment -%} refused {%- endcomment -%}
+{%- assign sl = em | split: '@' | first -%}
+{%- assign u = { "slug": sl } -%}                 {%- comment -%} assign first, then build the literal {%- endcomment -%}
+```
+
+`insites-cli check` passes both, so the first sign is a page that answers nothing. Sync one file at a time while writing literals: a 422 on sync is the only message you get.
+
 ## Limits
 
 | Constraint | Limit | Notes |
