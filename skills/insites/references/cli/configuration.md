@@ -64,9 +64,10 @@ insites-cli --version
 Test your configuration:
 
 ```bash
-insites-cli env list
-insites-cli env current
+insites-cli env list    # every environment in .insites, with stack, instance and email
 ```
+
+There is no `env current` command, because there is no current environment.
 
 ## Environment Selection
 
@@ -77,7 +78,7 @@ insites-cli deploy production
 insites-cli sync staging
 ```
 
-Default environment is typically `development`.
+There is no default environment. A command run without one stops with `No environment specified`, unless all five `INSITES_*` variables are set, in which case they are used instead of `.insites`.
 
 ## Advanced Configuration
 

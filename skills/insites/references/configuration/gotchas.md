@@ -47,12 +47,7 @@ Hot-reload not supported. Redeploy after config changes.
 {{ context.config.features.enable_review }}   <!-- Returns nil silently -->
 ```
 
-Use `insites-cli config validate` to catch typos:
-
-```bash
-insites-cli config validate
-# Reports unknown keys in configuration
-```
+No command catches this. The CLI has no `config` command, and a deploy only logs an unknown `app/config.yml` property as a warning, so watch the deploy output for it. A misspelled key read in a template is never reported: give every read a `default` so a typo shows up as the fallback value instead of a blank.
 
 ## Environment Variables Not Substituted
 

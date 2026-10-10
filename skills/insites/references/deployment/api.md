@@ -20,10 +20,12 @@ Deployment process:
 
 ### Deployment with Options
 
+`deploy` takes two options, and has no `--force`, `--skip-tests` or `--verbose`:
+
 ```bash
-insites-cli deploy production --force
-insites-cli deploy staging --skip-tests
-insites-cli deploy dev --verbose
+insites-cli deploy staging -p                 # partial: keep files in folders missing from the build
+insites-cli deploy production --stack <name>  # override the stack read from the environment
+DEBUG=1 insites-cli deploy dev                # print the CLI's debug lines
 ```
 
 ## Sync Command
@@ -102,35 +104,19 @@ Assets pushed to CDN:
 
 ## Environment-Specific Deployment
 
-### Development Deployment
+The environment name is a key in `.insites`, and the deploy does the same work whatever it is called. No environment runs tests or extra checks: run `insites-cli test run staging` yourself before you deploy to production.
 
 ```bash
 insites-cli deploy development
-# Fast, minimal checks
-```
-
-### Staging Deployment
-
-```bash
 insites-cli deploy staging
-# Full validation, runnable tests
-```
-
-### Production Deployment
-
-```bash
 insites-cli deploy production
-# Full validation, mandatory tests
-# No --skip-tests allowed
 ```
 
 ## Deployment Status and Monitoring
 
 ### Check Deployment Status
 
-```bash
-insites-cli env info production
-```
+The deploy command waits for the instance and ends with `Deploy succeeded after <time>` or `Deploy failed.` and the reason. There is no separate status command (`env info` does not exist); `insites-cli env list` only shows which environments are configured.
 
 ### View Deployment Logs
 

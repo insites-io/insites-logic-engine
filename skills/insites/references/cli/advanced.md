@@ -214,28 +214,27 @@ insites-cli gui serve
 
 ### Verbose Output
 
-Enable detailed logging:
+The CLI has no `--verbose` option. Set `DEBUG` to print its debug lines:
 
 ```bash
-insites-cli deploy dev --verbose
+DEBUG=1 insites-cli deploy dev
 ```
 
-### Dry Run Deployments
+### Checking a Build Without Deploying
 
-Preview changes without applying:
+`deploy` has no `--dry-run` option. Build the archive and run the audit locally instead; neither touches the instance:
 
 ```bash
-insites-cli deploy dev --dry-run
+insites-cli archive              # writes ./tmp/release.zip; -o picks another path
+insites-cli audit                # the same report a deploy prints first
 ```
 
 ### Environment Inspection
 
-View current environment:
+There is no `env info` or `env current` command. `env list` prints every environment in `.insites` with its stack, instance and email:
 
 ```bash
-# Note: insites-cli env current does not exist.
-# Check your .insites file directly to verify environment configuration.
-insites-cli env info dev
+insites-cli env list
 ```
 
 ## See Also
