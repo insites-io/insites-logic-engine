@@ -169,7 +169,7 @@ Two spellings are refused when the file is synced, with HTTP 422 and no message,
 {%- assign u = { "slug": sl } -%}                 {%- comment -%} assign first, then build the literal {%- endcomment -%}
 ```
 
-`insites-cli check` passes both, so the first sign is a page that answers nothing. Sync one file at a time while writing literals: a 422 on sync is the only message you get.
+`insites-cli check run` passes both, so the first sign is a page that answers nothing. Sync one file at a time while writing literals: a 422 on sync is the only message you get.
 
 ## Limits
 
