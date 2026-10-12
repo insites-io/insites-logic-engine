@@ -12,8 +12,8 @@
 ```liquid
 {% comment %} app/emails/order_confirmation.liquid {% endcomment %}
 ---
-to: {{ data.email }}
-from: shop@example.com
+to: '{{ data.email }}'
+from: 'Shop <no-reply@insites.site>'
 reply_to: support@example.com
 subject: "Order #{{ data.order_id }} Confirmed"
 layout: mailer
@@ -31,7 +31,7 @@ layout: mailer
 | `from` | Yes | Sender email |
 | `reply_to` | No | Reply-to address |
 | `subject` | Yes | Email subject |
-| `layout` | No | Layout template name |
+| `layout` | No | Name of a layout in `app/views/layouts/` (`mailer`). Leave it out and the body is sent as written |
 | `cc` | No | CC recipients |
 | `bcc` | No | BCC recipients |
 
@@ -47,7 +47,7 @@ mutation send($data: HashObject) {
 }
 ```
 
-### Best Practice: Send via Events
+### Best Practice: Send from a Background Job
 
 ```liquid
 {% comment %} In command after creating order {% endcomment %}
@@ -67,12 +67,12 @@ The job sees only what is passed to the tag, so build `mail` on the page and pas
 ```liquid
 {% comment %} app/smses/order_shipped.liquid {% endcomment %}
 ---
-to: {{ data.phone }}
+to: '{{ data.phone }}'
 ---
 Your order #{{ data.order_id }} has been shipped! Track at: {{ data.tracking_url }}
 ```
 
-## Email Layout
+## Email Layout (optional)
 
 ```liquid
 {% comment %} app/views/layouts/mailer.liquid {% endcomment %}
@@ -94,7 +94,8 @@ Your order #{{ data.order_id }} has been shipped! Track at: {{ data.tracking_url
 
 ## Rules
 
-- Use events + consumers for async email sending
-- Always define a `mailer` layout for consistent email styling
+- Send through a registered template by name, with `data` built as one Liquid variable
+- Send from a background job so the request does not wait
+- A layout is optional; use one (for example `mailer`) when several emails share styling
 - Access template data via `data.*` variables
 - Use translations for email content when supporting multiple languages

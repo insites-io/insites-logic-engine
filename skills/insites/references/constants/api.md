@@ -172,10 +172,12 @@ Constants are commonly used with the `api_call_send` GraphQL mutation or custom 
 
 ```liquid
 {% liquid
-  assign from_email = context.constants.SMTP_FROM_ADDRESS
-  graphql _ = 'emails/send', to: user.email, from: from_email, subject: 'Welcome'
+  assign mail = { "to": user.email, "from": context.constants.SMTP_FROM_ADDRESS }
+  graphql _ = 'emails/send_welcome', data: mail
 %}
 ```
+
+`emails/send_welcome.graphql` runs `email_send(template: { name: "welcome" }, data: $data)`, and `app/emails/welcome.liquid` reads `from: '{{ data.from }}'` in its front matter.
 
 ## See Also
 

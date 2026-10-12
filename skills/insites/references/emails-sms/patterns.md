@@ -4,30 +4,24 @@
 
 Common patterns and best practices for implementing emails and SMS in Insites applications.
 
-## Asynchronous Email Delivery via Events
+## Sending from a Background Job
 
-The recommended pattern uses events and consumers for non-blocking email delivery:
+Send from a background job so the request does not wait. Build `data` on the page and pass it to the job:
 
 ```liquid
 {% if user.email %}
-  {% background job_id = 'jobs/send_welcome', to: user.email, user_name: user.first_name, source_name: 'event:user_welcome', priority: 'default', max_attempts: 3 %}
+  {%- assign mail = { "to": user.email, "name": user.first_name } -%}
+  {% background job_id = 'jobs/send_welcome', mail: mail, source_name: 'user_welcome', priority: 'default', max_attempts: 3 %}
 {% endif %}
 ```
 
-Create an event consumer in `app/events/user_welcome_event_consumer.liquid`:
+The job, `app/views/partials/jobs/send_welcome.liquid`, sees only what the tag passes it:
 
 ```liquid
----
-handle: user_welcome_event_consumer
-events: ['user/welcome']
----
-
-{% graphql result = 'send_welcome_email'
-  user_id: event.payload
-%}
+{%- graphql sent = 'emails/send_welcome', data: mail -%}
 ```
 
-GraphQL query in `app/graphql/send_welcome_email.graphql`:
+The mutation, `app/graphql/emails/send_welcome.graphql`:
 
 ```graphql
 mutation send_welcome($data: HashObject) {
@@ -37,7 +31,7 @@ mutation send_welcome($data: HashObject) {
 }
 ```
 
-Build `data` in Liquid as one variable (`{ "to": user.email, "name": user.name }`) and pass it whole; see [api.md](api.md#email_send).
+`template` is an object naming a file in `app/emails/`, and `data` is one variable; see [api.md](api.md#email_send).
 
 ## Conditional Email Sending
 
@@ -83,11 +77,11 @@ Send verification codes via SMS:
   phone: user.phone
 %}
 
-{% graphql sms = 'send_sms'
-  phone: user.phone,
-  code: code
-%}
+{%- assign message = { "phone": user.phone, "code": code } -%}
+{%- graphql sms = 'smses/send_verification', data: message -%}
 ```
+
+`app/graphql/smses/send_verification.graphql` holds `sms_send(template: { name: "verification" }, data: $data) { is_scheduled_to_send }`, and `app/smses/verification.liquid` reads `to: '{{ data.phone }}'`.
 
 ## Scheduled Email Dispatch
 
@@ -109,11 +103,13 @@ Support multiple language templates:
 ```liquid
 {% assign lang = user.preferred_language | default: 'en' %}
 {% assign template_name = 'welcome_' | append: lang %}
+{%- assign mail = { "to": user.email, "first_name": user.first_name } -%}
 
-{% graphql result = 'send_email'
-  template: template_name,
-  to: user.email
-%}
+{%- graphql sent, name: template_name, d: mail -%}
+mutation ($name: String!, $d: HashObject) {
+  email_send(template: { name: $name }, data: $d) { is_scheduled_to_send }
+}
+{%- endgraphql -%}
 ```
 
 Create separate templates: `welcome_en.liquid`, `welcome_es.liquid`, etc.

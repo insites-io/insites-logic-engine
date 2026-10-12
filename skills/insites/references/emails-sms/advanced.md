@@ -37,13 +37,16 @@ Choose templates based on user attributes:
 {% assign template_map = 'welcome_standard|welcome_premium|welcome_vip' | split: '|' %}
 {% assign user_tier_index = user.tier_level | default: 0 %}
 {% assign template_name = template_map[user_tier_index] %}
+{%- assign mail = { "to": user.email, "first_name": user.first_name } -%}
 
-{% graphql result = 'send_email'
-  template: template_name,
-  to: user.email,
-  data: user
-%}
+{%- graphql sent, name: template_name, d: mail -%}
+mutation ($name: String!, $d: HashObject) {
+  email_send(template: { name: $name }, data: $d) { is_scheduled_to_send }
+}
+{%- endgraphql -%}
 ```
+
+`template` is an object, `{ name: ... }`, never a plain string, and the recipient goes in `data`, not in an argument of its own.
 
 ## Liquid Filters for Email Content
 
