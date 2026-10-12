@@ -215,6 +215,8 @@ Manage migrations on an environment.
 insites-cli migrations generate [environment] <name>
 insites-cli migrations list [environment]
 insites-cli migrations run <timestamp> [environment]
+insites-cli migrations status <timestamp> [environment]
+insites-cli migrations retry <timestamp> [environment]
 ```
 
 | Subcommand | Args | Description |
@@ -222,6 +224,8 @@ insites-cli migrations run <timestamp> [environment]
 | `generate [environment] <name>` | name required | Generate a new empty migration file |
 | `list [environment]` | env optional | List migrations and their statuses |
 | `run <timestamp> [environment]` | timestamp required | Run the migration matching the timestamp |
+| `status <timestamp> [environment]` | timestamp required | One migration's state and error messages; `--json`. insites-cli 6.0.0 and later |
+| `retry <timestamp> [environment]` | timestamp required | Show the state, then run it again. insites-cli 6.0.0 and later |
 
 ---
 
@@ -255,14 +259,18 @@ SAFE=1 insites-cli constants list staging
 Manage environments (the local CLI registry of instances you can target).
 
 ```bash
-insites-cli env add [environment] --email user@example.com --instance-uuid abcd-ef123-4567
+insites-cli env add [environment] --instance-uuid abcd-ef123-4567
 insites-cli env list
+insites-cli env refresh-token [environment]
 ```
 
 | Subcommand | Args | Description |
 |---|---|---|
-| `add [environment] --email <e> --instance-uuid <u>` | flags required | Add a new environment |
+| `add [environment] --instance-uuid <u>` | UUID required; `--email` for a shared-stack instance | Add a new environment. On the private stack it signs you in to the Insites Console in the browser |
 | `list` | no args | List all known environments |
+| `refresh-token <environment>` | environment required | Sign in again for one environment, changing only its entry. insites-cli 6.0.0 and later |
+
+On the private stack the CLI stores your Insites Console sign-in, not the instance key, and asks the Console for the key at the start of each command (insites-cli 6.0.0 and later). Removing someone's access in the Console stops their next command. When nothing identifies the stack, a new environment uses `private`.
 
 Example:
 

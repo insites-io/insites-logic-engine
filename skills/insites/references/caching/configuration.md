@@ -89,12 +89,7 @@ Duplicate keys overwrite each other, causing data loss.
 
 ### Manual Invalidation
 
-Clear cache via CLI when content changes:
-
-```bash
-insites-cli cache clear 'featured-products-en' staging
-insites-cli cache clear 'product-*' staging  # Wildcard clear
-```
+There is no CLI command to clear the cache. To make new content show, change the cache key (for example, put the record's `updated_at` or a version number in it) or let `expire` run out.
 
 ### Time-Based Invalidation
 
@@ -108,11 +103,7 @@ Let cache expire naturally:
 
 ### Deployment Invalidation
 
-Clear all caches on deploy:
-
-```bash
-insites-cli cache clear --all staging
-```
+A deploy does not clear the cache, and there is no command to clear it. Put a version in keys whose content changes with a release.
 
 ## Cache Configuration
 

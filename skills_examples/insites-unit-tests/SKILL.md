@@ -31,21 +31,15 @@ cd project_directory && insites-cli env list
 
 **Expected:** At least one staging/development environment listed.
 
-### 3. Verify Module Installation
+### 3. The tests module installs itself
+
+Nothing to install by hand. `insites-cli test run <env>` checks whether the `insites_test` module is on the instance and installs or updates it to the version bundled with the CLI before it runs (insites-cli 5.10.1 and later). To see it afterwards:
 
 ```bash
 insites-cli modules list <env>
 ```
 
-**Expected:** `test` module appears in the list.
-
-### 4. Install Required Module - SKIP if `user` module already installed
-
-```bash
-insites-cli modules install tests
-insites-cli modules download test
-insites-cli deploy staging
-```
+**Expected:** `insites_test` appears in the list after the first `test run`.
 
 ---
 

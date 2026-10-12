@@ -81,13 +81,9 @@ insites-cli deploy staging
 # Compiles, uploads, and registers all assets in app/assets/
 ```
 
-### Manual Asset Upload
+### Uploading Without a Full Deploy
 
-For non-deployment scenarios:
-
-```bash
-insites-cli assets upload staging --path app/assets/
-```
+`insites-cli sync <env>` uploads each asset as it changes. There is no separate `assets` command.
 
 ## Performance Best Practices
 

@@ -223,10 +223,10 @@ insites-cli deploy dev --dry-run
 View current environment:
 
 ```bash
-# Note: insites-cli env current does not exist.
-# Check your .insites file directly to verify environment configuration.
-insites-cli env info dev
+insites-cli env list
 ```
+
+There is no `env current` or `env info`. `env list` prints each environment's URL and stack; the full entry is in the `.insites` file.
 
 ## See Also
 

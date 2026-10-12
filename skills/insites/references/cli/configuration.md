@@ -14,29 +14,36 @@ The `.insites` file is a JSON file in your project root. Generate it using `insi
 insites-cli env add dev --email dev@example.com --instance-uuid your-uuid
 ```
 
-This produces a `.insites` file like:
+This produces a `.insites` file. A private-stack entry made by insites-cli 6.0.0 or later stores the Insites Console sign-in, never the instance key:
 
 ```json
 {
   "dev": {
     "instance_uuid": "your-instance-uuid",
-    "token": "your-token",
     "email": "dev@example.com",
     "url": "https://your-instance.staging-insites.io",
-    "key": "your-key"
+    "stack": "private",
+    "auth": "workos",
+    "console_tier": "production",
+    "workos": { "refresh_token": "...", "access_token": "..." }
   }
 }
 ```
+
+A shared-stack entry, and a private-stack entry made before 6.0.0, stores `token` and `key` instead. Move an old private-stack entry onto the Console sign-in with `insites-cli env refresh-token dev`.
+
+For CI, set `INSITES_URL`, `INSITES_EMAIL`, `INSITES_TOKEN`, `INSITES_INSTANCE` and `INSITES_INSTANCE_KEY` (called `INSITES_POS_KEY` before 6.0.0; the old name still works with a warning), and optionally `INSITES_STACK`.
 
 ### Required Fields
 
 | Field | Description |
 |-------|-------------|
 | `instance_uuid` | Unique identifier for the instance (from Insites dashboard) |
-| `token` | API authentication token |
+| `token` | API authentication token (shared stack, and entries made before 6.0.0) |
 | `email` | Account email associated with the instance |
 | `url` | Instance URL for deployment |
-| `key` | Authentication key |
+| `key` | Authentication key (shared stack, and entries made before 6.0.0) |
+| `auth`, `console_tier`, `workos` | The Insites Console sign-in on the private stack (6.0.0 and later) |
 
 ### Security Best Practices
 
@@ -65,7 +72,6 @@ Test your configuration:
 
 ```bash
 insites-cli env list
-insites-cli env current
 ```
 
 ## Environment Selection
