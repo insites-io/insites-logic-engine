@@ -21,7 +21,7 @@ The Insites Tests Module is a Liquid-based testing framework featuring assertion
 insites-cli -v
 ```
 
-**Expected:** Version number displayed. If command not found, install insites-cli first.
+**Expected:** Version number displayed. If the command is not found, install the CLI first.
 
 ### 2. Verify Environment Configuration
 
@@ -31,21 +31,15 @@ cd project_directory && insites-cli env list
 
 **Expected:** At least one staging/development environment listed.
 
-### 3. Verify Module Installation
+### 3. The tests module installs itself
+
+Nothing to install by hand. `insites-cli test run <env>` checks whether the `insites_test` module is on the instance and installs or updates it to the version bundled with the CLI before it runs (insites-cli 5.10.1 and later). To see it afterwards:
 
 ```bash
 insites-cli modules list <env>
 ```
 
-**Expected:** `test` module appears in the list.
-
-### 4. Install Required Module - SKIP if `user` module already installed
-
-```bash
-insites-cli modules install tests
-insites-cli modules download test
-insites-cli deploy staging
-```
+**Expected:** `insites_test` appears in the list after the first `test run`.
 
 ---
 
@@ -692,7 +686,7 @@ GET /_tests/run_async
 This initiates background execution. Monitor via logs:
 
 ```bash
-insites-cli logsv2 staging
+insites-cli logs staging
 ```
 
 ### 3.6 Real-Time Development
@@ -704,7 +698,7 @@ insites-cli logsv2 staging
 insites-cli sync staging
 
 # Terminal 2: Watch logs
-insites-cli logsv2 staging
+insites-cli logs staging
 
 # Terminal 3: Run tests as needed
 insites-cli test run staging -n test/your_test
@@ -852,7 +846,7 @@ function contract = 'modules/tests/assertions/equal',
 
 ```bash
 # Watch logs while running tests
-insites-cli logsv2 staging
+insites-cli logs staging
 
 # In another terminal
 insites-cli test run staging -n test/failing_test
@@ -907,7 +901,7 @@ insites-cli deploy staging              # Deploy before testing
 insites-cli test run staging            # Run all tests
 insites-cli test run staging -n test/name  # Run specific test
 insites-cli sync staging                # Real-time sync
-insites-cli logsv2 staging                # View logs
+insites-cli logs staging                  # View logs
 ```
 
 ### Browser Endpoints

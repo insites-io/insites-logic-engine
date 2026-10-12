@@ -5,7 +5,8 @@
 Coordinate cache across multiple servers:
 
 ```liquid
-{% assign cache_version = context.deployment.version %}
+{% comment %} Raise the CACHE_VERSION constant (constants set) to invalidate every cached copy {% endcomment %}
+{% assign cache_version = context.constants.CACHE_VERSION | default: '1' %}
 {% cache 'api-response-' | append: cache_version, expire: 3600 %}
   {% graphql data = 'get_data' %}
   {{ data | json }}
@@ -108,9 +109,8 @@ Track which caches depend on each other:
     product-#{id} -> search-results
   {% endcomment %}
 
-  <!-- Manual invalidation of dependencies -->
-  insites-cli cache clear 'product-list' staging
-  insites-cli cache clear 'category-*' staging
+  {% comment %} There is no command to clear these. Put the product's
+     updated_at in each dependent key so a change produces new keys. {% endcomment %}
 {% endif %}
 ```
 

@@ -1,6 +1,6 @@
 # Constants (Secrets & Environment Configuration)
 
-> **CLI STATUS:** `insites-cli constants` is **not yet available** — this command is currently under development. Do not suggest `insites-cli constants set` or `insites-cli constants list` to users. Until it is released, constants must be managed in the **Insites Console**.
+> **CLI STATUS:** `insites-cli constants` works. Set a value with `insites-cli constants set --name <NAME> --value <value> [environment]`, remove one with `insites-cli constants unset --name <NAME> [environment]`, and list them with `insites-cli constants list [environment]`. Name and value are flags, not positional arguments.
 
 Constants in Insites store **sensitive data** (API keys, secrets) and **environment-specific configuration** (URLs, feature flags). They are set per-environment via CLI or GraphQL and accessed at runtime through `context.constants`. Constants are never exposed in `{{ context }}` output for security.
 

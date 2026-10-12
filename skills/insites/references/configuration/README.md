@@ -73,7 +73,7 @@ Modules are configured via installation and constants:
 
 ```bash
 # Pull module from instance
-insites-cli modules pull payments dev
+insites-cli modules pull dev payments
 
 # Configure module via constants
 insites-cli constants set --name stripe_sk_key --value "sk_..." dev

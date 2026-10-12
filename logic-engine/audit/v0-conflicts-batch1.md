@@ -302,7 +302,7 @@ Every entry below contains:
 - `addon-ecommerce/modules/ecommerce/` — local code directory, not a package reference
 - `addon-events/modules/events/` — local code directory, not a package reference
 - No `manifest.yml` files in any repo
-- No `insites-cli modules install` references in any config or documentation
+- No `modules install` CLI references in any config or documentation
 - `app.yml` uses local-filesystem `path:` directives, not version/install-from references
 
 **Real-repo evidence AGAINST original rule:** No installation mechanism exists. The rule describes behaviour the platform doesn't actually have.

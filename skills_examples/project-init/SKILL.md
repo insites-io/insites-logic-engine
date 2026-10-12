@@ -77,10 +77,10 @@ cd <PROJECT_ROOT> && insites-cli deploy staging
 
 ### Step 4: Verify Deployment Logs
 
-Inspect staging logs for errors:
+Inspect staging logs for errors. `logs` keeps running, so stop it once you have read the new entries:
 
 ```bash
-cd <PROJECT_ROOT> && insites-cli logsv2 staging
+cd <PROJECT_ROOT> && insites-cli logs staging
 ```
 
 Any errors in logs constitute failure.

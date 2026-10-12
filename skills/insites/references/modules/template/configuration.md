@@ -2,10 +2,7 @@
 
 ## Installation
 
-```bash
-insites-cli modules install <module-name>
-insites-cli deploy staging
-```
+Insites modules are installed and updated through the Insites Console, not the CLI. There is no `insites-cli modules install`. Check what is installed with `insites-cli modules list <env>`.
 
 ## Required Constants
 
@@ -15,7 +12,7 @@ insites-cli deploy staging
 
 Set in the Insites Console or:
 ```bash
-insites-cli constants set staging MODULE_API_KEY "value"
+insites-cli constants set --name MODULE_API_KEY --value "value" staging
 ```
 
 ## Dependencies

@@ -80,29 +80,7 @@ Image URL: {{ context.cdn_url }}/images/logo.png
 
 ## CLI Commands
 
-### List Assets
-
-```bash
-insites-cli assets list staging
-```
-
-Shows all uploaded assets with versions and sizes.
-
-### Upload Assets
-
-```bash
-insites-cli assets upload staging --path app/assets/
-```
-
-Manually upload assets without full deployment.
-
-### Remove Assets
-
-```bash
-insites-cli assets remove staging --path app/assets/fonts/old.woff
-```
-
-Remove specific assets from CDN.
+There is no `assets` command. `insites-cli deploy <env>` uploads every asset, and `insites-cli sync <env>` uploads each one as it changes. To remove an asset, delete it through the admin API (`admin_asset_delete`; see `gotchas.md` for deleting by id rather than by path).
 
 ## Asset Types
 

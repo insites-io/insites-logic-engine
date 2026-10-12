@@ -23,7 +23,8 @@ Store encrypted values and decrypt at runtime:
 Implement configuration caching with version tracking:
 
 ```liquid
-{% assign config_version = context.deployment.version %}
+{% comment %} Raise the CACHE_VERSION constant (constants set) to invalidate every cached copy {% endcomment %}
+{% assign config_version = context.constants.CACHE_VERSION | default: '1' %}
 {% cache 'app-config-' | append: config_version, expire: 86400 %}
   {% assign config = context.config | json %}
   {{ config }}

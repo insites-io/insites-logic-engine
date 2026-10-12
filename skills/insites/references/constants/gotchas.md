@@ -79,7 +79,7 @@ Constant not working?
 │   ├── Run insites-cli constants list ENV
 │   ├── Check exact name (case-sensitive)
 │   ├── Verify correct environment in .insites
-│   └── Set with insites-cli constants set if missing
+│   └── If missing, set it with insites-cli constants set
 ├── Value is wrong?
 │   ├── Check you are on the right environment
 │   ├── Overwrite with insites-cli constants set

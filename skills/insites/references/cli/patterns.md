@@ -14,13 +14,13 @@ insites-cli gui serve
 3. In another terminal, watch file synchronization:
 
 ```bash
-insites-cli sync dev --watch
+insites-cli sync dev
 ```
 
 4. View real-time logs:
 
 ```bash
-insites-cli logsv2 dev --follow
+insites-cli logs dev
 ```
 
 ## Pre-Deployment Validation
@@ -64,8 +64,8 @@ Modules are preinstalled per Insites instance and updated through the Insites co
 Pull a module's source from an instance:
 
 ```bash
-insites-cli modules pull <module-name> dev
-insites-cli modules pull my-custom-module dev
+insites-cli modules pull dev <module-name>
+insites-cli modules pull dev my-custom-module
 ```
 
 ### Updating Modules
@@ -83,8 +83,8 @@ insites-cli modules list dev
 Store all secrets as constants:
 
 ```bash
-insites-cli constants set dev API_KEY "key_xyz"
-insites-cli constants set staging WEBHOOK_SECRET "secret_abc"
+insites-cli constants set --name API_KEY --value "key_xyz" dev
+insites-cli constants set --name WEBHOOK_SECRET --value "secret_abc" staging
 ```
 
 Reference in code:
@@ -100,28 +100,32 @@ Reference in code:
 ```bash
 insites-cli migrations generate dev add_user_status
 # Edit generated migration file
-insites-cli migrations run dev
+insites-cli migrations run <timestamp> dev
 insites-cli migrations list dev
 ```
 
 ## Data Operations Pattern
 
+These commands work on all data on the instance. There is no per-table export, import or clean.
+
 ### Backup Before Operations
 
 ```bash
-insites-cli data export dev users data/backup_users.csv
+insites-cli data export dev -p backup.zip
 ```
 
 ### Bulk Operations
 
 ```bash
-insites-cli data import staging users data/import_users.csv
+insites-cli data import staging -p data.zip --zip
 ```
 
 ### Data Cleanup
 
+Removes all data on the instance. Use it on staging only.
+
 ```bash
-insites-cli data clean staging test_records
+insites-cli data clean staging
 ```
 
 ## Batch Command Execution
@@ -133,7 +137,6 @@ insites-cli data clean staging test_records
 ENV=$1
 insites-cli audit
 insites-cli deploy $ENV
-insites-cli logsv2 search
 ```
 
 ## See Also

@@ -9,6 +9,28 @@ All notable changes to the Insites Logic Engine will be documented in this file.
 - **`digest` takes an output argument** (`liquid/filters/configuration.md`): `'hex'` (default), `'base64'`, or `'none'` for raw bytes; `sha384` measured.
 - **Two literal spellings that leave a page empty** (`liquid/types/gotchas.md`): `assign x = x << y` (write `assign x << y`) and a filter inside a hash literal value. Both are refused on sync with a 422 and no message, and `insites-cli check` passes both.
 
+## [2.2.1] - 2026-10-12
+
+### Bug Fix
+- **`context.deployment` removed** (`configuration/api.md`, `configuration/advanced.md`, `caching/advanced.md`): it renders `null` on v6 instances, measured on two (one production, one staging) on 12 October 2026, while `context.environment` and `context.location.host` render. The cache-versioning examples now key on a `CACHE_VERSION` constant.
+
+## [2.2.0] - 2026-10-12
+
+### Bug Fix
+- **Only `insites-cli` usage that works with 6.1.0** (TW#26876510, 12 October 2026). Every `insites-cli` example in the pack was checked against the commands, flags, flag values, arguments and required options that @insites/insites-cli 6.1.0 registers: 555 invocations across 290 files, with 126 problems in 28 files before this release and none after. `logsv2` is removed everywhere, because log search is not available on either stack; `insites-cli logs <environment>` (with `--filter`, `--json` and `-q`) is used instead, and it always follows new entries, so `--follow`, `--tail` and `--source-name` are gone too. The `constants` commands are documented as working, with `--name` and `--value` flags in place of positional arguments, and the notes calling `constants` and `logs` missing are corrected. `data export`, `data import` and `data clean` are described as whole-instance commands, since there is no per-table export or clean; export writes a zip and importing one needs `--zip`. `sync` watches by default and has no `--watch`, `--include`, `--filter` or `--verbose`; `deploy` has no `--force` or `--skip-tests`; no command takes `--config` (the `CONFIG_FILE_PATH` environment variable does that job); `audit` takes no path; `gui serve` does take `--port` (default 3030); `modules pull` and `migrations run` arguments are in the right order. The install line names `@insites/insites-cli`, and the CI examples use the `INSITES_*` variables the CLI reads.
+
+### Improvement
+- **insites-cli 6.1.0** (`cli/api.md`): `deploy --dry-run`, `--verbose` and `--json` and the per-type deploy report; `doctor`; a `logs` section with `--json`; and `env add --token`, the access-token sign-in from the Insites Console's CLI tab, which goes through the Insites proxy.
+- **Workflows built on git** (`cli/advanced.md`, TW#24579169, TW#26045796, TW#26045797, TW#26045799): how to get an existing instance into git, compare two environments, roll back a deploy and check performance with the commands that exist, instead of `diff`, `rollback` and `benchmark` commands the CLI will not have. The first was run end to end on a staging instance: a pulled `app/` folder dry-runs as 160 files skipped and none upserted or deleted.
+
+## [2.1.0] - 2026-10-12
+
+### Bug Fix
+- **Only CLI commands that exist are named** (TW#26876510, 10 October 2026). Every `insites-cli` command in the pack was checked against the commands insites-cli 6.0.0 registers. Pages that told readers to run `modules install`, `modules download`, `cache`, `sessions`, `assets`, `config`, `env current`, `env info`, `migrations reset` or `migrations logs` now say what does the job instead, or that nothing does: modules are installed through the Console, `test run` installs the tests module itself, assets go up with `deploy` and `sync`, a cache is refreshed by changing its key, and configuration is edited in `app/config.yml` and deployed. The notes that called the missing commands "under development" now say they do not exist.
+
+### Improvement
+- **insites-cli 6.0.0** (`cli/api.md`, `cli/configuration.md`, `migrations/api.md`): `migrations status` and `migrations retry`, `env refresh-token`, the private-stack `.insites` entry that stores the Insites Console sign-in instead of the instance key, `private` as the default stack for a new environment, and `INSITES_INSTANCE_KEY` (formerly `INSITES_POS_KEY`) for CI.
+
 ## [2.0.0] - 2026-10-09
 
 ### Improvement

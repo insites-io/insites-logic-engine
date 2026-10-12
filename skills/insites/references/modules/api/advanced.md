@@ -50,4 +50,4 @@ No other module is referenced. The module cannot run without CRM installed.
 
 ## Tests
 
-Four Liquid tests under `private/lib/test/` (`build_payload`, `check_slug_availability`, `split_policy_selection`, `get_public_schema`), plus `tests/verify_external_endpoints.sh <env> <policy_id>`, which drives the five aliases through `insites-cli exec liquid` on a non-production instance and deletes what it creates.
+Four Liquid tests under `private/lib/test/` (`build_payload`, `check_slug_availability`, `split_policy_selection`, `get_public_schema`), plus `tests/verify_external_endpoints.sh <env> <policy_id>`, which drives the five aliases through `insites-cli exec liquid <env>` on a non-production instance and deletes what it creates.

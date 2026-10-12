@@ -45,17 +45,17 @@ insites-cli deploy production_green
 ```bash
 # 1. Deploy with feature disabled
 insites-cli deploy production
-insites-cli constants set production CANARY_NEW_FEATURE "false"
+insites-cli constants set --name CANARY_NEW_FEATURE --value "false" production
 
 # 2. Enable for small percentage
-insites-cli constants set production CANARY_PERCENTAGE "10"
+insites-cli constants set --name CANARY_PERCENTAGE --value "10" production
 
 # 3. Monitor metrics
-insites-cli logs production --filter error --follow
+insites-cli logs production --filter error
 
 # 4. Gradually increase
-insites-cli constants set production CANARY_PERCENTAGE "50"
-insites-cli constants set production CANARY_PERCENTAGE "100"
+insites-cli constants set --name CANARY_PERCENTAGE --value "50" production
+insites-cli constants set --name CANARY_PERCENTAGE --value "100" production
 ```
 
 ## Database Migration Strategies
@@ -82,8 +82,8 @@ insites-cli migrations generate production remove_old_user_field
 # 1. Add new table/property
 insites-cli migrations generate prod add_user_profile
 
-# 2. Backfill data
-insites-cli data import prod user_profiles data/profiles.csv
+# 2. Backfill data in a migration
+insites-cli migrations generate prod backfill_user_profiles
 
 # 3. Switch code to new schema
 git checkout new-schema-branch
@@ -106,13 +106,6 @@ Deploy multiple environments concurrently:
 wait
 ```
 
-### Incremental Asset Deployment
-
-```bash
-# Only deploy changed assets
-insites-cli sync production --include "app/assets/stylesheets"
-```
-
 ## Deployment Verification
 
 ### Health Check Pattern
@@ -121,12 +114,6 @@ insites-cli sync production --include "app/assets/stylesheets"
 #!/bin/bash
 verify_deployment() {
   ENV=$1
-
-  # Check logs for critical errors
-  ERRORS=$(insites-cli logs $ENV --filter "critical_error" | wc -l)
-  if [ $ERRORS -gt 0 ]; then
-    return 1
-  fi
 
   # Run health check endpoint
   RESPONSE=$(curl -s https://$ENV-instance.prod01-insites.io/health)
@@ -158,7 +145,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: npm install -g /insites-cli
+      - run: npm install -g @insites/insites-cli
       - run: insites-cli audit
 
   deploy_staging:
@@ -166,10 +153,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: npm install -g /insites-cli
+      - run: npm install -g @insites/insites-cli
       - run: insites-cli deploy staging
         env:
-          POS_TOKEN: ${{ secrets.POS_STAGING_TOKEN }}
+          INSITES_URL: ${{ secrets.STAGING_INSITES_URL }}
+          INSITES_EMAIL: ${{ secrets.STAGING_INSITES_EMAIL }}
+          INSITES_TOKEN: ${{ secrets.STAGING_INSITES_TOKEN }}
+          INSITES_INSTANCE: ${{ secrets.STAGING_INSITES_INSTANCE }}
+          INSITES_INSTANCE_KEY: ${{ secrets.STAGING_INSITES_INSTANCE_KEY }}
 
   deploy_production:
     needs: deploy_staging
@@ -177,10 +168,14 @@ jobs:
     if: success()
     steps:
       - uses: actions/checkout@v2
-      - run: npm install -g /insites-cli
+      - run: npm install -g @insites/insites-cli
       - run: insites-cli deploy production
         env:
-          POS_TOKEN: ${{ secrets.POS_PROD_TOKEN }}
+          INSITES_URL: ${{ secrets.PROD_INSITES_URL }}
+          INSITES_EMAIL: ${{ secrets.PROD_INSITES_EMAIL }}
+          INSITES_TOKEN: ${{ secrets.PROD_INSITES_TOKEN }}
+          INSITES_INSTANCE: ${{ secrets.PROD_INSITES_INSTANCE }}
+          INSITES_INSTANCE_KEY: ${{ secrets.PROD_INSITES_INSTANCE_KEY }}
 ```
 
 ## Disaster Recovery
@@ -191,9 +186,8 @@ jobs:
 #!/bin/bash
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
-# Backup all data
-insites-cli data export production users data/backup_${TIMESTAMP}_users.csv
-insites-cli data export production products data/backup_${TIMESTAMP}_products.csv
+# Back up all data on the instance
+insites-cli data export production -p data/backup_${TIMESTAMP}.zip
 
 # Save current state
 insites-cli migrations list production > data/backup_${TIMESTAMP}_migrations.txt
@@ -208,9 +202,10 @@ insites-cli deploy production
 #!/bin/bash
 BACKUP_TIMESTAMP=$1
 
-# Restore from backup if needed
-insites-cli data clean production users
-insites-cli data import production users data/backup_${BACKUP_TIMESTAMP}_users.csv
+# Restore from backup if needed. data clean removes ALL data on the instance,
+# then data import loads the whole backup back
+insites-cli data clean production
+insites-cli data import production -p data/backup_${BACKUP_TIMESTAMP}.zip --zip
 
 # Revert code
 git checkout production/stable
