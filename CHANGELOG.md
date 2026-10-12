@@ -2,6 +2,12 @@
 
 All notable changes to the Insites Logic Engine will be documented in this file.
 
+## [2.2.0] - 2026-10-12
+
+### Improvement
+- **insites-cli 6.1.0** (`cli/api.md`): `deploy --dry-run`, `--verbose` and `--json` and the per-type deploy report; `doctor`; a `logs` section with `--json`; and `env add --token`, the access-token sign-in from the Insites Console's CLI tab, which goes through the Insites proxy.
+- **Workflows built on git** (`cli/advanced.md`, TW#24579169, TW#26045796, TW#26045797, TW#26045799): how to get an existing instance into git, compare two environments, roll back a deploy and check performance with the commands that exist, instead of `diff`, `rollback` and `benchmark` commands the CLI will not have. The first was run end to end on a staging instance: a pulled `app/` folder dry-runs as 160 files skipped and none upserted or deleted.
+
 ## [2.1.0] - 2026-10-12
 
 ### Bug Fix

@@ -228,6 +228,58 @@ insites-cli env list
 
 There is no `env current` or `env info`. `env list` prints each environment's URL and stack; the full entry is in the `.insites` file.
 
+## Workflows Built on Git
+
+The CLI deliberately has no `diff`, `rollback` or `benchmark` command. Git, the commands below and an agent reading their output do each job better.
+
+### Get an Existing Instance into Git
+
+`pull` downloads the instance's whole `app/` folder in one archive. Modules come separately, one `modules pull` each; pull only the project's own modules, never the Insites modules every instance carries.
+
+```bash
+insites-cli pull staging -p app.zip && unzip -o app.zip && rm app.zip
+insites-cli modules list staging
+insites-cli modules pull staging my_module      # repeat for each of the project's own modules
+git init && git add app modules && git commit -m "Code as it is on staging"
+```
+
+Check the result: `insites-cli deploy staging --dry-run` should report nothing to upsert or delete.
+
+### Compare Two Environments
+
+To see what a deploy would change on one environment, use the dry run: it compares your release with the instance, file by file.
+
+```bash
+insites-cli deploy production --dry-run --verbose
+```
+
+To compare the content of two environments line by line, pull both and let git compare them:
+
+```bash
+mkdir -p /tmp/a /tmp/b
+insites-cli pull staging -p /tmp/a/app.zip && (cd /tmp/a && unzip -oq app.zip)
+insites-cli pull production -p /tmp/b/app.zip && (cd /tmp/b && unzip -oq app.zip)
+git diff --no-index --stat /tmp/a/app /tmp/b/app
+git diff --no-index /tmp/a/app /tmp/b/app
+```
+
+### Roll Back a Deploy
+
+A full deploy replaces the instance's `app/` folder with the release, so deploying the previous git tag puts the previous code back.
+
+```bash
+git checkout v1.4.2
+insites-cli deploy production --dry-run --verbose    # see exactly what will change
+insites-cli deploy production
+git checkout -
+```
+
+Data is not rolled back, and neither are migrations: a migration that ran stays run. If the release you are leaving changed data, write a compensating migration (see Rollback Pattern above). CloudShell can do the same for an instance connected to GitHub.
+
+### Check Performance
+
+Measure page speed with Lighthouse or PageSpeed Insights on the pages that matter, on a desktop and a mobile profile, then give the reports to an agent and ask it to explain the slowest items and what to change. For a slow page, follow `insites-cli logs <environment>` while you load it to see the errors it logs.
+
 ## See Also
 
 - [CLI Commands Reference](./api.md)

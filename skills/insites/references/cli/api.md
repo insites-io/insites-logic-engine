@@ -3,7 +3,7 @@
 Complete reference for `insites-cli`. All command signatures verified against `insites-cli help <command>` output.
 
 The CLI's top-level commands fall into three groups:
-- **Direct verbs** — `archive`, `audit`, `deploy`, `init`, `pull`, `sync`
+- **Direct verbs** — `archive`, `audit`, `deploy`, `doctor`, `init`, `logs`, `pull`, `sync`
 - **Subcommand groups** — `constants`, `data`, `duplicate`, `env`, `exec`, `gui`, `logsv2`, `migrations`, `modules`
 
 Run `insites-cli help <command>` for the live signature on any instance — this doc reflects the same source.
@@ -44,6 +44,7 @@ Deploy code to an environment. The environment is required.
 ```bash
 insites-cli deploy <environment>
 insites-cli deploy --partial-deploy <environment>
+insites-cli deploy <environment> --dry-run --verbose
 ```
 
 (Alias: `d`)
@@ -51,6 +52,11 @@ insites-cli deploy --partial-deploy <environment>
 | Option | Description |
 |---|---|
 | `-p, --partial-deploy` | Partial deployment — does not remove data from directories missing in the build |
+| `--dry-run` | Validate the release on the instance and print what would change, without applying anything. Every validation error is listed at once, each starting with its file path. Private stack only (insites-cli 6.1.0 and later) |
+| `--verbose` | List every file path in the deploy report, not just the counts (6.1.0 and later) |
+| `--json` | Print the result and the deploy report as JSON on stdout; everything else goes to stderr (6.1.0 and later) |
+
+After each deploy, insites-cli 6.1.0 and later print the instance's report: for each type of file, how many were upserted, deleted and skipped (unchanged). Run `--dry-run` before a deploy you are unsure of, especially a full deploy, which deletes files that are not in the release.
 
 Deployment runs the audit, syncs files, executes pending migrations, and updates the environment.
 
@@ -153,6 +159,40 @@ insites-cli init
 ```
 
 No arguments. Run once at the start of a new project.
+
+---
+
+## doctor
+
+Check the setup and say how to fix each problem (insites-cli 6.1.0 and later).
+
+```bash
+insites-cli doctor
+insites-cli doctor staging --json
+```
+
+Checks the Node.js version, whether a newer CLI is published, the `.insites` file, how each environment signs in, whether the sign-in works, whether the instance answers and accepts it, and the linter config. Exit code 1 when a check fails. It never prints a key or token. Run it first when a command fails with an authentication or connection error.
+
+---
+
+## logs
+
+Stream an instance's logs live.
+
+```bash
+insites-cli logs <environment>
+insites-cli logs <environment> --filter error
+insites-cli logs <environment> --json | jq 'select(.error_type == "error")'
+```
+
+| Option | Default | Description |
+|---|---|---|
+| `--interval <ms>` | `3000` | Time between polls |
+| `--filter <type>` | | Only entries of this type, for example `error` |
+| `-q, --quiet` | | The message only, without context |
+| `--json` | | One JSON object per entry (`id`, `created_at`, `error_type`, `message`, `data`), for `jq` or an agent. 6.1.0 and later |
+
+`logs` follows new entries. To search history, use `logsv2 search`.
 
 ---
 
@@ -269,6 +309,7 @@ insites-cli env refresh-token [environment]
 | `add [environment] --instance-uuid <u>` | UUID required; `--email` for a shared-stack instance | Add a new environment. On the private stack it signs you in to the Insites Console in the browser |
 | `list` | no args | List all known environments |
 | `refresh-token <environment>` | environment required | Sign in again for one environment, changing only its entry. insites-cli 6.0.0 and later |
+| `add <environment> --url <proxy> --token iak_...` | both required | Sign in with a personal access token from the Insites Console's CLI tab, using the command the Console shows. Requests go through the Insites proxy, which checks your role on each request and records each deploy against you. insites-cli 6.1.0 and later |
 
 On the private stack the CLI stores your Insites Console sign-in, not the instance key, and asks the Console for the key at the start of each command (insites-cli 6.0.0 and later). Removing someone's access in the Console stops their next command. When nothing identifies the stack, a new environment uses `private`.
 
