@@ -132,25 +132,15 @@ insites-cli logs staging --filter error
 insites-cli logs staging --json | grep 'job_name'
 ```
 
-## Module Installation Problems
+## Module Problems
 
 ### Module Not Found
 
-**Issue**: Module installation fails
+**Issue**: A command or page refers to a module the instance does not have
 
 **Solution**:
-- Verify module name: `insites-cli modules list`
-- Check marketplace availability
-- Ensure authentication with private modules
-
-### Version Conflicts
-
-**Issue**: Incompatible module versions
-
-**Solution**:
-- Review module dependencies
-- Check documentation for version requirements
-- Downgrade/upgrade compatible versions
+- List the modules on the instance: `insites-cli modules list staging`
+- Insites modules come with the instance and are managed in the Insites Console; there is no CLI command that installs one
 
 ## Data Operations Risks
 

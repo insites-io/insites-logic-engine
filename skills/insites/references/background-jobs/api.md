@@ -168,11 +168,13 @@ insites-cli logs staging
 
 ### Log Output Format
 
+Each line is the time, the log type and the message:
+
 ```
-[2024-01-15 14:32:45] background job: send_email (attempt 1/2) - SUCCESS
-[2024-01-15 14:32:50] background job: process_payment (attempt 1/3) - FAILED
-[2024-01-15 14:32:55] background job: process_payment (attempt 2/3) - SUCCESS
+[2026-10-12 14:32:45.123Z] - error: Liquid error: undefined method 'size'
 ```
+
+With `--json`, each entry is one JSON object with `id`, `created_at`, `error_type`, `message` and `data`, so `grep` or `jq` can pick out a job's entries by any text the job writes with `{% log %}`.
 
 ## Error Scenarios
 

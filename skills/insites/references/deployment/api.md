@@ -136,7 +136,7 @@ insites-cli deploy production
 
 ```bash
 insites-cli logs production
-insites-cli logs production --filter "deployment"
+insites-cli logs production --filter error
 ```
 
 ### Monitor in Progress
