@@ -143,7 +143,7 @@ The `prepack` script copies `logic-engine/` into the package before publishing s
 
 Releases are cut on a `release/vX.Y.Z` branch and merged to `master` through a pull request; merging is the release, because the installers fetch the default branch. Each release is tagged `vX.Y.Z` on `master` and listed in `CHANGELOG.md`.
 
-Latest: **v2.0.0** (9 October 2026). The skill now describes the v6 Insites modules and the 2026 platform releases as they are: the controller alias inventory is regenerated from the v6 module source (404 controller aliases), every module has a six-page reference, `insites_core` is `insites_crm` throughout, the twelve 2026 platform releases are folded into the Liquid, GraphQL, API, asset, page, configuration and deployment references with a dated digest, and no upstream vendor name remains anywhere in the skill. See `CHANGELOG.md` for the full list.
+Latest: **v2.1.0** (12 October 2026). Every `insites-cli` command the pack names now exists in insites-cli 6.0.0: invented commands (`modules install`, `cache`, `sessions`, `assets`, `config`, `env info`, `migrations reset` and others) are replaced with what does the job, and the 6.0.0 commands and `.insites` entry are documented. See `CHANGELOG.md` for the full list.
 
 ## License
 
