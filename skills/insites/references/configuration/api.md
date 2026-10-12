@@ -98,20 +98,6 @@ Access application URL from `.insites` configuration.
 <a href="{{ context.app_url }}/products">Products</a>
 ```
 
-## context.deployment
-
-Access deployment metadata.
-
-**Type:** Object
-
-**Example:**
-
-```liquid
-{{ context.deployment.version }}
-{{ context.deployment.timestamp }}
-{{ context.deployment.git_hash }}
-```
-
 ## Changing Configuration
 
 The CLI has no `config` command. Edit `app/config.yml` and deploy it (`insites-cli deploy <env>`, or `insites-cli sync <env>` while you work); read a value back with `insites-cli exec liquid <env> "{{ context.config.<key> }}"`.
