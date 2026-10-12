@@ -6,7 +6,7 @@ The `{% background %}` tag enables asynchronous job execution in Insites. Jobs r
 
 ## Basic Syntax
 
-The job's code lives in a partial, named in the tag. The block form (`{% background %}...{% endbackground %}`) is listed as deprecated in the tag reference shipped with CLI 5.10.2.
+The job's code lives in a partial, named in the tag. The block form (`{% background %}...{% endbackground %}`) is listed as deprecated in the tag reference shipped with insites-cli 6.1.0.
 
 ### Calling a Partial
 

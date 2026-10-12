@@ -27,7 +27,7 @@ Inside `jobs/greet`, `name` is set and `greeting` is blank.
 
 ## The Block Form Is Deprecated
 
-The tag also accepts a block, `{% background ... %}...{% endbackground %}`. The tag reference shipped with CLI 5.10.2 lists that form under "Deprecated", and the scope rule is the same: the block sees only the variables passed to the tag, not the page's. Some v6 modules still use the block form; use the partial form in new code.
+The tag also accepts a block, `{% background ... %}...{% endbackground %}`. The tag reference shipped with insites-cli 6.1.0 lists that form under "Deprecated", and the scope rule is the same: the block sees only the variables passed to the tag, not the page's. Some v6 modules still use the block form; use the partial form in new code.
 
 ## Parameters
 

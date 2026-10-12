@@ -15,14 +15,14 @@ insites-cli audit
 # 3. Deploy to staging
 insites-cli deploy staging
 
-# 4. Review staging logs (streams until Ctrl+C)
-insites-cli logs staging
+# 4. Review staging logs
+insites-cli logs staging --filter error
 
 # 5. Deploy to production
 insites-cli deploy production
 
-# 6. Monitor production (streams until Ctrl+C)
-insites-cli logs production
+# 6. Monitor production
+insites-cli logs production --filter error
 ```
 
 ## Pre-Deployment Pattern
@@ -37,7 +37,7 @@ echo "Running pre-deployment checks..."
 
 # 1. Lint and syntax check
 insites-cli audit
-echo "✓ insites-cli audit passed"
+echo "✓ Audit passed"
 
 # 2. Verify environment
 insites-cli env list
@@ -59,10 +59,10 @@ Deploy and test on staging before production:
 # Deploy to staging
 insites-cli deploy staging
 
-# Verify data integrity
-insites-cli data export staging --path data/test_export.zip
+# Verify data integrity (exports all data on the instance)
+insites-cli data export staging -p test_export.zip
 
-# Watch the logs (streams until Ctrl+C)
+# Monitor for 24-48 hours
 insites-cli logs staging
 
 # Errors only
@@ -103,7 +103,7 @@ jobs:
           INSITES_EMAIL: ${{ secrets.STAGING_INSITES_EMAIL }}
           INSITES_TOKEN: ${{ secrets.STAGING_INSITES_TOKEN }}
           INSITES_INSTANCE: ${{ secrets.STAGING_INSITES_INSTANCE }}
-          INSITES_POS_KEY: ${{ secrets.STAGING_INSITES_KEY }}
+          INSITES_INSTANCE_KEY: ${{ secrets.STAGING_INSITES_INSTANCE_KEY }}
 
       - name: Deploy to Production
         run: insites-cli deploy production
@@ -113,7 +113,7 @@ jobs:
           INSITES_EMAIL: ${{ secrets.PROD_INSITES_EMAIL }}
           INSITES_TOKEN: ${{ secrets.PROD_INSITES_TOKEN }}
           INSITES_INSTANCE: ${{ secrets.PROD_INSITES_INSTANCE }}
-          INSITES_POS_KEY: ${{ secrets.PROD_INSITES_KEY }}
+          INSITES_INSTANCE_KEY: ${{ secrets.PROD_INSITES_INSTANCE_KEY }}
 ```
 
 ## Migration Management Pattern
@@ -128,8 +128,8 @@ insites-cli migrations generate staging add_user_columns
 # 2. Run migrations in staging
 insites-cli deploy staging
 
-# 3. Verify data integrity
-insites-cli data export staging --path data/verify.zip
+# 3. Verify data integrity (exports all data on the instance)
+insites-cli data export staging -p verify.zip
 
 # 4. Deploy same migrations to production
 insites-cli deploy production
@@ -178,14 +178,15 @@ insites-cli deploy production   # Live environment
 ```bash
 #!/bin/bash
 ENV=$1
+TIMESTAMP=$(date +%s)
 
 echo "Backing up $ENV before deployment..."
 
-# Export all data (one zip archive holds every table and the users)
-insites-cli data export $ENV --path data/backup_$(date +%s).zip
+# Export all data on the instance
+insites-cli data export $ENV -p data/backup_${TIMESTAMP}.zip
 
 # Save migrations state
-insites-cli migrations list $ENV > data/backup_migrations_$(date +%s).txt
+insites-cli migrations list $ENV > data/backup_migrations_${TIMESTAMP}.txt
 
 echo "Backup completed"
 ```

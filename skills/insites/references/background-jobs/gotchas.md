@@ -245,7 +245,7 @@ Is job executing?
    │
    ├─ Is background job available in environment?
    │  └─ NO → Contact platform support
-   │  └─ YES → Check insites-cli logs for system errors
+   │  └─ YES → Check system errors with insites-cli logs <environment> --filter error
    │
    └─ Add {% log %} calls inside the job and watch insites-cli logs <env>
 ```

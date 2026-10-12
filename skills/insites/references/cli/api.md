@@ -3,8 +3,8 @@
 Complete reference for `insites-cli`. All command signatures verified against `insites-cli help <command>` output.
 
 The CLI's top-level commands fall into three groups:
-- **Direct verbs**: `archive`, `audit`, `deploy`, `init`, `logs`, `pull`, `sync`
-- **Subcommand groups**: `constants`, `data`, `duplicate`, `env`, `exec`, `gui`, `logsv2`, `migrations`, `modules`
+- **Direct verbs**: `archive`, `audit`, `deploy`, `doctor`, `init`, `logs`, `pull`, `sync`
+- **Subcommand groups**: `constants`, `data`, `duplicate`, `env`, `exec`, `gui`, `migrations`, `modules`
 
 Run `insites-cli help <command>` for the live signature on any instance; this doc reflects the same source.
 
@@ -37,7 +37,7 @@ No options, and no arguments: `insites-cli audit app/views/pages/` scans the who
 
 **It exits 0 whether or not a rule fires.** A CI step such as `insites-cli audit || exit 1` never fails. To gate on it, fail when the summary count is not 0.
 
-What it checks (CLI 5.10.2, `lib/audit/`):
+What it checks (insites-cli 6.1.0, `lib/audit/`):
 
 | Check | Fires on |
 |---|---|
@@ -60,6 +60,7 @@ Deploy code to an environment. The environment is required.
 ```bash
 insites-cli deploy <environment>
 insites-cli deploy --partial-deploy <environment>
+insites-cli deploy <environment> --dry-run --verbose
 ```
 
 (Alias: `d`)
@@ -67,6 +68,11 @@ insites-cli deploy --partial-deploy <environment>
 | Option | Description |
 |---|---|
 | `-p, --partial-deploy` | Partial deployment: does not remove data from directories missing in the build |
+| `--dry-run` | Validate the release on the instance and print what would change, without applying anything. Every validation error is listed at once, each starting with its file path. Private stack only (insites-cli 6.1.0 and later) |
+| `--verbose` | List every file path in the deploy report, not just the counts (6.1.0 and later) |
+| `--json` | Print the result and the deploy report as JSON on stdout; everything else goes to stderr (6.1.0 and later) |
+
+After each deploy, insites-cli 6.1.0 and later print the instance's report: for each type of file, how many were upserted, deleted and skipped (unchanged). Run `--dry-run` before a deploy you are unsure of, especially a full deploy, which deletes files that are not in the release.
 
 Deployment runs the audit (skipped when `CI=true`), then deploys whatever it reports, executes pending migrations, and updates the environment.
 
@@ -107,58 +113,11 @@ insites-cli gui serve [environment]
 |---|---|
 | `serve [environment]` | Serve the GUI for files from the given environment |
 
-`gui serve` takes `-p, --port <port>` (default `3030`), `-o, --open` to open a browser when ready, and `-s, --sync` to sync files while it runs.
-
----
-
-## logs
-
-Stream an instance's logs to the terminal. It reads from the instance itself, so it works on every stack.
-
-```bash
-insites-cli logs staging
-insites-cli logs staging --filter error
-insites-cli logs staging --interval 1000 -q
-```
-
-(Alias: `l`)
-
 | Option | Default | Description |
 |---|---|---|
-| `--interval <ms>` | `3000` | Time between polls, in milliseconds |
-| `--filter <type>` | none | Show only entries of this type, compared without case. An entry with no type counts as `error`. `{% log x, type: 'debug' %}` writes an entry of type `debug` |
-| `-q, --quiet` | off | Print the message only, without the path, page, partial and user line |
-
-It runs until you press `Ctrl+C`. It never exits on its own, so `$(insites-cli logs ...)` and `insites-cli logs ... | wc -l` never finish. It has no `--follow`, `--tail` or `--source-name` option; each is rejected as an unknown option. To narrow by text, pipe it: `insites-cli logs staging | grep send_email`.
-
----
-
-## logsv2
-
-Search log history, and manage alerts and reports. **`logsv2` takes a subcommand first, then the environment.** `insites-cli logsv2 staging` is rejected as an unknown command.
-
-```bash
-insites-cli logsv2 search staging --size 50
-insites-cli logsv2 search staging --start_time <t> --end_time <t> --json
-insites-cli logsv2 searchAround staging --key 1701428187696722
-insites-cli logsv2 alerts list staging
-insites-cli logsv2 reports staging --json
-```
-
-(Alias: `l2`)
-
-| Subcommand | Options |
-|---|---|
-| `search [environment]` | `--sql <sql>`, `--size <n>` (default 10), `--from <n>` (default 0), `--start_time`, `--end_time`, `--json` |
-| `searchAround [environment]` | `--key <timestamp>`, `--stream_name <name>` (default `logs`), `--size <n>` (default 10), `--json` |
-| `alerts list [environment]` | `--json` |
-| `alerts add [environment]` | `--name`, `--keyword`, `--url`, `--operator` (default `Contains`), `--column` (default `message`), `--channel`, `--json` |
-| `alerts trigger [environment]` | `--name`, `--json` |
-| `reports [environment]` | `--json` |
-
-None of them takes `--filter`. `alerts rm` is listed in the help, but CLI 5.10.2 ships no script for it, so it fails.
-
-**`logsv2` needs a log proxy, and only the shared stack has one.** On the Insites stack (`*.staging-insites.io` and `*.prod01-insites.io` hosts, where v6 instances run) every `logsv2` subcommand prints `logsv2 is not available on the Insites dedicated stack: it publishes no log proxy` and stops. Use `insites-cli logs` there, or set `LOGS_PROXY_URL` to a proxy that serves the instance.
+| `-p, --port <port>` | `3030` | Port to serve the GUI on |
+| `-o, --open` | off | Open the GraphQL editor in your default browser when ready |
+| `-s, --sync` | off | Sync files while the GUI runs |
 
 ---
 
@@ -196,6 +155,42 @@ insites-cli init
 ```
 
 No arguments. Run once at the start of a new project.
+
+---
+
+## doctor
+
+Check the setup and say how to fix each problem (insites-cli 6.1.0 and later).
+
+```bash
+insites-cli doctor
+insites-cli doctor staging --json
+```
+
+Checks the Node.js version, whether a newer CLI is published, the `.insites` file, how each environment signs in, whether the sign-in works, whether the instance answers and accepts it, and the linter config. Exit code 1 when a check fails. It never prints a key or token. Run it first when a command fails with an authentication or connection error.
+
+---
+
+## logs
+
+Stream an instance's logs live.
+
+```bash
+insites-cli logs <environment>
+insites-cli logs <environment> --filter error
+insites-cli logs <environment> --json | jq 'select(.error_type == "error")'
+```
+
+| Option | Default | Description |
+|---|---|---|
+| `--interval <ms>` | `3000` | Time between polls |
+| `--filter <type>` | | Only entries of this type, compared without case. An entry with no type counts as `error`. `{% log x, type: 'debug' %}` writes an entry of type `debug` |
+| `-q, --quiet` | | The message only, without the path, page, partial and user line |
+| `--json` | | One JSON object per entry (`id`, `created_at`, `error_type`, `message`, `data`), for `jq` or an agent. 6.1.0 and later |
+
+(Alias: `l`)
+
+`logs` always follows new entries until you press `Ctrl+C`; there is no `--follow`, `--tail` or `--source-name` flag, and each is rejected as an unknown option. Because it never exits on its own, `$(insites-cli logs ...)` and `insites-cli logs ... | wc -l` never finish. To find the entries for one job or partial, give it a log entry with its own type (`{% log note, type: 'send_email' %}`) and run `insites-cli logs staging --filter send_email`, or filter the text: `insites-cli logs staging --json | grep 'job_name'`.
 
 ---
 
@@ -258,6 +253,8 @@ Manage migrations on an environment.
 insites-cli migrations generate [environment] <name>
 insites-cli migrations list [environment]
 insites-cli migrations run <timestamp> [environment]
+insites-cli migrations status <timestamp> [environment]
+insites-cli migrations retry <timestamp> [environment]
 ```
 
 | Subcommand | Args | Description |
@@ -265,6 +262,8 @@ insites-cli migrations run <timestamp> [environment]
 | `generate [environment] <name>` | name required | Generate a new empty migration file |
 | `list [environment]` | env optional | List migrations and their statuses |
 | `run <timestamp> [environment]` | timestamp required | Run the migration matching the timestamp |
+| `status <timestamp> [environment]` | timestamp required | One migration's state and error messages; `--json`. insites-cli 6.0.0 and later |
+| `retry <timestamp> [environment]` | timestamp required | Show the state, then run it again. insites-cli 6.0.0 and later |
 
 ---
 
@@ -298,14 +297,19 @@ SAFE=1 insites-cli constants list staging
 Manage environments (the local CLI registry of instances you can target).
 
 ```bash
-insites-cli env add [environment] --email user@example.com --instance-uuid abcd-ef123-4567
+insites-cli env add [environment] --instance-uuid abcd-ef123-4567
 insites-cli env list
+insites-cli env refresh-token [environment]
 ```
 
 | Subcommand | Args | Description |
 |---|---|---|
-| `add [environment] --email <e> --instance-uuid <u>` | flags required | Add a new environment |
+| `add [environment] --instance-uuid <u>` | UUID required; `--email` for a shared-stack instance | Add a new environment. On the private stack it signs you in to the Insites Console in the browser |
 | `list` | no args | List all known environments |
+| `refresh-token <environment>` | environment required | Sign in again for one environment, changing only its entry. insites-cli 6.0.0 and later |
+| `add <environment> --url <proxy> --token iak_...` | both required | Sign in with a personal access token from the Insites Console's CLI tab, using the command the Console shows. Requests go through the Insites proxy, which checks your role on each request and records each deploy against you. insites-cli 6.1.0 and later |
+
+On the private stack the CLI stores your Insites Console sign-in, not the instance key, and asks the Console for the key at the start of each command (insites-cli 6.0.0 and later). Removing someone's access in the Console stops their next command. When nothing identifies the stack, a new environment uses `private`.
 
 Example:
 
@@ -320,16 +324,18 @@ insites-cli env add staging --email dev@example.com --instance-uuid 12345-abcde-
 Export, import, or clean data on an instance.
 
 ```bash
-insites-cli data export [environment]
-insites-cli data import [environment]
+insites-cli data export [environment] -p data.zip
+insites-cli data import [environment] -p data.zip --zip
 insites-cli data clean [environment]
 ```
 
 | Subcommand | Args | Description |
 |---|---|---|
-| `export [environment]` | `-p, --path <file>`, `-e, --export-internal-ids`, `-z, --zip` (on by default) | Export instance data. Writes a zip archive, `data.zip` unless `--path` names another |
+| `export [environment]` | `-p, --path <file>`, `-e, --export-internal-ids`, `-z, --zip` (on by default) | Export all data on the instance. Writes a zip archive, `data.zip` unless `--path` names another |
 | `import [environment]` | `-p, --path <file>` (default `data.json`), `-z, --zip`, `--raw-ids` | Import a JSON file, or a zip archive with `--zip`. No CSV, and no table argument |
 | `clean [environment]` | `--auto-confirm`, `-i, --include-schema` | Remove all stored data (users, records). Asks you to type `CLEAN DATA` unless `--auto-confirm`; `--include-schema` also removes pages, schemas and other files. **Irreversible.** |
+
+These commands work on the whole instance. There is no per-table export or clean.
 
 `clean` is destructive and not reversible. Only use against staging/dev environments you are willing to wipe.
 

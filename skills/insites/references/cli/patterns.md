@@ -59,8 +59,8 @@ Modules are preinstalled per Insites instance and updated through the Insites co
 Pull a module's source from an instance:
 
 ```bash
-insites-cli modules pull <module-name> dev
-insites-cli modules pull my-custom-module dev
+insites-cli modules pull dev <module-name>
+insites-cli modules pull dev my-custom-module
 ```
 
 ### Updating Modules
@@ -95,11 +95,13 @@ Reference in code:
 ```bash
 insites-cli migrations generate dev add_user_status
 # Edit generated migration file
-insites-cli migrations run dev
+insites-cli migrations run <timestamp> dev
 insites-cli migrations list dev
 ```
 
 ## Data Operations Pattern
+
+These commands work on all data on the instance. There is no per-table export, import or clean.
 
 ### Backup Before Operations
 
@@ -114,6 +116,8 @@ insites-cli data import staging --path data.json    # JSON, or a zip with --zip
 ```
 
 ### Data Cleanup
+
+Removes all data on the instance. Use it on staging only.
 
 ```bash
 insites-cli data clean staging    # removes ALL data on the instance; there is no per-table clean

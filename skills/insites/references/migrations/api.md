@@ -94,31 +94,17 @@ Shows all migrations with status (pending, done, error).
 insites-cli migrations status 20240110120000 staging
 ```
 
-Displays migration state and execution details.
+Shows that one migration's state and its error messages, if it failed. Says so when no migration has that timestamp. Takes `--json`. Added in insites-cli 6.0.0.
 
-## CLI: Retry Failed Migration
+## CLI: Retry a Migration
 
 ```bash
 insites-cli migrations retry 20240110120000 staging
 ```
 
-Re-execute migration if previous run failed.
+Shows the migration's current state, then runs it again. The same call as `migrations run`. Added in insites-cli 6.0.0.
 
-## CLI: Reset Migration State
-
-```bash
-insites-cli migrations reset 20240110120000 staging
-```
-
-Mark migration as pending to re-run (dangerous).
-
-## CLI: Show Migration Logs
-
-```bash
-insites-cli migrations logs 20240110120000 staging
-```
-
-Display execution output and any errors.
+There is no command to reset a migration to pending or to read a migration's output. The instance API has no endpoint for either. The error messages `migrations status` prints are what the instance records.
 
 ## Constants in Migrations
 
@@ -220,7 +206,7 @@ Step 2: Success
 Migration complete
 ```
 
-Logs visible with `insites-cli migrations logs`.
+Anything the migration writes with `{% log %}` is in the instance logs (`insites-cli logs <env>`).
 
 ## See Also
 

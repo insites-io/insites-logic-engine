@@ -60,7 +60,15 @@ app/
 secrets/
 ```
 
-In CI, set the credentials as environment variables instead; see [Credentials from Environment Variables](#credentials-from-environment-variables).
+In CI, set the credentials as environment variables instead. The CLI reads these when all five are set; see [Credentials from Environment Variables](#credentials-from-environment-variables):
+
+```bash
+export INSITES_URL="https://your-instance.staging-insites.io"
+export INSITES_EMAIL="dev@example.com"
+export INSITES_TOKEN="token_xyz"
+export INSITES_INSTANCE="your-instance-uuid"
+export INSITES_INSTANCE_KEY="key_abc"
+```
 
 ## Pre-Deployment Checklist
 
@@ -81,7 +89,7 @@ In CI, set the credentials as environment variables instead; see [Credentials fr
 
 ## Credentials from Environment Variables
 
-The CLI reads one instance's credentials from five environment variables. It uses them only when **all five** are set, and then it uses them for every command, ignoring both `.insites` and the environment name you pass (`lib/settings.js` in CLI 5.10.2).
+The CLI reads one instance's credentials from five environment variables. It uses them only when **all five** are set, and then it uses them for every command, ignoring both `.insites` and the environment name you pass (`lib/settings.js` in insites-cli 6.1.0).
 
 | Variable | `.insites` field | What it is |
 |---|---|---|
@@ -89,14 +97,16 @@ The CLI reads one instance's credentials from five environment variables. It use
 | `INSITES_EMAIL` | `email` | Account email |
 | `INSITES_TOKEN` | `token` | Console or Portal token |
 | `INSITES_INSTANCE` | `instance_uuid` | Instance UUID |
-| `INSITES_POS_KEY` | `key` | Instance key that `deploy`, `sync` and `logs` send |
+| `INSITES_INSTANCE_KEY` | `key` | Instance key that `deploy`, `sync` and `logs` send. Before insites-cli 6.0.0 it was `INSITES_POS_KEY`, which 6.x still reads with a deprecation warning |
+
+`INSITES_STACK` is optional and names the stack outright; without it the CLI works the stack out from the URL.
 
 ```bash
 export INSITES_URL="https://staging-instance.staging-insites.io"
 export INSITES_EMAIL="dev@example.com"
 export INSITES_TOKEN="..."
 export INSITES_INSTANCE="..."
-export INSITES_POS_KEY="..."
+export INSITES_INSTANCE_KEY="..."
 insites-cli deploy staging
 ```
 

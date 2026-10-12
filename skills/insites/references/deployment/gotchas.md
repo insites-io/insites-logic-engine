@@ -160,7 +160,7 @@ insites-cli migrations list staging
 # Verify file structure
 ls -la app/views/
 
-# Sync with the CLI's debug output (there is no --verbose option)
+# Sync with the CLI's debug output (sync has no --verbose option)
 DEBUG=1 insites-cli sync dev
 
 # Note: insites-cli env clear-cache does not exist.
@@ -266,7 +266,7 @@ insites-cli deploy production
 - Verify `.insites` file (JSON): `cat .insites | python3 -m json.tool | head -10`
 - Check token in dashboard
 - Regenerate if expired
-- In CI, set all five of `INSITES_URL`, `INSITES_EMAIL`, `INSITES_TOKEN`, `INSITES_INSTANCE` and `INSITES_POS_KEY`; with any one missing the CLI ignores them and reads `.insites` (see [configuration](configuration.md#credentials-from-environment-variables))
+- In CI, set all five of `INSITES_URL`, `INSITES_EMAIL`, `INSITES_TOKEN`, `INSITES_INSTANCE` and `INSITES_INSTANCE_KEY`; with any one missing the CLI ignores them and reads `.insites` (see [configuration](configuration.md#credentials-from-environment-variables))
 
 ### Mismatched Environment
 
@@ -278,7 +278,7 @@ insites-cli deploy production
 # Verify your target by checking the .insites file directly.
 
 # Use explicit environment
-insites-cli deploy production  # Not "insites-cli deploy"
+insites-cli deploy production  # always name the environment
 ```
 
 ## See Also

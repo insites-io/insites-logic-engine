@@ -39,7 +39,7 @@ The `.insites` file is a JSON file that stores authentication and deployment end
 
 Never commit `.insites` with real tokens. Add `.insites` to `.gitignore`.
 
-To run without `.insites` (in CI, for example), set all five of `INSITES_URL`, `INSITES_EMAIL`, `INSITES_TOKEN`, `INSITES_INSTANCE` and `INSITES_POS_KEY`. See [deployment configuration](../deployment/configuration.md#credentials-from-environment-variables).
+To run without `.insites` (in CI, for example), set all five of `INSITES_URL`, `INSITES_EMAIL`, `INSITES_TOKEN`, `INSITES_INSTANCE` and `INSITES_INSTANCE_KEY`. See [deployment configuration](../deployment/configuration.md#credentials-from-environment-variables).
 
 ## app/config.yml Structure
 

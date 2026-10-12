@@ -20,10 +20,12 @@ Deployment process:
 
 ### Deployment with Options
 
-`deploy` takes two options, and has no `--force`, `--skip-tests` or `--verbose`:
+`deploy` takes `-p, --partial-deploy` and `-s, --stack`, and from insites-cli 6.1.0 `--dry-run`, `--verbose` and `--json`. It has no `--force` or `--skip-tests`:
 
 ```bash
-insites-cli deploy staging -p                 # partial: keep files in folders missing from the build
+insites-cli deploy production --dry-run       # validate and show what would change, apply nothing
+insites-cli deploy staging --partial-deploy   # keep files in folders missing from the build
+insites-cli deploy dev --verbose              # list every file in the deploy report
 insites-cli deploy production --stack <name>  # override the stack read from the environment
 DEBUG=1 insites-cli deploy dev                # print the CLI's debug lines
 ```
@@ -41,7 +43,7 @@ File sync only - no migrations or schema changes.
 
 ### Watch Mode
 
-`sync` watches by default and has no `--watch` or `--filter` option:
+Continuous synchronization is the default. `sync` watches your files until you stop it:
 
 ```bash
 insites-cli sync dev
@@ -114,7 +116,7 @@ insites-cli deploy production
 
 ### Check Deployment Status
 
-The deploy command waits for the instance and ends with `Deploy succeeded after <time>` or `Deploy failed.` and the reason. There is no separate status command (`env info` does not exist); `insites-cli env list` only shows which environments are configured.
+`insites-cli deploy <env>` waits for the instance and ends with `Deploy succeeded after <time>` or `Deploy failed.` and the reason. There is no separate status command (`env info` does not exist); `insites-cli env list` only shows which environments are configured.
 
 ### View Deployment Logs
 
@@ -154,9 +156,9 @@ insites-cli migrations generate production rollback_feature
 Test migrations on staging first:
 
 ```bash
-insites-cli migrations run staging
-# Verify data integrity
-insites-cli data export staging --path verify.zip
+insites-cli migrations run <timestamp> staging
+# Verify data integrity (exports all data on the instance)
+insites-cli data export staging -p verify.zip
 ```
 
 ## Continuous Integration Deployment

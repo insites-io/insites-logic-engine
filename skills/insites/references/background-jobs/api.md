@@ -8,7 +8,7 @@
 
 `job_id` is the variable the tag assigns; `'path/to/partial'` is the partial the job runs. Every argument that is not one of the four options becomes a variable inside the partial, and those are the only page variables the job can see.
 
-The block form, `{% background ... %}...{% endbackground %}`, is listed as deprecated in the tag reference shipped with CLI 5.10.2. It has the same scope: the block sees only what is passed to the tag.
+The block form, `{% background ... %}...{% endbackground %}`, is listed as deprecated in the tag reference shipped with insites-cli 6.1.0. It has the same scope: the block sees only what is passed to the tag.
 
 ## Parameter Reference
 
@@ -128,13 +128,19 @@ In `jobs/welcome`, `name` and `joined` are set. `username` is blank: it was assi
 
 ### Available Context
 
-The tag reference shipped with CLI 5.10.2 says a job has access only to the variables passed to the tag. `context` is available by default, with limits: page and layout metadata, the device and constants must be passed explicitly if the job uses them. Since 20 April 2026 a job receives `context.environment` and `context.location.host` from the request that queued it.
+The tag reference shipped with insites-cli 6.1.0 says a job has access only to the variables passed to the tag. `context` is available by default, with limits: page and layout metadata, the device and constants must be passed explicitly if the job uses them. Since 20 April 2026 a job receives `context.environment` and `context.location.host` from the request that queued it.
 
 So pass what the job needs, including anything read from the request (`context.params`, the current user's id), as tag arguments. A variable assigned on the page is never visible inside the job unless it is passed.
 
 ## Monitoring with insites-cli logs
 
-`insites-cli logs <environment>` streams the instance's log entries until you press `Ctrl+C`. It prints each one as `[time] - type: message`, with the path, page and partial underneath when the entry has them. It does not print `source_name`, its only filter is `--filter <type>`, and it has no `--source-name` or `--tail` option.
+`insites-cli logs <environment>` streams the instance's log entries until you press `Ctrl+C`. It prints each one as `[time] - type: message`, with the path, page and partial underneath when the entry has them:
+
+```
+[2026-10-12 14:32:45.123Z] - error: Liquid error: undefined method 'size'
+```
+
+It does not print `source_name`, its only filter is `--filter <type>`, and it has no `--source-name` or `--tail` option. With `--json`, each entry is one JSON object per line with `id`, `created_at`, `error_type`, `message` and `data`.
 
 So give the job a log entry of its own, with a type you can filter on. Inside the job's partial:
 
@@ -143,7 +149,7 @@ So give the job a log entry of its own, with a type you can filter on. Inside th
 {%- log note, type: 'send_email' -%}
 ```
 
-Then:
+Then watch for it. `logs` always follows new entries until you stop it:
 
 ```bash
 insites-cli logs staging --filter send_email

@@ -54,7 +54,7 @@ Run a partial asynchronously. `job_id` is the variable the tag assigns, and ever
 {% background job_id = 'jobs/send_email', email: email, source_name: 'send_email', delay: 0.1, priority: 'low', max_attempts: 3 %}
 ```
 
-A job sees only the variables passed to the tag, so pass everything it needs. The block form (`{% background %}...{% endbackground %}`) is listed as deprecated in the tag reference shipped with CLI 5.10.2, and has the same scope.
+A job sees only the variables passed to the tag, so pass everything it needs. The block form (`{% background %}...{% endbackground %}`) is listed as deprecated in the tag reference shipped with insites-cli 6.1.0, and has the same scope.
 
 ## cache
 
@@ -275,7 +275,7 @@ Render a theme partial with configurable search paths.
 
 ## form / include_form
 
-Form rendering tags. Neither is deprecated: the tag reference shipped with CLI 5.10.2 marks both current, the CLI audit does not flag them (it flags `form_tag`), and the v6 CRM module uses `{% form %}` in `private/forms/sessions/lock_admin.liquid`. The Logic Engine still prefers plain HTML forms (rule `forms-no-form-tag`) for control over the markup.
+Form rendering tags. Neither is deprecated: the tag reference shipped with insites-cli 6.1.0 marks both current, the CLI audit does not flag them (it flags `form_tag`), and the v6 CRM module uses `{% form %}` in `private/forms/sessions/lock_admin.liquid`. The Logic Engine still prefers plain HTML forms (rule `forms-no-form-tag`) for control over the markup.
 
 ```liquid
 {% form %}

@@ -10,7 +10,7 @@
       "applies_to": ["partial"],
       "severity": "error",
       "evidence": "real-project",
-      "evidence_source": "100% compliance across 438 partials in app-portal, app-seedling, addon-ecommerce, addon-events. insites-cli audit (5.10.2) does not flag a lone underscore partial, only a partial with an underscore twin at the same path, so the evidence stays real-project.",
+      "evidence_source": "100% compliance across 438 partials in app-portal, app-seedling, addon-ecommerce, addon-events. insites-cli audit (6.1.0) does not flag a lone underscore partial, only a partial with an underscore twin at the same path, so the evidence stays real-project.",
       "audit_ref": "audit/v0-conflicts-batch1.md#rule-r-3"
     },
     {
@@ -148,7 +148,7 @@
       "applies_to": ["form"],
       "severity": "error",
       "evidence": "real-project",
-      "evidence_source": "A convention, not a deprecation: the CLI 5.10.2 tag reference marks the form tag current. 4 uses in canonical repos.",
+      "evidence_source": "A convention, not a deprecation: the insites-cli 6.1.0 tag reference marks the form tag current. 4 uses in canonical repos.",
       "audit_ref": "audit/v0-conflicts-batch1.md#rule-r-5",
       "preship_action": "Replace 4 {% form %} usages in canonical repos to keep them on the convention (see audit batch 1)."
     },

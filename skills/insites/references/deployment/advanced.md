@@ -81,8 +81,8 @@ insites-cli migrations generate production remove_old_user_field
 # 1. Add new table/property
 insites-cli migrations generate prod add_user_profile
 
-# 2. Backfill data
-insites-cli data import prod --path data/profiles.json    # JSON, or a zip with --zip; no CSV, no table argument
+# 2. Backfill data in a migration
+insites-cli migrations generate prod backfill_user_profiles
 
 # 3. Switch code to new schema
 git checkout new-schema-branch
@@ -170,7 +170,7 @@ jobs:
           INSITES_EMAIL: ${{ secrets.STAGING_INSITES_EMAIL }}
           INSITES_TOKEN: ${{ secrets.STAGING_INSITES_TOKEN }}
           INSITES_INSTANCE: ${{ secrets.STAGING_INSITES_INSTANCE }}
-          INSITES_POS_KEY: ${{ secrets.STAGING_INSITES_KEY }}
+          INSITES_INSTANCE_KEY: ${{ secrets.STAGING_INSITES_INSTANCE_KEY }}
 
   deploy_production:
     needs: deploy_staging
@@ -185,7 +185,7 @@ jobs:
           INSITES_EMAIL: ${{ secrets.PROD_INSITES_EMAIL }}
           INSITES_TOKEN: ${{ secrets.PROD_INSITES_TOKEN }}
           INSITES_INSTANCE: ${{ secrets.PROD_INSITES_INSTANCE }}
-          INSITES_POS_KEY: ${{ secrets.PROD_INSITES_KEY }}
+          INSITES_INSTANCE_KEY: ${{ secrets.PROD_INSITES_INSTANCE_KEY }}
 ```
 
 ## Disaster Recovery
@@ -196,8 +196,8 @@ jobs:
 #!/bin/bash
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
-# Backup all data (one zip archive)
-insites-cli data export production --path data/backup_${TIMESTAMP}.zip
+# Back up all data on the instance
+insites-cli data export production -p data/backup_${TIMESTAMP}.zip
 
 # Save current state
 insites-cli migrations list production > data/backup_${TIMESTAMP}_migrations.txt
@@ -212,11 +212,10 @@ insites-cli deploy production
 #!/bin/bash
 BACKUP_TIMESTAMP=$1
 
-# Restore from backup if needed
-# data clean removes ALL data on the instance, not one table,
-# and asks you to type CLEAN DATA
+# Restore from backup if needed. data clean removes ALL data on the instance,
+# then data import loads the whole backup back
 insites-cli data clean production
-insites-cli data import production --path data/backup_${BACKUP_TIMESTAMP}.zip --zip
+insites-cli data import production -p data/backup_${BACKUP_TIMESTAMP}.zip --zip
 
 # Revert code
 git checkout production/stable

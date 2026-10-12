@@ -39,7 +39,7 @@ Production should only receive through:
 **Solution**:
 - Verify `.insites` exists in project root
 - Check file permissions: `ls -la .insites`
-- Specify explicit path: `CONFIG_FILE_PATH=/path/to/.insites insites-cli sync dev` (there is no `--config` option)
+- Point to another file with the `CONFIG_FILE_PATH` environment variable: `CONFIG_FILE_PATH=/path/to/.insites insites-cli sync dev`
 
 ### Port Already in Use
 
@@ -118,9 +118,8 @@ en:
 
 **Solutions**:
 - Check the environment name matches one in `.insites`: `insites-cli logs dev`
+- Keep `insites-cli logs dev` running while you load the page. It shows new entries as they arrive
 - Remove `--filter` and see whether anything arrives. It keeps only entries whose type equals the value, ignoring case
-- Load a page on the instance so something writes a log entry
-- `insites-cli logsv2` on the Insites stack prints that it is not available and stops; use `logs` there
 
 ### Filter Not Matching
 
@@ -131,25 +130,15 @@ insites-cli logs staging --filter background_job
 insites-cli logs staging | grep api_call
 ```
 
-## Module Installation Problems
+## Module Problems
 
 ### Module Not Found
 
-**Issue**: Module installation fails
+**Issue**: A command or page refers to a module the instance does not have
 
 **Solution**:
-- Verify module name: `insites-cli modules list`
-- Check marketplace availability
-- Ensure authentication with private modules
-
-### Version Conflicts
-
-**Issue**: Incompatible module versions
-
-**Solution**:
-- Review module dependencies
-- Check documentation for version requirements
-- Downgrade/upgrade compatible versions
+- List the modules on the instance: `insites-cli modules list staging`
+- Insites modules come with the instance and are managed in the Insites Console; there is no CLI command that installs one
 
 ## Data Operations Risks
 
@@ -159,8 +148,8 @@ insites-cli logs staging | grep api_call
 
 **Prevention**:
 ```bash
-# Always back up first (writes a zip archive)
-insites-cli data export dev --path backup.zip
+# Always back up first. This exports all data on the instance
+insites-cli data export dev -p backup.zip
 
 # Then clean. This removes ALL data on the instance, not one table,
 # and asks you to type CLEAN DATA unless --auto-confirm is given

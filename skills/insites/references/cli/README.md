@@ -3,11 +3,11 @@
 Command-line tools for Insites development.
 
 > **CLI COMMAND STATUS: read before using any CLI examples:**
-> - `insites-cli logs <environment>` (alias `l`) streams the instance's logs live and works on every stack. `insites-cli logsv2` (alias `l2`) searches log history, but only where the stack has a log proxy: on the Insites stack (`*.staging-insites.io`, `*.prod01-insites.io`, where v6 instances run) it stops and points you at `logs`.
-> - `insites-cli constants list|set|unset` ships in CLI 5.10.2. See `references/constants/`.
-> - There is **no** `insites-cli cache` command. See `references/caching/`.
-> - `insites-cli sessions` → **not yet available** (under development). See `references/sessions/`.
-> - `insites-cli assets` → **not yet available** (under development). See `references/assets/`.
+> - `insites-cli logs <environment>` (alias `l`) streams the instance's logs live and works on both stacks. Use it to watch logs.
+> - `insites-cli constants` works: `set`, `unset` and `list`. See `references/constants/`.
+> - `insites-cli cache` does not exist. See `references/caching/`.
+> - `insites-cli sessions` does not exist. See `references/sessions/`.
+> - `insites-cli assets` does not exist. See `references/assets/`.
 
 ## insites-cli Commands
 
@@ -42,10 +42,10 @@ See `references/testing/` for writing tests and gating CI.
 
 ### Modules
 ```bash
-insites-cli modules pull <name>               # Pull a module from instance
-insites-cli modules init <name>               # Initialize a new module
-insites-cli modules download <name>             # Download module source
+insites-cli modules pull dev <name>             # Pull a module's public files from an instance
+insites-cli modules init <name>                 # Create modules/<name> from the bundled starter
 insites-cli modules list dev                    # List installed modules
+insites-cli modules remove dev <name>           # Remove a module and its data
 ```
 
 ### Constants
@@ -63,8 +63,8 @@ insites-cli migrations list dev                 # List migration states
 
 ### Data
 ```bash
-insites-cli data export dev --path=data.zip     # Export data (a zip archive)
-insites-cli data import dev --path=data.json    # Import data
+insites-cli data export dev --path=data.zip     # Export all data
+insites-cli data import dev --path=data.zip --zip  # Import data
 insites-cli data clean dev                      # Clean all data (DANGEROUS)
 ```
 

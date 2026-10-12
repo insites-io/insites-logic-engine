@@ -8,10 +8,7 @@ Brief description of what this module does.
 
 ## Install
 
-```bash
-insites-cli modules install <module-name>
-insites-cli deploy staging
-```
+Insites modules are installed and updated through the Insites Console, not the CLI. There is no `insites-cli modules install`. Check what is installed with `insites-cli modules list <env>`.
 
 ## Overview
 

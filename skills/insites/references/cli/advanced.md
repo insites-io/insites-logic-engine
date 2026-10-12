@@ -46,7 +46,7 @@ ENV=$1
 
 for MODULE in "${MODULES[@]}"; do
   echo "Pulling $MODULE..."
-  insites-cli modules pull $MODULE $ENV
+  insites-cli modules pull $ENV $MODULE
 done
 ```
 
@@ -60,18 +60,18 @@ insites-cli logs dev --filter error
 
 ### Log Export to File
 
-`logs` streams until you stop it, so the file grows until `Ctrl+C`:
+`logs` keeps running and writes new entries as they arrive. Stop it with Ctrl+C.
 
 ```bash
-insites-cli logs staging -q | tee logs.txt
+insites-cli logs staging --json > logs.jsonl
 ```
 
 ### Pattern-based Filtering
 
-`--filter` matches an entry's type, not a pattern. Pipe the stream to match text:
+`--filter` matches the log type only. To match text in the message, search the JSON output:
 
 ```bash
-insites-cli logs dev | grep -E 'api_call.*timeout'
+insites-cli logs dev --json | grep -E 'api_call.*timeout'
 ```
 
 ## Constants Management at Scale
@@ -106,7 +106,7 @@ Create multiple migration files for clarity:
 insites-cli migrations generate dev 001_create_users
 insites-cli migrations generate dev 002_add_user_roles
 insites-cli migrations generate dev 003_create_indices
-insites-cli migrations run dev
+insites-cli deploy dev    # deploy runs the pending migrations
 ```
 
 ### Rollback Pattern
@@ -123,24 +123,29 @@ insites-cli migrations generate dev remove_feature_flag
 
 ## Bulk Data Operations
 
+`data export`, `data import` and `data clean` work on all data on the instance. There is no per-table export or clean.
+
 ### Data Migration Pattern
 
 ```bash
 #!/bin/bash
-# Export from staging (a zip archive by default)
-insites-cli data export staging --path staging.zip
+# Export all data from staging
+insites-cli data export staging -p data/staging.zip
 
-# Import to dev: a zip with --zip, or a JSON file without it
-insites-cli data import dev --path staging.zip --zip
+# Transform if needed
+# ... processing script ...
+
+# Import to dev
+insites-cli data import dev -p data/staging_processed.zip --zip
 ```
 
 ### Cleanup Strategy
 
 ```bash
 # Back up before cleanup
-insites-cli data export dev --path backup.zip
+insites-cli data export dev -p data/backup.zip
 
-# Then clean. This removes ALL data on the instance; there is no per-table clean
+# Then remove all data on the instance
 insites-cli data clean dev
 ```
 
@@ -158,17 +163,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: npm install -g @insites/insites-cli
-      # audit exits 0 even when rules fire; fail on its summary line instead
-      - run: |
-          insites-cli audit 2>&1 | tee audit.log
-          grep -q '\[Audit\] 0 rules detected issues' audit.log
+      - run: insites-cli audit
       - run: insites-cli deploy staging
         env:
           INSITES_URL: ${{ secrets.INSITES_URL }}
           INSITES_EMAIL: ${{ secrets.INSITES_EMAIL }}
           INSITES_TOKEN: ${{ secrets.INSITES_TOKEN }}
           INSITES_INSTANCE: ${{ secrets.INSITES_INSTANCE }}
-          INSITES_POS_KEY: ${{ secrets.INSITES_KEY }}
+          INSITES_INSTANCE_KEY: ${{ secrets.INSITES_INSTANCE_KEY }}
 ```
 
 ### GitLab CI Example
@@ -178,8 +180,7 @@ deploy:
   image: node:16
   script:
     - npm install -g @insites/insites-cli
-    - insites-cli audit 2>&1 | tee audit.log
-    - grep -q '\[Audit\] 0 rules detected issues' audit.log   # audit itself always exits 0
+    - insites-cli audit
     - insites-cli deploy $CI_ENVIRONMENT_NAME
   only:
     - main
@@ -214,7 +215,7 @@ insites-cli gui serve
 
 ### Verbose Output
 
-The CLI has no `--verbose` option. Set `DEBUG` to print its debug lines:
+Set `DEBUG` to print the CLI's debug lines. (`deploy --verbose`, from 6.1.0, only lists every file in the deploy report; `sync` has no `--verbose`.)
 
 ```bash
 DEBUG=1 insites-cli deploy dev
@@ -222,7 +223,7 @@ DEBUG=1 insites-cli deploy dev
 
 ### Checking a Build Without Deploying
 
-`deploy` has no `--dry-run` option. Build the archive and run the audit locally instead; neither touches the instance:
+On the private stack, `insites-cli deploy <env> --dry-run` (6.1.0 and later) validates the release on the instance and shows what would change without applying anything. To check a build without touching the instance at all, build the archive and run the audit locally:
 
 ```bash
 insites-cli archive              # writes ./tmp/release.zip; -o picks another path
@@ -236,6 +237,58 @@ There is no `env info` or `env current` command. `env list` prints every environ
 ```bash
 insites-cli env list
 ```
+
+## Workflows Built on Git
+
+The CLI deliberately has no `diff`, `rollback` or `benchmark` command. Git, the commands below and an agent reading their output do each job better.
+
+### Get an Existing Instance into Git
+
+`pull` downloads the instance's whole `app/` folder in one archive. Modules come separately, one `modules pull` each; pull only the project's own modules, never the Insites modules every instance carries.
+
+```bash
+insites-cli pull staging -p app.zip && unzip -o app.zip && rm app.zip
+insites-cli modules list staging
+insites-cli modules pull staging my_module      # repeat for each of the project's own modules
+git init && git add app modules && git commit -m "Code as it is on staging"
+```
+
+Check the result: `insites-cli deploy staging --dry-run` should report nothing to upsert or delete.
+
+### Compare Two Environments
+
+To see what a deploy would change on one environment, use the dry run: it compares your release with the instance, file by file.
+
+```bash
+insites-cli deploy production --dry-run --verbose
+```
+
+To compare the content of two environments line by line, pull both and let git compare them:
+
+```bash
+mkdir -p /tmp/a /tmp/b
+insites-cli pull staging -p /tmp/a/app.zip && (cd /tmp/a && unzip -oq app.zip)
+insites-cli pull production -p /tmp/b/app.zip && (cd /tmp/b && unzip -oq app.zip)
+git diff --no-index --stat /tmp/a/app /tmp/b/app
+git diff --no-index /tmp/a/app /tmp/b/app
+```
+
+### Roll Back a Deploy
+
+A full deploy replaces the instance's `app/` folder with the release, so deploying the previous git tag puts the previous code back.
+
+```bash
+git checkout v1.4.2
+insites-cli deploy production --dry-run --verbose    # see exactly what will change
+insites-cli deploy production
+git checkout -
+```
+
+Data is not rolled back, and neither are migrations: a migration that ran stays run. If the release you are leaving changed data, write a compensating migration (see Rollback Pattern above). CloudShell can do the same for an instance connected to GitHub.
+
+### Check Performance
+
+Measure page speed with Lighthouse or PageSpeed Insights on the pages that matter, on a desktop and a mobile profile, then give the reports to an agent and ask it to explain the slowest items and what to change. For a slow page, follow `insites-cli logs <environment>` while you load it to see the errors it logs.
 
 ## See Also
 

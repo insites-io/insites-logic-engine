@@ -102,7 +102,7 @@ Page not working?
 │   └── Ensure session cookies are enabled
 ├── Data not loading?
 │   ├── Check GraphQL file path is correct
-│   ├── Test query in insites-cli gui GraphQL editor
+│   ├── Test query in the GraphQL editor of insites-cli gui serve
 │   ├── Verify variable names match between query and page
 │   └── Check filter/argument values are correct types
 └── Auth redirect loop?

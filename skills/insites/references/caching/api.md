@@ -57,7 +57,7 @@ Wrap content to be cached.
 
 ## Cache Clearing
 
-There is no command to clear a cache: `insites-cli` 5.10.2 has no `cache` subcommand (no `clear`, `stats` or `inspect`), and the GraphQL schema has no cache mutation. An entry is replaced when its `expire` runs out or when the page asks for a different key. To make a change show at once, build the key from something the change moves:
+There is no command to clear a cache: `insites-cli` has no `cache` subcommand (no `clear`, `stats` or `inspect`), and the GraphQL schema has no cache mutation. An entry is replaced when its `expire` runs out or when the page asks for a different key. To make a change show at once, build the key from something the change moves:
 
 ```liquid
 {%- assign cache_key = 'product-' | append: product.id | append: '-' | append: product.updated_at -%}

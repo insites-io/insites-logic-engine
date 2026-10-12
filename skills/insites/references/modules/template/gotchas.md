@@ -4,11 +4,7 @@
 
 **Symptom:** `Liquid error: Could not find partial 'modules/<module-name>/...'`
 
-**Fix:** Install the module and deploy:
-```bash
-insites-cli modules install <module-name>
-insites-cli deploy staging
-```
+**Fix:** Insites modules are installed and updated through the Insites Console, not the CLI. There is no `insites-cli modules install`. Check what is installed with `insites-cli modules list <env>`.
 
 ## Changing This Module's Behavior From Your Project
 

@@ -21,7 +21,7 @@ The insites_test module is a Liquid-based testing framework featuring assertions
 insites-cli -v
 ```
 
-**Expected:** Version number displayed. If command not found, install insites-cli first.
+**Expected:** Version number displayed. If the command is not found, install the CLI first.
 
 ### 2. Verify Environment Configuration
 
@@ -31,9 +31,17 @@ cd project_directory && insites-cli env list
 
 **Expected:** At least one staging/development environment listed.
 
-### 3. The Test Module Ships with insites-cli
+### 3. The tests module installs itself
 
-The `insites_test` module is bundled inside insites-cli. `insites-cli test run <env>` installs or updates it on the instance before it runs, so there is nothing to install by hand. Its partials live under `modules/insites_test/` (assertions under `modules/insites_test/assertions/`, the error helper at `modules/insites_test/helpers/register_error`).
+Nothing to install by hand. `insites-cli test run <env>` checks whether the `insites_test` module is on the instance and installs or updates it to the version bundled with the CLI before it runs (insites-cli 5.10.1 and later). To see it afterwards:
+
+Its partials live under `modules/insites_test/` (assertions under `modules/insites_test/assertions/`, the error helper at `modules/insites_test/helpers/register_error`).
+
+```bash
+insites-cli modules list <env>
+```
+
+**Expected:** `insites_test` appears in the list after the first `test run`.
 
 ---
 

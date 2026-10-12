@@ -22,7 +22,7 @@ After every file change, run the audit and fix what it reports:
 insites-cli audit
 ```
 
-It reads `app/` and `modules/`, prints `[Audit] N rules detected issues.`, and lists the files for each. It takes no arguments. It exits 0 even when a rule fires, so read the count, not the exit code. `insites-cli deploy` runs the same audit first (unless `CI=true`) and deploys anyway. What it checks (CLI 5.10.2):
+It reads `app/` and `modules/`, prints `[Audit] N rules detected issues.`, and lists the files for each. It takes no arguments. It exits 0 even when a rule fires, so read the count, not the exit code. `insites-cli deploy` runs the same audit first (unless `CI=true`) and deploys anyway. What it checks (insites-cli 6.1.0):
 
 - **Deprecated tags and filters.** A fixed list of retired Liquid tags (`form_tag`, `input`, `query_graph` and others) and filters (`to_money`, `timeago` and others).
 - **Deprecated keys.** `enable_profiler: true` in a page, `[]` after an input name, `resource_id:` on `include_form`, `configuration:` in a form, `attribute_type:` and `custom_attributes:` in a profile or model type, `headers:` in an API call (use `request_headers`), and model names that are not snake_case.
@@ -93,7 +93,7 @@ Need data operations?
 ├─ Paginate results → graphql/ (page/per_page args)
 ├─ Upload files → schema/ (upload type) + forms/
 ├─ Seed/migrate data → migrations/
-├─ Bulk import/export → migrations/ or insites-cli data commands
+├─ Bulk import/export → migrations/; whole-instance export and import via insites-cli data
 ├─ Access existing Postgres/ES/Redis → graphql/ (all DB access via GraphQL only)
 ├─ Contacts / companies / tasks / activities → modules/crm/ (V2 REST API; see "I need CRM data" tree below)
 └─ Events, products and orders, locations, pipelines, assets, forms, profiles → see "I need another module's data" tree below
@@ -310,14 +310,14 @@ Need integrations?
 
 ```
 Need deployment?
-├─ Deploy to environment → deployment/ (insites-cli deploy)
-├─ Watch logs → cli/ (insites-cli logs)
-├─ Run Liquid/GraphQL ad-hoc → cli/ (insites-cli exec)
-├─ Pull a module's code from an instance → cli/ (insites-cli modules pull)
-├─ Set environment constants → constants/ (insites-cli constants set)
+├─ Deploy to environment → deployment/ via insites-cli deploy
+├─ Watch logs → cli/ via insites-cli logs <environment>
+├─ Run Liquid/GraphQL ad-hoc → cli/ via insites-cli exec
+├─ Pull a module's code from an instance → cli/ via insites-cli modules pull
+├─ Set environment constants → constants/ via insites-cli constants
 ├─ Run migrations → migrations/
-├─ Lint/validate code → cli/ (insites-cli audit)
-├─ Sync files in development → cli/ (insites-cli sync)
+├─ Lint/validate code → cli/ via insites-cli audit
+├─ Sync files in development → cli/ via insites-cli sync
 └─ Environment configuration → configuration/
 ```
 

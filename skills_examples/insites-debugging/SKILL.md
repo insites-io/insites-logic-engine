@@ -28,12 +28,6 @@ ignore:
 ```bash
 # Check all files
 insites-cli audit
-
-# Check specific file
-insites-cli audit app/views/pages/articles/index.liquid
-
-# Check specific directory
-insites-cli audit app/views/pages/
 ```
 
 ### Error Categories
@@ -85,7 +79,7 @@ Code passes validation when:
 
 ```bash
 # Stream live logs
-insites-cli logs <environment>
+insites-cli logs [environment]
 insites-cli logs staging
 
 # Stream with filter
