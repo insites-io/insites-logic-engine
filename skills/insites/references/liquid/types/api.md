@@ -259,7 +259,7 @@ All operators require spaces on both sides.
 {% if a or b %}either true{% endif %}
 ```
 
-`and` evaluates before `or`. No parentheses. No `not` operator. No `&&` or `||`.
+`and` and `or` have **no precedence**: Liquid groups them from the right, so `a and b or c` means `a and (b or c)`. No parentheses. No `not` operator. No `&&` or `||`.
 
 ### Negation patterns
 

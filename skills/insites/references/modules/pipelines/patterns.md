@@ -2,7 +2,7 @@
 
 Worked examples against the V2 REST API and the matching in-Liquid controller calls. Conventions (auth header, `?format=json`, dotted keys, list envelope, error shape) are in [`api.md`](api.md). The curl examples set `Authorization` to the raw instance API key; replace `<key>` and `<host>`.
 
-Controller facts below were checked in `pos/modules/insites_pipeline/private/views/partials/controllers/_external/v2/` (module-v6-pipelines v6.0.2, 9 October 2026): all 25 short-form `pipeline/controller/...` aliases gate their response handler on `context.params.format == 'json'` and end with `{% return data %}`. So a `{% function %}` call binds the same object the HTTP endpoint would serialise, and your page's headers are untouched unless the request itself carried `format=json`. Read [`../../building-on-insites/02-calling-a-controller.md`](../../building-on-insites/02-calling-a-controller.md) before copying these onto an HTML page.
+Controller facts below were checked in `modules/insites_pipeline/private/views/partials/controllers/_external/v2/` (module-v6-pipelines v6.0.2, 9 October 2026): all 25 short-form `pipeline/controller/...` aliases gate their response handler on `context.params.format == 'json'` and end with `{% return data %}`. So a `{% function %}` call binds the same object the HTTP endpoint would serialise, and your page's headers are untouched unless the request itself carried `format=json`. Read [`../../building-on-insites/02-calling-a-controller.md`](../../building-on-insites/02-calling-a-controller.md) before copying these onto an HTML page.
 
 ---
 

@@ -115,13 +115,10 @@ context.cookies['user_preferences']
 ```
 
 ### context.visitor
-Visitor tracking:
 ```
-context.visitor.ip            # Client IP address
-context.visitor.country       # GeoIP country
-context.visitor.city          # GeoIP city
-context.visitor.timezone      # Detected timezone
+context.visitor.ip            # Listed in the CLI object reference; value not measured
 ```
+For the visitor's address, read `context.headers.HTTP_X_REAL_IP` or the first `X-Forwarded-For` entry (see [gotchas](gotchas.md#problem-reading-the-visitors-address-from-the-wrong-header)).
 
 ### context.exports
 Data from GraphQL/partials:

@@ -1,6 +1,6 @@
 # API module endpoints
 
-Every HTTP page the module serves, from `pos/modules/insites_api/private/views/pages/` in module-v6-api v6.0.2 (read 9 October 2026). File paths are relative to that directory.
+Every HTTP page the module serves, from `modules/insites_api/private/views/pages/` in module-v6-api v6.0.2 (read 9 October 2026). File paths are relative to that directory.
 
 Three guard tiers:
 

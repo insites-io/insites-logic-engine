@@ -1,6 +1,6 @@
 # Locator: V2 REST API
 
-The Locator module exposes a V2 REST API at the `/locator/api/v2/...` prefix: 22 endpoints across five resources, counted in module-v6-locator v6.0.2 on 9 October 2026. Paths below are relative to `pos/modules/insites_locator/`.
+The Locator module exposes a V2 REST API at the `/locator/api/v2/...` prefix: 22 endpoints across five resources, counted in module-v6-locator v6.0.2 on 9 October 2026. Paths below are relative to `modules/insites_locator/`.
 
 For authentication, see [`../../api/authentication.md`](../../api/authentication.md). Every request needs an `Authorization` header carrying the raw instance API key, no `Bearer` prefix.
 

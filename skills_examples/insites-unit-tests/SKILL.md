@@ -1,13 +1,13 @@
 ---
 name: insites-unit-tests
-description: "Write and run unit tests using the Insites Tests Module and insites-cli test run."
+description: "Write and run unit tests using the insites_test module and insites-cli test run."
 ---
 
 ## Overview
 
-This skill provides **absolute, non-negotiable protocols** for working with the Insites Tests Module. YOU MUST follow every instruction precisely. Deviation from these protocols results in broken tests, false positives, and production incidents.
+This skill provides **absolute, non-negotiable protocols** for working with the insites_test module. YOU MUST follow every instruction precisely. Deviation from these protocols results in broken tests, false positives, and production incidents.
 
-The Insites Tests Module is a Liquid-based testing framework featuring assertions, test execution, and email validation capabilities. Every test you write MUST adhere to the contract pattern and assertion library defined herein.
+The insites_test module is a Liquid-based testing framework featuring assertions, test execution, and email validation capabilities. Every test you write MUST adhere to the contract pattern and assertion library defined herein.
 
 ---
 
@@ -34,6 +34,8 @@ cd project_directory && insites-cli env list
 ### 3. The tests module installs itself
 
 Nothing to install by hand. `insites-cli test run <env>` checks whether the `insites_test` module is on the instance and installs or updates it to the version bundled with the CLI before it runs (insites-cli 5.10.1 and later). To see it afterwards:
+
+Its partials live under `modules/insites_test/` (assertions under `modules/insites_test/assertions/`, the error helper at `modules/insites_test/helpers/register_error`).
 
 ```bash
 insites-cli modules list <env>
@@ -328,8 +330,8 @@ TEST FILE: app/lib/test/commands/users/create_test.liquid
   assign data = '{ "email": "invalid-email", "body": "This is a valid message body." }' | parse_json
   function contact = 'commands/contacts/create', object: data
 
-  function contract = 'modules/tests/assertions/not_valid_object', contract: contract, object: contact, field_name: 'contact'
-  function contract = 'modules/tests/assertions/presence', contract: contract, object: contact.errors, field_name: 'email'
+  function contract = 'modules/insites_test/assertions/not_valid_object', contract: contract, object: contact, field_name: 'contact'
+  function contract = 'modules/insites_test/assertions/presence', contract: contract, object: contact.errors, field_name: 'email'
 %}
 ```
 
@@ -345,47 +347,35 @@ TEST FILE: app/lib/test/commands/users/create_test.liquid
   function contact = 'commands/contacts/create', object: data
 
   # 1. Contact should be valid
-  function contract = 'modules/tests/assertions/valid_object', contract: contract, object: contact, field_name: 'contact'
+  function contract = 'modules/insites_test/assertions/valid_object', contract: contract, object: contact, field_name: 'contact'
 
   # 2. Email should be downcased
   assign expected_email = 'user@example.com'
   assign given_email = contact.email
-  function contract = 'modules/tests/assertions/equal', contract: contract, expected: expected_email, given: given_email, field_name: 'contact.email'
+  function contract = 'modules/insites_test/assertions/equal', contract: contract, expected: expected_email, given: given_email, field_name: 'contact.email'
 
   # 3. Body should match
   assign expected_body = 'This is a valid message body.'
   assign given_body = contact.body
-  function contract = 'modules/tests/assertions/equal', contract: contract, expected: expected_body, given: given_body, field_name: 'contact.body'
+  function contract = 'modules/insites_test/assertions/equal', contract: contract, expected: expected_body, given: given_body, field_name: 'contact.body'
 
   # 4: Assert the contact.valid is true
-  function contract = 'modules/tests/assertions/true', contract: contract, object: contact, field_name: 'valid'
+  function contract = 'modules/insites_test/assertions/true', contract: contract, object: contact, field_name: 'valid'
 
   # 5: Errors should be blank
-  function contract = 'modules/tests/assertions/blank', contract: contract, object: contact, field_name: 'errors'
+  function contract = 'modules/insites_test/assertions/blank', contract: contract, object: contact, field_name: 'errors'
 %}
 ```
 
-### 2.2 Contract Initialization
+### 2.2 The Contract Comes from the Runner
 
-**The contract object is MANDATORY.** Every test MUST:
+**The contract object is MANDATORY, and you never create it.** The runner builds it, passes it into every test as `contract`, and reads that same object back. Every test MUST:
 
-1. Initialize the contract at the start
-2. Pass the contract to every assertion
-3. Return the contract at the end
+1. Use the `contract` it was given. Never `assign contract = {}` or build a new one: later assertions would write to an object the runner never sees
+2. Pass `contract` to every assertion
+3. Assign every assertion's result back to `contract` (`function contract = 'modules/insites_test/assertions/...', contract: contract, ...`)
 
-```liquid
-{% liquid
-  # CORRECT - Initialize first
-  function contract = 'modules/tests/helpers/init'
-
-  # ... test code ...
-
-  # CORRECT - Return last
-  return contract
-%}
-```
-
-**FAILURE MODE:** Omitting contract initialization causes silent test failures. The test appears to pass but validates nothing.
+**FAILURE MODE:** Rebinding `contract`, or assigning an assertion's result to any other variable, makes the test pass while validating nothing. Check the `assertions` count in the JSON report: a test showing `0` asserted nothing.
 
 ### 2.3 Using Assertions
 
@@ -395,18 +385,15 @@ TEST FILE: app/lib/test/commands/users/create_test.liquid
 
 ```liquid
 {% liquid
-  function contract = 'modules/tests/helpers/init'
-
   assign expected = "hello"
   assign actual = "hello"
 
-  function contract = 'modules/tests/assertions/equal',
+  function contract = 'modules/insites_test/assertions/equal',
     contract: contract,
     expected: expected,
-    actual: actual,
+    given: actual,
     field_name: 'greeting_value'
 
-  return contract
 %}
 ```
 
@@ -416,17 +403,14 @@ TEST FILE: app/lib/test/commands/users/create_test.liquid
 
 ```liquid
 {% liquid
-  function contract = 'modules/tests/helpers/init'
-
   assign user = null | hash
   assign user['email'] = null
 
-  function contract = 'modules/tests/assertions/blank',
+  function contract = 'modules/insites_test/assertions/blank',
     contract: contract,
     object: user,
     field_name: 'email'
 
-  return contract
 %}
 ```
 
@@ -436,17 +420,14 @@ TEST FILE: app/lib/test/commands/users/create_test.liquid
 
 ```liquid
 {% liquid
-  function contract = 'modules/tests/helpers/init'
-
   assign user = null | hash
   assign user['id'] = 123
 
-  function contract = 'modules/tests/assertions/presence',
+  function contract = 'modules/insites_test/assertions/presence',
     contract: contract,
     object: user,
     field_name: 'id'
 
-  return contract
 %}
 ```
 
@@ -456,17 +437,14 @@ TEST FILE: app/lib/test/commands/users/create_test.liquid
 
 ```liquid
 {% liquid
-  function contract = 'modules/tests/helpers/init'
-
   assign response = null | hash
   assign response['error'] = null
 
-  function contract = 'modules/tests/assertions/not_presence',
+  function contract = 'modules/insites_test/assertions/not_presence',
     contract: contract,
     object: response,
     field_name: 'error'
 
-  return contract
 %}
 ```
 
@@ -476,17 +454,14 @@ TEST FILE: app/lib/test/commands/users/create_test.liquid
 
 ```liquid
 {% liquid
-  function contract = 'modules/tests/helpers/init'
-
   # Create/fetch an object that has validation
   function user = 'lib/commands/users/create', email: 'test@example.com'
 
-  function contract = 'modules/tests/assertions/valid_object',
+  function contract = 'modules/insites_test/assertions/valid_object',
     contract: contract,
     object: user,
     field_name: 'user_creation'
 
-  return contract
 %}
 ```
 
@@ -496,17 +471,14 @@ TEST FILE: app/lib/test/commands/users/create_test.liquid
 
 ```liquid
 {% liquid
-  function contract = 'modules/tests/helpers/init'
-
   # Create object with invalid data
   function user = 'lib/commands/users/create', email: 'invalid-email'
 
-  function contract = 'modules/tests/assertions/not_valid_object',
+  function contract = 'modules/insites_test/assertions/not_valid_object',
     contract: contract,
     object: user,
     field_name: 'invalid_user_rejected'
 
-  return contract
 %}
 ```
 
@@ -516,8 +488,6 @@ TEST FILE: app/lib/test/commands/users/create_test.liquid
 
 ```liquid
 {% liquid
-  function contract = 'modules/tests/helpers/init'
-
   assign response = null | hash
   assign response['status'] = 'success'
   assign response['code'] = 200
@@ -525,13 +495,12 @@ TEST FILE: app/lib/test/commands/users/create_test.liquid
   assign expected_subset = null | hash
   assign expected_subset['status'] = 'success'
 
-  function contract = 'modules/tests/assertions/object_contains_object',
+  function contract = 'modules/insites_test/assertions/object_contains_object',
     contract: contract,
     object: response,
     subset: expected_subset,
     field_name: 'response_status'
 
-  return contract
 %}
 ```
 
@@ -541,23 +510,20 @@ TEST FILE: app/lib/test/commands/users/create_test.liquid
 
 ```liquid
 {% liquid
-  function contract = 'modules/tests/helpers/init'
-
   assign is_admin = true
 
-  function contract = 'modules/tests/assertions/true',
+  function contract = 'modules/insites_test/assertions/true',
     contract: contract,
     value: is_admin,
     field_name: 'admin_flag'
 
   assign is_deleted = false
 
-  function contract = 'modules/tests/assertions/not_true',
+  function contract = 'modules/insites_test/assertions/not_true',
     contract: contract,
     value: is_deleted,
     field_name: 'not_deleted'
 
-  return contract
 %}
 ```
 
@@ -567,20 +533,17 @@ TEST FILE: app/lib/test/commands/users/create_test.liquid
 
 ```liquid
 {% liquid
-  function contract = 'modules/tests/helpers/init'
-
   # Custom validation logic
   assign value = "test string"
   assign length = value | size
 
   if length < 5
-    function contract = 'modules/tests/helpers/register_error',
+    function contract = 'modules/insites_test/helpers/register_error',
       contract: contract,
       field_name: 'string_length',
       message: 'String must be at least 5 characters'
   endif
 
-  return contract
 %}
 ```
 
@@ -590,31 +553,28 @@ TEST FILE: app/lib/test/commands/users/create_test.liquid
 
 ```liquid
 {% liquid
-  function contract = 'modules/tests/helpers/init'
-
   function user = 'lib/commands/users/create',
     email: 'test@example.com',
     name: 'Test User'
 
   # Assertion 1: Creation succeeded
-  function contract = 'modules/tests/assertions/valid_object',
+  function contract = 'modules/insites_test/assertions/valid_object',
     contract: contract,
     object: user,
     field_name: 'user_valid'
 
   # Assertion 2: Email is set
-  function contract = 'modules/tests/assertions/presence',
+  function contract = 'modules/insites_test/assertions/presence',
     contract: contract,
     object: user,
     field_name: 'email'
 
   # Assertion 3: ID was generated
-  function contract = 'modules/tests/assertions/presence',
+  function contract = 'modules/insites_test/assertions/presence',
     contract: contract,
     object: user,
     field_name: 'id'
 
-  return contract
 %}
 ```
 
@@ -654,13 +614,13 @@ insites-cli test run staging -n test/auth/login_test
 
 ```bash
 # Run all tests and get JSON response
-curl https://your-instance.staging.oregon.platform-os.com/_tests/run.js
+curl https://<instance>/_tests/run.js
 
 # Run a specific test
-curl "https://your-instance.staging.oregon.platform-os.com/_tests/run.js?name=test/examples/assertions_test"
+curl "https://<instance>/_tests/run.js?name=test/examples/assertions_test"
 
 # List all available tests as JSON
-curl https://your-instance.staging.oregon.platform-os.com/_tests.js
+curl https://<instance>/_tests.js
 ```
 
 ### 3.4 Running Tests via Browser
@@ -729,19 +689,16 @@ Replace `:id` with the email record ID to view full email details including:
 
 ```liquid
 {% liquid
-  function contract = 'modules/tests/helpers/init'
-
   # Trigger email sending
   function result = 'lib/commands/notifications/send_welcome_email',
     user_id: user.id
 
   # Verify email was sent successfully
-  function contract = 'modules/tests/assertions/valid_object',
+  function contract = 'modules/insites_test/assertions/valid_object',
     contract: contract,
     object: result,
     field_name: 'welcome_email_sent'
 
-  return contract
 %}
 ```
 
@@ -769,11 +726,8 @@ Replace `:id` with the email record ID to view full email details including:
 ```liquid
 {% liquid
   # ADD THIS AS FIRST LINE
-  function contract = 'modules/tests/helpers/init'
-
   # ... rest of test ...
 
-  return contract
 %}
 ```
 
@@ -784,12 +738,9 @@ Replace `:id` with the email record ID to view full email details including:
 **Fix:**
 ```liquid
 {% liquid
-  function contract = 'modules/tests/helpers/init'
-
   # ... test code ...
 
   # ADD THIS AS LAST LINE
-  return contract
 %}
 ```
 
@@ -806,17 +757,17 @@ Replace `:id` with the email record ID to view full email details including:
 **Fix:** Ensure contract is passed through every assertion:
 ```liquid
 # WRONG - contract not updated
-function result = 'modules/tests/assertions/equal',
+function result = 'modules/insites_test/assertions/equal',
   contract: contract,
   expected: expected,
-  actual: actual,
+  given: actual,
   field_name: 'test'
 
 # CORRECT - contract reassigned
-function contract = 'modules/tests/assertions/equal',
+function contract = 'modules/insites_test/assertions/equal',
   contract: contract,
   expected: expected,
-  actual: actual,
+  given: actual,
   field_name: 'test'
 ```
 
@@ -828,13 +779,13 @@ function contract = 'modules/tests/assertions/equal',
 ```liquid
 {% liquid
   if user != blank
-    function contract = 'modules/tests/assertions/equal',
+    function contract = 'modules/insites_test/assertions/equal',
       contract: contract,
       expected: expected_email,
-      actual: user.email,
+      given: user.email,
       field_name: 'user_email'
   else
-    function contract = 'modules/tests/helpers/register_error',
+    function contract = 'modules/insites_test/helpers/register_error',
       contract: contract,
       field_name: 'user_exists',
       message: 'User object is nil'
@@ -916,17 +867,14 @@ insites-cli logs staging                  # View logs
 ### Test Template
 ```liquid
 {% liquid
-  function contract = 'modules/tests/helpers/init'
-
   # Setup and execution here
 
-  function contract = 'modules/tests/assertions/equal',
+  function contract = 'modules/insites_test/assertions/equal',
     contract: contract,
     expected: expected_value,
-    actual: actual_value,
+    given: actual_value,
     field_name: 'test_name'
 
-  return contract
 %}
 ```
 
@@ -946,7 +894,7 @@ not_true           - Value is falsy
 
 ### Custom Error Registration
 ```liquid
-function contract = 'modules/tests/helpers/register_error',
+function contract = 'modules/insites_test/helpers/register_error',
   contract: contract,
   field_name: 'identifier',
   message: 'Error description'
@@ -957,4 +905,4 @@ function contract = 'modules/tests/helpers/register_error',
 ## References
 
 - [Insites Documentation](https://docs.insites.io/)
-- [pos-module-tests](https://github.com/Platform-OS/pos-module-tests)
+- [Testing reference](https://github.com/insites-io/insites-logic-engine/blob/master/skills/insites/references/testing/README.md) in the Insites Logic Engine

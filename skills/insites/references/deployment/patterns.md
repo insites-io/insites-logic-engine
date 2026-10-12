@@ -43,6 +43,9 @@ echo "✓ Audit passed"
 insites-cli env list
 echo "✓ Environment verified"
 
+# 3. Logs: insites-cli logs streams until Ctrl+C, so it cannot be counted
+#    in a script. Watch it in another terminal: insites-cli logs production --filter error
+
 echo "Ready for deployment"
 ```
 
@@ -62,7 +65,7 @@ insites-cli data export staging -p test_export.zip
 # Monitor for 24-48 hours
 insites-cli logs staging
 
-# Check error rates
+# Errors only
 insites-cli logs staging --filter error
 ```
 
@@ -86,8 +89,13 @@ jobs:
         run: npm install -g @insites/insites-cli
 
       - name: Validate
-        run: insites-cli audit
+        # audit exits 0 even when rules fire; fail on its summary line instead
+        run: |
+          insites-cli audit 2>&1 | tee audit.log
+          grep -q '\[Audit\] 0 rules detected issues' audit.log
 
+      # The five INSITES_* variables override .insites and the environment
+      # name, so each step carries the full set for its own instance.
       - name: Deploy to Staging
         run: insites-cli deploy staging
         env:

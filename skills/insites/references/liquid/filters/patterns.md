@@ -85,8 +85,8 @@ Common patterns and practical examples for using Insites Liquid filters.
 
 ### Time Difference Calculations
 ```liquid
-{%- assign hours_passed = created_at | time_diff: 'now' | divided_by: 3600 -%}
-{%- assign days_until = due_date | time_diff: 'now' | divided_by: 86400 -%}
+{%- assign hours_passed = created_at | time_diff: 'now', 'h' | floor -%}
+{%- assign days_until = 'now' | time_diff: due_date, 'd' | floor -%}
 ```
 
 ## String Processing Patterns

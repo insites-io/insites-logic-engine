@@ -60,7 +60,7 @@ app/
 secrets/
 ```
 
-In CI, use environment variables instead. The CLI reads these when all five are set:
+In CI, set the credentials as environment variables instead. The CLI reads these when all five are set; see [Credentials from Environment Variables](#credentials-from-environment-variables):
 
 ```bash
 export INSITES_URL="https://your-instance.staging-insites.io"
@@ -78,14 +78,41 @@ export INSITES_INSTANCE_KEY="key_abc"
 2. **Migration Status** - Latest migrations included
 3. **Asset References** - CDN paths configured
 4. **Secrets** - Stored as constants, never hardcoded
-5. **Validation** - `insites-cli audit` passes
+5. **Validation** - `insites-cli audit` prints `[Audit] 0 rules detected issues.` (it exits 0 either way, so read the line)
 
 ### Required Files
 
-- `app/views/pages/` - At least home page
-- `config/translations.yml` - Translation keys defined
-- `app/migrations/` - Migration files up to date
+- `app/views/pages/` or a module's `views/pages/` - At least a home page
+- `app/translations/<locale>.yml` - Translation keys defined (only when the site uses translations)
+- `migrations/` in `app/` or a module - Migration files up to date
 - `.insites` - Environment configuration (gitignored)
+
+## Credentials from Environment Variables
+
+The CLI reads one instance's credentials from five environment variables. It uses them only when **all five** are set, and then it uses them for every command, ignoring both `.insites` and the environment name you pass (`lib/settings.js` in insites-cli 6.1.0).
+
+| Variable | `.insites` field | What it is |
+|---|---|---|
+| `INSITES_URL` | `url` | Instance URL |
+| `INSITES_EMAIL` | `email` | Account email |
+| `INSITES_TOKEN` | `token` | Console or Portal token |
+| `INSITES_INSTANCE` | `instance_uuid` | Instance UUID |
+| `INSITES_INSTANCE_KEY` | `key` | Instance key that `deploy`, `sync` and `logs` send. Before insites-cli 6.0.0 it was `INSITES_POS_KEY`, which 6.x still reads with a deprecation warning |
+
+`INSITES_STACK` is optional and names the stack outright; without it the CLI works the stack out from the URL.
+
+```bash
+export INSITES_URL="https://staging-instance.staging-insites.io"
+export INSITES_EMAIL="dev@example.com"
+export INSITES_TOKEN="..."
+export INSITES_INSTANCE="..."
+export INSITES_INSTANCE_KEY="..."
+insites-cli deploy staging
+```
+
+Because they override the environment name, one shell targets one instance. Deploy to staging and production from separate CI jobs, each with its own set of secrets. Copy the values from the matching entry in an `.insites` file made by `insites-cli env add`.
+
+`.insites` is plain JSON and the CLI does not expand variables in it: `"token": "${STAGING_TOKEN}"` is sent as that literal text. To read a different file, set `CONFIG_FILE_PATH`.
 
 ## Asset Configuration
 
@@ -138,12 +165,10 @@ insites-cli deploy staging
 ### Schema Files
 
 ```
-app/schema/
-├── types/
-│   └── custom_type.yml
-├── models/
-│   └── user.yml
-└── relations/
+app/
+├── schema/
+│   └── <table>.yml     # one file per table
+└── user.yml            # properties on the user record itself
 ```
 
 Schema applied during deployment.

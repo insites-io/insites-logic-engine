@@ -1,6 +1,6 @@
 # Ecommerce — V2 REST API
 
-The Ecommerce module (machine name `insites_ecommerce`) exposes a V2 REST API at `/ecommerce/api/v2/...`. Counted in module-v6-ecommerce v6.0.2 on 9 October 2026: 109 endpoints across 22 resources, each a page under `pos/modules/insites_ecommerce/private/views/pages/api/_external/v2/` that includes one controller alias. Method, path and policy below come from each page's front matter; required params, params and documented status codes come from the matching doc partial under `private/views/partials/insites_api/external_api/`; behaviour notes come from the controller under `private/views/partials/controllers/_external/v2/`.
+The Ecommerce module (machine name `insites_ecommerce`) exposes a V2 REST API at `/ecommerce/api/v2/...`. Counted in module-v6-ecommerce v6.0.2 on 9 October 2026: 109 endpoints across 22 resources, each a page under `modules/insites_ecommerce/private/views/pages/api/_external/v2/` that includes one controller alias. Method, path and policy below come from each page's front matter; required params, params and documented status codes come from the matching doc partial under `private/views/partials/insites_api/external_api/`; behaviour notes come from the controller under `private/views/partials/controllers/_external/v2/`.
 
 For authentication, see [`../../api/authentication.md`](../../api/authentication.md). Send the raw instance API key as `Authorization`, no `Bearer` prefix.
 

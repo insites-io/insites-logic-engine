@@ -3,10 +3,10 @@
 Complete reference for `insites-cli`. All command signatures verified against `insites-cli help <command>` output.
 
 The CLI's top-level commands fall into three groups:
-- **Direct verbs** — `archive`, `audit`, `deploy`, `doctor`, `init`, `logs`, `pull`, `sync`
-- **Subcommand groups** — `constants`, `data`, `duplicate`, `env`, `exec`, `gui`, `migrations`, `modules`
+- **Direct verbs**: `archive`, `audit`, `deploy`, `doctor`, `init`, `logs`, `pull`, `sync`
+- **Subcommand groups**: `constants`, `data`, `duplicate`, `env`, `exec`, `gui`, `migrations`, `modules`
 
-Run `insites-cli help <command>` for the live signature on any instance — this doc reflects the same source.
+Run `insites-cli help <command>` for the live signature on any instance; this doc reflects the same source.
 
 ---
 
@@ -27,13 +27,29 @@ insites-cli archive -o ./tmp/release.zip
 
 ## audit
 
-Check the project for deprecations, recommendations, and errors. Used in pre-commit and pre-deploy gates.
+Scan the project for deprecated code and file-layout faults.
 
 ```bash
 insites-cli audit
 ```
 
-No options. The audit traverses `app/` and reports any rules that fire. Exit code is non-zero on errors, zero on warnings/info only.
+No options, and no arguments: `insites-cli audit app/views/pages/` scans the whole project. It reads `app/` and `modules/`, prints `[Audit] N rules detected issues.`, then lists each rule's message and files.
+
+**It exits 0 whether or not a rule fires.** A CI step such as `insites-cli audit || exit 1` never fails. To gate on it, fail when the summary count is not 0.
+
+What it checks (insites-cli 6.1.0, `lib/audit/`):
+
+| Check | Fires on |
+|---|---|
+| Deprecated tags | A fixed list of retired tags, such as `form_tag`, `input`, `select`, `query_graph`, `will_paginate` |
+| Deprecated filters | A fixed list of retired filters, such as `to_money`, `timeago`, `strip_tags`, `pagination_links` |
+| Deprecated keys | `enable_profiler: true` in a page; `[]` after an input name; `resource_id:` on `include_form`; `configuration:` in a form (use `fields`); `attribute_type:` or `custom_attributes:` in a profile or model type (use `type`, `properties`); `headers:` in an API call (use `request_headers`); a model `name:` that is not snake_case |
+| File types per folder | A non-`.liquid` file in `forms`, `authorization_policies`, `notifications`, `emails`, `api_calls` or `smses`; a non-`.yml` file in `user_profile_types` or `model_schemas`; a non-`.graphql` file in `graphql` |
+| Partial name clash | A partial and an underscore twin at the same path (`card.liquid` and `_card.liquid`) |
+| File names | A character outside letters, digits, spaces and `- _ ~ @ % + . / \ ( ) ' & ]` |
+| Partials never included | A partial no `include` or `function` call names. `render` calls are not counted, so a partial used only through `render` is listed. The check turns itself off when any `include` or `function` takes a variable, which includes every `{% function result = '...' %}` |
+
+It does not check Liquid syntax, GraphQL, page front matter, HTML in pages, GraphQL in partials, translations, or credentials. Those are conventions; see `SKILL.md` section 2.
 
 ---
 
@@ -51,20 +67,20 @@ insites-cli deploy <environment> --dry-run --verbose
 
 | Option | Description |
 |---|---|
-| `-p, --partial-deploy` | Partial deployment — does not remove data from directories missing in the build |
+| `-p, --partial-deploy` | Partial deployment: does not remove data from directories missing in the build |
 | `--dry-run` | Validate the release on the instance and print what would change, without applying anything. Every validation error is listed at once, each starting with its file path. Private stack only (insites-cli 6.1.0 and later) |
 | `--verbose` | List every file path in the deploy report, not just the counts (6.1.0 and later) |
 | `--json` | Print the result and the deploy report as JSON on stdout; everything else goes to stderr (6.1.0 and later) |
 
 After each deploy, insites-cli 6.1.0 and later print the instance's report: for each type of file, how many were upserted, deleted and skipped (unchanged). Run `--dry-run` before a deploy you are unsure of, especially a full deploy, which deletes files that are not in the release.
 
-Deployment runs the audit, syncs files, executes pending migrations, and updates the environment.
+Deployment runs the audit (skipped when `CI=true`), then deploys whatever it reports, executes pending migrations, and updates the environment.
 
 ---
 
 ## sync
 
-Synchronize local changes to an environment. **Watch mode is the default** — `sync <env>` opens a long-running watcher that pushes changes as files are saved.
+Synchronize local changes to an environment. **Watch mode is the default**: `sync <env>` opens a long-running watcher that pushes changes as files are saved.
 
 ```bash
 insites-cli sync <environment>
@@ -78,10 +94,10 @@ insites-cli sync <environment> -l
 | Option | Default | Description |
 |---|---|---|
 | `-c, --concurrency <number>` | `3` | Maximum concurrent connections to the server |
-| `-f, --file <file>` | — | Sync a single file once and exit (no watcher) |
+| `-f, --file <file>` | none | Sync a single file once and exit (no watcher) |
 | `-l, --livereload` | off | Use livereload to refresh the browser on each sync |
 
-**There is no `--watch` flag** — watch is the default. Use `-f` to opt out and sync exactly one file.
+**There is no `--watch` flag**; watch is the default. Use `-f` to opt out and sync exactly one file.
 
 ---
 
@@ -168,11 +184,13 @@ insites-cli logs <environment> --json | jq 'select(.error_type == "error")'
 | Option | Default | Description |
 |---|---|---|
 | `--interval <ms>` | `3000` | Time between polls |
-| `--filter <type>` | | Only entries of this type, for example `error` |
-| `-q, --quiet` | | The message only, without context |
+| `--filter <type>` | | Only entries of this type, compared without case. An entry with no type counts as `error`. `{% log x, type: 'debug' %}` writes an entry of type `debug` |
+| `-q, --quiet` | | The message only, without the path, page, partial and user line |
 | `--json` | | One JSON object per entry (`id`, `created_at`, `error_type`, `message`, `data`), for `jq` or an agent. 6.1.0 and later |
 
-`logs` always follows new entries; there is no `--follow` or `--tail` flag. To find the entries for one job or partial, filter the JSON output: `insites-cli logs staging --json | grep 'job_name'`.
+(Alias: `l`)
+
+`logs` always follows new entries until you press `Ctrl+C`; there is no `--follow`, `--tail` or `--source-name` flag, and each is rejected as an unknown option. Because it never exits on its own, `$(insites-cli logs ...)` and `insites-cli logs ... | wc -l` never finish. To find the entries for one job or partial, give it a log entry with its own type (`{% log note, type: 'send_email' %}`) and run `insites-cli logs staging --filter send_email`, or filter the text: `insites-cli logs staging --json | grep 'job_name'`.
 
 ---
 
@@ -313,13 +331,13 @@ insites-cli data clean [environment]
 
 | Subcommand | Args | Description |
 |---|---|---|
-| `export [environment]` | env optional; `-p <file>` sets the output file (default `data.zip`) | Export all data on the instance as a zip archive |
-| `import [environment]` | env optional; `-p <file>` is the file to import (default `data.json`); add `-z, --zip` for a `.zip` | Import data into the instance |
-| `clean [environment]` | env optional; `--auto-confirm` skips the prompt, `-i, --include-schema` also removes pages, schemas and other files | Remove all stored data (users, records, etc.). **Irreversible.** |
+| `export [environment]` | `-p, --path <file>`, `-e, --export-internal-ids`, `-z, --zip` (on by default) | Export all data on the instance. Writes a zip archive, `data.zip` unless `--path` names another |
+| `import [environment]` | `-p, --path <file>` (default `data.json`), `-z, --zip`, `--raw-ids` | Import a JSON file, or a zip archive with `--zip`. No CSV, and no table argument |
+| `clean [environment]` | `--auto-confirm`, `-i, --include-schema` | Remove all stored data (users, records). Asks you to type `CLEAN DATA` unless `--auto-confirm`; `--include-schema` also removes pages, schemas and other files. **Irreversible.** |
 
 These commands work on the whole instance. There is no per-table export or clean.
 
-`clean` is destructive and not reversible — only use against staging/dev environments you are willing to wipe.
+`clean` is destructive and not reversible. Only use against staging/dev environments you are willing to wipe.
 
 ---
 
@@ -333,12 +351,12 @@ insites-cli help <command>        # signature for a specific command
 insites-cli help <command> <sub>  # falls back to top-level help (CLI limitation)
 ```
 
-The CLI's help system surfaces the top-level signature for each command but does not currently render per-leaf-subcommand help — if `insites-cli help modules version` returns top-level help, look at the parent command's help (`insites-cli help modules`) for the subcommand signature.
+The CLI's help system surfaces the top-level signature for each command but does not currently render per-leaf-subcommand help. If `insites-cli help modules version` returns top-level help, look at the parent command's help (`insites-cli help modules`) for the subcommand signature.
 
 ---
 
 ## See Also
 
-- [CLI Configuration](./configuration.md) — environment files, auth tokens, env var setup
-- [Advanced CLI Patterns](./advanced.md) — composing commands in CI, scripting
-- [CLI Troubleshooting](./gotchas.md) — common failure modes
+- [CLI Configuration](./configuration.md): environment files, auth tokens, env var setup
+- [Advanced CLI Patterns](./advanced.md): composing commands in CI, scripting
+- [CLI Troubleshooting](./gotchas.md): common failure modes

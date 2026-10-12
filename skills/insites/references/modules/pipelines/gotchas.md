@@ -1,6 +1,6 @@
 # Pipelines - Gotchas
 
-Edges visible in the module source (`pos/modules/insites_pipeline/private/`, module-v6-pipelines v6.0.2, read 9 October 2026). Each entry: what bites, why, how to avoid.
+Edges visible in the module source (`modules/insites_pipeline/private/`, module-v6-pipelines v6.0.2, read 9 October 2026). Each entry: what bites, why, how to avoid.
 
 ---
 
@@ -68,7 +68,7 @@ Edges visible in the module source (`pos/modules/insites_pipeline/private/`, mod
 
 **Bites:** a GraphQL query or `insites-cli` audit that assumes every pipelines table is under `modules/insites_pipeline/` cannot find the custom-field values.
 
-**Why:** `migrations/20240403102750_add_custom_field_schema.liquid` creates the table at `modules/ins_pipeline/public/schema/pipeline_opportunity_custom_field.yml`; 26 files under `pos/modules/insites_pipeline/` reference it by that path. The documentation partial `insites_api/external_api.liquid` advertises `modules/insites_pipeline/opportunity_custom_field` at `public/schema/opportunity_custom_field.yml`, and `opportunities/models/related_fields.liquid` names `modules/insites_pipeline/opportunity_custom_field`; neither of those tables is created anywhere in this tree. The same `external_api.liquid` lists the system-field table as `modules/insites_pipeline/system_fields` with file `system_fields.yml`; the real schema file is `pipeline_system_field.yml`.
+**Why:** `migrations/20240403102750_add_custom_field_schema.liquid` creates the table at `modules/ins_pipeline/public/schema/pipeline_opportunity_custom_field.yml`; 26 files under `modules/insites_pipeline/` reference it by that path. The documentation partial `insites_api/external_api.liquid` advertises `modules/insites_pipeline/opportunity_custom_field` at `public/schema/opportunity_custom_field.yml`, and `opportunities/models/related_fields.liquid` names `modules/insites_pipeline/opportunity_custom_field`; neither of those tables is created anywhere in this tree. The same `external_api.liquid` lists the system-field table as `modules/insites_pipeline/system_fields` with file `system_fields.yml`; the real schema file is `pipeline_system_field.yml`.
 
 **Avoid:** take table names from `schema/*.yml` and the migrations, not from the API-doc partials.
 

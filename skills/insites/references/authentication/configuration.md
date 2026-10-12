@@ -58,6 +58,29 @@ For reuse, place the permissions map in a dedicated partial that returns it via 
 | `authenticated` | Any user with a session | Passes any check that lists `authenticated` |
 | `superadmin` | User with `superadmin` role | Bypasses ALL permission checks automatically |
 
+### Declare the `roles` property first
+
+Insites has no built-in roles, and a stock instance has no `roles` property on users. Declare it in `app/user.yml`, in the list shape, before anything reads, filters or writes it:
+
+```yaml
+# app/user.yml
+properties:
+  - name: roles
+    type: array
+```
+
+If `app/user.yml` already exists, add the property to its list. Deploy it with `insites-cli deploy`; afterwards `admin_user_schema { properties { name attribute_type } }` lists `roles`.
+
+Until it is declared, nothing reports a fault. Measured on a stock instance on October 10, 2026:
+
+| Before `app/user.yml` declares `roles` | What happens |
+|---|---|
+| `roles: property_array(name: "roles")` | Reads back `[]` for every user, with no error |
+| A `users` filter with `array_contains` on `roles` | The result carries `GraphQL Error: array_contains only works for arrays, roles is`; the page raises no Liquid error and the check matches nobody |
+| `admin_user_schema` | `properties` is `[]` |
+
+So a role check written against an undeclared property fails closed and silently: every user is treated as having no role. The file is `app/user.yml` with a `properties:` list, not a map under `app/schema/`.
+
 ### Assigning roles to users
 
 Roles are stored as a `property_array` on the user record. Set them via GraphQL when creating or updating a user:
@@ -70,6 +93,15 @@ mutation set_roles($id: ID!, $roles: [String!]!) {
     id
   }
 }
+```
+
+Pass the list from Liquid as a variable built with `split`. An inline array literal as a `graphql` tag argument (`roles: ['member']`) made the deploy fail when it was tested, while this worked:
+
+```liquid
+{% liquid
+  assign member_roles = 'member' | split: ','
+  graphql saved = 'users/set_roles', id: user_id, roles: member_roles
+%}
 ```
 
 To read roles back, query with `property_array(name: "roles")`:

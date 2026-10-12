@@ -2,7 +2,7 @@
 
 The Insites Events module (machine name `insites_events`, repo `module-v6-events`, tag v6.0.2) plans and sells in-person and online events: the event record itself, its venue, pricing divisions and tiers, tickets with QR check-in, speakers, sponsors, FAQs, expenses and a financial summary. It exposes a V2 REST API for external integrations, 37 controller aliases for in-Liquid callers, and an admin UI inside IIA.
 
-Every fact below was read from the module tree at `pos/modules/insites_events/` in `module-v6-events` at tag v6.0.2 (worktree HEAD is two commits past the tag and `git diff v6.0.2 HEAD -- pos` is empty). Counts are as of 9 October 2026.
+Every fact below was read from the module tree at `modules/insites_events/` in `module-v6-events` at tag v6.0.2 (the checked-out HEAD is two commits past the tag, and neither commit changes the module tree). Counts are as of 9 October 2026.
 
 ## Where to look
 

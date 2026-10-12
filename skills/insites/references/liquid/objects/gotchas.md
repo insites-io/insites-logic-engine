@@ -174,21 +174,35 @@ mutation {
 {%- assign session = context.cookies.session_id | default: 'anonymous' -%}
 ```
 
-### Problem: Treating Secure Headers as Trustworthy
+### Problem: Reading the Visitor's Address from the Wrong Header
+
+For a rate limit or an audit row you need the address the request came from. Read
+`X-Real-IP`, or the **first** `X-Forwarded-For` entry, which holds the same value:
+
 ```liquid
-{{ context.headers.HTTP_X_FORWARDED_FOR }}
-{%- comment %} Can be spoofed by clients {%- endcomment %}
+{%- liquid
+  assign ip = context.headers.HTTP_X_REAL_IP
+  if ip == blank
+    assign ip = context.headers.HTTP_X_FORWARDED_FOR | default: '' | split: ',' | first | strip
+  endif
+-%}
 ```
 
-**Solution:** Only trust headers from reverse proxy:
-```liquid
-{%- comment %} Validate that request came through trusted proxy {%- endcomment %}
-{% if context.headers.HTTP_X_FORWARDED_FOR %}
-  {%- assign ip = context.headers.HTTP_X_FORWARDED_FOR | split: ',' | first -%}
-{% else %}
-  {%- assign ip = context.visitor.ip -%}
-{% endif %}
-```
+Measured on 9 October 2026 on a production and a staging instance, from one known address:
+
+| Request | `HTTP_X_FORWARDED_FOR` | `HTTP_X_REAL_IP` |
+|---|---|---|
+| plain | `<visitor>, 10.244.1.70` | `<visitor>` |
+| forged `X-Forwarded-For: 203.0.113.7` | `<visitor>, 10.244.0.122` | `<visitor>` |
+| forged `X-Forwarded-For: 203.0.113.7, 198.51.100.9` | `<visitor>, 10.244.2.91` | `<visitor>` |
+| forged `X-Real-IP: 203.0.113.8` | `<visitor>, ...` | `<visitor>` |
+
+- **The edge replaces** a client-sent `X-Forwarded-For` and `X-Real-IP`. It does not append to them, so the first entry cannot be forged.
+- **Never use the last entry.** It is an internal proxy address that changes from request to request (`10.244.3.102`, `10.244.2.91`, `10.244.1.70` across six plain calls). A limit keyed on it counts per proxy, not per visitor.
+- A forged `Client-IP` or `CF-Connecting-IP` header is refused with a 403 before the page runs.
+- **`True-Client-IP` and `Forwarded` pass through with whatever the client sent** (`HTTP_TRUE_CLIENT_IP=203.0.113.10`, `HTTP_FORWARDED=for=203.0.113.12`). Never trust either.
+- `context.ip` is null. `context.visitor.ip` was not measured; the CLI's object reference lists `ip` as its only property, but what it holds is unverified, so read the header.
+- The measurement covers one stack's edge. A stack without that edge may behave differently; check with a probe that returns these headers before relying on them.
 
 ## Location Object Gotchas
 

@@ -47,7 +47,7 @@ Reverse of `if`. Do NOT use `elsif` or `else` with `unless`.
 | `and` | Both conditions true |
 | `or` | Either condition true |
 
-**`and` is evaluated before `or`**. Parentheses are NOT supported.
+**`and` and `or` have no precedence: a chain is grouped from the right**, so `a and b or c` means `a and (b or c)`. Parentheses are NOT supported.
 
 ```liquid
 {% if user.role == 'admin' and user.active == true %}

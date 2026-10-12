@@ -1,6 +1,6 @@
 # Ecommerce — Gotchas
 
-Edges visible in module-v6-ecommerce v6.0.2 source, read on 9 October 2026. Each entry: **what bites**, **why**, **how to avoid**. File paths are relative to `pos/modules/insites_ecommerce/`.
+Edges visible in module-v6-ecommerce v6.0.2 source, read on 9 October 2026. Each entry: **what bites**, **why**, **how to avoid**. File paths are relative to `modules/insites_ecommerce/`.
 
 ---
 

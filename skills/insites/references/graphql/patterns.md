@@ -120,7 +120,7 @@ mutation update($id: ID!, $title: String, $description: String, $price: String, 
 ```graphql
 # app/graphql/products/delete.graphql
 mutation delete($id: ID!) {
-  record_delete(id: $id) {
+  record_delete(id: $id, table: "product") {
     id
   }
 }

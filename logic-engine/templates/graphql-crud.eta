@@ -1,6 +1,6 @@
 {# GraphQL CRUD template — generates one of: search | find | create | update | delete
    See logic-engine/rules/graphql.md and logic-engine/rules/schema.md for the rules:
-   - graphql-tables-fully-qualified: tables prefixed with modules/{name}/
+   - graphql-tables-fully-qualified: module tables carry modules/{name}/; app/schema tables use the file name
    - schema-property-functions: property(), property_int() etc.
    - use-related-record-for-joins: related_record() / related_records() for joins
 
@@ -90,7 +90,7 @@ mutation update($id: ID!<% it.properties.forEach(function(p) { -%>, $<%= p.name 
 }
 <% } else if (it.operation === 'delete') { -%>
 mutation delete($id: ID!) {
-  record_delete(id: $id) {
+  record_delete(id: $id, table: "<%= it.resource %>") {
     id
   }
 }

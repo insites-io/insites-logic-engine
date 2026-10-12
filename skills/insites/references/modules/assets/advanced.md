@@ -1,6 +1,6 @@
 # Assets: Advanced
 
-Hooks, partials other modules render, and the CRM surfaces this module depends on. Paths are relative to `pos/modules/insites_assets/` in module-v6-assets v6.1.0, read on 9 October 2026.
+Hooks, partials other modules render, and the CRM surfaces this module depends on. Paths are relative to `modules/insites_assets/` in module-v6-assets v6.1.0, read on 9 October 2026.
 
 ## Hooks
 

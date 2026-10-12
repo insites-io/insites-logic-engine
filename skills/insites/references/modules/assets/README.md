@@ -4,7 +4,7 @@ The Insites Assets module (machine name `insites_assets`, repo `module-v6-assets
 
 The platform-level `asset_url` filter, the file host and cache busting are a separate reference, [`../../assets/README.md`](../../assets/README.md), and are not repeated here.
 
-Every source path below is relative to `pos/modules/insites_assets/` in `module-v6-assets` at tag v6.1.0, read on 9 October 2026.
+Every source path below is relative to `modules/insites_assets/` in `module-v6-assets` at tag v6.1.0, read on 9 October 2026.
 
 ## Where to look
 

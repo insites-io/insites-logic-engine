@@ -4,6 +4,19 @@ A user profile type is a YAML schema that defines extra data attached to a user 
 
 A single user can have **multiple profile records of different types** (e.g. a `crm_contact` profile when they're a CRM contact, and a separate `staff_member` profile when they're an employee). Each profile is read and written independently.
 
+## Properties on the user itself: `app/user.yml`
+
+A profile type is a separate table. A property stored on the user record itself, such as the `roles` array the [authentication references](../authentication/configuration.md#declare-the-roles-property-first) check, is declared in `app/user.yml` instead, as a list:
+
+```yaml
+# app/user.yml
+properties:
+  - name: roles
+    type: array
+```
+
+A stock instance declares no user properties. Until a property is declared, `property_array` on it reads back `[]` and a filter on it returns a GraphQL error inside the result, with no Liquid error. Write it with `user_update(id: ..., user: { properties: [{ name: "roles", value_array: $roles }] })`. Insites' own Console declares its user properties the same way.
+
 ## File location
 
 ```
@@ -59,7 +72,7 @@ Use `record_create` / `record_update` against the profile type's table:
 mutation update_profile($user_id: ID!, $first_name: String!, $last_name: String!) {
   record_update(
     id: $user_id,
-    record_input: {
+    record: {
       table: "modules/dashboard/public/user_profile_types/crm_contact",
       properties: [
         { name: "first_name", value: $first_name }

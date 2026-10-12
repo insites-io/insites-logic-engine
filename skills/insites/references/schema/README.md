@@ -32,7 +32,7 @@ properties:
   - name: title
     type: string
   - name: description
-    type: text
+    type: string
   - name: price
     type: float
   - name: quantity

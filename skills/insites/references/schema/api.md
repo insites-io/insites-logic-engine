@@ -67,15 +67,17 @@ Only properties included in the `properties` array are modified. Omitted propert
 
 ```graphql
 mutation delete($id: ID!) {
-  record_delete(id: $id) {
+  record_delete(id: $id, table: "product") {
     id
   }
 }
 ```
 
-**Signature:** `record_delete(id: ID!) : Record`
+**Signature:** `record_delete(id: ID!, table: String, form_name: String) : Record!`
 
-A deleted record is kept for 30 days. It keeps its id and has `deleted_at` set. A plain `records` query no longer returns it; `filter: { deleted_at: { exists: true } }` still does. `records_delete_all` behaves the same way. Deleting a parent does **not** cascade to related records.
+**Pass `table` as well as `id`.** The schema marks `table` optional, but a delete with `id` alone was refused on a v6 instance with "You must specify table to which the record should belong" (2 September 2026), and 107 of the 108 `record_delete` calls in the v6 module source pass it.
+
+A deleted record is kept for 30 days. It keeps its id and has `deleted_at` set. A plain `records` query no longer returns it; `filter: { deleted_at: { exists: true } }` still does. The schema documents an undelete: set `deleted_at` back to an empty value with `record_update`, and undelete any related records yourself. That path has not been measured. `records_delete_all` behaves the same way. Deleting a parent does **not** cascade to related records.
 
 An overnight job removes every deleted item whose `deleted_at` is more than 30 days old. To have a row removed sooner, set its `deleted_at` back more than 30 days with `record_update(id: $id, record: { deleted_at: "<date more than 30 days ago>" })`. This works on a live row and on one already deleted, and the date reads back as sent (measured on two v6 instances on 7 October 2026, TW#26851122).
 

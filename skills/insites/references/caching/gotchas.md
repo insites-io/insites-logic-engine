@@ -134,16 +134,15 @@ Monitor cache size in metrics. Use TTL to auto-expire old entries.
 ```liquid
 {% if params.update %}
   {% graphql update = 'update_product', id: product.id, name: params.name %}
-  <!-- CLI: Clear immediately -->
-  <!-- or manually invalidate in next render -->
+  <!-- no command clears the old entry: the next render must use a new key -->
 {% endif %}
 ```
 
 ## Partial Cache Invalidation Failures
 
-### Stale Content After a Change
+### There Is No Command to Clear a Cache
 
-There is no CLI command to clear the cache. To make new content show, change the cache key (for example, put the record's `updated_at` or a version number in it) or let `expire` run out.
+`insites-cli` has no `cache` subcommand, so there is no wildcard or per-key clear. A key that never changes serves stale content until `expire` runs out. Build every key from the data that can change it (an id plus `updated_at`, or a version constant).
 
 ## Race Conditions with Cache
 

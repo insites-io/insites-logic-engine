@@ -100,7 +100,14 @@ Access application URL from `.insites` configuration.
 
 ## Changing Configuration
 
-The CLI has no `config` command. Edit `app/config.yml` and deploy it (`insites-cli deploy <env>`, or `insites-cli sync <env>` while you work); read a value back with `insites-cli exec liquid <env> "{{ context.config.<key> }}"`.
+The CLI has no `config` command, so it cannot show, set or validate configuration. Edit `app/config.yml` in the repository and apply it with a deploy (`insites-cli deploy <env>`, or `insites-cli sync <env>` while you work); read a value back with `insites-cli exec liquid <env> "{{ context.config.<key> }}"`. A deploy logs an unknown or missing `app/config.yml` property as a warning rather than failing (see [configuration](README.md)).
+
+```bash
+insites-cli env list          # the environments in .insites, with stack, instance and email
+insites-cli deploy staging    # applies app/config.yml with the rest of the build
+```
+
+Values that differ per environment, and secrets, belong in constants (`insites-cli constants set`, `list` and `unset`), not in `app/config.yml`.
 
 ## Accessing Module Configuration
 

@@ -47,9 +47,9 @@ Production should only receive through:
 
 **Solution**:
 ```bash
-insites-cli gui serve --port 3001
-# Or kill existing process
-lsof -i :3030 | kill -9
+insites-cli gui serve staging --port 3031
+# Or stop whatever holds the default port, 3030
+lsof -ti :3030 | xargs kill
 ```
 
 ### Migration Conflicts
@@ -61,7 +61,9 @@ lsof -i :3030 | kill -9
 - Review conflicting migrations
 - Resolve manually or create compensating migration
 
-## Linting (insites-cli audit) Failures
+## Linting (insites-cli audit) Findings
+
+`insites-cli audit` reports deprecated code and file-layout faults (see [`api.md`](api.md#audit)) and exits 0 either way. The errors below come from a sync, a deploy or a page render, not from the audit.
 
 ### Syntax Errors
 
@@ -86,27 +88,23 @@ Ensure partial exists at correct path:
 
 ```bash
 # Referencing: {% include 'components/button' %}
-# File should be at: app/views/partials/components/button.html.liquid
+# File should be at: app/views/partials/components/button.liquid
+# Referencing: {% include 'modules/ui/components/button' %}
+# File should be at: modules/ui/public/views/partials/components/button.liquid (or private/)
 ```
 
 ### Tag Validation
 
 **Error**: "Unknown tag"
 
-Verify tag spelling and Insites support:
-
-```bash
-insites-cli audit --help
-```
+Verify tag spelling and Insites support against the tag reference (`references/liquid/tags/`). The audit flags only the retired tags on its own list.
 
 ### Translation Keys
 
-**Error**: "Untranslated string"
-
-Define all strings in translation files:
+`insites-cli audit` does not check translations. A key that is missing renders `translation missing:` on the page. Define keys in one file per language:
 
 ```yaml
-# config/translations.yml
+# app/translations/en.yml
 en:
   hello: "Hello"
   goodbye: "Goodbye"
@@ -116,20 +114,20 @@ en:
 
 ### No Logs Appearing
 
-**Issue**: Logs filter returns no results
+**Issue**: `insites-cli logs` prints nothing
 
 **Solutions**:
-- Check environment is correct: `insites-cli logs dev`
+- Check the environment name matches one in `.insites`: `insites-cli logs dev`
 - Keep `insites-cli logs dev` running while you load the page. It shows new entries as they arrive
-- Check application activity generating logs
+- Remove `--filter` and see whether anything arrives. It keeps only entries whose type equals the value, ignoring case
 
 ### Filter Not Matching
 
-`--filter` matches the log type, for example `error`, not text in the message. To find the entries for one job or API call, search the JSON output:
+`--filter` compares an entry's type, not its text, and it is not a pattern. Case does not matter. `{% log x, type: 'background_job' %}` matches `--filter background_job`. To match text, pipe the stream:
 
 ```bash
-insites-cli logs staging --filter error
-insites-cli logs staging --json | grep 'job_name'
+insites-cli logs staging --filter background_job
+insites-cli logs staging | grep api_call
 ```
 
 ## Module Problems
@@ -153,18 +151,18 @@ insites-cli logs staging --json | grep 'job_name'
 # Always back up first. This exports all data on the instance
 insites-cli data export dev -p backup.zip
 
-# Then clean. This removes all data on the instance
+# Then clean. This removes ALL data on the instance, not one table,
+# and asks you to type CLEAN DATA unless --auto-confirm is given
 insites-cli data clean dev
 ```
 
 ### Import Format Errors
 
-**Issue**: Import fails due to file format
+**Issue**: Import fails with "Invalid format ... Must be a valid json file"
 
 **Solution**:
-- Import a `.json` file, or the `.zip` that `data export` produces with `--zip`. The CLI does not import CSV
-- Check encoding: UTF-8 required
-- Test on dev first: `insites-cli data import dev -p data.zip --zip`
+- `data import` reads a JSON file, or a zip archive with `--zip`. It does not read CSV, and it takes no table argument.
+- Test on dev first: `insites-cli data import dev --path data.json`, or `insites-cli data import dev --path backup.zip --zip`
 
 ## See Also
 

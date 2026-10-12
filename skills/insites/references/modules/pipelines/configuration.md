@@ -1,8 +1,8 @@
 # Pipelines - Configuration
 
-What an instance administrator sets up in IIA for the pipelines module, and what the module seeds or migrates on install. Modules are preinstalled and updated through the Insites console. Deploying a working copy to a test instance is `insites-cli deploy <env>` from the repo's `pos/` directory.
+What an instance administrator sets up in IIA for the pipelines module, and what the module seeds or migrates on install. Modules are preinstalled and updated through the Insites console. Deploying a working copy to a test instance is `insites-cli deploy <env>` from the directory in the module repository that holds `modules/`.
 
-Source: `pos/modules/insites_pipeline/` in module-v6-pipelines v6.0.2 (read 9 October 2026). Admin routes come from `vue/src/router/*.js` and the sidebar partial `private/views/partials/insites_menu/insites_pipeline_side_menu.liquid`.
+Source: `modules/insites_pipeline/` in module-v6-pipelines v6.0.2 (read 9 October 2026). Admin routes come from `vue/src/router/*.js` and the sidebar partial `private/views/partials/insites_menu/insites_pipeline_side_menu.liquid`.
 
 ---
 

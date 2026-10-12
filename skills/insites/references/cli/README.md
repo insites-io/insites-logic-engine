@@ -2,8 +2,8 @@
 
 Command-line tools for Insites development.
 
-> **CLI COMMAND STATUS — read before using any CLI examples:**
-> - `insites-cli logs <environment>` works on both stacks. Use it to watch logs.
+> **CLI COMMAND STATUS: read before using any CLI examples:**
+> - `insites-cli logs <environment>` (alias `l`) streams the instance's logs live and works on both stacks. Use it to watch logs.
 > - `insites-cli constants` works: `set`, `unset` and `list`. See `references/constants/`.
 > - `insites-cli cache` does not exist. See `references/caching/`.
 > - `insites-cli sessions` does not exist. See `references/sessions/`.
@@ -25,8 +25,8 @@ insites-cli gui serve dev                       # Start GraphQL GUI explorer
 
 ### Debugging
 ```bash
-insites-cli logs dev                            # Watch real-time logs
-insites-cli logs dev --filter error             # Show only error logs
+insites-cli logs dev                            # Stream live logs until Ctrl+C (alias: l)
+insites-cli logs dev --filter error             # Only entries whose type is "error"
 insites-cli exec liquid dev '<code>'            # Execute Liquid snippet
 insites-cli exec graphql dev '<query>'          # Execute GraphQL query
 ```
@@ -70,22 +70,21 @@ insites-cli data clean dev                      # Clean all data (DANGEROUS)
 
 ## Linting (insites-cli audit)
 
-**Must run after EVERY file change.**
+**Run after every file change and read the report.**
 
 ```bash
-insites-cli audit                            # Lint all files
+insites-cli audit                            # Scans app/ and modules/; takes no arguments
 ```
 
 ### What it checks
 
-- Liquid syntax errors
-- Invalid tag/filter usage
-- Missing translations
-- Broken partial references
-- Incorrect file naming
-- Deprecated patterns
+- Deprecated tags, filters and front-matter keys
+- File types in the wrong folder
+- A partial and its underscore twin at the same path
+- Characters not allowed in file names
+- Partials no `include` or `function` call names
 
-### Must pass with 0 errors before deployment.
+It does not check Liquid syntax, translations or credentials. It exits 0 even when a rule fires, so read the `[Audit] N rules detected issues.` line. Full list in [`api.md`](api.md#audit).
 
 ## Environment Configuration
 

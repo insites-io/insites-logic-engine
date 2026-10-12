@@ -19,16 +19,16 @@ If $ARGUMENTS contains `--update-skill`:
 2. Run the appropriate install command based on which path was found:
    ```bash
    # For Claude Code global
-   curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/main/claude-install.sh | bash -s -- --global
+   curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/master/claude-install.sh | bash -s -- --global
 
    # For Claude Code local
-   curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/main/claude-install.sh | bash
+   curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/master/claude-install.sh | bash
 
    # For OpenCode global
-   curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/main/install.sh | bash -s -- --global
+   curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/master/install.sh | bash -s -- --global
 
    # For OpenCode local
-   curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/main/install.sh | bash
+   curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/master/install.sh | bash
    ```
 
 3. Output success message and stop (do not continue to other steps).

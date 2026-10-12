@@ -15,11 +15,16 @@ TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
 echo "Starting deployment to $ENV at $TIMESTAMP"
 
-# Run validation
-insites-cli audit || exit 1
+# Run validation. audit exits 0 even when rules fire, so
+# "insites-cli audit || exit 1" can never fail: gate on the summary line
+insites-cli audit 2>&1 | tee audit.log
+grep -q '\[Audit\] 0 rules detected issues' audit.log || exit 1
 
 # Deploy
 insites-cli deploy $ENV
+
+# logs streams until Ctrl+C, so watch it in another terminal rather than here:
+#   insites-cli logs $ENV --filter error
 
 echo "Deployment completed successfully"
 ```
@@ -183,6 +188,14 @@ deploy:
 
 ## Performance Optimization
 
+### Selective Sync
+
+`sync` has no directory option. Leave paths out with `.insitesignore`, or push one file with `-f`:
+
+```bash
+insites-cli sync dev -f app/views/pages/home.liquid
+```
+
 ### Parallel Operations
 
 Use multiple terminal sessions:
@@ -202,29 +215,28 @@ insites-cli gui serve
 
 ### Verbose Output
 
-Enable detailed logging:
+Set `DEBUG` to print the CLI's debug lines. (`deploy --verbose`, from 6.1.0, only lists every file in the deploy report; `sync` has no `--verbose`.)
 
 ```bash
-insites-cli deploy dev --verbose
+DEBUG=1 insites-cli deploy dev
 ```
 
-### Dry Run Deployments
+### Checking a Build Without Deploying
 
-Preview changes without applying:
+On the private stack, `insites-cli deploy <env> --dry-run` (6.1.0 and later) validates the release on the instance and shows what would change without applying anything. To check a build without touching the instance at all, build the archive and run the audit locally:
 
 ```bash
-insites-cli deploy dev --dry-run
+insites-cli archive              # writes ./tmp/release.zip; -o picks another path
+insites-cli audit                # the same report a deploy prints first
 ```
 
 ### Environment Inspection
 
-View current environment:
+There is no `env info` or `env current` command. `env list` prints every environment in `.insites` with its stack, instance and email:
 
 ```bash
 insites-cli env list
 ```
-
-There is no `env current` or `env info`. `env list` prints each environment's URL and stack; the full entry is in the `.insites` file.
 
 ## Workflows Built on Git
 

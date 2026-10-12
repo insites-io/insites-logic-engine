@@ -82,7 +82,7 @@ properties:
   - name: title
     type: string
   - name: body
-    type: text
+    type: string
 ```
 
 **Trade-off:** Faster reads, but you must update denormalized fields when the source changes. Use a command or background job to keep them in sync.
@@ -97,7 +97,7 @@ properties:
   - name: title
     type: string
   - name: metadata
-    type: text           # stores: {"color":"red","weight":"2kg","dimensions":"10x5x3"}
+    type: string         # stores: {"color":"red","weight":"2kg","dimensions":"10x5x3"}
 ```
 
 **Writing JSON:**
@@ -164,7 +164,7 @@ Model polymorphism using `type` and `resource_id` properties:
 name: comment
 properties:
   - name: body
-    type: text
+    type: string
   - name: user_id
     type: string
   - name: commentable_type   # "article", "product", "photo"

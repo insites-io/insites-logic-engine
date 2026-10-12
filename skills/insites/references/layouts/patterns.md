@@ -8,12 +8,12 @@ The most common layout pattern includes navigation, content, flash messages, and
 
 ```liquid
 <!DOCTYPE html>
-<html class="pos-app">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ context.page.metadata.title | default: "My App" }}</title>
-  {% render 'modules/common-styling/init' %}
+  <link rel="stylesheet" href="{{ 'styles/main.css' | asset_url }}">
   {% yield 'head' %}
 </head>
 <body>
@@ -40,12 +40,12 @@ A separate layout for admin sections with different navigation and restricted ac
 
 ```liquid
 <!DOCTYPE html>
-<html class="pos-app">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Admin - {{ context.page.metadata.title | default: "Dashboard" }}</title>
-  {% render 'modules/common-styling/init' %}
+  <link rel="stylesheet" href="{{ 'styles/main.css' | asset_url }}">
   {% yield 'head' %}
 </head>
 <body>
@@ -199,9 +199,9 @@ This outputs only the page body with no HTML shell.
 2. **One layout per use case** -- `application`, `admin`, `mailer` cover most apps
 3. **Always include flash handling** -- users expect feedback after form submissions
 4. **Use yield slots** -- allow pages to inject CSS/JS without modifying the layout
-5. **Use plain English text** -- write clear, descriptive user-facing strings
-6. **Include common-styling/init** -- required for the design system to work
-7. **Set pos-app class** -- `<html class="pos-app">` enables common-styling
+5. **Write clear user-facing strings** -- in the layout, or in translations when the site serves more than one language
+6. **Link stylesheets with `asset_url`** -- the filter returns the CDN address of a file in `app/assets/`
+7. **Set `lang` on `<html>`** -- `<html lang="en">`, or the page's language
 8. **Delegate to partials** -- navigation, footer, and other components should be partials
 
 ## See Also

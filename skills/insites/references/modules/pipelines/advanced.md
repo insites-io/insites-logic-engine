@@ -1,6 +1,6 @@
 # Pipelines - Advanced
 
-Hooks, partials other modules may render, cross-module dependencies and the places where behaviour can be changed. Read from `pos/modules/insites_pipeline/` in module-v6-pipelines v6.0.2 on 9 October 2026.
+Hooks, partials other modules may render, cross-module dependencies and the places where behaviour can be changed. Read from `modules/insites_pipeline/` in module-v6-pipelines v6.0.2 on 9 October 2026.
 
 ---
 

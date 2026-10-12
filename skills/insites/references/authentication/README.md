@@ -1,6 +1,6 @@
 # Authentication & Authorization
 
-Authentication and authorization in Insites use `context.current_user`, role-based permission checks, and either `authorization_policies/` or inline guards. User identity comes from `context.current_user`, roles are stored as a `property_array` on user records, and permissions are enforced via authorization policies (for page-level protection) or inline role checks (for conditional UI).
+Authentication and authorization in Insites use `context.current_user`, role-based permission checks, and either `authorization_policies/` or inline guards. User identity comes from `context.current_user`, roles are stored as a `property_array` on user records (declare the `roles` property in `app/user.yml` first: a stock instance has none, see [configuration](configuration.md#declare-the-roles-property-first)), and permissions are enforced via authorization policies (for page-level protection) or inline role checks (for conditional UI).
 
 ## Key Purpose
 

@@ -12,18 +12,22 @@ insites-cli deploy production
 ```
 
 Deployment process:
-1. Validates with insites-cli audit
-2. Syncs all files
+1. Runs insites-cli audit and prints its report (skipped when `CI=true`; it never stops the deploy)
+2. Syncs all files in `app/` and `modules/`
 3. Executes pending migrations
 4. Applies schema updates
 5. Uploads assets to CDN
 
 ### Deployment with Options
 
+`deploy` takes `-p, --partial-deploy` and `-s, --stack`, and from insites-cli 6.1.0 `--dry-run`, `--verbose` and `--json`. It has no `--force` or `--skip-tests`:
+
 ```bash
-insites-cli deploy production --dry-run
-insites-cli deploy staging --partial-deploy
-insites-cli deploy dev --verbose
+insites-cli deploy production --dry-run       # validate and show what would change, apply nothing
+insites-cli deploy staging --partial-deploy   # keep files in folders missing from the build
+insites-cli deploy dev --verbose              # list every file in the deploy report
+insites-cli deploy production --stack <name>  # override the stack read from the environment
+DEBUG=1 insites-cli deploy dev                # print the CLI's debug lines
 ```
 
 ## Sync Command
@@ -43,6 +47,7 @@ Continuous synchronization is the default. `sync` watches your files until you s
 
 ```bash
 insites-cli sync dev
+insites-cli sync staging -f app/views/pages/home.liquid   # one file, then exit
 ```
 
 ## Deployment Lifecycle
@@ -55,22 +60,18 @@ Runs automatically:
 insites-cli audit
 ```
 
-Validates:
-- Liquid syntax
-- Tag correctness
-- Partial references
-- Translation keys
+Reports deprecated tags, filters and keys, file types per folder, partial name clashes, file names and partials never included. It does not validate Liquid syntax or translations, and the deploy goes ahead whatever it finds. See [`../cli/api.md`](../cli/api.md#audit).
 
 ### Sync Phase
 
 Files synchronized:
 
 ```
-app/views/
-app/api_calls/
-app/lib/
-config/
+app/
+modules/
 ```
+
+The CLI deploys these two trees and nothing else.
 
 ### Migration Phase
 
@@ -83,15 +84,13 @@ insites-cli migrations list staging
 
 ### Schema Application
 
-Schema changes applied:
+Table schemas in `app/schema/` and user properties in `app/user.yml` are applied. Both use a `properties:` list:
 
 ```yaml
-# app/schema/models/user.yml
+# app/user.yml
 properties:
-  email:
-    type: string
-  name:
-    type: string
+  - name: roles
+    type: array
 ```
 
 ### Asset Upload
@@ -105,32 +104,19 @@ Assets pushed to CDN:
 
 ## Environment-Specific Deployment
 
-### Development Deployment
+The environment name is a key in `.insites`, and the deploy does the same work whatever it is called. No environment runs tests or extra checks: run `insites-cli test run staging` yourself before you deploy to production.
 
 ```bash
 insites-cli deploy development
-# Fast, minimal checks
-```
-
-### Staging Deployment
-
-```bash
 insites-cli deploy staging
-# Full validation, runnable tests
-```
-
-### Production Deployment
-
-```bash
 insites-cli deploy production
-# Full validation, mandatory tests
 ```
 
 ## Deployment Status and Monitoring
 
 ### Check Deployment Status
 
-`insites-cli deploy <env>` waits for the deploy to finish and prints its result. There is no separate status command.
+`insites-cli deploy <env>` waits for the instance and ends with `Deploy succeeded after <time>` or `Deploy failed.` and the reason. There is no separate status command (`env info` does not exist); `insites-cli env list` only shows which environments are configured.
 
 ### View Deployment Logs
 
@@ -141,7 +127,7 @@ insites-cli logs production --filter error
 
 ### Monitor in Progress
 
-`logs` keeps showing new entries until you stop it:
+`insites-cli logs` always follows: it streams until you press `Ctrl+C` and has no `--follow` option. Run it in a second terminal while the deploy runs:
 
 ```bash
 insites-cli logs production

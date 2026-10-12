@@ -57,9 +57,14 @@ Wrap content to be cached.
 
 ## Cache Clearing
 
-There is no CLI command to clear the cache. To make new content show, change the cache key (for example, put the record's `updated_at` or a version number in it) or let `expire` run out.
+There is no command to clear a cache: `insites-cli` has no `cache` subcommand (no `clear`, `stats` or `inspect`), and the GraphQL schema has no cache mutation. An entry is replaced when its `expire` runs out or when the page asks for a different key. To make a change show at once, build the key from something the change moves:
 
-There is also no command for cache statistics or for reading a cached entry.
+```liquid
+{%- assign cache_key = 'product-' | append: product.id | append: '-' | append: product.updated_at -%}
+{% cache cache_key, expire: 3600 %}
+  ...
+{% endcache %}
+```
 
 ## Conditional Caching
 

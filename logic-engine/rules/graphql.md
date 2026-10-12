@@ -10,19 +10,20 @@ id: graphql-tables-fully-qualified
 applies_to: [graphql]
 severity: info
 evidence: real-project
-evidence_source: "100% compliance across 20+ GraphQL files. All filter/query table values use the modules/{name}/{table} format."
+evidence_source: "100% compliance across 20+ GraphQL files for module tables (modules/{name}/{table}). A table defined in app/schema/ answered every query and mutation by its plain file name on a production instance on 9 October 2026."
 audit_ref: audit/v0-conflicts-batch2.md#rule-r-15
 ---
 ```
 
-**Rule:** GraphQL filter and query operations MUST use fully-qualified table names of the form `modules/{module}/{table}` (e.g. `modules/insites_crm/contact`, `modules/insites_ecommerce/product`).
+**Rule:** Name a table by where it is defined. A module's table carries its module path, `modules/{module}/{table}` (e.g. `modules/insites_crm/contact`, `modules/insites_ecommerce/product`). A table defined in the project's own `app/schema/` is named by its file name (`signin_code` for `app/schema/signin_code.yml`).
 
-**Why:** Unqualified names are ambiguous when the same table name exists in multiple modules. The platform requires the module prefix to disambiguate.
+**Why:** The same table name can exist in several modules, so a module table needs its prefix to resolve. An `app/schema/` table belongs to no module, and its plain name works: `records`, `record_create`, `records_update_all` and `external_id` claims all ran against `table: "pwless_demo_code"` on a production instance on 9 October 2026. An earlier version of this rule required the prefix for every table, which is wrong for `app/` tables.
 
 **How to apply:**
-- ✅ `table: { value: "modules/insites_ecommerce/discount" }`
-- ✅ `table: { value: "modules/insites_crm/contact" }`
-- ❌ `table: { value: "discount" }` — ambiguous, won't resolve
+- ✅ `table: { value: "modules/insites_ecommerce/discount" }` (module table)
+- ✅ `table: { value: "modules/insites_crm/contact" }` (module table)
+- ✅ `table: { value: "signin_code" }` (defined in `app/schema/signin_code.yml`)
+- ❌ `table: { value: "discount" }` when `discount` is a module's table: give it the module path
 
 **Verified by:**
 - `app-portal/modules/client/public/graphql/discount/get_discount_by_code.graphql:11`

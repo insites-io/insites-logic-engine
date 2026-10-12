@@ -25,12 +25,12 @@ app/
 
 ### Rules
 
-- All files go in `app/graphql/` with a `.graphql` extension.
+- Files go in `app/graphql/` (or a module's `graphql/`, below) with a `.graphql` extension.
 - Subdirectories are supported and recommended for organization.
 - Each file contains **one** GraphQL operation (query or mutation).
 - The file path (without extension) becomes the invocation name: `app/graphql/products/search.graphql` is invoked as `'products/search'`.
 
-> **Module path:** In modules, GraphQL files live in `modules/<module_name>/public/graphql/` (accessible to app and other modules) or `modules/<module_name>/private/graphql/` (internal only). The invocation path remains relative — do not include the module directory prefix.
+> **Module path:** In modules, GraphQL files live in `modules/<module_name>/public/graphql/` (accessible to app and other modules) or `modules/<module_name>/private/graphql/` (internal only). Invoke them with the module prefix: `{% graphql r = 'modules/<module_name>/products/search' %}` reads `modules/<module_name>/public/graphql/products/search.graphql` or the same path under `private/`.
 
 ## Invocation Syntax
 
@@ -207,7 +207,7 @@ Mutations return the affected record:
 ## Invocation Restrictions
 
 - **Pages:** `{% graphql %}` tag is fully supported.
-- **Partials:** **NEVER** call `{% graphql %}` from partials. Pass data from pages instead.
+- **Partials:** the platform runs `{% graphql %}` inside a partial (measured with a partial called by `{% function %}`). By the `graphql-in-partials-restricted` convention, presentation partials (cards, headers, layouts, nav) take data from the page instead; block, calculation and callback partials may query.
 - **Commands:** GraphQL can be called from command files.
 - **Migrations:** GraphQL can be called from migration files.
 

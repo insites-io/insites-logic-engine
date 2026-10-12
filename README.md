@@ -13,34 +13,34 @@ Both consume the same audit-grounded rules so the guidance LLMs receive matches 
 
 ```bash
 # Local (current project only)
-curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/main/claude-install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/master/claude-install.sh | bash
 
 # Global (available in all projects)
-curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/main/claude-install.sh | bash -s -- --global
+curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/master/claude-install.sh | bash -s -- --global
 ```
 
 ### For OpenCode
 
 ```bash
 # Local
-curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/master/install.sh | bash
 
 # Global
-curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/main/install.sh | bash -s -- --global
+curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/master/install.sh | bash -s -- --global
 ```
 
 ## Install example skills
 
-Example skills include: `code-review`, `playwright-cli`, `pos-auth`, `pos-crud-generator`, `pos-unit-tests`, `project-init`, and others.
+Example skills: `code-review`, `insites-auth`, `insites-debugging`, `insites-sync`, `insites-unit-tests` and `project-init`.
 
 ```bash
 # Claude Code (local / global)
-curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/main/install-examples.sh | bash -s -- --claude
-curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/main/install-examples.sh | bash -s -- --claude --global
+curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/master/install-examples.sh | bash -s -- --claude
+curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/master/install-examples.sh | bash -s -- --claude --global
 
 # OpenCode (local / global)
-curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/main/install-examples.sh | bash -s -- --opencode
-curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/main/install-examples.sh | bash -s -- --opencode --global
+curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/master/install-examples.sh | bash -s -- --opencode
+curl -fsSL https://raw.githubusercontent.com/insites-io/insites-logic-engine/master/install-examples.sh | bash -s -- --opencode --global
 ```
 
 ## Usage

@@ -31,7 +31,7 @@ properties:
   - name: name
     type: string
   - name: bio
-    type: text
+    type: string
 
 # app/schema/article.yml
 name: article
@@ -41,7 +41,7 @@ properties:
   - name: title
     type: string
   - name: body
-    type: text
+    type: string
   - name: published
     type: boolean
 ```
@@ -199,7 +199,7 @@ properties:
     options:
       acl: public
   - name: bio
-    type: text
+    type: string
 ```
 
 **Query user with profile:**
@@ -234,7 +234,7 @@ properties:
   - name: total
     type: float
   - name: notes
-    type: text
+    type: string
 ```
 
 **Filter by status:**
@@ -263,7 +263,7 @@ properties:
   - name: resource_id
     type: string
   - name: metadata
-    type: text             # JSON string for flexible data
+    type: string           # JSON string for flexible data
 ```
 
 Use `created_at` (automatic) for the event timestamp. Store extra context as a JSON string in `text`.

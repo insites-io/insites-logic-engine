@@ -6,14 +6,13 @@
 
 Maintain two identical production instances:
 
-```yaml
-production_blue:
-  url: https://blue-instance.prod01-insites.io
-  token: ${BLUE_TOKEN}
+Add both with `insites-cli env add`, so `.insites` holds two entries:
 
-production_green:
-  url: https://green-instance.prod01-insites.io
-  token: ${GREEN_TOKEN}
+```json
+{
+  "production_blue": { "url": "https://blue-instance.prod01-insites.io", "email": "...", "instance_uuid": "...", "token": "...", "key": "..." },
+  "production_green": { "url": "https://green-instance.prod01-insites.io", "email": "...", "instance_uuid": "...", "token": "...", "key": "..." }
+}
 ```
 
 ### Deployment Strategy
@@ -106,6 +105,14 @@ Deploy multiple environments concurrently:
 wait
 ```
 
+### Incremental Asset Deployment
+
+`sync` has no folder option, and production should not be synced. A partial deploy leaves files that are missing from the build in place:
+
+```bash
+insites-cli deploy production -p
+```
+
 ## Deployment Verification
 
 ### Health Check Pattern
@@ -114,6 +121,9 @@ wait
 #!/bin/bash
 verify_deployment() {
   ENV=$1
+
+  # insites-cli logs streams until Ctrl+C, so it cannot be counted here.
+  # Watch it in another terminal: insites-cli logs $ENV --filter error
 
   # Run health check endpoint
   RESPONSE=$(curl -s https://$ENV-instance.prod01-insites.io/health)
@@ -219,14 +229,11 @@ insites-cli deploy production
 ### Deployment Metrics
 
 ```bash
-# Monitor deployment completion
-watch -n 5 'insites-cli logs production --filter deployment'
+# Stream errors after a deploy; it runs until Ctrl+C
+insites-cli logs production --filter error
 
-# Check error rates post-deployment
-insites-cli logs production --filter error | tail -20
-
-# Verify performance
-insites-cli logs production --filter slow_query
+# Keep a copy to read afterwards
+insites-cli logs production --filter error | tee deploy-errors.log
 ```
 
 ### Custom Monitoring

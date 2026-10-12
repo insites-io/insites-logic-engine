@@ -1,6 +1,6 @@
 # Locator: Configuration
 
-What an instance administrator sets up in the IIA admin for the Locator module, and what the module creates on install. Modules are preinstalled on Insites instances; updates arrive through the Insites console. Paths below are relative to `pos/modules/insites_locator/` in module-v6-locator (v6.0.2, read 9 October 2026).
+What an instance administrator sets up in the IIA admin for the Locator module, and what the module creates on install. Modules are preinstalled on Insites instances; updates arrive through the Insites console. Paths below are relative to `modules/insites_locator/` in module-v6-locator (v6.0.2, read 9 October 2026).
 
 For authentication, see [`../../api/authentication.md`](../../api/authentication.md).
 

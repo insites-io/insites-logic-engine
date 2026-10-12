@@ -8,7 +8,7 @@ Edges and quirks of the Data V2 REST API. Each entry: **what bites**, **why**, *
 
 **Bites:** code that follows the module's external name ("data") and constructs `/data/api/v2/databases` gets 404.
 
-**Why:** the module's external label is "data" but its URL space is "databases" — derived from the POS module name `insites_databases`. The two don't match.
+**Why:** the module's external label is "data" but its URL space is "databases" — derived from the machine name `insites_databases`. The two don't match.
 
 **Avoid:** always use the literal `/databases/api/v2/...` prefix. Don't substitute the friendly module name.
 

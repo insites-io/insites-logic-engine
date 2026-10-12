@@ -81,7 +81,7 @@ registerValidator("pipe-vars-through-json-filter", (filePath: string, content: s
   return violations;
 });
 
-/** R-5 / forms-no-form-tag: forbid the deprecated {% form %} tag.
+/** R-5 / forms-no-form-tag: flag the {% form %} tag (a convention; the tag is not deprecated).
  *
  * Matches `{% form ... %}` and `{% form %}` and the trim variants `{%- form ... -%}` etc.,
  * but does NOT match other tags whose name happens to start with "form" (e.g. `{% format %}`
@@ -99,7 +99,7 @@ registerValidator("forms-no-form-tag", (filePath: string, content: string) => {
       ruleId: "forms-no-form-tag",
       severity: "error" as const,
       line,
-      message: "Deprecated {% form %} tag detected. Use plain HTML <form> with {% render 'authenticity_token' %}.",
+      message: "{% form %} tag detected. By convention use plain HTML <form> with {% render 'authenticity_token' %}.",
     });
   }
   return violations;

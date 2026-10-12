@@ -1,6 +1,6 @@
 # Permissions — Gotchas
 
-Edges visible in `pos/modules/insites_permissions/` at module-v6-permissions v6.0.2 (read 9 October 2026). Each entry: **what bites**, **why**, **how to avoid**.
+Edges visible in `modules/insites_permissions/` at module-v6-permissions v6.0.2 (read 9 October 2026). Each entry: **what bites**, **why**, **how to avoid**.
 
 ## 1. The name promises roles; the code manages profile schemas
 

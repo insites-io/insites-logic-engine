@@ -102,30 +102,32 @@ Clear flash messages programmatically:
 {% session sflash = null %}
 ```
 
-## JavaScript Toast Implementation
+## Messages from JavaScript
 
-Create toast notifications from JavaScript:
+Insites has no JavaScript toast helper. To show a message from a script, write it into the status region your `shared/toasts` partial renders in the layout. The region and the function below are project code, not a platform API:
 
-```javascript
-new pos.modules.toast('success', 'Profile updated successfully');
-new pos.modules.toast('error', 'An error occurred');
-new pos.modules.toast('warning', 'Please review your changes');
-new pos.modules.toast('info', 'Remember to save your work');
+```html
+<!-- in app/views/partials/shared/toasts.liquid, rendered by the layout -->
+<div id="flash" class="flash" role="status" aria-live="polite" hidden></div>
 ```
 
-### Toast Constructor Parameters
+```javascript
+// project code, for example app/assets/scripts/flash.js
+function showFlash(type, message) {
+  const el = document.getElementById('flash');
+  el.className = 'flash ' + type;   // notice, alert, warning or info
+  el.textContent = message;         // textContent, never innerHTML
+  el.hidden = false;
+}
+```
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| Type | String | 'success', 'error', 'warning', 'info' |
-| Message | String | Toast message text |
-| Duration | Number | Optional: milliseconds to show (default: 3000) |
-
-## Toast Duration Control
+Auto-dismiss, if you want it, is a timer in the same project code:
 
 ```javascript
-new pos.modules.toast('success', 'Message', 5000); // 5 seconds
-new pos.modules.toast('info', 'Persistent message', 0); // Never auto-dismiss
+function showFlashFor(type, message, ms) {
+  showFlash(type, message);
+  setTimeout(() => { document.getElementById('flash').hidden = true; }, ms);
+}
 ```
 
 ## Flash Message Structure

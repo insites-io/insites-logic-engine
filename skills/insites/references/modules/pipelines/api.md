@@ -2,7 +2,7 @@
 
 The pipelines module exposes a V2 REST API at the `/pipeline/api/v2/...` prefix. It covers pipelines, pipeline stages, opportunities, opportunity related contacts, system fields and opportunity custom-field definitions.
 
-Every page, controller and GraphQL file named here lives under `pos/modules/insites_pipeline/private/` in module-v6-pipelines v6.0.2, read on 9 October 2026. Pages are in `views/pages/api/_external/v2/`, controllers in `views/partials/controllers/_external/v2/`, and the API documentation data (title, params, example payload and response) in `views/partials/insites_api/external_api/`.
+Every page, controller and GraphQL file named here lives under `modules/insites_pipeline/private/` in module-v6-pipelines v6.0.2, read on 9 October 2026. Pages are in `views/pages/api/_external/v2/`, controllers in `views/partials/controllers/_external/v2/`, and the API documentation data (title, params, example payload and response) in `views/partials/insites_api/external_api/`.
 
 For authentication see [`../../api/authentication.md`](../../api/authentication.md). Send the raw instance API key in the `Authorization` header; there is no `Bearer` prefix.
 

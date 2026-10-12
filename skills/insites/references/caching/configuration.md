@@ -87,9 +87,13 @@ Duplicate keys overwrite each other, causing data loss.
 
 ## Cache Invalidation
 
-### Manual Invalidation
+### Key-Based Invalidation
 
-There is no CLI command to clear the cache. To make new content show, change the cache key (for example, put the record's `updated_at` or a version number in it) or let `expire` run out.
+There is no command that clears a cache (the CLI has no `cache` subcommand). Put whatever changes with the content into the key, such as a record's `updated_at` or a version constant, so a change produces a new key:
+
+```liquid
+{%- assign cache_key = 'featured-products-' | append: context.language | append: '-' | append: context.constants.CONTENT_VERSION -%}
+```
 
 ### Time-Based Invalidation
 
@@ -103,7 +107,7 @@ Let cache expire naturally:
 
 ### Deployment Invalidation
 
-A deploy does not clear the cache, and there is no command to clear it. Put a version in keys whose content changes with a release.
+A deploy does not clear fragment caches by command. To start fresh after a release, change the version part of the keys, for example by setting a new `CONTENT_VERSION` with `insites-cli constants set --name CONTENT_VERSION --value "2026-10-09" staging`.
 
 ## Cache Configuration
 

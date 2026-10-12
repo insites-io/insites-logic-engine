@@ -102,17 +102,25 @@ HTML forms only support GET and POST. Use a hidden field for PUT/DELETE:
 
 ## File Upload
 
-Use the common-styling upload component:
+There is no upload component to render. The browser uploads the file straight to storage with a presigned request, then your page saves the file's URL on the record. The v6 modules work this way.
 
-```liquid
-{% render 'modules/common-styling/forms/upload',
-  id: 'image',
-  presigned_upload: presigned,
-  name: 'image',
-  allowed_file_types: ['image/*'],
-  max_number_of_files: 5
-%}
-```
+1. **Presign on the server** with the `property_upload_presigned_url` mutation, naming the table and its `upload` property:
+
+   ```graphql
+   # app/graphql/products/presign_image.graphql
+   mutation presign_image {
+     s3_upload: property_upload_presigned_url(table: "product", property_name: "image") {
+       upload_url
+       upload_url_payload
+     }
+   }
+   ```
+
+   Return `upload_url` and `upload_url_payload` to the browser, for example from a JSON page.
+2. **Upload from the browser**: POST a `multipart/form-data` body to `upload_url` holding every field of `upload_url_payload`, then the file.
+3. **Save the URL**: storage answers with XML whose `Location` is the file's URL. Send it to your own page and store it in the `upload` property with `record_create` or `record_update`.
+
+For a property declared in `app/user.yml` rather than a table, leave `table` out and pass `user: true`. Set `acl: private` on anything a visitor submits (see [schema configuration](../schema/configuration.md)).
 
 For the schema, define an `upload` type property:
 
@@ -131,7 +139,7 @@ When a form definition's `callback_actions` block sets errors (via `form_set_err
 
 ```liquid
 {% if form.errors %}
-  <div class="pos-alert pos-alert--error">
+  <div class="alert alert--error">
     {% for error in form.errors %}
       <p>{{ error[0] }}: {{ error[1] | join: ', ' }}</p>
     {% endfor %}

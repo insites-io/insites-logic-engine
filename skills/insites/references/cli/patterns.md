@@ -17,7 +17,7 @@ insites-cli gui serve
 insites-cli sync dev
 ```
 
-4. View real-time logs:
+4. View real-time logs (runs until `Ctrl+C`):
 
 ```bash
 insites-cli logs dev
@@ -27,18 +27,13 @@ insites-cli logs dev
 
 ### Linting and Checks
 
-Always run insites-cli audit before deployment:
+Always run insites-cli audit before deployment and read the summary count:
 
 ```bash
 insites-cli audit
 ```
 
-Checks performed:
-- Liquid syntax validation
-- Tag usage correctness
-- Translation file completeness
-- Partial naming conventions
-- Asset references
+Checks performed: deprecated tags, filters and keys; file types per folder; partial name clashes; file names; partials never included. It does not check Liquid syntax, translations or asset references, and it exits 0 either way. Full list in [`api.md`](api.md#audit).
 
 ## Environment Promotion Pipeline
 
@@ -111,13 +106,13 @@ These commands work on all data on the instance. There is no per-table export, i
 ### Backup Before Operations
 
 ```bash
-insites-cli data export dev -p backup.zip
+insites-cli data export dev --path backup.zip     # every table, as a zip archive
 ```
 
 ### Bulk Operations
 
 ```bash
-insites-cli data import staging -p data.zip --zip
+insites-cli data import staging --path data.json    # JSON, or a zip with --zip
 ```
 
 ### Data Cleanup
@@ -125,7 +120,7 @@ insites-cli data import staging -p data.zip --zip
 Removes all data on the instance. Use it on staging only.
 
 ```bash
-insites-cli data clean staging
+insites-cli data clean staging    # removes ALL data on the instance; there is no per-table clean
 ```
 
 ## Batch Command Execution
@@ -137,6 +132,8 @@ insites-cli data clean staging
 ENV=$1
 insites-cli audit
 insites-cli deploy $ENV
+# Watch the result in another terminal: insites-cli logs $ENV
+# (logs streams until Ctrl+C, so it does not belong inside a script)
 ```
 
 ## See Also

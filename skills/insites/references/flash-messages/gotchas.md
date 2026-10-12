@@ -68,7 +68,7 @@ Manually clear if needed:
 
 ### Use Descriptive Flash Messages
 
-Flash messages should contain plain English text that is displayed directly to the user:
+Flash messages hold plain text that is displayed directly to the user. Write it in the template, or look it up with the `t` filter when the site serves more than one language:
 
 ```liquid
 {% comment %} Correct — use descriptive flash messages {% endcomment %}
@@ -168,31 +168,21 @@ Variables don't interpolate inside JSON strings. Build the message before storin
 {% assign notice_msg = 'Created: ' | append: item_name %}
 ```
 
-## JavaScript Toast Issues
+## JavaScript Message Issues
 
-### pos.modules Object Undefined
+### No toast function on the page
 
-Toast requires pos module loading:
+Insites ships no JavaScript toast helper, so a call copied from another platform fails with a `ReferenceError`. Render a status region in the layout and write to it from project code (see [Messages from JavaScript](./api.md#messages-from-javascript)).
 
-```javascript
-// May fail if module not loaded yet
-new pos.modules.toast('success', 'Message');
+### Message region missing or unstyled
 
-// Safe: wrap in load handler
-document.addEventListener('posModulesReady', function() {
-  new pos.modules.toast('success', 'Message');
-});
-```
-
-### Toast Missing in Markup
-
-Toast visual styles require CSS classes. Ensure styles are loaded:
+The script can only show a message if the layout rendered the region and its styles are loaded:
 
 ```liquid
-<link rel="stylesheet" href="{{ 'styles/toast.css' | asset_url }}">
+<link rel="stylesheet" href="{{ 'styles/main.css' | asset_url }}">
 ```
 
-Without CSS, toast displays as plain text or invisible.
+Without the CSS, the message displays as plain text.
 
 ## Session Flash Cleared Unexpectedly
 

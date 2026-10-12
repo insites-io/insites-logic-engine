@@ -24,7 +24,7 @@ Insites does not support layout inheritance directly. Simulate it by extracting 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{ context.page.metadata.title | default: title_prefix }}</title>
-{% render 'modules/common-styling/init' %}
+<link rel="stylesheet" href="{{ 'styles/main.css' | asset_url }}">
 {% yield 'head' %}
 ```
 
@@ -42,7 +42,7 @@ Both layouts use the shared head:
 </head>
 ```
 
-This avoids duplicating meta tags, common-styling init, and yield slots across layouts.
+This avoids duplicating meta tags, the stylesheet link, and yield slots across layouts.
 
 ## Dynamic Body Classes
 
@@ -86,7 +86,7 @@ Optimize page load by preloading critical assets in the layout head:
 
 ```liquid
 <head>
-  {% render 'modules/common-styling/init' %}
+  <link rel="stylesheet" href="{{ 'styles/main.css' | asset_url }}">
   <link rel="preload" href="{{ 'fonts/inter.woff2' | asset_url }}" as="font" type="font/woff2" crossorigin>
   <link rel="preconnect" href="https://cdn.example.com">
   {% yield 'head' %}
@@ -141,7 +141,7 @@ For pages that need print-friendly output, use a separate layout or yield slot:
 
 ```liquid
 <head>
-  {% render 'modules/common-styling/init' %}
+  <link rel="stylesheet" href="{{ 'styles/main.css' | asset_url }}">
   {% yield 'head' %}
   <style media="print">
     .no-print { display: none !important; }

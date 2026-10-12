@@ -2,7 +2,7 @@
 
 The Insites API module (machine name `insites_api`, repo `module-v6-api`, tag v6.0.2) is the admin surface for an instance's developer plumbing: Custom API Endpoints (pages that serve JSON), authorization policies, saved GraphQL queries, an API usage report, and the instance's own API reference at `/admin/api`. It holds no business data. The one resource it exposes over the instance API is the Custom API Endpoint itself.
 
-Every fact here comes from `pos/modules/insites_api/` in module-v6-api, read on 9 October 2026.
+Every fact here comes from `modules/insites_api/` in module-v6-api, read on 9 October 2026.
 
 ## Where to look
 

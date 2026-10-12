@@ -2,7 +2,7 @@
 
 The Insites Pipelines module (machine name `insites_pipeline`, repo `module-v6-pipelines`, documented at git tag v6.0.2) manages sales pipelines: pipelines and their ordered stages, opportunities (deals) moving through those stages, the contacts attached to each opportunity, per-pipeline custom fields, and the lookup values (won reason, lost reason, division, lead source) the module calls system fields. It ships an admin UI inside IIA (board and table views, reports, activities, tasks) and a V2 REST API for the core records.
 
-Every fact in this folder was read from the module source at `pos/modules/insites_pipeline/` in module-v6-pipelines v6.0.2 on 9 October 2026. Paths below are relative to that directory unless they start with `modules/`.
+Every fact in this folder was read from the module source at `modules/insites_pipeline/` in module-v6-pipelines v6.0.2 on 9 October 2026. Paths below are relative to that directory unless they start with `modules/`.
 
 ## Where to look
 
