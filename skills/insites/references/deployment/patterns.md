@@ -7,7 +7,7 @@
 ```bash
 # 1. Develop and test locally
 insites-cli gui serve
-insites-cli sync dev --watch
+insites-cli sync dev
 
 # 2. Run validation
 insites-cli audit
@@ -16,13 +16,13 @@ insites-cli audit
 insites-cli deploy staging
 
 # 4. Review staging logs
-insites-cli logsv2 search
+insites-cli logs staging --filter error
 
 # 5. Deploy to production
 insites-cli deploy production
 
 # 6. Monitor production
-insites-cli logsv2 search
+insites-cli logs production --filter error
 ```
 
 ## Pre-Deployment Pattern
@@ -37,17 +37,11 @@ echo "Running pre-deployment checks..."
 
 # 1. Lint and syntax check
 insites-cli audit
-echo "✓ insites-cli audit passed"
+echo "✓ Audit passed"
 
 # 2. Verify environment
 insites-cli env list
 echo "✓ Environment verified"
-
-# 4. Check for errors in logs
-ERROR_COUNT=$(insites-cli logs production --filter error | wc -l)
-if [ $ERROR_COUNT -gt 0 ]; then
-  echo "⚠ Warning: $ERROR_COUNT errors in production logs"
-fi
 
 echo "Ready for deployment"
 ```
@@ -62,14 +56,14 @@ Deploy and test on staging before production:
 # Deploy to staging
 insites-cli deploy staging
 
-# Verify data integrity
-insites-cli data export staging users data/test_export.csv
+# Verify data integrity (exports all data on the instance)
+insites-cli data export staging -p test_export.zip
 
 # Monitor for 24-48 hours
-insites-cli logs staging --follow
+insites-cli logs staging
 
 # Check error rates
-insites-cli logs staging --filter error --follow
+insites-cli logs staging --filter error
 ```
 
 ## CI/CD Deployment Pattern
@@ -89,7 +83,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install CLI
-        run: npm install -g /insites-cli
+        run: npm install -g @insites/insites-cli
 
       - name: Validate
         run: insites-cli audit
@@ -97,13 +91,21 @@ jobs:
       - name: Deploy to Staging
         run: insites-cli deploy staging
         env:
-          POS_STAGING_TOKEN: ${{ secrets.POS_STAGING_TOKEN }}
+          INSITES_URL: ${{ secrets.STAGING_INSITES_URL }}
+          INSITES_EMAIL: ${{ secrets.STAGING_INSITES_EMAIL }}
+          INSITES_TOKEN: ${{ secrets.STAGING_INSITES_TOKEN }}
+          INSITES_INSTANCE: ${{ secrets.STAGING_INSITES_INSTANCE }}
+          INSITES_INSTANCE_KEY: ${{ secrets.STAGING_INSITES_INSTANCE_KEY }}
 
       - name: Deploy to Production
         run: insites-cli deploy production
         if: success()
         env:
-          POS_PROD_TOKEN: ${{ secrets.POS_PROD_TOKEN }}
+          INSITES_URL: ${{ secrets.PROD_INSITES_URL }}
+          INSITES_EMAIL: ${{ secrets.PROD_INSITES_EMAIL }}
+          INSITES_TOKEN: ${{ secrets.PROD_INSITES_TOKEN }}
+          INSITES_INSTANCE: ${{ secrets.PROD_INSITES_INSTANCE }}
+          INSITES_INSTANCE_KEY: ${{ secrets.PROD_INSITES_INSTANCE_KEY }}
 ```
 
 ## Migration Management Pattern
@@ -118,8 +120,8 @@ insites-cli migrations generate staging add_user_columns
 # 2. Run migrations in staging
 insites-cli deploy staging
 
-# 3. Verify data integrity
-insites-cli data export staging users data/verify.csv
+# 3. Verify data integrity (exports all data on the instance)
+insites-cli data export staging -p verify.zip
 
 # 4. Deploy same migrations to production
 insites-cli deploy production
@@ -168,15 +170,15 @@ insites-cli deploy production   # Live environment
 ```bash
 #!/bin/bash
 ENV=$1
+TIMESTAMP=$(date +%s)
 
 echo "Backing up $ENV before deployment..."
 
-# Export all data types
-insites-cli data export $ENV users data/backup_$(date +%s)_users.csv
-insites-cli data export $ENV products data/backup_$(date +%s)_products.csv
+# Export all data on the instance
+insites-cli data export $ENV -p data/backup_${TIMESTAMP}.zip
 
 # Save migrations state
-insites-cli migrations list $ENV > data/backup_migrations_$(date +%s).txt
+insites-cli migrations list $ENV > data/backup_migrations_${TIMESTAMP}.txt
 
 echo "Backup completed"
 ```
@@ -198,7 +200,7 @@ Use feature flags to control deployment:
 Deploy with feature disabled, then enable via constants:
 
 ```bash
-insites-cli constants set production FEATURE_NEW_UI "true"
+insites-cli constants set --name FEATURE_NEW_UI --value "true" production
 ```
 
 ## See Also

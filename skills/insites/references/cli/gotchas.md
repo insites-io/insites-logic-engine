@@ -8,7 +8,7 @@ Never use sync command on production:
 
 ```bash
 # WRONG - Never do this!
-insites-cli sync production --watch
+insites-cli sync production
 ```
 
 Always use deploy which includes validation:
@@ -39,7 +39,7 @@ Production should only receive through:
 **Solution**:
 - Verify `.insites` exists in project root
 - Check file permissions: `ls -la .insites`
-- Specify explicit path: `insites-cli sync dev --config /path/to/.insites`
+- Point to another file with the `CONFIG_FILE_PATH` environment variable: `CONFIG_FILE_PATH=/path/to/.insites insites-cli sync dev`
 
 ### Port Already in Use
 
@@ -49,7 +49,7 @@ Production should only receive through:
 ```bash
 insites-cli gui serve --port 3001
 # Or kill existing process
-lsof -i :3000 | kill -9
+lsof -i :3030 | kill -9
 ```
 
 ### Migration Conflicts
@@ -119,17 +119,17 @@ en:
 **Issue**: Logs filter returns no results
 
 **Solutions**:
-- Check environment is correct: `insites-cli logsv2 dev`
-- Use `--follow` flag: `insites-cli logsv2 dev --follow`
+- Check environment is correct: `insites-cli logs dev`
+- Keep `insites-cli logs dev` running while you load the page. It shows new entries as they arrive
 - Check application activity generating logs
 
 ### Filter Not Matching
 
-Use exact filter values:
+`--filter` matches the log type, for example `error`, not text in the message. To find the entries for one job or API call, search the JSON output:
 
 ```bash
-insites-cli logsv2 staging --filter "background_job"
-insites-cli logsv2 staging --filter "api_call"
+insites-cli logs staging --filter error
+insites-cli logs staging --json | grep 'job_name'
 ```
 
 ## Module Installation Problems
@@ -160,21 +160,21 @@ insites-cli logsv2 staging --filter "api_call"
 
 **Prevention**:
 ```bash
-# Always backup first
-insites-cli data export dev users data/backup.csv
+# Always back up first. This exports all data on the instance
+insites-cli data export dev -p backup.zip
 
-# Then clean
-insites-cli data clean dev test_data
+# Then clean. This removes all data on the instance
+insites-cli data clean dev
 ```
 
 ### Import Format Errors
 
-**Issue**: Import fails due to CSV format
+**Issue**: Import fails due to file format
 
 **Solution**:
-- Validate CSV format matches schema
+- Import a `.json` file, or the `.zip` that `data export` produces with `--zip`. The CLI does not import CSV
 - Check encoding: UTF-8 required
-- Test on dev first: `insites-cli data import dev users data/test.csv`
+- Test on dev first: `insites-cli data import dev -p data.zip --zip`
 
 ## See Also
 

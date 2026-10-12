@@ -82,7 +82,7 @@ Need data operations?
 ├─ Paginate results → graphql/ (page/per_page args)
 ├─ Upload files → schema/ (upload type) + forms/
 ├─ Seed/migrate data → migrations/
-├─ Bulk import/export → migrations/ or insites-cli data commands
+├─ Bulk import/export → migrations/; whole-instance export and import via insites-cli data
 ├─ Access existing Postgres/ES/Redis → graphql/ (all DB access via GraphQL only)
 ├─ Contacts / companies / tasks / activities → modules/crm/ (V2 REST API; see "I need CRM data" tree below)
 └─ Events, products and orders, locations, pipelines, assets, forms, profiles → see "I need another module's data" tree below
@@ -299,14 +299,14 @@ Need integrations?
 
 ```
 Need deployment?
-├─ Deploy to environment → deployment/ (insites-cli deploy)
-├─ Watch logs → cli/ (insites-cli logsv2)
-├─ Run Liquid/GraphQL ad-hoc → cli/ (insites-cli exec)
-├─ Pull a module's code from an instance → cli/ (insites-cli modules pull)
-├─ Set environment constants → constants/ (insites-cli constants set)
+├─ Deploy to environment → deployment/ via insites-cli deploy
+├─ Watch logs → cli/ via insites-cli logs <environment>
+├─ Run Liquid/GraphQL ad-hoc → cli/ via insites-cli exec
+├─ Pull a module's code from an instance → cli/ via insites-cli modules pull
+├─ Set environment constants → constants/ via insites-cli constants
 ├─ Run migrations → migrations/
-├─ Lint/validate code → cli/ (insites-cli audit)
-├─ Sync files in development → cli/ (insites-cli sync)
+├─ Lint/validate code → cli/ via insites-cli audit
+├─ Sync files in development → cli/ via insites-cli sync
 └─ Environment configuration → configuration/
 ```
 

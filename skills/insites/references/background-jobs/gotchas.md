@@ -46,7 +46,7 @@ Or pass through partial parameters:
 **Solution**: Check logs for execution status:
 
 ```bash
-insites-cli logs --source-name='your_job_name'
+insites-cli logs staging --json | grep 'your_job_name'
 ```
 
 Look for:
@@ -158,7 +158,7 @@ Partial expects `user` variable but it's undefined.
 
 ```liquid
 {% comment %} Check logs for error details {% endcomment %}
-{% comment %} insites-cli logs --source-name='failing_job' {% endcomment %}
+{% comment %} Run: insites-cli logs staging --json | grep 'failing_job' {% endcomment %}
 
 {% comment %} Fix the partial, then requeue {% endcomment %}
 {% background max_attempts: 1, source_name: 'fixed_job' %}
@@ -262,7 +262,7 @@ inside the block. `params` and `current_user` still do not.
 ```
 Is job executing?
 ├─ YES
-│  └─ Check logs: insites-cli logs --source-name='name'
+│  └─ Check logs: insites-cli logs staging --json | grep 'name'
 │     ├─ SUCCESS? → Job working correctly
 │     └─ FAILED? → Check error message, fix partial, retry
 │
@@ -277,9 +277,9 @@ Is job executing?
    │
    ├─ Is background job available in environment?
    │  └─ NO → Contact platform support
-   │  └─ YES → Check insites-cli logs for system errors
+   │  └─ YES → Check system errors with insites-cli logs <environment> --filter error
    │
-   └─ Enable debug logging in insites-cli logs
+   └─ Add {% log %} tags to the partial and watch insites-cli logs <environment>
 ```
 
 ---

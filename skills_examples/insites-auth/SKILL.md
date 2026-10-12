@@ -29,7 +29,7 @@ Insites provides built-in authentication infrastructure including:
 insites-cli -v
 ```
 
-**Expected:** Version number displayed. If command not found, install insites-cli first.
+**Expected:** Version number displayed. If the command is not found, install the CLI first.
 
 ### 2. Verify Environment Configuration
 
@@ -445,11 +445,11 @@ The User Module provides a helper for the full user profile:
 insites-cli deploy staging
 
 # Watch logs for errors
-insites-cli logsv2 staging
+insites-cli logs staging
 
 # Open GUI to inspect users
 insites-cli gui serve staging
-# Navigate to localhost:3333 → Database → users
+# Navigate to localhost:3030 → Database → users
 ```
 
 ---
@@ -468,11 +468,11 @@ Use `insites-unit-tests` skill for that task.
 insites-cli test run staging
 
 # Run specific test
-insites-cli test run staging test/user_test
+insites-cli test run staging -n user_test
 
 # Run with logs visible
-insites-cli logsv2 staging &
-insites-cli test run staging test/auth
+insites-cli logs staging &
+insites-cli test run staging -n auth
 ```
 Verify that all tests passed.
 

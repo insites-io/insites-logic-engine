@@ -132,11 +132,11 @@ insites-cli constants set --name SENDGRID_FROM_NAME --value "My App" dev
 
 ## Module Configuration Pattern
 
-After installing a module, configure it with constants.
+Modules come with the instance. Configure a module with constants.
 
 ```bash
-# Pull the payments module from instance (install is not yet available via CLI)
-insites-cli modules pull payments dev
+# Pull the payments module's public files from the instance
+insites-cli modules pull dev payments
 
 # Set the constants the module expects
 insites-cli constants set --name STRIPE_SK_KEY --value "sk_test_..." dev

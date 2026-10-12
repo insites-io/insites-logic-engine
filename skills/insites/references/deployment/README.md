@@ -57,7 +57,7 @@ Example CI pipeline:
 
 ```bash
 # 1. Install tools
-npm install -g /insites-cli
+npm install -g @insites/insites-cli
 # 2. Lint
 insites-cli audit
 

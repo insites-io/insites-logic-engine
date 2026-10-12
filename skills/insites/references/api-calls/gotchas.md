@@ -19,7 +19,7 @@ request_headers: |
 
 ```bash
 # CORRECT - Use constants
-insites-cli constants set production PAYMENT_API_KEY "sk_live_abc123xyz"
+insites-cli constants set --name PAYMENT_API_KEY --value "sk_live_abc123xyz" production
 ```
 
 Reference in code:
@@ -40,7 +40,7 @@ Rotate credentials regularly:
 ```bash
 # Generate new key in service provider
 # Update constant
-insites-cli constants set production PAYMENT_API_KEY "sk_live_new_key"
+insites-cli constants set --name PAYMENT_API_KEY --value "sk_live_new_key" production
 
 # Old requests will fail, triggering failover
 ```
@@ -58,7 +58,7 @@ insites-cli constants list production | grep API_KEY
 
 # Regenerate token in service provider
 # Update constant
-insites-cli constants set production API_TOKEN "new_token"
+insites-cli constants set --name API_TOKEN --value "new_token" production
 ```
 
 ### Wrong Authorization Header Format

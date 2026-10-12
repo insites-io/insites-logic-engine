@@ -21,8 +21,8 @@ Deployment process:
 ### Deployment with Options
 
 ```bash
-insites-cli deploy production --force
-insites-cli deploy staging --skip-tests
+insites-cli deploy production --dry-run
+insites-cli deploy staging --partial-deploy
 insites-cli deploy dev --verbose
 ```
 
@@ -39,11 +39,10 @@ File sync only - no migrations or schema changes.
 
 ### Watch Mode
 
-Continuous synchronization:
+Continuous synchronization is the default. `sync` watches your files until you stop it:
 
 ```bash
-insites-cli sync dev --watch
-insites-cli sync staging --watch --filter "app/views"
+insites-cli sync dev
 ```
 
 ## Deployment Lifecycle
@@ -125,7 +124,6 @@ insites-cli deploy staging
 ```bash
 insites-cli deploy production
 # Full validation, mandatory tests
-# No --skip-tests allowed
 ```
 
 ## Deployment Status and Monitoring
@@ -143,8 +141,10 @@ insites-cli logs production --filter "deployment"
 
 ### Monitor in Progress
 
+`logs` keeps showing new entries until you stop it:
+
 ```bash
-insites-cli logs production --follow
+insites-cli logs production
 ```
 
 ## Rollback Procedures
@@ -170,9 +170,9 @@ insites-cli migrations generate production rollback_feature
 Test migrations on staging first:
 
 ```bash
-insites-cli migrations run staging
-# Verify data integrity
-insites-cli data export staging users data/verify.csv
+insites-cli migrations run <timestamp> staging
+# Verify data integrity (exports all data on the instance)
+insites-cli data export staging -p verify.zip
 ```
 
 ## Continuous Integration Deployment

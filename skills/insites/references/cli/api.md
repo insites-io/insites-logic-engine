@@ -4,7 +4,7 @@ Complete reference for `insites-cli`. All command signatures verified against `i
 
 The CLI's top-level commands fall into three groups:
 - **Direct verbs** — `archive`, `audit`, `deploy`, `doctor`, `init`, `logs`, `pull`, `sync`
-- **Subcommand groups** — `constants`, `data`, `duplicate`, `env`, `exec`, `gui`, `logsv2`, `migrations`, `modules`
+- **Subcommand groups** — `constants`, `data`, `duplicate`, `env`, `exec`, `gui`, `migrations`, `modules`
 
 Run `insites-cli help <command>` for the live signature on any instance — this doc reflects the same source.
 
@@ -97,31 +97,11 @@ insites-cli gui serve [environment]
 |---|---|
 | `serve [environment]` | Serve the GUI for files from the given environment |
 
-`gui serve` does not accept a `--port` flag — it picks an available port and prints the URL on start.
-
----
-
-## logsv2
-
-Display logs and errors. **`logsv2` has subcommands, not flags** — pick the one you need.
-
-```bash
-insites-cli logsv2 search
-insites-cli logsv2 searchAround
-insites-cli logsv2 alerts
-insites-cli logsv2 reports
-```
-
-(Alias: `l2`)
-
-| Subcommand | Description |
-|---|---|
-| `search` | Search logs |
-| `searchAround` | Search the stream for records around a timestamp |
-| `alerts` | Manage alerts |
-| `reports` | Predefined reports based on logs |
-
-The CLI's per-subcommand help does not surface argument detail beyond what's shown here; check `insites-cli logsv2 search` interactive output (or your instance's docs) for filter/range arguments.
+| Option | Default | Description |
+|---|---|---|
+| `-p, --port <port>` | `3030` | Port to serve the GUI on |
+| `-o, --open` | off | Open the GraphQL editor in your default browser when ready |
+| `-s, --sync` | off | Sync files while the GUI runs |
 
 ---
 
@@ -192,7 +172,7 @@ insites-cli logs <environment> --json | jq 'select(.error_type == "error")'
 | `-q, --quiet` | | The message only, without context |
 | `--json` | | One JSON object per entry (`id`, `created_at`, `error_type`, `message`, `data`), for `jq` or an agent. 6.1.0 and later |
 
-`logs` follows new entries. To search history, use `logsv2 search`.
+`logs` always follows new entries; there is no `--follow` or `--tail` flag. To find the entries for one job or partial, filter the JSON output: `insites-cli logs staging --json | grep 'job_name'`.
 
 ---
 
@@ -326,16 +306,18 @@ insites-cli env add staging --email dev@example.com --instance-uuid 12345-abcde-
 Export, import, or clean data on an instance.
 
 ```bash
-insites-cli data export [environment]
-insites-cli data import [environment]
+insites-cli data export [environment] -p data.zip
+insites-cli data import [environment] -p data.zip --zip
 insites-cli data clean [environment]
 ```
 
 | Subcommand | Args | Description |
 |---|---|---|
-| `export [environment]` | env optional | Export instance data to a JSON file |
-| `import [environment]` | env optional | Import instance data from a JSON file |
-| `clean [environment]` | env optional | Remove all stored data (users, models, etc.). **Irreversible.** |
+| `export [environment]` | env optional; `-p <file>` sets the output file (default `data.zip`) | Export all data on the instance as a zip archive |
+| `import [environment]` | env optional; `-p <file>` is the file to import (default `data.json`); add `-z, --zip` for a `.zip` | Import data into the instance |
+| `clean [environment]` | env optional; `--auto-confirm` skips the prompt, `-i, --include-schema` also removes pages, schemas and other files | Remove all stored data (users, records, etc.). **Irreversible.** |
+
+These commands work on the whole instance. There is no per-table export or clean.
 
 `clean` is destructive and not reversible — only use against staging/dev environments you are willing to wipe.
 

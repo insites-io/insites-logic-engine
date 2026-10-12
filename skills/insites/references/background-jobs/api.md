@@ -143,25 +143,27 @@ Background jobs do **not** have access to:
 ### View All Job Logs
 
 ```bash
-insites-cli logs
+insites-cli logs staging
 ```
 
 ### Filter by Source Name
 
 ```bash
-insites-cli logs | grep 'send_email'
+insites-cli logs staging | grep 'send_email'
 ```
 
 ### View Specific Job
 
 ```bash
-insites-cli logs --source-name='process_payment'
+insites-cli logs staging --json | grep 'process_payment'
 ```
 
 ### Monitor in Real-Time
 
+`logs` always follows new entries until you stop it:
+
 ```bash
-insites-cli logs --tail
+insites-cli logs staging
 ```
 
 ### Log Output Format
