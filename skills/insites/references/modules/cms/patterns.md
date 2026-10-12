@@ -119,16 +119,14 @@ To write a custom policy, see [`metadata.md#authorization-policies`](metadata.md
 
 ## 7. Send a CMS-managed email
 
-Email templates are referenced by path; the platform handles the actual delivery:
+Send a registered email template by name with `email_send`; the platform handles the delivery. There is no `send_email` function in the CRM module.
 
 ```liquid
-{% include 'modules/insites_crm/functions/send_email',
-   template: 'emails/welcome',
-   to: contact.email,
-   variables: { name: contact.first_name, contact_uuid: contact.uuid } %}
+{%- assign mail = { "to": contact.email, "name": contact.first_name, "contact_uuid": contact.uuid } -%}
+{%- graphql sent = 'emails/send_welcome', data: mail -%}
 ```
 
-The `welcome` email template at `app/emails/welcome.liquid` renders with the `variables` available in its body. Wrap it in an email layout for consistent branding (`modules/insites_crm/external_email_layout` for customer-facing emails, `internal_email_layout` for admin notifications).
+`app/graphql/emails/send_welcome.graphql` runs `email_send(template: { name: "welcome" }, data: $data) { is_scheduled_to_send }`, and `app/emails/welcome.liquid` reads `data.to`, `data.name` and so on. A layout is optional; the CRM module's own emails use `modules/insites_crm/insites_external_email_layout` for customer-facing mail and `modules/insites_crm/insites_internal_email_layout` for admin notifications.
 
 The exact send-email function path varies by module version — check your project's email helpers.
 

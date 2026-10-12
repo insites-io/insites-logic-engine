@@ -200,13 +200,12 @@ Alert when important migrations finish:
 ```liquid
 <!-- app/migrations/20240110000000_send_deployment_complete.liquid -->
 {% if context.first_deployment %}
-  {% graphql notify = 'send_email',
-    to: 'admin@example.com',
-    subject: 'Initial deployment complete',
-    body: 'Your application is ready to use'
-  %}
+  {%- assign mail = { "to": "admin@example.com" } -%}
+  {% graphql notify = 'emails/send_deployment_complete', data: mail %}
 {% endif %}
 ```
+
+The mutation sends a registered template by name, `email_send(template: { name: "deployment_complete" }, data: $data)`, and `app/emails/deployment_complete.liquid` holds the subject and body. An inline `email: { to, subject, content }` answers `is_scheduled_to_send: true` and sends nothing (see [emails-sms/api.md](../emails-sms/api.md#email_send)).
 
 ## See Also
 

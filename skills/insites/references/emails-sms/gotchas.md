@@ -12,8 +12,8 @@ Front matter must be valid YAML. Use quotes for Liquid:
 
 ```yaml
 ---
-to: '{{ user.email }}'
-subject: "Order #{{ order.id }} Confirmed"
+to: '{{ data.to }}'
+subject: "Order #{{ data.order_id }} Confirmed"
 ---
 ```
 
@@ -21,7 +21,7 @@ Without quotes, YAML parsing fails silently.
 
 ### Layout Not Found Error
 
-Ensure layout path is relative to `app/views/layouts/`:
+`layout` is optional. When you set it, name a file in `app/views/layouts/` without the folder or extension:
 
 ```yaml
 ---
@@ -142,7 +142,8 @@ Events are processed asynchronously. Ensure data exists before sending:
 ```liquid
 {% graphql user_check = 'check_user_exists' user_id: event.payload %}
 {% if user_check.user %}
-  {% graphql result = 'send_email_to_user' user_id: event.payload %}
+  {%- assign mail = { "to": user_check.user.email } -%}
+  {% graphql result = 'emails/send_welcome', data: mail %}
 {% endif %}
 ```
 

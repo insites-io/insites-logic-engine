@@ -2,7 +2,7 @@
 
 ## Overview
 
-Insites emails and SMS messages are configured through their respective file structures, with front matter defining delivery parameters and layouts controlling presentation.
+An email or SMS is a template file. Its front matter sets who it goes to and how; its body is the message. It is sent by name with the `email_send` or `sms_send` mutation, which passes it one `data` hash (see [api.md](api.md)).
 
 ## Email Configuration
 
@@ -12,31 +12,33 @@ Emails are defined in `app/emails/` with front matter metadata:
 
 ```yaml
 ---
-to: '{{ user.email }}'
-from: 'support@example.com'
+to: '{{ data.to }}'
+from: 'My Site <no-reply@insites.site>'
 reply_to: 'help@example.com'
-subject: 'Welcome to {{ site_name }}'
+subject: 'Welcome, {{ data.first_name }}'
 layout: 'mailer'
 cc: 'manager@example.com'
 bcc: 'archive@example.com'
 ---
 ```
 
+The template sees only what the mutation passed as `data`, so every value comes from `data`.
+
 ### Front Matter Parameters
 
 | Parameter | Required | Type | Description |
 |-----------|----------|------|-------------|
-| `to` | Yes | String | Recipient email address, supports Liquid variables |
-| `from` | Yes | String | Sender email address |
+| `to` | Yes | String | Recipient email address, usually `'{{ data.to }}'` |
+| `from` | Yes | String | Sender address. It must be one the instance can send from (`no-reply@insites.site`, or an address at a connected domain) |
 | `reply_to` | No | String | Reply-to email address |
 | `subject` | Yes | String | Email subject line with Liquid support |
-| `layout` | Yes | String | Template layout from `app/views/layouts/mailer.liquid` |
+| `layout` | No | String | Name of a layout in `app/views/layouts/`, without the extension (`mailer` for `app/views/layouts/mailer.liquid`). Leave it out and the body is sent as written |
 | `cc` | No | String/Array | Carbon copy recipients |
 | `bcc` | No | String/Array | Blind carbon copy recipients |
 
 ## Email Layouts
 
-Email layouts are stored in `app/views/layouts/` and commonly named `mailer.liquid`:
+A layout is optional. When several emails share styling, put it in `app/views/layouts/`, commonly as `mailer.liquid`, and name it in each email's `layout`:
 
 ```liquid
 <!DOCTYPE html>
@@ -47,44 +49,42 @@ Email layouts are stored in `app/views/layouts/` and commonly named `mailer.liqu
   </style>
 </head>
 <body>
-  {{ page.body }}
+  {{ content_for_layout }}
 </body>
 </html>
 ```
 
-Layouts wrap email content and define HTML structure.
+`{{ content_for_layout }}` is where the email's body goes. Without it the layout is sent with no content.
 
 ## SMS Configuration
 
-SMS messages are defined in `app/smses/` with similar structure to emails:
+SMS messages are defined in `app/smses/`. The front matter needs `to`; the body is the message:
 
-```yaml
+```liquid
 ---
-to: '{{ user.phone_number }}'
-from: 'Insites'
-layout: 'sms'
+to: '{{ data.phone }}'
 ---
+Your code is {{ data.code }}.
 ```
 
 ### SMS Parameters
 
 | Parameter | Required | Description |
 |-----------|----------|-------------|
-| `to` | Yes | Phone number, supports Liquid variables |
-| `from` | Yes | SMS sender ID (alphanumeric, up to 11 chars typically) |
-| `layout` | Yes | SMS layout template |
+| `to` | Yes | Phone number with its country code, usually `'{{ data.phone }}'` |
+
+Other SMS front matter keys were not measured.
 
 ## Data Access
 
-Dynamic data is passed to emails/SMS via context variables:
+Values reach the template through the mutation's `data` argument. Build it in Liquid as one variable and pass it whole:
 
 ```liquid
-data:
-  user: user_id
-  order: order_id
+{%- assign mail = { "to": user.email, "order": { "id": order.id, "total": order.total } } -%}
+{%- graphql sent = 'emails/send_order_confirmation', data: mail -%}
 ```
 
-Access in templates using `{{ data.user.name }}` or `{{ data.order.total }}`.
+Read it in the template as `{{ data.order.id }}` or `{{ data.order.total }}`.
 
 ## File Structure
 
@@ -98,13 +98,12 @@ app/
 │   ├── sms_verification.liquid
 │   └── order_shipped.liquid
 └── views/layouts/
-    ├── mailer.liquid
-    └── sms.liquid
+    └── mailer.liquid      (optional)
 ```
 
 ## Best Practices
 
-1. **Use front matter variables** for all metadata
+1. **Read every value from `data`**, in the front matter and the body
 2. **Leverage Liquid filters** for date/currency formatting
 3. **Keep layouts minimal** for email compatibility
 4. **Test with real data** before production
