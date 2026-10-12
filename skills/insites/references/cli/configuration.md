@@ -57,7 +57,7 @@ For CI, set `INSITES_URL`, `INSITES_EMAIL`, `INSITES_TOKEN`, `INSITES_INSTANCE` 
 Install Insites CLI via npm:
 
 ```bash
-npm install -g /insites-cli
+npm install -g @insites/insites-cli
 ```
 
 Verify installation:
@@ -89,10 +89,10 @@ Default environment is typically `development`.
 
 ### Custom Configuration Paths
 
-Set custom `.insites` file location:
+Point the CLI at a `.insites` file in another location with the `CONFIG_FILE_PATH` environment variable. No command takes a `--config` flag.
 
 ```bash
-insites-cli deploy development --config /path/to/.insites
+CONFIG_FILE_PATH=/path/to/.insites insites-cli deploy development
 ```
 
 ### Multiple Projects
@@ -100,7 +100,7 @@ insites-cli deploy development --config /path/to/.insites
 Maintain separate `.insites` files per project:
 
 ```bash
-insites-cli sync staging --config ./config/.insites
+CONFIG_FILE_PATH=./config/.insites insites-cli sync staging
 ```
 
 ## Common Issues

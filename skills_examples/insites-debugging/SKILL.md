@@ -5,7 +5,7 @@ description: "Debugging & validation: run insites-cli audit linter and analyze i
 
 # Debugging & Validation
 
-Validate code with `insites-cli audit` and analyze runtime logs with `insites-cli logsv2`.
+Validate code with `insites-cli audit` and analyze runtime logs with `insites-cli logs`.
 
 ---
 
@@ -28,12 +28,6 @@ ignore:
 ```bash
 # Check all files
 insites-cli audit
-
-# Check specific file
-insites-cli audit app/views/pages/articles/index.liquid
-
-# Check specific directory
-insites-cli audit app/views/pages/
 ```
 
 ### Error Categories
@@ -85,11 +79,11 @@ Code passes validation when:
 
 ```bash
 # Stream live logs
-insites-cli logsv2 [environment]
-insites-cli logsv2 staging
+insites-cli logs [environment]
+insites-cli logs staging
 
 # Stream with filter
-insites-cli logsv2 staging --filter error
+insites-cli logs staging --filter error
 ```
 
 ### Log Levels
@@ -143,7 +137,7 @@ Add log statements to your Liquid code:
 Then watch logs in another terminal:
 
 ```bash
-insites-cli logsv2 staging
+insites-cli logs staging
 ```
 
 ---
@@ -158,7 +152,7 @@ insites-cli audit
 insites-cli deploy staging
 
 # 3. Watch logs while testing
-insites-cli logsv2 staging
+insites-cli logs staging
 
 # 4. Run tests
 insites-cli test run staging

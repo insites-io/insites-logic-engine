@@ -1,6 +1,6 @@
 # Sessions
 
-> **CLI STATUS:** `insites-cli sessions` (debug/clear) does **not exist**. Do not suggest any `insites-cli sessions` subcommands to users.
+> **CLI STATUS:** `insites-cli sessions` (debug/clear) does not exist. Do not suggest any `insites-cli sessions` subcommands to users.
 
 Server-side session storage accessible via `context.session`.
 

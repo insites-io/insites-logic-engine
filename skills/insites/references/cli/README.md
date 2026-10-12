@@ -3,11 +3,11 @@
 Command-line tools for Insites development.
 
 > **CLI COMMAND STATUS — read before using any CLI examples:**
-> - `insites-cli logs` → **does not exist**. Use `insites-cli logsv2` (alias: `l2`) instead.
-> - `insites-cli constants` → **does not exist**. See `references/constants/`.
-> - `insites-cli cache` → **does not exist**. See `references/caching/`.
-> - `insites-cli sessions` → **does not exist**. See `references/sessions/`.
-> - `insites-cli assets` → **does not exist**. See `references/assets/`.
+> - `insites-cli logs <environment>` works on both stacks. Use it to watch logs.
+> - `insites-cli constants` works: `set`, `unset` and `list`. See `references/constants/`.
+> - `insites-cli cache` does not exist. See `references/caching/`.
+> - `insites-cli sessions` does not exist. See `references/sessions/`.
+> - `insites-cli assets` does not exist. See `references/assets/`.
 
 ## insites-cli Commands
 
@@ -25,8 +25,8 @@ insites-cli gui serve dev                       # Start GraphQL GUI explorer
 
 ### Debugging
 ```bash
-insites-cli logsv2 dev                          # Watch real-time logs (alias: l2)
-insites-cli logsv2 dev --filter type:error      # Filter error logs
+insites-cli logs dev                            # Watch real-time logs
+insites-cli logs dev --filter error             # Show only error logs
 insites-cli exec liquid dev '<code>'            # Execute Liquid snippet
 insites-cli exec graphql dev '<query>'          # Execute GraphQL query
 ```
@@ -63,8 +63,8 @@ insites-cli migrations list dev                 # List migration states
 
 ### Data
 ```bash
-insites-cli data export dev --path=data.json    # Export data
-insites-cli data import dev --path=data.json    # Import data
+insites-cli data export dev --path=data.zip     # Export all data
+insites-cli data import dev --path=data.zip --zip  # Import data
 insites-cli data clean dev                      # Clean all data (DANGEROUS)
 ```
 
@@ -74,7 +74,6 @@ insites-cli data clean dev                      # Clean all data (DANGEROUS)
 
 ```bash
 insites-cli audit                            # Lint all files
-insites-cli audit app/views/pages/           # Lint specific directory
 ```
 
 ### What it checks
@@ -109,7 +108,7 @@ Generate with: `insites-cli env add dev --email dev@example.com --instance-uuid 
 
 ```bash
 # Terminal 1: Watch logs
-insites-cli logsv2 dev
+insites-cli logs dev
 
 # Terminal 2: Make changes and observe
 insites-cli sync dev

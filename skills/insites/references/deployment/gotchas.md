@@ -9,7 +9,6 @@ Never synchronize directly to production:
 ```bash
 # WRONG - Never do this!
 insites-cli sync production
-insites-cli sync production --watch
 ```
 
 ### Why This Is Dangerous
@@ -111,7 +110,7 @@ these: nothing else reports them.
 **Problem**: Database inconsistency
 
 **Solution**:
-1. Investigate error: `insites-cli logsv2 staging --filter migration`
+1. Investigate error: `insites-cli logs staging --filter error`
 2. Fix migration file
 3. Create compensating migration
 4. Rerun deployment
@@ -161,8 +160,8 @@ insites-cli migrations list staging
 # Verify file structure
 ls -la app/views/
 
-# Explicit sync with verbose output
-insites-cli sync dev --verbose
+# Sync one file once and read the result
+insites-cli sync dev -f app/views/pages/index.html.liquid
 
 # Note: insites-cli env clear-cache does not exist.
 # Manually verify your .insites file if sync issues persist.
@@ -177,8 +176,8 @@ insites-cli sync dev --verbose
 # Deploy all at once instead
 insites-cli deploy staging
 
-# Or debug individual files
-insites-cli sync dev --verbose --include "app/views/pages"
+# Or debug individual files, one at a time
+insites-cli sync dev -f app/views/pages/index.html.liquid
 ```
 
 ## Asset Deployment
@@ -270,7 +269,7 @@ insites-cli deploy production
 - Verify `.insites` file (JSON): `cat .insites | python3 -m json.tool | head -10`
 - Check token in dashboard
 - Regenerate if expired
-- Use environment variables: `export POS_TOKEN=`
+- In CI, use environment variables: `INSITES_URL`, `INSITES_EMAIL`, `INSITES_TOKEN`, `INSITES_INSTANCE` and `INSITES_INSTANCE_KEY` (see [CLI Configuration](../cli/configuration.md))
 
 ### Mismatched Environment
 
@@ -282,7 +281,7 @@ insites-cli deploy production
 # Verify your target by checking the .insites file directly.
 
 # Use explicit environment
-insites-cli deploy production  # Not "insites-cli deploy"
+insites-cli deploy production  # always name the environment
 ```
 
 ## See Also

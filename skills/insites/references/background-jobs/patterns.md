@@ -249,13 +249,13 @@ Prioritize jobs strategically:
 Track job execution via logs:
 
 ```bash
-insites-cli logs | grep 'send_email'
+insites-cli logs staging | grep 'send_email'
 ```
 
 Parse logs to identify failures:
 
 ```bash
-insites-cli logs | grep 'FAILED'
+insites-cli logs staging | grep 'FAILED'
 ```
 
 ## See Also

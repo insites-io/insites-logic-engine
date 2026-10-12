@@ -143,34 +143,38 @@ Background jobs do **not** have access to:
 ### View All Job Logs
 
 ```bash
-insites-cli logs
+insites-cli logs staging
 ```
 
 ### Filter by Source Name
 
 ```bash
-insites-cli logs | grep 'send_email'
+insites-cli logs staging | grep 'send_email'
 ```
 
 ### View Specific Job
 
 ```bash
-insites-cli logs --source-name='process_payment'
+insites-cli logs staging --json | grep 'process_payment'
 ```
 
 ### Monitor in Real-Time
 
+`logs` always follows new entries until you stop it:
+
 ```bash
-insites-cli logs --tail
+insites-cli logs staging
 ```
 
 ### Log Output Format
 
+Each line is the time, the log type and the message:
+
 ```
-[2024-01-15 14:32:45] background job: send_email (attempt 1/2) - SUCCESS
-[2024-01-15 14:32:50] background job: process_payment (attempt 1/3) - FAILED
-[2024-01-15 14:32:55] background job: process_payment (attempt 2/3) - SUCCESS
+[2026-10-12 14:32:45.123Z] - error: Liquid error: undefined method 'size'
 ```
+
+With `--json`, each entry is one JSON object with `id`, `created_at`, `error_type`, `message` and `data`, so `grep` or `jq` can pick out a job's entries by any text the job writes with `{% log %}`.
 
 ## Error Scenarios
 

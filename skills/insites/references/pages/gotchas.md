@@ -90,7 +90,7 @@ Page not working?
 │   ├── Check slug matches URL exactly
 │   ├── Check method matches request method
 │   ├── Check file is in app/views/pages/
-│   └── Run insites-cli audit for conflicts
+│   └── Check for conflicts with insites-cli audit
 ├── Getting blank page?
 │   ├── Check partial path is correct
 │   ├── Check partial file exists
@@ -102,7 +102,7 @@ Page not working?
 │   └── Ensure session cookies are enabled
 ├── Data not loading?
 │   ├── Check GraphQL file path is correct
-│   ├── Test query in insites-cli gui GraphQL editor
+│   ├── Test query in the GraphQL editor of insites-cli gui serve
 │   ├── Verify variable names match between query and page
 │   └── Check filter/argument values are correct types
 └── Auth redirect loop?

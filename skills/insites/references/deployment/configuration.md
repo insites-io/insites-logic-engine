@@ -60,11 +60,14 @@ app/
 secrets/
 ```
 
-Use environment variables instead:
+In CI, use environment variables instead. The CLI reads these when all five are set:
 
 ```bash
-export POS_DEV_TOKEN="token_xyz"
-export POS_STAGING_TOKEN="token_abc"
+export INSITES_URL="https://your-instance.staging-insites.io"
+export INSITES_EMAIL="dev@example.com"
+export INSITES_TOKEN="token_xyz"
+export INSITES_INSTANCE="your-instance-uuid"
+export INSITES_INSTANCE_KEY="key_abc"
 ```
 
 ## Pre-Deployment Checklist
@@ -83,45 +86,6 @@ export POS_STAGING_TOKEN="token_abc"
 - `config/translations.yml` - Translation keys defined
 - `app/migrations/` - Migration files up to date
 - `.insites` - Environment configuration (gitignored)
-
-## Deployment Profiles
-
-### Development Profile
-
-```yaml
-development:
-  url: https://dev-instance.staging-insites.io
-  token: ${POS_DEV_TOKEN}
-  email: dev@example.com
-  features:
-    skip_tests: true
-    enable_debug: true
-```
-
-### Staging Profile
-
-```yaml
-staging:
-  url: https://staging-instance.staging-insites.io
-  token: ${POS_STAGING_TOKEN}
-  email: staging@example.com
-  features:
-    skip_tests: false
-    enable_debug: false
-```
-
-### Production Profile
-
-```yaml
-production:
-  url: https://instance.prod01-insites.io
-  token: ${POS_PROD_TOKEN}
-  email: prod@example.com
-  features:
-    skip_tests: false
-    enable_debug: false
-    backup_before_deploy: true
-```
 
 ## Asset Configuration
 
