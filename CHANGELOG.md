@@ -2,6 +2,11 @@
 
 All notable changes to the Insites Logic Engine will be documented in this file.
 
+## [2.2.1] - 2026-10-12
+
+### Bug Fix
+- **`context.deployment` removed** (`configuration/api.md`, `configuration/advanced.md`, `caching/advanced.md`): it renders `null` on v6 instances, measured on two (one production, one staging) on 12 October 2026, while `context.environment` and `context.location.host` render. The cache-versioning examples now key on a `CACHE_VERSION` constant.
+
 ## [2.2.0] - 2026-10-12
 
 ### Bug Fix
