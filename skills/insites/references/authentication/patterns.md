@@ -825,6 +825,8 @@ What it shares with [sign-in by emailed link or code](#sign-in-by-emailed-link-o
 
 **Build the link from a constant, not the request.** A link built from the request's host lets anyone who can change that header send a reset email pointing at their own site. Set `SITE_ORIGIN` once (for example `https://www.example.com`) with `constant_set`.
 
+**Decide who may reset.** On an instance with the CRM, every contact is a user record, so this recipe as written lets any contact set a password and sign in. If only some people may sign in, check their role, or an allow-list, in the send page before minting a token, the same way the [email allow-list](#sign-in-by-emailed-link-or-code) does for sign-in.
+
 The table, `app/schema/password_reset.yml`. It holds one row per request, for the limits only:
 
 ```yaml
