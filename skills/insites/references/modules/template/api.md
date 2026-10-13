@@ -6,9 +6,11 @@ Document the module's public-facing functions, partials, and GraphQL queries/mut
 
 ### Function: example_function
 
+The file is `modules/<module-name>/public/lib/example_function.liquid`; the call drops `public/lib/` (insites-cli 6.1.0 resolves partial paths this way).
+
 ```liquid
 {% liquid
-  function result = 'modules/<module-name>/public/lib/example_function', arg1: value1, arg2: value2
+  function result = 'modules/<module-name>/example_function', arg1: value1, arg2: value2
 %}
 ```
 

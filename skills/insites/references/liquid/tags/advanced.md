@@ -237,78 +237,23 @@ Let the platform retry: `max_attempts` (1 to 5) reruns a job that fails.
 
 ---
 
-## Export Namespace Patterns for Complex Partial Chains
+## Export: hand values out of a partial
 
-**Overview:** `export` encapsulates partial logic and prevents scope pollution across partial chains.
-
-**Pattern 1: Expose Calculated Values**
+`{% export a, b, namespace: 'ns' %}` stores `a` and `b` under `context.exports.ns` for the rest of the request (insites-cli 6.1.0 tag reference). It creates no variables in the caller: read them from `context.exports`. With no `namespace`, the v6 CMS module's `globals` partial ends `{% export global %}` and its callers read `context.exports.global`.
 
 ```liquid
-{%- partials/product_formatter -%}
+{%- comment -%} app/views/partials/pricing/compute.liquid {%- endcomment -%}
 {% assign price = product.price | times: tax_multiplier %}
 {% assign discount = price | times: discount_rate %}
 {% assign final_price = price | minus: discount %}
+{% export final_price, discount, namespace: 'pricing' %}
 
-{% export final_price, discount, price %}
-
-{%- Usage in page -%}
-{% render 'partials/product_formatter', product: product, tax_multiplier: 1.1, discount_rate: 0.1 %}
-Final price: {{ final_price }}
+{%- comment -%} in the page {%- endcomment -%}
+{% include 'pricing/compute', product: product, tax_multiplier: 1.1, discount_rate: 0.1 %}
+Final price: {{ context.exports.pricing.final_price }}
 ```
 
-**Pattern 2: Namespace Isolation**
-
-Prevent variable name collisions in deeply nested partials:
-
-```liquid
-{%- partials/cart/summary -%}
-{% assign total = 0 %}
-{% assign item_count = 0 %}
-{% for item in cart.items %}
-  {% assign total = total | plus: item.price %}
-  {% assign item_count = item_count | plus: 1 %}
-{% endfor %}
-
-{% export total, item_count %}
-
-{%- partials/cart/details (uses different scope) -%}
-{% assign total = 0 %} {%- Different 'total' variable -%}
-{% for line_item in order.line_items %}
-  {% assign total = total | plus: line_item.total %}
-{% endfor %}
-```
-
-**Pattern 3: Complex Partial Chain with Multiple Exports**
-
-```liquid
-{%- page: checkout -%}
-{% render 'partials/checkout/summary', cart: cart, user: user %}
-Subtotal: {{ subtotal }}
-Tax: {{ tax }}
-Grand total: {{ grand_total }}
-
-{%- partials/checkout/summary -%}
-{% render 'partials/checkout/items', items: cart.items %}
-{% render 'partials/checkout/tax', subtotal: subtotal, state: user.state %}
-
-{% export subtotal, tax, grand_total %}
-
-{%- partials/checkout/items -%}
-{% assign subtotal = 0 %}
-{% for item in items %}
-  {% assign item_total = item.price | times: item.qty %}
-  {% assign subtotal = subtotal | plus: item_total %}
-{% endfor %}
-{% export subtotal %}
-
-{%- partials/checkout/tax -%}
-{% assign rate = state | get_tax_rate %}
-{% assign tax = subtotal | times: rate %}
-{% assign grand_total = subtotal | plus: tax %}
-{% export tax, grand_total %}
-```
-
----
+For one value, prefer `{% function x = 'path' %}` with `{% return %}`: the caller gets it as a variable and nothing is left in `context.exports`.
 
 ## content_for with flush:true for Replacement
 

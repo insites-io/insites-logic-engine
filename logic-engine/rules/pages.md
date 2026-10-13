@@ -10,7 +10,7 @@ id: pages-one-http-method
 applies_to: [page]
 severity: info
 evidence: real-project
-evidence_source: "100% compliance across 30+ pages in app-portal, app-seedling, addon-ecommerce, addon-events. Each page declares exactly one method: in YAML front matter."
+evidence_source: "No page in app-portal, app-seedling, addon-ecommerce or addon-events declares more than one method, but most declare none and fall back to get (master, 13 October 2026): 68 of 110 pages have no method: line. app-seedling 16 of 20, app-portal 31 of 39, addon-ecommerce 9 of 22, addon-events 12 of 29. The reference repos do not follow this convention yet."
 audit_ref: audit/v0-conflicts-batch2.md#rule-r-13
 ---
 ```
@@ -21,7 +21,7 @@ audit_ref: audit/v0-conflicts-batch2.md#rule-r-13
 
 **How to apply:** When creating a page, add `method: <verb>` to the front matter. If you need the same URL to serve multiple methods, create separate page files (e.g. `users/get.liquid`, `users/post.liquid`).
 
-**Verified by:** All 30+ inspected pages declare a single `method:`. Examples:
+**Verified by:** No page in the four reference repos declares two methods. Most declare none and fall back to `get`, so the repos do not follow this rule yet: 68 of 110 pages have no `method:` line (app-seedling 16 of 20, app-portal 31 of 39, addon-ecommerce 9 of 22, addon-events 12 of 29, counted on master on 13 October 2026). Pages that do declare one:
 - `app-portal/modules/portal/public/views/pages/api/users/check-user-email.liquid:4` — `method: get`
 - `addon-ecommerce/modules/ecommerce/public/views/pages/api/contacts/put.liquid:4` — `method: put`
 - `addon-events/modules/events/public/views/pages/api/contacts/add-password.liquid:4` — `method: put`

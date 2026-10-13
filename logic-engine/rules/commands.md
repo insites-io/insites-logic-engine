@@ -28,8 +28,12 @@ preship_action: "Fix all unsafe parse_json blocks before shipping (see audit for
 
 The `| json` filter handles all escaping correctly and emits the value with proper JSON quoting. Never wrap an unfiltered variable in literal `"..."` quotes — the filter does the quoting for you.
 
+Two more rules close the same hole:
+- **Take identity from the session, never from the object.** Read the email or user id from `context.current_user` inside the command, not from a caller-supplied `object`, so no caller can point the command at another account.
+- **Prefer an `assign` hash literal.** The insites-cli 6.1.0 tag reference marks `{% parse_json %}` deprecated in favor of `assign` with a JSON literal (see [platform changes](../../skills/insites/references/platform-changes-2026.md)). Values written as variables are never parsed as JSON, so there is nothing to inject: `{% assign object = { "email": context.current_user.email, "otp_code": otp_code } %}`.
+
 **Verified by:**
-- Compliant: `app-seedling/modules/dashboard/public/views/partials/account/2fa_functions/verify_otp/build.liquid:10-11` — `{{ email | default: object.email | json }}`
+- Compliant file, unsafe caller: `app-seedling/modules/dashboard/public/views/partials/account/2fa_functions/verify_otp/build.liquid:10-11` pipes every value through `| json`, but its only caller, `app-seedling/modules/dashboard/public/views/pages/account/2fa.liquid:10-15`, builds `object` with `"otp_code": "{{ otp_code }}"` from the request. A crafted code can add keys, including a second `email`, before the build runs, and the build then reads `object.email`. A safe build does not repair an unsafe caller. Do not copy that page.
 - VIOLATION: `app-portal/modules/portal/public/forms/account/my_details.liquid:99-127` — 8+ unfiltered variables
 - VIOLATION: `addon-ecommerce/.../save-checkout-session.liquid:16-41` — 12+ unfiltered variables
 
@@ -176,3 +180,4 @@ audit_ref: audit/v0-conflicts-batch2.md#rule-r-16
 - 2+ uses → extract to `app/lib/validations/<name>.liquid` (or module equivalent like `modules/{name}/public/views/partials/validations/`) and call via `{% function valid = 'validations/<name>', value: input %}`.
 
 **Verified by:** `app-seedling/modules/dashboard/public/views/partials/account/2fa_functions/validations/presence.liquid` — reusable presence validator extracted as helper.
+- The v6 CRM module keeps `presence`, `truthy` and `date_range` at `modules/insites_crm/private/views/partials/lib/validations/` and calls them as `modules/insites_crm/lib/validations/<name>` from its relationship controllers.

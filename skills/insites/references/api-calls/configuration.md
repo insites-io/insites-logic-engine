@@ -29,8 +29,8 @@ request_headers: |
 ---
 
 {
-  "key": "{{ context.current_user.id }}",
-  "value": "{{ data }}"
+  "key": {{ context.current_user.id | json }},
+  "value": {{ data | json }}
 }
 ```
 
@@ -74,8 +74,8 @@ request_headers: |
 ```yaml
 request_body: |
   {
-    "name": "{{ user.name }}",
-    "email": "{{ user.email }}"
+    "name": {{ user.name | json }},
+    "email": {{ user.email | json }}
   }
 ```
 
@@ -231,9 +231,9 @@ request_headers: |
 ---
 
 {
-  "id": "{{ context.current_user.id }}",
-  "name": "{{ context.current_user.name }}",
-  "email": "{{ context.current_user.email }}"
+  "id": {{ context.current_user.id | json }},
+  "name": {{ context.current_user.name | json }},
+  "email": {{ context.current_user.email | json }}
 }
 ```
 
@@ -268,8 +268,8 @@ async: true
 ---
 
 {
-  "job_id": "{{ job_id }}",
-  "data": "{{ payload }}"
+  "job_id": {{ job_id | json }},
+  "data": {{ payload | json }}
 }
 ```
 

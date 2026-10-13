@@ -75,7 +75,7 @@ Common errors, limits, and troubleshooting for GraphQL in Insites.
 
 ## Measured on v6 instances, October 2026
 
-Facts the schema does not state, each measured on `combinate-intranet.prod01-insites.io` (v6, CRM 6.1.2) while building the Insites Migration Tool (TW#26848218). Where a date is given, that is when it was measured; re-measure before relying on one for a release decision.
+Facts the schema does not state, each measured on a v6 production instance (CRM 6.1.2) while building the Insites Migration Tool (TW#26848218). Where a date is given, that is when it was measured; re-measure before relying on one for a release decision.
 
 ### Never pair an import's `ids` with the input by position
 

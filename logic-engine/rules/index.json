@@ -19,7 +19,7 @@
       "applies_to": ["page"],
       "severity": "info",
       "evidence": "real-project",
-      "evidence_source": "100% compliance observed across 30+ pages in all four repos. Each page declares exactly one method: in front matter.",
+      "evidence_source": "No page in the four reference repos declares more than one method, but 68 of 110 declare none and fall back to get (app-seedling 16 of 20), counted 13 October 2026. The repos do not follow this convention yet.",
       "audit_ref": "audit/v0-conflicts-batch2.md#rule-r-13"
     },
     {
@@ -148,9 +148,9 @@
       "applies_to": ["form"],
       "severity": "error",
       "evidence": "real-project",
-      "evidence_source": "A convention, not a deprecation: the insites-cli 6.1.0 tag reference marks the form tag current. 4 uses in canonical repos.",
+      "evidence_source": "A convention, not a deprecation: the insites-cli 6.1.0 tag reference marks the form tag current. 27 uses in the four reference repos (app-seedling 8), 25 of them in form definitions, counted 13 October 2026.",
       "audit_ref": "audit/v0-conflicts-batch1.md#rule-r-5",
-      "preship_action": "Replace 4 {% form %} usages in canonical repos to keep them on the convention (see audit batch 1)."
+      "preship_action": "The reference repos do not follow this convention yet (27 uses in four repos). Do not cite them as compliant until they are changed."
     },
     {
       "id": "modules-always-present",

@@ -141,11 +141,10 @@ The CLI's object reference lists `ip` as the only property. What it holds has no
 
 ### context.exports
 ```liquid
-{{ context.exports.user.name }}
-{{ context.exports.products }}
-{{ context.exports.metadata }}
+{{ context.exports.pricing.final_price }}
+{{ context.exports.global.company_name }}
 ```
-Data exported from GraphQL queries and partials.
+Values a partial handed out with `{% export name, namespace: 'pricing' %}`. GraphQL results are not exported; see [export](../tags/api.md#export).
 
 ## forloop Object API
 
@@ -207,15 +206,8 @@ Data exported from GraphQL queries and partials.
 
 ## Special Notes
 
-### context.current_user (DEPRECATED)
-Do NOT use directly:
-```liquid
-{%- comment %} WRONG - Never use context.current_user {%- endcomment %}
-{{ context.current_user.name }}
-
-{%- comment %} CORRECT - Use context.exports from GraphQL {%- endcomment %}
-{{ context.exports.user.name }}
-```
+### context.current_user
+Current, not deprecated (the insites-cli 6.1.0 object reference lists it with `deprecated: false`). It holds basic fields such as `id` and `email`; load anything more, such as roles, with a GraphQL query by `context.current_user.id`. See [Authentication API](../../authentication/api.md#contextcurrent_user).
 
 ### Nil and Empty Checks
 ```liquid

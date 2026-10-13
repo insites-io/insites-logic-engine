@@ -59,9 +59,11 @@ Modules are preinstalled per Insites instance and updated through the Insites co
 Pull a module's source from an instance:
 
 ```bash
-insites-cli modules pull dev <module-name>
-insites-cli modules pull dev my-custom-module
+insites-cli modules pull dev my-custom-module -p my-custom-module.zip
+unzip -o my-custom-module.zip && rm my-custom-module.zip
 ```
+
+The command writes a zip (`modules.zip` by default) and does not unpack it.
 
 ### Updating Modules
 

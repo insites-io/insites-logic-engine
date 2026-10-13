@@ -195,6 +195,8 @@ Every entry below contains:
 
 ## Rule R-5: forms-no-form-tag
 
+> **Corrected 13 October 2026:** the count of 4 matched only `{% form` and missed `{%- form`. Counted over each repo on master, the reference repos use the tag 27 times (app-seedling 8, app-portal 11, addon-ecommerce 7, addon-events 1), 25 of them in form definitions. See `rules/forms.md`.
+
 **Skill claim:** "HTML form with CSRF → forms/ (use `<form>` tag, NOT `{% form %}`)" — `skills/insites/SKILL.md:175, 440`. Listed under "Forbidden Behaviors."
 
 **Real-repo evidence FOR:**

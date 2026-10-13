@@ -59,7 +59,7 @@ The most common source of bugs is incorrect truthiness checks. Empty strings are
 {% endparse_json %}
 
 {% parse_json user_prefs %}
-  { "per_page": {{ context.params.per_page | default: 20 }}, "sort": {{ context.params.sort | default: "created_at" | json }} }
+  { "per_page": {{ context.params.per_page | default: 20 | plus: 0 }}, "sort": {{ context.params.sort | default: "created_at" | json }} }
 {% endparse_json %}
 
 {% assign config = defaults | hash_merge: user_prefs %}

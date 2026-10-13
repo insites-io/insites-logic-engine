@@ -98,7 +98,7 @@ Issue an HTTP redirect.
 ```liquid
 {% redirect_to '/products' %}
 {% redirect_to '/old-page', status: 301 %}
-{% redirect_to context.params.return_url %}
+{% comment %} A request parameter is never passed to redirect_to unchecked: see routing/gotchas.md, Open redirects {% endcomment %}
 ```
 
 ## session
@@ -167,7 +167,7 @@ Share a variable from a partial via `context.exports`.
 {% export my_data, namespace: 'products' %}
 ```
 
-Access later: `{{ context.exports.products.my_data }}`
+Access later: `{{ context.exports.products.my_data }}`. `export` takes a list of variable names and an optional `namespace`; it creates no variables in the caller. Global Content is read this way: `{% include 'modules/insites_cms/globals' %}` exports `global`, then `{{ context.exports.global.company_name }}` (the v6 CMS module's `globals` partial; app-portal's layouts read it the same way). See [advanced](advanced.md#export-hand-values-out-of-a-partial).
 
 ## return
 

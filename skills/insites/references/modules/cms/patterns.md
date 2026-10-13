@@ -60,13 +60,14 @@ Inside the partial, `{% return value %}` sets the function result. Functions are
 
 ## 4. Fetch global content
 
-Global content is a single shared record. Read it with a function:
+Global content is a single shared record. The v6 CMS module's `globals` partial reads it and exports it as `global`:
 
 ```liquid
-{% function globals = 'modules/insites_cms/get_globals' %}
+{% include 'modules/insites_cms/globals' %}
+{% assign globals = context.exports.global %}
 
 <header>
-  <img src="{{ globals.company_logo | asset_url }}" alt="{{ globals.company_name }}">
+  <img src="{{ globals.company_logo }}" alt="{{ globals.company_name | escape }}">
   <p>{{ globals.company_slogan }}</p>
 </header>
 
@@ -76,7 +77,7 @@ Global content is a single shared record. Read it with a function:
 </footer>
 ```
 
-The exact partial name varies by module version; in IIA-bootstrapped contexts the `globals` variable may already be available without the function call. The full set of fields (locations, opening hours, contact info, etc.) is enumerated in [`metadata.md#global-content`](metadata.md#global-content).
+Image fields such as `company_logo` arrive as URLs, and the `loc_N_address` fields as parsed hashes. app-portal's layouts read Global Content this way, and so do the v6 CRM and Forms modules. The full set of fields (locations, opening hours, contact info, etc.) is enumerated in [`metadata.md#global-content`](metadata.md#global-content).
 
 ---
 

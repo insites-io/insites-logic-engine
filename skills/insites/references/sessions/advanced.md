@@ -108,32 +108,7 @@ Track session behavior and patterns:
 
 ## Rate Limiting with Sessions
 
-Implement rate limiting per user:
-
-```liquid
-{% assign max_requests = 100 %}
-{% assign time_window = 3600 %}
-
-{% assign current_time = 'now' | date: '%s' %}
-{% assign window_start = context.session.rate_limit_window | default: current_time %}
-{% assign window_age = current_time | minus: window_start %}
-
-{% if window_age > time_window %}
-  <!-- Reset window -->
-  {% session rate_limit_count = 1 %}
-  {% session rate_limit_window = current_time %}
-{% else %}
-  <!-- Increment count -->
-  {% assign new_count = context.session.rate_limit_count | plus: 1 %}
-  {% session rate_limit_count = new_count %}
-
-  <!-- Check limit -->
-  {% if new_count > max_requests %}
-    Too many requests, please try again later
-    {%- break -%}
-  {% endif %}
-{% endif %}
-```
+Do not rate limit in the session: the visitor controls the cookie, so a client that drops it starts again at zero. Count in a table, keyed by email and by network address, as in [sign-in by emailed link or code](../authentication/patterns.md#sign-in-by-emailed-link-or-code).
 
 ## Session Mirroring to Database
 

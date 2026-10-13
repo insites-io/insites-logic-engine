@@ -325,15 +325,15 @@ World
 ### Problem: Export Not Returning Value
 ```liquid
 {%- export result = calculation -%}
-{{ result }}
-{%- comment %} result still available in same template {%- endcomment %}
 ```
 
-**Solution:** Export is for parent access only:
+**Cause:** `export` takes variable names, not an assignment, and it does not create a variable in the caller.
+
+**Solution:** Assign first, export the name, and read it from `context.exports` in the caller; or return one value with `function` and `return`:
 ```liquid
 {%- assign result = calculation -%}
-{%- export result = result -%}
-{%- comment %} Both work in same template {%- endcomment %}
+{%- export result, namespace: 'calc' -%}
+{%- comment %} caller: {{ context.exports.calc.result }} {%- endcomment %}
 ```
 
 ### Problem: Multiple Returns in Partial

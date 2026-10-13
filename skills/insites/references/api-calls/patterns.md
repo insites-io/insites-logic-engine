@@ -87,9 +87,9 @@
 {% endapi_call %}
 
 {
-  "name": "{{ form.fields.name }}",
-  "email": "{{ form.fields.email }}",
-  "phone": "{{ form.fields.phone }}"
+  "name": {{ form.fields.name | json }},
+  "email": {{ form.fields.email | json }},
+  "phone": {{ form.fields.phone | json }}
 }
 ```
 
@@ -108,8 +108,8 @@
 {% endapi_call %}
 
 {
-  "name": "{{ updated_name }}",
-  "status": "{{ updated_status }}"
+  "name": {{ updated_name | json }},
+  "status": {{ updated_status | json }}
 }
 ```
 
@@ -305,7 +305,7 @@
 
 {
   "job_id": "{{ context.current_user.id }}_{{ 'now' | date: '%s' }}",
-  "data": "{{ data_to_process }}"
+  "data": {{ data_to_process | json }}
 }
 
 <!-- Respond immediately, processing happens in background -->

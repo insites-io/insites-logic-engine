@@ -84,8 +84,8 @@ method: get
 ---
 {
   "id": {{ context.params.id | json }},
-  "name": "{{ user.name }}",
-  "email": "{{ user.email }}",
+  "name": {{ user.name | json }},
+  "email": {{ user.email | json }},
   "created_at": "{{ user.created_at | to_iso8601 }}"
 }
 ```
@@ -107,8 +107,8 @@ method: get
     {% for post in posts %}
       {
         "id": {{ post.id | json }},
-        "title": "{{ post.title }}",
-        "slug": "{{ post.slug }}"
+        "title": {{ post.title | json }},
+        "slug": {{ post.slug | json }}
       }{% unless forloop.last %},{% endunless %}
     {% endfor %}
   ],
@@ -135,7 +135,7 @@ method: post
   "success": true,
   "post": {
     "id": {{ new_post.id | json }},
-    "title": "{{ new_post.title }}"
+    "title": {{ new_post.title | json }}
   }
 }
 ```
@@ -298,7 +298,7 @@ Content:
 
 {% if format == "json" %}
   Content-Type: application/json
-  { "product": "{{ product.name }}" }
+  { "product": {{ product.name | json }} }
 {% elsif format == "csv" %}
   Content-Type: text/csv
   name,price,sku

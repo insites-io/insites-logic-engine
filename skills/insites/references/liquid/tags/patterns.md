@@ -165,7 +165,18 @@ Use `parse_json` with Liquid interpolation to build dynamic hashes.
   endif
   sign_in user_id: user.id, timeout_in_minutes: 1440
   session last_login = 'now' | to_time
-  redirect_to context.params.return_url | default: '/'
+  comment
+    Same-site paths only; see routing/gotchas.md, Open redirects.
+  endcomment
+  assign goto = '/'
+  assign rt = context.params.return_to | default: ''
+  assign safe = rt | replace_regex: '[^A-Za-z0-9/_.~?&=%#-]', ''
+  assign first = rt | slice: 0
+  assign second = rt | slice: 1
+  if safe == rt and first == '/' and second != '/'
+    assign goto = rt
+  endif
+  redirect_to goto
 %}
 ```
 

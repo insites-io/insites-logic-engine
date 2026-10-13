@@ -47,13 +47,13 @@ Measured on a v6 instance on 5 October 2026 (TW#26851117): a post without the vi
 
 ## Using {% form %} Instead of HTML
 
-**Problem:** Form tag is not recognized, form doesn't submit or behaves unexpectedly.
+**Problem:** A page or partial uses `{% form %}` for a hand-written form.
 
-**Cause:** Insites does not provide a `{% form %}` tag. Forms must use standard HTML `<form>` tags.
+**Cause:** `{% form %}` exists and is current, but it renders a form definition through the `form_builder` variable, so it belongs in the body of a `forms/<name>.liquid` file (insites-cli 6.1.0 tag reference: "Use within form configuration"). Render a defined form from a page with `{% include_form 'name' %}`. For a hand-written form in a page or partial, use a plain `<form>` with the authenticity token, which is the `forms-no-form-tag` convention.
 
-**Incorrect:**
+**Against the convention (in a page or partial):**
 ```liquid
-{% form method="POST" action="/products" %}
+{% form method: 'post' %}
   <input type="text" name="product[title]">
 {% endform %}
 ```

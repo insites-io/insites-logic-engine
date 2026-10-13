@@ -56,7 +56,7 @@ URL: `/products?page=2&sort=price`
 ```liquid
 {% redirect_to '/products' %}
 {% redirect_to '/products', status: 301 %}
-{% redirect_to context.params.return_url %}
+{% comment %} A request parameter is never passed to redirect_to unchecked: see routing/gotchas.md, Open redirects {% endcomment %}
 ```
 
 ## URL Helpers

@@ -22,11 +22,15 @@ Application-level configuration. Flags are flat top-level keys:
 
 ```yaml
 # app/config.yml
+liquid_check_mode: warning
 liquid_raise_mode: true
+graphql_argument_type_mismatch_mode: warning
 slug_exact_match: false
 escape_output_instead_of_sanitize: false
 redirect_trailing_slash: true
 ```
+
+The v6 system-pages module's own `app/config.yml` sets five of these: `liquid_check_mode`, `liquid_raise_mode`, `graphql_argument_type_mismatch_mode`, `slug_exact_match` and `escape_output_instead_of_sanitize`. insites-cli 6.1.0 uploads the file as it stands and does not read it.
 
 There is no `modules:` section: modules are installed through the Insites Console (see [Module Configuration](#module-configuration)).
 

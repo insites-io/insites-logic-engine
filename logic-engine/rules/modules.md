@@ -10,7 +10,7 @@ id: modules-always-present
 applies_to: [global]
 severity: info
 evidence: real-project
-evidence_source: "All four reference repos check modules into source under modules/ folders. No installation manifest, no install command, no manifest.yml. Modules are versioned via app.yml path: directives — they are always present, only versions vary across instances."
+evidence_source: "All four reference repos check modules into source under modules/ folders. No installation manifest, no install command, no manifest.yml. They are always present; only versions vary across instances. A root app.yml, as in app-seedling, describes the repository: insites-cli 6.1.0 deploys only app/ and modules/ and never reads app.yml."
 audit_ref: audit/v0-conflicts.md#open-questions
 supersedes:
   - modules-never-install (original R-8)
@@ -24,7 +24,7 @@ supersedes:
 
 - There is no installer, no manifest.yml, no `insites-cli modules install` command anywhere in the platform.
 - The `modules/` folder is just checked-in source code in the project's git repo.
-- App.yml uses local-filesystem `path:` directives (e.g. `path: modules/dashboard/public`), not version/install-from references.
+- A root `app.yml` (app-seedling has one) lists local `path:` entries such as `path: modules/dashboard/public`. It describes the repository only: insites-cli 6.1.0 uploads `app/` and `modules/<name>/{public,private}/` and never reads `app.yml`.
 
 This matters because users coming from other platforms (Webflow, Shopify, WordPress) might assume installs are required. They aren't.
 
@@ -34,7 +34,7 @@ This matters because users coming from other platforms (Webflow, Shopify, WordPr
 - When you control the module, you can edit it freely. Modules in your own repo are yours to evolve.
 
 **Verified by:**
-- `app-seedling/app.yml:5-11` — modules section uses `path:` directives, not installation manifest
+- `app-seedling/app.yml:5-11`: a repository description with `path:` entries, not an installation manifest; the CLI does not read it
 - `app-portal/modules/` — four local module directories (client, ins_forms, portal, website) all checked into the repo
 - Across all four repos: no `manifest.yml`, no install command, no install hooks
 
