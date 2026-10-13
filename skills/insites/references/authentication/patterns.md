@@ -815,6 +815,248 @@ Measured end to end for `$P$`, `$H$`, MD5 and `$wp$2y$`: the wrong password was 
 
 Never log or print the hash, and delete the legacy table once no row is left.
 
+## Password reset by emailed link
+
+A reset link built on the platform's own token: `temporary_token(expires_in:)` mints it, `authenticate { temporary_token(token:) }` checks it, and changing the password ends it. No token is stored. Every file below ran as written on a v6 production instance on 13 October 2026, where all eight cases passed: a valid link resets the password and the new password signs in; the same link after the reset is refused; a token past its expiry is refused; one account's token is refused for another; two links issued before a reset both work and the reset ends both; an unknown address gets the identical answer and no email; the per-address and per-network limits stop requests; a tampered token is refused. A POST without the form page's session, or with a forged authenticity token, was refused and changed nothing.
+
+**A link works until the password changes or it expires.** Opening it does not use it up, and asking again does not end the older link. The recipe keeps the lifetime to **one hour** and says so in the email. See [Temporary Tokens](api.md#temporary-tokens) for the measured token behavior.
+
+What it shares with [sign-in by emailed link or code](#sign-in-by-emailed-link-or-code): the same answer for every address, limits counted on every row, a session flag on every POST, and mail through a registered template with `data` as one variable.
+
+**Build the link from a constant, not the request.** A link built from the request's host lets anyone who can change that header send a reset email pointing at their own site. Set `SITE_ORIGIN` once (for example `https://www.example.com`) with `constant_set`.
+
+The table, `app/schema/password_reset.yml`. It holds one row per request, for the limits only:
+
+```yaml
+name: password_reset
+properties:
+  - name: email
+    type: string
+  - name: ip
+    type: string
+  - name: status
+    type: string
+```
+
+The visitor's address, `app/views/partials/password_reset/client_ip.liquid`:
+
+```liquid
+{%- comment -%}
+  The visitor network address, for rate limits. Called with:
+    function ip = 'password_reset/client_ip'
+  X-Real-IP and the FIRST X-Forwarded-For entry hold the address the edge saw. The LAST
+  X-Forwarded-For entry is an internal address, so never limit on it.
+{%- endcomment -%}
+{%- liquid
+  assign ip = context.headers.HTTP_X_REAL_IP
+  if ip == blank
+    assign xff = context.headers.HTTP_X_FORWARDED_FOR | default: 'unknown'
+    assign ip = xff | split: ',' | first | strip
+  endif
+  assign ip = ip | truncate: 60, ''
+  return ip
+-%}
+```
+
+The token check, `app/views/partials/password_reset/check_token.liquid`:
+
+```liquid
+{%- comment -%}
+  Called with:
+    function user_id = 'password_reset/check_token', email: email, token: token
+  Returns the id of the account with that email when the token is live for that account,
+  or blank. The platform refuses a token once it has expired or the password has changed.
+{%- endcomment -%}
+{%- assign user_id = '' -%}
+{%- if email != blank and token != blank -%}
+  {%- graphql chk, em: email, tok: token -%}
+  query ($em: String, $tok: String!) {
+    u: user(email: $em, is_deleted: false) { id authenticate { temporary_token(token: $tok) } }
+  }
+  {%- endgraphql -%}
+  {%- if chk.u.authenticate.temporary_token == true -%}
+    {%- assign user_id = chk.u.id -%}
+  {%- endif -%}
+{%- endif -%}
+{%- return user_id -%}
+```
+
+**The form page**, `app/views/pages/password-reset.liquid`, sets the session flag both POST pages check:
+
+```liquid
+---
+slug: password-reset
+---
+{%- session reset_form = 'on' -%}
+{%- if context.params.sent == '1' -%}
+  <p>If that address has an account, a reset link is on its way. It works for one hour.</p>
+{%- elsif context.params.stale == '1' -%}
+  <p>That link has expired or has already been used. Enter your email address for a new one.</p>
+{%- endif -%}
+<form method='post' action='/password-reset/send'>
+  <input type='hidden' name='authenticity_token' value='{{ context.authenticity_token }}'>
+  <label for='email'>Email address</label>
+  <input id='email' name='email' type='email' autocomplete='email' required>
+  <button type='submit'>Email me a reset link</button>
+</form>
+```
+
+**Send the link**, `app/views/pages/password-reset/send.liquid`. Same redirect for every address; 5 requests per address and 20 per network address in 15 minutes; the link lasts one hour:
+
+```liquid
+---
+slug: password-reset/send
+method: post
+layout: ''
+---
+{%- liquid
+  unless context.session.reset_form == 'on'
+    redirect_to '/password-reset'
+  endunless
+  assign email = context.params.email | default: '' | strip | downcase
+  assign valid = false
+  if email contains '@' and email.size > 5 and email.size < 255
+    assign valid = true
+  endif
+  if email contains ' '
+    assign valid = false
+  endif
+  function ip = 'password_reset/client_ip'
+  assign now_unix = 'now' | date: '%s' | plus: 0
+  assign since_iso = now_unix | minus: 900 | date: '%Y-%m-%dT%H:%M:%SZ'
+-%}
+{%- graphql look, t: 'password_reset', f_email: 'email', f_ip: 'ip', em: email, ip: ip, since: since_iso -%}
+query ($t: String, $f_email: String!, $f_ip: String!, $em: String, $ip: String, $since: String) {
+  for_email: records(per_page: 1, filter: { table: { value: $t }, created_at: { gte: $since }, properties: [{ name: $f_email, value: $em }] }) { total_entries }
+  for_ip: records(per_page: 1, filter: { table: { value: $t }, created_at: { gte: $since }, properties: [{ name: $f_ip, value: $ip }] }) { total_entries }
+  account: users(per_page: 1, filter: { email: { value: $em } }) { results { id } }
+}
+{%- endgraphql -%}
+{%- if valid and look.for_email.total_entries < 5 and look.for_ip.total_entries < 20 -%}
+  {%- liquid
+    assign row_status = 'miss'
+    if look.account.results.size > 0
+      assign row_status = 'sent'
+    endif
+  -%}
+  {%- graphql row, t: 'password_reset', f_email: 'email', f_ip: 'ip', f_status: 'status', em: email, ip: ip, st: row_status -%}
+  mutation ($t: String!, $f_email: String!, $f_ip: String!, $f_status: String!, $em: String!, $ip: String!, $st: String!) {
+    record_create(record: { table: $t, properties: [
+      { name: $f_email, value: $em }
+      { name: $f_ip, value: $ip }
+      { name: $f_status, value: $st }
+    ] }) { id }
+  }
+  {%- endgraphql -%}
+  {%- if row_status == 'sent' -%}
+    {%- graphql found, em: email, h: 1.0 -%}
+    query ($em: String, $h: Float) {
+      u: user(email: $em, is_deleted: false) { id temporary_token(expires_in: $h) }
+    }
+    {%- endgraphql -%}
+    {%- liquid
+      assign enc_e = email | url_encode
+      assign enc_t = found.u.temporary_token | url_encode
+      assign link = context.constants.SITE_ORIGIN | append: '/password-reset/link?e=' | append: enc_e | append: '&t=' | append: enc_t
+      assign mail = {}
+      assign mail.to = email
+      assign mail.link = link
+    -%}
+    {%- graphql sent, tpl: 'password_reset_link', d: mail -%}
+    mutation ($tpl: String!, $d: HashObject) {
+      email_send(template: { name: $tpl }, data: $d) { is_scheduled_to_send }
+    }
+    {%- endgraphql -%}
+  {%- endif -%}
+{%- endif -%}
+{%- redirect_to '/password-reset?sent=1' -%}
+```
+
+The email, `app/emails/password_reset_link.liquid`:
+
+```liquid
+---
+to: '{{ data.to }}'
+from: My Site <no-reply@insites.site>
+subject: Reset your password
+---
+<p>Someone asked to reset the password for this address. Use this link to choose a new one. It works for one hour, and stops working once the password has been changed.</p>
+<p><a href='{{ data.link | escape }}'>Choose a new password</a></p>
+<p>If you did not ask for this, ignore this email. Your password stays as it is.</p>
+```
+
+**Open the link**, `app/views/pages/password-reset/link.liquid`. It checks the token and shows the form; it changes nothing, so a mail scanner opening it does no harm. The `referrer` meta keeps the token out of the `Referer` header of anything the page loads:
+
+```liquid
+---
+slug: password-reset/link
+---
+{%- session reset_form = 'on' -%}
+{%- liquid
+  assign em = context.params.e | default: '' | strip | downcase
+  assign tok = context.params.t | default: ''
+  function user_id = 'password_reset/check_token', email: em, token: tok
+-%}
+<meta name='referrer' content='no-referrer'>
+{%- if user_id == blank -%}
+  <p>That link has expired or has already been used. <a href='/password-reset'>Ask for a new one</a>.</p>
+{%- else -%}
+  {%- if context.params.short == '1' -%}
+    <p>Use between 10 and 72 characters.</p>
+  {%- endif -%}
+  <form method='post' action='/password-reset/save'>
+    <input type='hidden' name='authenticity_token' value='{{ context.authenticity_token }}'>
+    <input type='hidden' name='e' value='{{ em | escape }}'>
+    <input type='hidden' name='t' value='{{ tok | escape }}'>
+    <label for='password'>New password</label>
+    <input id='password' name='password' type='password' autocomplete='new-password' minlength='10' maxlength='72' required>
+    <button type='submit'>Save new password</button>
+  </form>
+{%- endif -%}
+```
+
+**Save the password**, `app/views/pages/password-reset/save.liquid`. It checks the session flag and the token again, saves with `user_update`, which ends the token, and signs the person in:
+
+```liquid
+---
+slug: password-reset/save
+method: post
+layout: ''
+---
+{%- liquid
+  unless context.session.reset_form == 'on'
+    redirect_to '/password-reset?stale=1'
+  endunless
+  assign em = context.params.e | default: '' | strip | downcase
+  assign tok = context.params.t | default: ''
+  assign pw = context.params.password | default: ''
+  function user_id = 'password_reset/check_token', email: em, token: tok
+  if user_id == blank
+    redirect_to '/password-reset?stale=1'
+  endif
+  if pw.size < 10 or pw.size > 72
+    assign enc_e = em | url_encode
+    assign enc_t = tok | url_encode
+    assign back = '/password-reset/link?short=1&e=' | append: enc_e | append: '&t=' | append: enc_t
+    redirect_to back
+  endif
+-%}
+{%- graphql saved, id: user_id, pw: pw -%}
+mutation ($id: ID!, $pw: String!) {
+  user_update(id: $id, user: { password: $pw }) { id }
+}
+{%- endgraphql -%}
+{%- liquid
+  if saved.user_update.id == blank
+    redirect_to '/password-reset?stale=1'
+  endif
+  sign_in user_id: user_id, timeout_in_minutes: 720
+  redirect_to '/'
+-%}
+```
+
+`redirect_to` ends the page, so nothing after a refusal runs. The page caps passwords at 72 characters because bcrypt, the only hash the instance checks, uses only the first 72 bytes.
+
 ## Best Practices
 
 1. **Always load the profile from `context.current_user`** -- every protected page starts by checking `context.current_user` and loading the full profile with roles via GraphQL (the `roles` property must be declared in `app/user.yml` first; see [configuration](configuration.md#declare-the-roles-property-first))

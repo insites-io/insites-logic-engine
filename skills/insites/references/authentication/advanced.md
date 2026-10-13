@@ -305,52 +305,11 @@ method: post
 
 ## Rate Limiting Login Attempts
 
-Insites does not have built-in rate limiting for login. Implement it using a record counter.
-
-```liquid
-{% comment %} In login handler, before authenticating {% endcomment %}
-{% parse_json too_many_flash %}
-  { "alert": "app.auth.too_many_attempts", "from": {{ context.location.pathname | json }} }
-{% endparse_json %}
-{% parse_json invalid_flash %}
-  { "alert": "app.sessions.invalid_credentials", "from": {{ context.location.pathname | json }} }
-{% endparse_json %}
-{% liquid
-  graphql attempts = 'auth/get_attempts', email: context.params.email
-  assign count = attempts.records.results.first.properties.count | default: 0 | plus: 0
-
-  if count >= 5
-    assign flash_json = too_many_flash | json
-    session sflash = flash_json
-    render 'sessions/form'
-    break
-  endif
-
-  graphql user = 'users/authenticate', email: context.params.email, password: context.params.password
-
-  if user.user == blank
-    graphql _ = 'auth/increment_attempts', email: context.params.email
-    assign flash_json = invalid_flash | json
-    session sflash = flash_json
-    render 'sessions/form'
-    break
-  endif
-
-  graphql _ = 'auth/clear_attempts', email: context.params.email
-  sign_in user_id: user.user.id
-  redirect_to '/'
-%}
-```
+Count attempts in a table, one row per attempt, keyed by email and by network address, and refuse when a window holds too many. Never count in the session: a visitor clears it by dropping the cookie. Never read a counter and write it back, or use `increment`: under concurrent requests both let attempts through. The measured pattern, with the atomic `take_slot` claim, is in [sign-in by emailed link or code](patterns.md#sign-in-by-emailed-link-or-code).
 
 ## Password Reset Flow
 
-1. User submits email on a "forgot password" page
-2. Generate a one-time token, store it on the user record
-3. Send a reset email (via events/consumers) with a link containing the token
-4. User clicks the link, lands on a reset page that validates the token
-5. User submits a new password; update the record and sign them in
-
-This pattern involves forms, emails, and auth working together. See [Emails-SMS Patterns](../emails-sms/patterns.md) for the email-sending portion.
+The tested recipe, built on the platform's `temporary_token`, is [Password reset by emailed link](patterns.md#password-reset-by-emailed-link): a form that answers the same for every address, limits per address and per network address, a registered email, a link page that checks the token, and a save page that sets the password, which ends the token, and signs the person in. Keep the token's lifetime short (the recipe uses one hour): it stays valid until the password changes or it expires.
 
 ## See Also
 

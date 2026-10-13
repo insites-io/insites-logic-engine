@@ -248,6 +248,43 @@ mutation update_role($id: ID!, $role: String!) {
 }
 ```
 
+## Temporary Tokens
+
+`temporary_token(expires_in: Float)` on a user returns a signed token for that account; `expires_in` is in **hours** (default 48). Check one with `authenticate { temporary_token(token: String!) }`, which answers `true` while the token is valid for that user and unexpired. The schema adds: "Token will be invalidated on password change".
+
+```liquid
+{%- graphql found, em: email, h: 1.0 -%}
+query ($em: String, $h: Float) {
+  u: user(email: $em, is_deleted: false) { id temporary_token(expires_in: $h) }
+}
+{%- endgraphql -%}
+{%- graphql chk, em: email, tok: token -%}
+query ($em: String, $tok: String!) {
+  u: user(email: $em, is_deleted: false) { id authenticate { temporary_token(token: $tok) } }
+}
+{%- endgraphql -%}
+```
+
+Measured on a v6 production instance on 13 October 2026:
+
+- The token reads as base64 of `<user id>|<expiry as Unix time>`, then `--` and a signature. It is not secret in shape; only the signature protects it. Changing the id, the expiry or the signature makes it fail.
+- It checks only against its own account: another user's live token answers `false`.
+- `expires_in: 0.01` (36 seconds) was valid at 26 seconds and refused at 46.
+- Minting and checking write nothing. Two tokens minted for one account are both valid; opening or checking a token does not use it up, so it stays valid until the password changes or it expires.
+- Changing the password with `user_update` ended every token minted before it.
+
+So a token is a reusable credential until then: keep `expires_in` short. The [password reset recipe](patterns.md#password-reset-by-emailed-link) and the [sign-in link](patterns.md#variant-2-an-emailed-link) use it.
+
+## Two-Factor Codes (TOTP)
+
+The schema offers time-based codes per user. None of this was measured for this page; it is the schema's contract.
+
+- `otp(otp_name: String)` on a user returns `Otp { current_code, secret, secret_as_svg_qr_code(issuer, label) }`; leave `otp_name` blank for the default token. `otp_tokens` lists custom token names.
+- `authenticate { otp_code(code: String!, drift: Int) }` checks a code; `drift` allows clock difference between the device and the server.
+- `user_otp_secret_refresh(user_id:, otp_name:)` makes a new secret and `user_otp_delete_token(user_id:, otp_name:)` removes one.
+
+Whether a person has switched two-factor on is a fact about them: store it on the user or profile. Whether this sign-in has passed the code is a fact about this login: store it in the session (see [Sessions](../sessions/README.md#session-state-or-profile-state)). Always look the account up from `context.current_user`, never from a submitted email or id.
+
 ## See Also
 
 - [Authentication Overview](README.md) -- introduction and key concepts
