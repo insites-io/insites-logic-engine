@@ -154,6 +154,30 @@ The same applies to `put`, `patch`, `delete` and `post` pages that take an id fr
 
 **`max_deep_level` is not a reliable cap.** The platform schema defines `max_deep_level` as the URL nesting a slug resolves (`PageInputType.max_deep_level`, default 3): slug `abc` with 2 "will resolve /abc, abc/1, abc/2, but will NOT resolve abc/2/something". The page measured above declares `max_deep_level: 4` in its source and still answered a path ten segments below its slug. Do not rely on it to stop a page answering deeper paths.
 
+## Open Redirects
+
+**Problem:** A sign-in or form page sends the visitor to `context.params.return_to` (or `return_url`), and an attacker's link sends them to another site.
+
+**Cause:** `redirect_to` takes full URLs and protocol-relative ones. Measured on a v6 staging instance on 13 October 2026: `redirect_to context.params.return_to` sent `https://evil.example/x` and `//evil.example/x` both to `https://evil.example/x`.
+
+**Solution:** Accept only a same-site path: it starts with one `/`, not two, and holds only path and query characters. Otherwise use a fixed default.
+
+```liquid
+{%- liquid
+  assign goto = '/'
+  assign rt = context.params.return_to | default: ''
+  assign safe = rt | replace_regex: '[^A-Za-z0-9/_.~?&=%#-]', ''
+  assign first = rt | slice: 0
+  assign second = rt | slice: 1
+  if safe == rt and first == '/' and second != '/'
+    assign goto = rt
+  endif
+  redirect_to goto
+-%}
+```
+
+Measured on the same instance, 12 of 12 cases as intended: `/account` and `/search?q=a&b=c` went through; `//evil.example`, `https://evil.example` (with and without a path), `/%5Cevil.example` (a backslash), `%2F%2Fevil.example`, a path with an encoded tab, `/%0d%0aSet-Cookie:x=1`, `javascript:alert(1)`, `evil.example` and an empty value all went to `/`. Check the exact value you redirect to: decode first, never after.
+
 ## Addresses You Should Not Take
 
 Three different rules, measured against the platform and the v6 module code on 13 October 2026. `insites-cli check` (6.2.1 and later) enforces all three.

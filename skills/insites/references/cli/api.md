@@ -239,9 +239,11 @@ insites-cli modules version [version] --package
 |---|---|---|
 | `init <name>` | name required | Initialize a module locally with the starter structure |
 | `list [environment]` | env optional | List installed modules on the environment |
-| `pull [environment] <name>` | name required | Pull a module from an instance. Only the module's `public/` files come back; its `private/` files, including every schema and migration of an IIA module, stay on the instance. Pulling `insites_events` from a v6 instance returned one file, its `hook_module_info` partial |
+| `pull [environment] <name>` | name required | Pull a module from an instance. Only the module's `public/` files come back; its `private/` files, including every schema and migration of an IIA module, stay on the instance. Pulling `insites_events` from a v6 instance returned one file, its `hook_module_info` partial. The files arrive as a zip, `modules.zip` unless `-p <path>` names another, and are not unpacked |
 | `remove [environment] <name>` | name required | Remove module from instance (removes configuration and data) |
 | `version [version] --package` | `--package` required | Create a new version of the module |
+
+`modules pull` writes a zip and leaves `modules/` untouched (insites-cli 6.1.0, `bin/insites-cli-modules-pull.js`). Unpack it yourself: `insites-cli modules pull staging my_module -p my_module.zip && unzip -o my_module.zip && rm my_module.zip`.
 
 ---
 

@@ -87,7 +87,7 @@ Build filters dynamically in Liquid and pass them as a single hash:
 ```liquid
 {% parse_json search_args %}
   {
-    "page": {{ context.params.page | default: 1 }},
+    "page": {{ context.params.page | default: 1 | plus: 0 }},
     "limit": 20
   }
 {% endparse_json %}

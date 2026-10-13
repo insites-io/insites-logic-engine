@@ -60,8 +60,8 @@ Common patterns and practical examples for using Insites Liquid filters.
 ```liquid
 {%- capture config -%}
   {
-    "api_key": "{{ context.constants.api_key }}",
-    "user_id": "{{ current_user.id }}"
+    "api_key": {{ context.constants.api_key | json }},
+    "user_id": {{ current_user.id | json }}
   }
 {%- endcapture -%}
 {%- assign settings = config | parse_json -%}

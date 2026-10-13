@@ -62,8 +62,8 @@ Send data:
 {% endapi_call %}
 
 {
-  "name": "{{ form.fields.name }}",
-  "email": "{{ form.fields.email }}"
+  "name": {{ form.fields.name | json }},
+  "email": {{ form.fields.email | json }}
 }
 ```
 
@@ -83,7 +83,7 @@ Update resource:
 {% endapi_call %}
 
 {
-  "name": "{{ new_name }}"
+  "name": {{ new_name | json }}
 }
 ```
 
@@ -268,8 +268,8 @@ release). The maximum stays 50MB.
 
 ```liquid
 {
-  "user_id": "{{ context.current_user.id }}",
-  "action": "{{ action }}",
+  "user_id": {{ context.current_user.id | json }},
+  "action": {{ action | json }},
   "timestamp": "{{ 'now' | date: '%Y-%m-%d %H:%M:%S' }}"
 }
 ```
@@ -348,8 +348,8 @@ Capture and handle errors:
 
 ```liquid
 {
-  "api_key": "{{ context.constants.PAYMENT_API_KEY }}",
-  "webhook_secret": "{{ context.constants.WEBHOOK_SECRET }}"
+  "api_key": {{ context.constants.PAYMENT_API_KEY | json }},
+  "webhook_secret": {{ context.constants.WEBHOOK_SECRET | json }}
 }
 ```
 

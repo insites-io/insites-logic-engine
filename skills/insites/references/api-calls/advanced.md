@@ -227,7 +227,7 @@
         {% endapi_call %}
 
         {
-          "order_id": "{{ payload.data.order_id }}",
+          "order_id": {{ payload.data.order_id | json }},
           "amount": {{ payload.data.amount }}
         }
     {% endcase %}
@@ -291,7 +291,7 @@
 {% endapi_call %}
 
 {
-  "order_id": "{{ order_id }}",
+  "order_id": {{ order_id | json }},
   "amount": {{ amount }}
 }
 
@@ -305,7 +305,7 @@
   {% endapi_call %}
 
   {
-    "order_id": "{{ order_id }}"
+    "order_id": {{ order_id | json }}
   }
 
   <!-- Step 5: Notify user -->

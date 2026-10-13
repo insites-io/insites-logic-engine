@@ -13,8 +13,7 @@
     "scaffold": "auth-login-skeleton",
     "reference": [
       { "repo": "app-portal", "path": "modules/portal/public/views/pages/sign-in.liquid" },
-      { "repo": "app-seedling", "path": "modules/dashboard/public/authorization_policies/is_user_logged_in.liquid" },
-      { "repo": "app-seedling", "path": "modules/dashboard/public/views/pages/account/2fa.liquid" }
+      { "repo": "app-seedling", "path": "modules/dashboard/public/authorization_policies/is_user_logged_in.liquid" }
     ],
     "rationale": "Auth flows use the Permissions module. Reference app-portal for the sign-in pattern; app-seedling for canonical authorization policies."
   },

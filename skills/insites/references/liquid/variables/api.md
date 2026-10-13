@@ -295,26 +295,17 @@ Escapes quotes properly for HTML.
 
 ### Exporting Variables
 ```liquid
-{%- export user = current_user -%}
-{%- export products = filtered_products -%}
-{%- export metadata = page_metadata -%}
+{%- assign admin = is_admin -%}
+{%- export user, admin, message, namespace: 'account' -%}
 ```
 
-Makes variable available in context.exports to parent template.
-
-### Multiple Exports
-```liquid
-{%- export user = current_user -%}
-{%- export admin = is_admin -%}
-{%- export message = success_message -%}
-```
+`export` takes variable names (not assignments) and an optional `namespace`, and stores them in `context.exports` for the rest of the request. It creates no variables in the caller.
 
 ### Accessing Exported Data
 ```liquid
-{%- comment %} In parent template {%- endcomment %}
-{{ context.exports.user.name }}
-{{ context.exports.admin }}
-{{ context.exports.message }}
+{{ context.exports.account.user.name }}
+{{ context.exports.account.admin }}
+{{ context.exports.account.message }}
 ```
 
 ## return API
@@ -324,7 +315,7 @@ Makes variable available in context.exports to parent template.
 {%- return result_value -%}
 ```
 
-Returns value from partial to parent context.exports.
+Ends the partial and hands the value to the `{% function %}` tag that called it. It does not write to `context.exports`, and `render` and `include` ignore it.
 
 ### Return with Data
 ```liquid

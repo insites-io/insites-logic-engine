@@ -46,7 +46,7 @@ ENV=$1
 
 for MODULE in "${MODULES[@]}"; do
   echo "Pulling $MODULE..."
-  insites-cli modules pull $ENV $MODULE
+  insites-cli modules pull $ENV $MODULE -p "$MODULE.zip" && unzip -o "$MODULE.zip" && rm "$MODULE.zip"
 done
 ```
 
@@ -249,7 +249,7 @@ The CLI deliberately has no `diff`, `rollback` or `benchmark` command. Git, the 
 ```bash
 insites-cli pull staging -p app.zip && unzip -o app.zip && rm app.zip
 insites-cli modules list staging
-insites-cli modules pull staging my_module      # repeat for each of the project's own modules
+insites-cli modules pull staging my_module -p my_module.zip && unzip -o my_module.zip && rm my_module.zip   # repeat per module
 git init && git add app modules && git commit -m "Code as it is on staging"
 ```
 

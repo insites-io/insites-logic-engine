@@ -38,7 +38,7 @@ For simple, one-off queries:
 
 ```liquid
 {% parse_json params %}
-  { "page": {{ context.params.page | default: 1 }}, "limit": 10 }
+  { "page": {{ context.params.page | default: 1 | plus: 0 }}, "limit": 10 }
 {% endparse_json %}
 {% graphql result = 'products/search', args: params %}
 ```
@@ -76,7 +76,7 @@ Performs an HTTP redirect. Terminates page execution.
 ```liquid
 {% redirect_to '/path' %}
 {% redirect_to '/path', status: 301 %}
-{% redirect_to context.params.return_url %}
+{% comment %} A request parameter is never passed to redirect_to unchecked: see routing/gotchas.md, Open redirects {% endcomment %}
 ```
 
 | Parameter | Type   | Default | Description           |

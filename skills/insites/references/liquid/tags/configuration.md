@@ -292,7 +292,7 @@ Renders a theme partial with configurable search paths.
 
 ## form / include_form
 
-Legacy form tags. Prefer standard HTML `<form>` elements with `authenticity_token`.
+Current, not deprecated. `{% form %}` renders a form definition and belongs inside a `forms/<name>.liquid` file; `{% include_form 'name' %}` renders a defined form from a page. `render_form` is the deprecated alias of `include_form`. In pages and partials, the convention is a plain HTML `<form>` with `authenticity_token` (`forms-no-form-tag`).
 
 ```liquid
 {% form %}...{% endform %}

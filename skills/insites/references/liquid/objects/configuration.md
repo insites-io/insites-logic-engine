@@ -121,23 +121,21 @@ context.visitor.ip            # Listed in the CLI object reference; value not me
 For the visitor's address, read `context.headers.HTTP_X_REAL_IP` or the first `X-Forwarded-For` entry (see [gotchas](gotchas.md#problem-reading-the-visitors-address-from-the-wrong-header)).
 
 ### context.exports
-Data from GraphQL/partials:
+Values a partial handed out with `{% export %}`:
 ```
-context.exports.user          # From include_partial with exports
-context.exports.products      # From graphql query
-context.exports.metadata      # Custom exported data
+context.exports.<namespace>.<name>   # {% export name, namespace: 'namespace' %}
+context.exports.global               # Global Content, after {% include 'modules/insites_cms/globals' %}
 ```
+See [export](../tags/api.md#export).
 
 ## Environment-Specific Configuration
 
 ### context.environment
 ```
-context.environment.name      # 'staging' or 'production'
-context.environment.is_staging
-context.environment.is_production
-context.environment.url       # Base URL
-context.environment.api_url   # API base URL
+context.environment           # a string: 'staging' or 'production'
 ```
+
+It has no properties (the insites-cli 6.1.0 object reference types it as a string, and app-seedling compares it directly: `context.environment == "staging"`). Use `context.location.host` for the host. See [configuration API](../../configuration/api.md).
 
 ## Best Practices
 

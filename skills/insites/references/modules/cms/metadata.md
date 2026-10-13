@@ -51,7 +51,7 @@ A page is a controller. It fetches data via `{% graphql %}`, then renders by del
 
 **Body:** the Liquid below the front-matter. Should be lean — call `{% graphql %}` for data, then `{% render 'path/to/partial' %}` to render.
 
-**Forbidden in pages:** raw HTML/JS/CSS (delegate to partials), `{% form %}` tag (use plain `<form>` with CSRF token), file extensions other than `.liquid`.
+**Avoid in pages:** HTML reused across pages (delegate to partials; simple page-specific markup is fine, see `pages-prefer-partials-for-shared-html`), the `{% form %}` tag (a convention: use plain `<form>` with the CSRF token), file extensions other than `.liquid`.
 
 ---
 
@@ -110,7 +110,7 @@ The File Explorer view (`/cms/explorer`) browses the entire `app/` tree, includi
 
 Single shared record with company-wide settings used by every page and email. Backed by the form file `app/forms/global_content/insites_global_content.liquid` and the schema `private/schema/globals/global.yml`.
 
-Stored as one record; addressed by name `global`. Read in Liquid via `{% function globals = 'modules/insites_cms/.../get_globals' %}` patterns or via the rendered `globals` variable in IIA-bootstrapped contexts.
+Stored as one record; addressed by name `global`. Read in Liquid with `{% include 'modules/insites_cms/globals' %}`, then `context.exports.global` (the v6 CMS module's `globals` partial exports it).
 
 **Field groups** (all under one record):
 

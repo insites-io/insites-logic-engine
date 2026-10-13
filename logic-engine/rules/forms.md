@@ -10,9 +10,9 @@ id: forms-no-form-tag
 applies_to: [form]
 severity: error
 evidence: real-project
-evidence_source: "A convention, not a deprecation: the insites-cli 6.1.0 tag reference marks {% form %} current and the v6 CRM module uses it once. 4 uses in canonical repos (app-portal sign_out, pay_bills; app-seedling sign_out; addon-ecommerce checkout_payment)."
+evidence_source: "A convention, not a deprecation: the insites-cli 6.1.0 tag reference marks {% form %} current and the v6 CRM module uses it once. The reference repos use it 27 times (master, 13 October 2026): app-seedling 8, app-portal 11, addon-ecommerce 7, addon-events 1. 25 are in form definitions, 1 in a page (app-seedling api/users/id) and 1 in a partial (addon-ecommerce write_a_review_form). An earlier count of 4 matched only {% form and missed {%- form."
 audit_ref: audit/v0-conflicts-batch1.md#rule-r-5
-preship_action: "Open 4 PRs replacing {% form %} with plain <form> + authenticity_token, to keep the canonical repos on the convention."
+preship_action: "The reference repos do not follow this convention yet (27 uses in four repos). Do not cite them as compliant until they are changed."
 ---
 ```
 
@@ -40,11 +40,14 @@ preship_action: "Open 4 PRs replacing {% form %} with plain <form> + authenticit
 
 **Verified by:**
 - Compliant: `app-seedling/modules/dashboard/public/views/pages/account/verify_2fa.liquid:38-39`
-- VIOLATIONS (must fix before rule ships):
-  - `app-portal/modules/portal/public/forms/account/sign_out.liquid:16` — `{% form method: 'delete' %}`
-  - `app-portal/modules/portal/public/forms/pay_bills/pay_bills.liquid:102` — `{% form html-id: "checkout-form" %}`
-  - `app-seedling/modules/dashboard/public/forms/account/sign_out.liquid:12` — `{% form method: 'delete' %}`
-  - `addon-ecommerce/modules/ecommerce/public/forms/checkout/checkout_payment.liquid:199` — `{% form html-id: "checkout-form" %}`
+- Not following it, counted on each repo's master on 13 October 2026 (27 uses; the earlier list of 4 missed every `{%- form`):
+
+| Repo | Uses | Where |
+|---|---|---|
+| `app-seedling` (1d76aab) | 8 | 7 form definitions under `modules/dashboard/public/forms/account/` (`my_details`, `password_reset`, `register`, `sign_out`, `sign_in`, `change_password`, `forgot_password`) and 1 page, `views/pages/api/users/id.liquid:48` |
+| `app-portal` (2e2032a) | 11 | 11 form definitions (9 under `modules/portal/public/forms/`, 2 under `modules/ins_forms/public/forms/`) |
+| `addon-ecommerce` (1f3969e) | 7 | 6 checkout form definitions and 1 partial, `views/partials/forms/review/write_a_review_form.liquid:7` |
+| `addon-events` (4f46a83) | 1 | 1 form definition, `forms/create_password.liquid:22` |
 
 ---
 

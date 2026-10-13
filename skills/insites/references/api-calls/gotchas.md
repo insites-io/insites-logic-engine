@@ -121,11 +121,9 @@ request_headers: |
 **Issue**: Characters not properly encoded
 
 ```liquid
-# Escape special characters
-{% assign escaped_text = form.fields.message | escape_json %}
-
+# The json filter escapes and quotes the value
 {
-  "message": "{{ escaped_text }}"
+  "message": {{ form.fields.message | json }}
 }
 ```
 
@@ -303,7 +301,7 @@ request_headers: |
 <!-- Provide webhook URL for completion notification -->
 {
   "callback_url": "{{ context.request.url }}/webhook",
-  "job_id": "{{ unique_job_id }}"
+  "job_id": {{ unique_job_id | json }}
 }
 ```
 

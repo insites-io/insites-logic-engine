@@ -40,9 +40,15 @@ Server-side session storage accessible via `context.session`.
 
 - Shopping cart persistence
 - Multi-step form wizards
-- User preferences
+- Per-visit choices, such as a filter
 - Flash messages (via session tag)
-- Temporary authentication tokens
+- Per-login flags: two-factor passed on this sign-in, or a flag a form page sets for its POST page to check
+
+## Session State or Profile State
+
+`{% session key = value %}` stores a value for this visitor's session only (GraphQL: `session_create_field`, `session_delete_field`). Use it for state that belongs to one login on one device.
+
+Store a durable fact about the person on the user or profile record (`user_update`): "two-factor is switched on", a preference that should follow them to another device. Per-login state kept on the profile applies to every device at once: one device passing two-factor would mark them all as passed.
 
 ## Rules
 

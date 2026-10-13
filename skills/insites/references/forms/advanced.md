@@ -234,8 +234,8 @@ Endpoint implementation:
     "errors": [
       {% for error in graphql.product_create.errors %}
         {
-          "message": "{{ error.message }}",
-          "code": "{{ error.code }}"
+          "message": {{ error.message | json }},
+          "code": {{ error.code | json }}
         }
         {% unless forloop.last %},{% endunless %}
       {% endfor %}
@@ -245,10 +245,10 @@ Endpoint implementation:
   {
     "success": true,
     "product": {
-      "id": "{{ graphql.product_create.product.id }}",
-      "title": "{{ graphql.product_create.product.title }}",
+      "id": {{ graphql.product_create.product.id | json }},
+      "title": {{ graphql.product_create.product.title | json }},
       "price": {{ graphql.product_create.product.price }},
-      "url": "{{ graphql.product_create.product.url }}"
+      "url": {{ graphql.product_create.product.url | json }}
     }
   }
 {% endif %}

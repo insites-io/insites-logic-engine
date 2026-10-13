@@ -3,7 +3,7 @@
 Insites has two distinct concepts both called "forms":
 
 1. **HTML `<form>` elements** in pages/partials — for browser-rendered submissions. Use plain HTML tags; do NOT use the `{% form %}` Liquid tag.
-2. **Form definitions** at `modules/<name>/public/forms/<name>.liquid` — YAML-fronted Liquid files that declare the schema (fields, validation) and a `callback_actions` block that runs the GraphQL mutations and side effects when the form is submitted. **This is where state-changing logic lives in canonical Combinate** (replacing the older "command pattern").
+2. **Form definitions** at `modules/<name>/public/forms/<name>.liquid`: YAML-fronted Liquid files that declare the schema (fields, validation) and a `callback_actions` block that runs the GraphQL mutations and side effects when the form is submitted. **This is where the Insites reference apps (`app-portal`, `app-seedling`) keep state-changing logic.**
 
 This document covers the HTML side. For the form-definition / `callback_actions` pattern, see the section below.
 
@@ -15,6 +15,9 @@ A form file at `modules/dashboard/public/forms/update_password.liquid` looks lik
 ---
 name: update_password
 resource: User
+resource_owner: anyone
+authorization_policies:
+  - modules/dashboard/is_user_logged_in
 fields:
   current_password:
     validation: { presence: true }
@@ -40,10 +43,11 @@ callback_actions: >
 
 Key points:
 
+- **`resource_owner` is required** (`resource_owner: String!` on the schema's `Form` type), and the schema describes it as who can submit the form: "If set to anyone, please make sure to provide authorization_policies". Every form definition in app-seedling, app-portal and the v6 modules uses `anyone` (58 found, 13 October 2026), so the guard is the `authorization_policies` list, not `resource_owner`. The 21 such forms in app-seedling and app-portal carry no `authorization_policies` line; do not copy that.
 - **Field-level validation** lives in YAML `validation:` blocks (e.g. `presence: true`, `length: { minimum: N }`, `format: ...`).
 - **Cross-field checks and side effects** live in the `callback_actions` Liquid block (the example above checks password match before calling the mutation).
 - Form definitions are invoked from pages/partials via the platform's form-rendering helpers; on submit, validations run first and `callback_actions` only runs if validation passes.
-- There is **no `app/lib/commands/` directory** in canonical Combinate — what older docs described as commands is the `callback_actions` block of a form definition.
+- The reference apps keep this logic in the `callback_actions` block of a form definition. A `lib/commands/` partial is optional; see [project structure](../project-structure.md#lib-is-an-optional-partial-folder).
 
 ## Basic Form
 
@@ -187,4 +191,4 @@ Validate in page:
 - Always include CSRF token for non-GET requests
 - Use bracket notation: `name="resource[field]"`
 - Access form data via `context.params` (page handlers) or `form` (form-definition `callback_actions`)
-- State-changing logic lives in `callback_actions` blocks of form definitions, **not** in `app/lib/commands/` — the latter does not exist in canonical Combinate
+- The reference apps keep state-changing logic in `callback_actions` blocks of form definitions; `lib/commands/` partials are optional

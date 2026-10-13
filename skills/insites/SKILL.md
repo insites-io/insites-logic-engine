@@ -456,7 +456,7 @@ A page fetches what it displays and passes it to partials as render arguments, s
 → `references/graphql/`, `references/partials/`
 
 ### 3. State changes live in form `callback_actions`
-Create/update/delete operations are driven by forms. Each `forms/<name>.liquid` declares its YAML schema (fields, validation) and a Liquid `callback_actions` block that runs the GraphQL mutations and side effects when the form is submitted. There is no separate `app/lib/commands/` directory in canonical Combinate.
+Create/update/delete operations are driven by forms. Each `forms/<name>.liquid` declares its YAML schema (fields, validation) and a Liquid `callback_actions` block that runs the GraphQL mutations and side effects when the form is submitted. The Insites reference apps (`app-portal`, `app-seedling`) work this way. A `lib/` folder of command and validation partials is optional, not forbidden (see `references/project-structure.md`).
 → `references/forms/`
 
 ### 4. Modules are your code
@@ -515,8 +515,8 @@ For the per-directory reference, see [`references/project-structure.md`](referen
 
 ### Cross-module conventions
 
-- **No `app/lib/commands/` directory.** State-changing logic lives inline in pages or in `forms/<name>.liquid` `callback_actions` blocks.
-- **No `app/lib/queries/` directory.** GraphQL files live at `app/graphql/<domain>/<operation>.graphql` or `modules/<module>/public/graphql/<domain>/<operation>.graphql` and are called directly from pages or forms.
+- **`lib/` is optional.** The reference apps keep state-changing logic inline in pages or in `forms/<name>.liquid` `callback_actions` blocks. The v6 CRM module keeps shared command, validation and query partials under `private/views/partials/lib/`. Both work; extract to `lib/` once two callers share a check.
+- **GraphQL files** live at `app/graphql/<domain>/<operation>.graphql` or `modules/<module>/public/graphql/<domain>/<operation>.graphql` and are called directly from pages, forms or partials.
 - **Layouts are namespaced.** E.g. `portal_default`, `portal_form`, `dashboard_default`.
 
 ## File Extension Conventions

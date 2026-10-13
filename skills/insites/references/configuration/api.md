@@ -24,6 +24,8 @@ Access current deployment environment.
 
 ## context.config
 
+> **Unverified.** No Insites source seen shows nested sections in `app/config.yml` (`app:`, `features:`, `modules:`, `constants:`, `database:`, per-environment blocks) or a `context.config` object that reads them; every `app/config.yml` in the v6 modules holds flat flags only (see [README](README.md#appconfigyml-feature-flags)). Keep your own settings in constants (`context.constants`) until these are measured on an instance.
+
 Access application configuration from `app/config.yml`.
 
 **Type:** Object (hash)

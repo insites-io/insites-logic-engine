@@ -219,7 +219,7 @@ Detect requested format via Accept header.
   {
     "product": {
       "id": {{ product.id | json }},
-      "name": "{{ product.name }}"
+      "name": {{ product.name | json }}
     }
   }
 {% elsif accept contains "application/xml" %}
@@ -328,7 +328,7 @@ Content:
   </product>
 {% else %}
   {% response_headers "Content-Type" | add: "application/json" %}
-  { "product": { "name": "{{ product.name }}" } }
+  { "product": { "name": {{ product.name | json }} } }
 {% endif %}
 ```
 

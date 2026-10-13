@@ -52,7 +52,7 @@ The platform runs `{% graphql %}` inside a partial called this way: `signin/take
 
 ## Command Partial Pattern
 
-> **Note:** the older "command partial" pattern (build → check → execute under `lib/commands/`) is **not used in canonical Combinate**. State-changing logic lives in `forms/<name>.liquid` `callback_actions` blocks. See [Forms](../forms/README.md). The example below is retained only as a reference for legacy partial-as-function patterns; do not generate code at `lib/commands/` paths.
+> **Note:** the Insites reference apps (`app-portal`, `app-seedling`) keep state-changing logic in `forms/<name>.liquid` `callback_actions` blocks (see [Forms](../forms/README.md)). A command partial under `lib/commands/` is optional: the v6 CRM module keeps `lib/commands/execute` and `lib/validations/*` partials. Use the pattern below when a state change is called from more than one place.
 
 ```liquid
 {% comment %} app/views/partials/lib/commands/products/create.liquid {% endcomment %}
@@ -138,7 +138,7 @@ When you see the same logic repeated across multiple files, extract it into a re
 
 | Signal | Extract into |
 |--------|-------------|
-| Same validation check in 3+ commands | `lib/validations/presence.liquid` |
+| Same validation check in 2+ commands | `lib/validations/presence.liquid` |
 | Same GraphQL execute + error log in every command | `lib/commands/execute.liquid` |
 | Same UI block on multiple pages | `shared/card.liquid`, `shared/pagination.liquid` |
 | Same auth guard in multiple pages | `authorization_policies/is_admin.liquid` or `lib/helpers/guard.liquid` |

@@ -117,16 +117,16 @@ authorization_policies:
 | Email | snake_case `.liquid`, optionally under `autoresponders/` | `welcome.liquid`, `autoresponders/forgot_password.liquid` |
 | Translation | language code `.yml` | `en.yml`, `de.yml` |
 
-## Directories the skill once described that do not exist
+## `lib/` is an optional partial folder
 
-Don't generate code at these paths, in either tree:
+`lib/` is a partial root, not a required folder. insites-cli 6.1.0 resolves `app/lib/<path>.liquid` as `<path>`, and a module's `public/lib/` or `private/lib/` file as `modules/<name>/<path>` (`lib/test-runner/localTests.js`). A file under `views/partials/lib/` is called as `lib/<path>`.
 
-| Skill said | Reality |
+| Folder | Who uses it |
 |---|---|
-| `app/lib/commands/<resource>/<action>.liquid` | No such directory in any reference repo. State-changing logic lives in `forms/<name>.liquid` `callback_actions` blocks instead. |
-| `app/lib/queries/<name>.liquid` | No such directory. GraphQL files live at `app/graphql/<domain>/<operation>.graphql` or `modules/<name>/public/graphql/<domain>/<operation>.graphql` and are called directly from pages or forms. |
-| `app/lib/validations/<name>.liquid` | No such directory. Field-level validation lives in form YAML `validation:` blocks; cross-field checks live inline in `callback_actions`. |
-| `app/lib/helpers/<name>.liquid` | No such directory. Helpers are partials under `views/partials/` invoked via `{% function %}`. |
+| `lib/commands/` | The v6 CRM module (`private/views/partials/lib/commands/execute.liquid`). The reference apps (`app-portal`, `app-seedling`) keep state changes in `forms/<name>.liquid` `callback_actions` instead. Either works. |
+| `lib/validations/` | The v6 CRM module: `presence`, `truthy` and `date_range`, called as `modules/insites_crm/lib/validations/<name>`. Field checks on a form still go in its YAML `validation:` block. Extract a check here once two callers share it (`extract-reusable-validations`). |
+| `lib/queries/` | The v6 CRM module, for query partials. GraphQL files live at `app/graphql/<domain>/<operation>.graphql` or `modules/<name>/public/graphql/<domain>/<operation>.graphql`. |
+| `lib/helpers/` | No reference repo uses it. Helpers are partials under `views/partials/` called with `{% function %}`. |
 
 ## Multi-module projects
 

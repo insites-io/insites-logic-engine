@@ -22,7 +22,7 @@ request_headers: >
   }
 ---
 {
-  "text": "{{ data.message }}"
+  "text": {{ data.message | json }}
 }
 ```
 

@@ -6,7 +6,7 @@ Pages in Insites act primarily as **controllers**. They live in `app/views/pages
 
 ## Inline HTML — when it's allowed
 
-The strict rule "pages never contain HTML, JS, or CSS" reflects an *ideal* — not what real Combinate codebases enforce. Reading the canonical reference repos (`app-portal`, `app-seedling`), pages routinely contain small amounts of inline HTML where extracting a partial would be more friction than payoff:
+The strict rule "pages never contain HTML, JS, or CSS" reflects an *ideal*, not what the Insites reference apps do. Reading the canonical reference repos (`app-portal`, `app-seedling`), pages routinely contain small amounts of inline HTML where extracting a partial would be more friction than payoff:
 
 - **Tiny page-specific markup** — a single wrapper `<div>`, a `<title>` set, or a one-off heading that no other page reuses.
 - **JSON pages (`.json.liquid`)** — frequently inline their entire JSON body since there is nothing to delegate.

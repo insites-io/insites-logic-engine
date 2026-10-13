@@ -42,7 +42,7 @@ See `references/testing/` for writing tests and gating CI.
 
 ### Modules
 ```bash
-insites-cli modules pull dev <name>             # Pull a module's public files from an instance
+insites-cli modules pull dev <name>             # Pull a module's public files, as modules.zip
 insites-cli modules init <name>                 # Create modules/<name> from the bundled starter
 insites-cli modules list dev                    # List installed modules
 insites-cli modules remove dev <name>           # Remove a module and its data

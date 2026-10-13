@@ -141,6 +141,8 @@
 
 **Cross-repo agreement:** `grounded` — Pages consistently declare single HTTP methods across all repos. **100% compliance observed across 30+ sample pages.**
 
+> **Corrected 13 October 2026:** the sample was not representative. Counted over every page on master, no page declares two methods, but 68 of 110 declare none (app-seedling 16 of 20). See `rules/pages.md`.
+
 **Linter check:** No enforcement found, but pattern is universal in practice.
 
 **Recommended evidence classification:** `real-project`
