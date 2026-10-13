@@ -154,6 +154,16 @@ The same applies to `put`, `patch`, `delete` and `post` pages that take an id fr
 
 **`max_deep_level` is not a reliable cap.** The platform schema defines `max_deep_level` as the URL nesting a slug resolves (`PageInputType.max_deep_level`, default 3): slug `abc` with 2 "will resolve /abc, abc/1, abc/2, but will NOT resolve abc/2/something". The page measured above declares `max_deep_level: 4` in its source and still answered a path ten segments below its slug. Do not rely on it to stop a page answering deeper paths.
 
+## Addresses You Should Not Take
+
+Three different rules, measured against the platform and the v6 module code on 13 October 2026. `insites-cli check` (6.2.1 and later) enforces all three.
+
+**A page that takes a module page's address.** The twelve Insites modules ship 1,448 pages, most of them under `/insites/`, plus the welcome page `/` and the error pages `/401`, `/403`, `/404`, `/500` and `/maintenance`. A project page with the same address, method and format is not refused: the deploy succeeds and the new page silently takes over the module page's record, so deleting your file later deletes the module page too. To change the welcome or error pages, edit the existing file in `app/views/pages/` or `app/views/pages/system_pages/` instead. The linter reports a clash as `ModuleRouteClash`.
+
+**Platform addresses.** The platform itself serves `/admin/*`, `/api/graph/*`, `/api/app_builder/*`, `/api/private/*`, `/api/sessions*`, `/api/authentications/*`, `/api/user/transactables/*`, `/auth/:provider/callback`, `/auth/failure`, `/422`, `/_maintenance`, `/_version` and `/__instance_id`. Do not create pages there (`ReservedName`).
+
+**Custom endpoints created through the API module.** The API module refuses an endpoint whose slug starts with `admin`, `api`, `insites`, `modules`, `crm`, `ecommerce`, `events`, `event`, `locator`, `asset`, `assets`, `database`, `databases`, `data`, `pipeline`, `pipelines`, `form`, `forms`, `cms`, `permission` or `permissions`. This applies to endpoints created through that module only: an ordinary page at `crm/...` or `api/...` deploys and serves.
+
 ## Limits and Constraints
 
 | Constraint | Limit | Notes |

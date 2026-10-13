@@ -34,6 +34,14 @@ All notable changes to the Insites Logic Engine will be documented in this file.
 - **Background jobs use the partial form and see only what is passed** (`background-jobs/*`, `emails-sms/{README,api,advanced,patterns}.md`, `liquid/tags/{api,configuration,patterns,gotchas,advanced}.md`, TW#26872247). The tag reference shipped with insites-cli 6.1.0 lists the block form (`{% background %}...{% endbackground %}`) under deprecated and says a job has only the variables passed to the tag, with a limited `context`. The pages used the block form throughout and told readers to reassign page variables inside it, which reads a blank. Every example now names a partial with `background job_id = '...'` and passes what the job needs as arguments. The invented `task:` and `retry:` arguments and the one-minute minimum delay are gone.
 - **No upstream vendor modules** (`forms/{README,configuration}.md`, `configuration/README.md`, `layouts/gotchas.md`, `skills_examples/{insites-unit-tests,insites-auth}`, TW#26872247). The `common-styling` upload component is replaced by the presigned upload the v6 modules use (`property_upload_presigned_url`, a browser POST to `upload_url`, then the URL saved on the record). The `core`, `user` and `common-styling` entries in `app/config.yml`, the session-module check, the user module's helper and built-in endpoints, and the `modules/tests/` paths with their `helpers/init` are gone; the unit-test example uses the `insites_test` module bundled with insites-cli, whose runner passes `contract` in. The CLI README and command reference no longer use em dashes.
 
+## [2.3.0] - 2026-10-13
+
+### Bug Fix
+- **Custom error pages** (`pages/advanced.md`, TW#26880171): edit the system page in `app/views/pages/system_pages/` instead of creating a second page with the slug `404`. Measured on a v6 staging instance: a second page at `/404` or `/` deploys and silently takes over the system page, so deleting it later deletes the system page too.
+
+### Improvement
+- **Addresses you should not take** (`routing/gotchas.md`, TW#26880170): the three rules insites-cli 6.2.1 checks, matched to the codebase. Pages must not take a module page's address (1,448 module pages, measured from the v6 module code); the confirmed platform addresses; and the 21 first segments, which the API module refuses for custom endpoints only.
+
 ## [2.2.1] - 2026-10-12
 
 ### Bug Fix
