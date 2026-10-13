@@ -198,17 +198,20 @@ Use in every page:
 
 ### Custom 404 page
 
-Create `app/views/pages/404.liquid`:
+Every instance already has its error pages in `app/views/pages/system_pages/` (401, 403, 404, 500, and 503 with the slug `maintenance`). To customize one, edit that file, for example `app/views/pages/system_pages/404.liquid`. Do not create a second page with the slug `404` (or `/` for the welcome page) in another file: the deploy succeeds and the new file silently takes over the system page's record, so deleting that file later deletes the system page too (measured on a v6 staging instance, 13 October 2026). `insites-cli check` reports this as ModuleRouteClash. Keep the line that includes `modules/insites_crm/functions/redirects/404_redirect`, or the redirects set up in the Instance Admin under Settings > Redirects stop working.
 
 ```liquid
 ---
 slug: 404
 layout: application
 ---
+{%- include 'modules/insites_crm/functions/redirects/404_redirect', old_url: context.params.unmatched_route -%}
 {% liquid
   render 'errors/not_found'
 %}
 ```
+
+See [Custom Error Pages](https://docs.insites.io/developers-guide/custom-error-pages).
 
 ### Handling GraphQL errors
 

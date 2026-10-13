@@ -143,7 +143,7 @@ The `prepack` script copies `logic-engine/` into the package before publishing s
 
 Releases are cut on a `release/vX.Y.Z` branch and merged to `master` through a pull request; merging is the release, because the installers fetch the default branch. Each release is tagged `vX.Y.Z` on `master` and listed in `CHANGELOG.md`.
 
-Latest: **v2.2.1** (12 October 2026). Removes `context.deployment`, which renders null on v6. v2.2.0: Documents insites-cli 6.1.0 (`deploy --dry-run` and the deploy report, `doctor`, `logs --json`, `env add --token`), shows how git does the jobs of `diff`, `rollback` and `benchmark`: getting an instance into git, comparing two environments, rolling back a deploy and checking performance, and re-checks every `insites-cli` example against 6.1.0, dropping `logsv2`. See `CHANGELOG.md` for the full list.
+Latest: **v2.3.0** (13 October 2026). Which page addresses to avoid, matched to the module code, and the correct way to customize error pages. v2.2.0: Documents insites-cli 6.1.0 (`deploy --dry-run` and the deploy report, `doctor`, `logs --json`, `env add --token`), shows how git does the jobs of `diff`, `rollback` and `benchmark`: getting an instance into git, comparing two environments, rolling back a deploy and checking performance, and re-checks every `insites-cli` example against 6.1.0, dropping `logsv2`. See `CHANGELOG.md` for the full list.
 
 ## License
 
