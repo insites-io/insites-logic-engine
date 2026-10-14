@@ -301,6 +301,8 @@ Need UI/styling?
 ```
 Need integrations?
 ├─ Call external REST API → api-calls/
+├─ Call a slow API (over 5 s, e.g. a language model) → background-jobs/ + websockets/patterns.md
+├─ Push live updates to the browser → websockets/ (channels, channel_send_message)
 ├─ OAuth2 providers → authentication/ (OAuth2 flow with sign_in tag)
 ├─ Webhook receiver → pages/ (POST endpoint)
 └─ Store API keys/secrets → constants/
@@ -432,6 +434,7 @@ Use the decision trees above to identify which category applies, then load the m
 | Category | Reference |
 |----------|-----------|
 | API Calls (outbound HTTP) | `references/api-calls/` |
+| WebSockets (channels, push to the browser) | `references/websockets/` |
 | API Endpoints (inbound, JSON) | `references/api-endpoints/` |
 | CRM Controllers | `references/crm-controllers/` |
 | User Profile Types | `references/user-profile-types/` |

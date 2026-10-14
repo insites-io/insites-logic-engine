@@ -98,9 +98,9 @@ app/views/pages/products/show.csv.liquid     # GET /products/:id.csv  (CSV)
 
 Each file can share GraphQL queries but render different partials.
 
-## Streaming Large Responses
+## Paging Through Large Exports
 
-For large data exports (CSV, XML), paginate through records:
+A page sends its response once it has finished rendering, so a large export is built a batch of records at a time, not streamed. For large data exports (CSV, XML), paginate through records:
 
 ```liquid
 ---

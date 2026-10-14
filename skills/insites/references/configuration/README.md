@@ -40,8 +40,8 @@ Flags that changed behaviour in 2026, all set in `app/config.yml`:
 |---|---|---|
 | `string_interpolation` | off on existing instances, on for new | `{{ }}` inside double-quoted strings renders. Breaking for templates that keep a literal `{{ }}` in double quotes. See [types](../liquid/types/api.md). |
 | `liquid_raise_mode` | `true` | A filter that rejects its arguments stops the render with a 500 and a diagnostic. Leave it on: off, a failed filter returns `''` or `false` and silently picks a branch. |
-| `websockets_require_subscribed_partial` | `true` | A WebSocket channel with no `channels/<name>/subscribed` partial rejects every subscription instead of admitting any same-origin subscriber. |
-| `websockets_require_csrf_token` | on for new instances | Every `subscription.send` must carry the CSRF token; the token the socket was opened with now counts. |
+| `websockets_require_subscribed_partial` | `true` | A WebSocket channel with no `channels/<name>/subscribed` partial rejects every subscription instead of admitting any same-origin subscriber. The partial admits by outputting `true`. See [websockets](../websockets/README.md). |
+| `websockets_require_csrf_token` | on for new instances | Every `subscription.send` must carry the CSRF token; the token the socket was opened with now counts. A socket opened without `?authenticity_token=` in its URL is disconnected with `Can't verify CSRF token authenticity.` See [websockets](../websockets/README.md). |
 | `auto_manage_public_only_modules` | `false` | A module with only `public/` files is treated like app files on deploy, so files removed from the deploy are deleted. Opt in with care: it is a cousin of `modules_that_allow_delete_on_deploy`, which deletes a module's migration-written views when a module is flagged. |
 
 A property missing from `app/config.yml` is a logged warning, not an error (26 February
