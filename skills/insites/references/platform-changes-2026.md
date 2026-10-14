@@ -13,7 +13,7 @@ Measured on a v6 staging instance on 9 October 2026 by running each feature:
 |---|---|
 | 26 February to 26 August | **Live.** Hash and array literals, `<<`, multiline literals, backslash escapes, `escape_regex`, `hkdf`, `asset_name_to_raw_url`, idempotent `split`, `#` comments inside `{% liquid %}`, `options: { timeout, read_replica }` on `records` all work. `string_interpolation` is **off** there (it is a per-instance flag). `liquid_raise_mode` is on. |
 | 9 and 16 September | Not exercisable from Liquid (deploy-time YAML strictness, content-type negotiation on errors, local-storage asset URLs). Assume live. |
-| 6 October | **Not yet.** `admin_logs` answers "Field 'admin_logs' doesn't exist on type 'RootQuery'". Treat `form_data` on `api_call_send`, Server-Sent Events subscriptions, `.txt` as `text/plain` and the 404 for a missing asset as pending until the instance picks the release up. |
+| 6 October | **Not yet.** `admin_logs` answers "Field 'admin_logs' doesn't exist on type 'RootQuery'". Treat `form_data` on `api_call_send`, Server-Sent Events subscriptions, `.txt` as `text/plain` and the 404 for a missing asset as pending until the instance picks the release up. On 14 October 2026 `/anycable-events` still answered with the instance's own 404 page on a production and a staging instance ([websockets](websockets/README.md#server-sent-events-are-not-served-yet)). |
 
 Instances on the Insites dedicated stack receive platform releases as the stack is
 updated, so re-measure rather than assume a date.
@@ -175,7 +175,8 @@ updated, so re-measure rather than assume a date.
 
 Not yet on the instance measured on 9 October 2026.
 
-- A channel can be subscribed to over Server-Sent Events at `/anycable-events`, with the
+- A channel can be subscribed to over Server-Sent Events at `/anycable-events` (not served on
+  14 October 2026, see [websockets](websockets/README.md)), with the
   whole identifier URL-encoded as JSON, the CSRF token in the query string as
   `authenticity_token`, read-only, and a refused subscription ending the stream with
   401. The same `subscribed` partial and config flags apply.

@@ -116,7 +116,9 @@
 }
 ```
 
-## Streaming Large Responses
+## Paging Through Large Responses
+
+`api_call_send` returns the whole body once the call ends; nothing is streamed to the caller. To handle a large data set, fetch it a page at a time.
 
 ### Process Large Data Sets
 
