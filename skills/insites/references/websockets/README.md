@@ -90,53 +90,54 @@ The mutation answers `{"channel_send_message": "dispatched"}`. A hash passed as 
 arrives in the browser as a JSON object. It worked from a background job, which is the case
 that matters: the job has no browser of its own and the room is how it finds one.
 
-## Server-Sent Events are not available yet
+## Server-Sent Events
 
-The 6 October 2026 platform release lets a page subscribe to a channel with `EventSource` at
-`/anycable-events` instead of a WebSocket ([platform changes](../platform-changes-2026.md)).
-The release reached Insites v6 production and staging instances on 15 October 2026, and
-`/anycable-events` still answers with the instance's own 404 page on both.
+A page that only listens can subscribe with `EventSource` at `/anycable-events` instead of a
+WebSocket. The channels, the `subscribed` partial, the config flags and `channel_send_message`
+are the same, and a broadcast reaches SSE and WebSocket subscribers alike.
 
-The cause is the stack, not the instance. That address is served by the stack's real-time
-server (AnyCable), which also serves `/websocket`; the instance never sees it. Measured on
-15 October 2026 from the response headers:
+```js
+const identifier = JSON.stringify({ channel: 'replies', room_id: room });
+const source = new EventSource('/anycable-events?identifier=' + encodeURIComponent(identifier)
+  + '&authenticity_token=' + encodeURIComponent(token));
+source.onmessage = function (event) { show(JSON.parse(event.data)); };
+```
 
-| | Insites production and staging, until about 18:25 (UTC+7) | Insites production and staging, from then | A stack that serves SSE |
-|---|---|---|---|
-| `X-Anycable-Version` on a `/websocket` upgrade | `1.2.3` | `1.6.16` | `1.6.15` or `1.6.16` |
-| `/anycable-events` answered by | the instance (its 404 page) | the instance (its 404 page) | the real-time server, as `text/event-stream` |
+Measured on a v6 production and a v6 staging instance at 18:45 (UTC+7) on 15 October 2026
+(TW#26892599), with a session cookie and the page's CSRF token:
 
-Both Insites stacks were upgraded to 1.6.16 that evening, and the WebSocket kept working. SSE
-still has to be switched on in the real-time server and its address routed to it, which is
-the remaining step. AnyCable added Server-Sent Events in 1.4.4 (September 2023), so 1.2.3 could not serve them:
-run locally, it refuses the `--sse` option, while 1.6.16 with `--sse --sse_path=/anycable-events`
-delivered a broadcast to the release note's `EventSource` code unchanged. On a staging stack
-that serves SSE, the documented request with a session cookie and the page's CSRF token
-answered `200 text/event-stream` with `welcome` then `confirm_subscription`, and 401 without
-them, so the feature works as documented where the stack has it. Three other v6
-instances on the same two stacks gave the same answers. Instances still hosted on the older
-shared production stack run 1.6.15, which could serve SSE, but there `/anycable-events`
-reaches the instance and answers 404, so it is not switched on or not routed (TW#26892599).
+| Case | Result on both instances |
+|---|---|
+| Subscribe | `200 text/event-stream`, then `welcome` and `confirm_subscription` events |
+| A background job calls a 3-second API and sends the result to the room | One `message` event 4.6 s after subscribing, whose `data` is the payload itself, with no `identifier`/`message` envelope |
+| A room the `subscribed` partial refuses | 400, no `confirm_subscription`, stream closed |
+| A channel with no `subscribed` partial | 400, as above |
+| No session cookie and no token | 401 |
 
-Until the stacks are upgraded:
+How it differs from the WebSocket:
 
-- **Use the WebSocket.** Everything above works today.
-- **Or try SSE first and fall back.** A read-only page can open an `EventSource`, and if it
-  errors before `confirm_subscription`, open the WebSocket instead. It then switches to SSE
-  by itself once the stack serves it. See [patterns](patterns.md#server-sent-events-first-websocket-fallback).
-- **Check an instance yourself.** `curl -s -m 5 -o /dev/null -D - "https://<host>/anycable-events?identifier=x"`
-  (a GET; a HEAD request gets 405 from a server that does serve SSE):
-  a `text/html` 404 means not available; `text/event-stream` (even with a 401, which is a
-  refused subscription) means it is.
+- **The identifier goes in the URL** as URL-encoded JSON, and the CSRF token goes in the same
+  URL as `authenticity_token`. Render it with `{{ context.authenticity_token }}`.
+- **Read-only.** There is no `send`, and `receive.liquid` is never called over SSE.
+- **The payload arrives bare.** `event.data` is exactly what `channel_send_message` sent.
+- **A refusal is an error status, not a message.** `EventSource` reports it as `onerror`, with
+  no reason. The reason is in the instance log as before.
+- **Reconnect yourself.** The browser's own retry reuses the same URL and token, which fails
+  once the session changes. Close the source and open a new one with a fresh token.
 
-What SSE will change, from the release note and the local run: the identifier goes in the
-URL as URL-encoded JSON, the CSRF token as `authenticity_token` in the same URL, the
-connection is read-only (`receive.liquid` is never called), each broadcast arrives as a
-`message` event whose `data` is the payload itself (no `identifier`/`message` envelope), and
-a refused room ends the stream with an error status (400 in the local run, 401 for a
-connection refused outright), which `EventSource` reports as `onerror`. The browser's own
-reconnect retries the same URL and token, so reconnect with a new `EventSource` and a fresh
-token.
+Availability: SSE arrived with the 6 October 2026 platform release, but it also needs the
+stack's real-time server, which serves both `/websocket` and `/anycable-events`, to support
+and route it. On the Insites stacks that happened on 15 October 2026: the server moved from
+version 1.2.3, which predates SSE, to 1.6.16 at about 18:25, and SSE was switched on and
+routed by 18:41. Before that, `/anycable-events` answered with the instance's own 404 page.
+To check any instance:
+
+```bash
+curl -s -m 5 -o /dev/null -D - "https://<host>/anycable-events?identifier=x"
+```
+
+`text/event-stream` (a 401 here is expected, as the request has no session) means it is
+served; a `text/html` 404 means it is not. Use a GET: a HEAD request gets 405.
 
 ## See also
 

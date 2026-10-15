@@ -193,11 +193,10 @@ message that never comes.
 ## Server-Sent Events first, WebSocket fallback
 
 The page in step 1 only ever reads from the room, which is exactly what Server-Sent Events
-are for. They are not available on Insites instances yet
-([README](README.md#server-sent-events-are-not-available-yet)), so this version of the script
-tries an `EventSource` first and opens the WebSocket only if the stream errors before the
-subscription is confirmed. Today it always falls back; once the stack serves
-`/anycable-events` it uses SSE with no change to the code. Steps 2 to 4 stay as they are,
+are for ([README](README.md#server-sent-events)). This version of the script tries an
+`EventSource` first and opens the WebSocket only if the stream errors before the
+subscription is confirmed, so it also works on an instance whose stack does not serve
+`/anycable-events`. Steps 2 to 4 stay as they are,
 because `channel_send_message` reaches both kinds of subscriber.
 
 Replace the `<script>` in `ask.liquid` with this, and add `<p id="transport"></p>` under the
@@ -287,7 +286,7 @@ Measured on 15 October 2026 (TW#26892599):
 
 | Where | Result |
 |---|---|
-| A v6 production instance, headless browser | `/anycable-events` answered 404 `text/html`, the page fell back to the WebSocket, and the answer from an 8-second call arrived 10.1 s after submit |
+| A v6 production instance, headless browser, before the stack served SSE | `/anycable-events` answered 404 `text/html`, the page fell back to the WebSocket, and the answer from an 8-second call arrived 10.1 s after submit |
+| The same instance and page, after the stack served SSE (18:41) | `/anycable-events` answered 200 `text/event-stream`, the page connected over SSE, and the answer arrived 10.3 s after submit |
 | Locally, the real-time server at the version a working stack runs, with SSE on at `/anycable-events` | The `EventSource` code received `welcome`, `confirm_subscription`, then the broadcast as a `message` event whose `data` was the payload; a forged room was refused |
 
-The SSE half has not run on an Insites instance, because no Insites stack serves it yet.
