@@ -281,7 +281,7 @@ mutation update_role($id: ID!, $role: String!) {
 
 ## Temporary Tokens
 
-`temporary_token(expires_in: Float)` on a user returns a signed token for that account; `expires_in` is in **hours** (default 48). Check one with `authenticate { temporary_token(token: String!) }`, which answers `true` while the token is valid for that user and unexpired. The schema adds: "Token will be invalidated on password change".
+`temporary_token(expires_in: Float)` on a user returns a signed token for that account; `expires_in` is in **hours** (default 48). Check one with `authenticate { temporary_token(token: String!) }`, which answers `true` while the token is valid for that user and unexpired. The schema adds: "The token is invalidated when the password changes".
 
 ```liquid
 {%- graphql found, em: email, h: 1.0 -%}
