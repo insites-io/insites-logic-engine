@@ -294,6 +294,39 @@ Use try/catch for safe operations (parsing, type coercion):
 
 ---
 
+## Output Tags Are Not HTML-Escaped: an Escaped Quote Breaks Out of an Attribute
+
+**Error:** a value written into an HTML attribute as `value="{{ x | escape }}"` still breaks out of the attribute.
+
+**Cause:** measured on one v6 staging instance on 15 October 2026 (TW#26876514). A probe page wrote three request parameters into attributes:
+
+```liquid
+<input type="hidden" id="rt" name="return_to" value="{{ context.params.return_to | escape }}">
+<img id="im" src="data:," alt="{{ context.params.t | escape }}">
+<input name="token" id="tok" value="{{ context.params.token }}" type="hidden">
+```
+
+Loaded in a headless browser:
+
+| Parameter sent | What the browser built |
+|---|---|
+| `return_to` = `/x" data-pwned="1` | the input gained a `data-pwned` attribute, and its value was `/x` |
+| `t` = `" onerror="window.__pwned=1` | the image's `onerror` attribute existed and ran |
+| `token` = `"><img src=x onerror=window.__pwned2=1>`, not escaped | no extra `<img>` element, nothing ran |
+
+So `{{ }}` output is not HTML-escaped. It passes through a sanitizer that removed the injected tag in the third case, but the double quote in the first two reached the browser as a real quote, though `escape` had turned it into `&quot;`. That the output layer turns `&quot;` back into `"` is the explanation that fits; the HTML as served was not captured. The instance flag `escape_output_instead_of_sanitize` (see [configuration](../../configuration/README.md)) was not changed or measured.
+
+**Solution:** escape into a variable, then write it with `{% print %}`, which outputs the escaped string as it is:
+
+```liquid
+{%- assign email_attr = email | escape -%}
+<input type="hidden" name="email" value="{% print email_attr %}">
+```
+
+On the same instance, stored values written this way stayed inside their attributes: a last name of `" data-pwned="1` came back as the header's `label` attribute, `Pwl " data-pwned="1`, and a title of `" onerror="window.__pwned=1` came back as an image's literal `alt`, with no attribute added and no script run. app-seedling 2.1.0 writes every attribute value this way. Never `print` a value you have not escaped: `print` is raw output. Text between tags (not inside an attribute) was not measured.
+
+---
+
 ## Limits & Performance Table
 
 | Feature | Limit | Notes |

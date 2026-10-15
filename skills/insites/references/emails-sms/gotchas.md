@@ -56,7 +56,7 @@ Hello {{ data.user.first_name | default: 'Customer' }},
 
 ### SPF/DKIM/DMARC Failures
 
-Configure sender domain properly in Insites settings. Use verified sender domain:
+Send only from an address the instance is verified for: the domain set up in Insites Console, or `no-reply@insites.site`. The CRM module resolves it for you; see [configuration](configuration.md#sending-from-the-instances-verified-sender).
 
 ```yaml
 ---
@@ -66,18 +66,18 @@ from: 'noreply@yourdomain.com'
 
 Not: `from: 'noreply@some-other-domain.com'`, a domain you do not control
 
-### Reply-To Domain Mismatch
+### Reply-To on Another Domain
 
-Reply-to should match or be a subdomain of sender:
+SPF, DKIM and DMARC check the `from` domain, not the Reply-To. Send from the instance's verified sender and put the customer's own address in `reply_to`, as the v6 CRM module's autoresponders and app-seedling 2.1.0 do; see [configuration](configuration.md#sending-from-the-instances-verified-sender):
 
 ```yaml
 ---
-from: 'support@example.com'
-reply_to: 'help@example.com'
+from: 'Acme <no-reply@insites.site>'
+reply_to: 'hello@acme.example'
 ---
 ```
 
-Both should resolve to your infrastructure.
+Whether a mailbox provider scores a Reply-To on another domain differently was not measured.
 
 ## SMS Specific Issues
 

@@ -77,12 +77,16 @@ method: delete
   { "notice": "app.sessions.signed_out", "from": {{ context.location.pathname | json }} }
 {% endparse_json %}
 {% liquid
-  sign_out
+  if context.current_user
+    graphql signed_out = 'sessions/sign_out'
+  endif
   assign flash_json = flash | json
   session sflash = flash_json
   redirect_to '/'
 %}
 ```
+
+There is no `sign_out` tag (`Unknown tag 'sign_out'`, measured on a v6 staging instance on 15 October 2026). `app/graphql/sessions/sign_out.graphql` holds `mutation sign_out { user_session_destroy }`; see [api.md](api.md#signing-out-there-is-no-sign_out-tag).
 
 The logout form uses a hidden `_method` field:
 

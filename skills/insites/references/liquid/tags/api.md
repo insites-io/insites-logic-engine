@@ -242,7 +242,12 @@ Output without HTML escaping (unescaped). Equivalent to `| html_safe`.
 {% print svg_content %}
 ```
 
-**Warning:** Never use with user-supplied input. Use `{{ variable }}` (escaped) for user data.
+**Warning:** Never `print` user-supplied input as it arrives. To put a value in an HTML attribute, escape it first and then `print` the escaped string; `{{ }}` is not HTML-escaped, and `value="{{ x | escape }}"` was broken out of on a v6 staging instance on 15 October 2026. See [gotchas](gotchas.md#output-tags-are-not-html-escaped-an-escaped-quote-breaks-out-of-an-attribute).
+
+```liquid
+{%- assign email_attr = email | escape -%}
+<input type="hidden" name="email" value="{% print email_attr %}">
+```
 
 ## spam_protection
 
@@ -287,9 +292,13 @@ Form rendering tags. Neither is deprecated: the tag reference shipped with insit
 
 ## Output Escaping Summary
 
+Measured on one v6 staging instance on 15 October 2026 (TW#26876514); see [gotchas](gotchas.md#output-tags-are-not-html-escaped-an-escaped-quote-breaks-out-of-an-attribute).
+
 | Method | Escaped | Use For |
 |--------|---------|---------|
-| `{{ var }}` | Yes (safe) | User-facing data, any untrusted input |
+| `{{ var }}` | No. Output goes through a sanitizer, which removed an injected tag but did not keep a quote inside an attribute | Text you trust. Not an attribute value from a user or the database |
+| `{{ var \| escape }}` | No, inside an attribute: the `&quot;` reached the browser as `"` and the attribute was broken out of | Not an attribute value |
+| `{% print escaped %}`, where `escaped` was set with `\| escape` | Yes. The escaped string is written as it is | Any value inside an HTML attribute |
 | `{% print var %}` | No (raw) | Pre-sanitized HTML, SVG, trusted markup |
 | `{{ var \| html_safe }}` | No (raw) | Same as print -- marks string as safe |
 

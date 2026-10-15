@@ -47,6 +47,14 @@ Consider what an unauthorised caller learns. A redirect to a login page confirms
 page exists and roughly what it is for. If a page should be invisible rather than merely
 protected, have it answer 404 rather than redirecting.
 
+## Several policies on one page: the list order does not pick the redirect
+
+When more than one policy on a page fails, the redirect that applies is the one from the
+policy created first on the instance, not the one listed first. Measured on a v6 staging
+instance on 15 October 2026. Write every policy's `redirect_to` so it is right on its own,
+for example by checking `context.current_user` inside it. See
+[CMS gotcha 11](../modules/cms/gotchas.md#11-when-several-policies-fail-the-one-created-first-decides-the-redirect-not-the-one-listed-first).
+
 ## A JSON endpoint whose policy fails answers with a redirect
 
 When a front-matter policy fails, the platform redirects to the policy's `redirect_to`

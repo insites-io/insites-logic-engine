@@ -112,7 +112,7 @@ authorization_policies:
 {% render 'admin/dashboard' %}
 ```
 
-If any policy fails, the request is denied — the user is redirected per the policy's `redirect_to` and shown its `flash_alert`. Policies are evaluated in order; the first failure short-circuits.
+If any policy fails, the request is denied and the user is redirected per the failing policy's `redirect_to`. When several fail, the order in the list does not decide which redirect applies: on a v6 staging instance measured on 15 October 2026, the policy created first on the instance won. Write each policy's `redirect_to` so it is right on its own; see [gotchas.md](gotchas.md#11-when-several-policies-fail-the-one-created-first-decides-the-redirect-not-the-one-listed-first).
 
 To write a custom policy, see [`metadata.md#authorization-policies`](metadata.md#authorization-policies).
 
