@@ -82,7 +82,8 @@ mutation {
 ```
 
 A table carries `name`, `parameterized_name`, `properties`, `metadata`,
-`physical_file_path`, `manually_managed` and `records_count_rc`.
+`physical_file_path`, `manually_managed` and `records_count` (`records_count_rc` before the
+14 October 2026 release; the `_rc` name still works and is deprecated).
 
 ## Records
 

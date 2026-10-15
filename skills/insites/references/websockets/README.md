@@ -90,13 +90,51 @@ The mutation answers `{"channel_send_message": "dispatched"}`. A hash passed as 
 arrives in the browser as a JSON object. It worked from a background job, which is the case
 that matters: the job has no browser of its own and the room is how it finds one.
 
-## Server-Sent Events are not served yet
+## Server-Sent Events are not available yet
 
-The 6 October 2026 platform release adds subscribing over Server-Sent Events at
-`/anycable-events` ([platform changes](../platform-changes-2026.md)). On 14 October 2026 both
-instances answered `/anycable-events?identifier=...` with the instance's own 404 page, byte for
-byte the body served for a made-up path apart from its CSRF token. Use the WebSocket until an
-instance answers that path with an event stream.
+The 6 October 2026 platform release lets a page subscribe to a channel with `EventSource` at
+`/anycable-events` instead of a WebSocket ([platform changes](../platform-changes-2026.md)).
+The release reached Insites v6 production and staging instances on 15 October 2026, and
+`/anycable-events` still answers with the instance's own 404 page on both.
+
+The cause is the stack, not the instance. That address is served by the stack's real-time
+server (AnyCable), which also serves `/websocket`; the instance never sees it. Measured on
+15 October 2026 from the response headers:
+
+| | Insites production and staging | A stack that serves SSE |
+|---|---|---|
+| `X-Anycable-Version` on a `/websocket` upgrade | `1.2.3` | `1.6.15` or `1.6.16` |
+| `/anycable-events` answered by | the instance (its 404 page) | the real-time server, as `text/event-stream` |
+
+AnyCable added Server-Sent Events in 1.4.4 (September 2023), so 1.2.3 cannot serve them:
+run locally, it refuses the `--sse` option, while 1.6.16 with `--sse --sse_path=/anycable-events`
+delivered a broadcast to the release note's `EventSource` code unchanged. On a staging stack
+that serves SSE, the documented request with a session cookie and the page's CSRF token
+answered `200 text/event-stream` with `welcome` then `confirm_subscription`, and 401 without
+them, so the feature works as documented where the stack has it. Three other v6
+instances on the same two stacks gave the same answers. Instances still hosted on the older
+shared production stack run 1.6.15, which could serve SSE, but there `/anycable-events`
+reaches the instance and answers 404, so it is not switched on or not routed (TW#26892599).
+
+Until the stacks are upgraded:
+
+- **Use the WebSocket.** Everything above works today.
+- **Or try SSE first and fall back.** A read-only page can open an `EventSource`, and if it
+  errors before `confirm_subscription`, open the WebSocket instead. It then switches to SSE
+  by itself once the stack serves it. See [patterns](patterns.md#server-sent-events-first-websocket-fallback).
+- **Check an instance yourself.** `curl -s -m 5 -o /dev/null -D - "https://<host>/anycable-events?identifier=x"`
+  (a GET; a HEAD request gets 405 from a server that does serve SSE):
+  a `text/html` 404 means not available; `text/event-stream` (even with a 401, which is a
+  refused subscription) means it is.
+
+What SSE will change, from the release note and the local run: the identifier goes in the
+URL as URL-encoded JSON, the CSRF token as `authenticity_token` in the same URL, the
+connection is read-only (`receive.liquid` is never called), each broadcast arrives as a
+`message` event whose `data` is the payload itself (no `identifier`/`message` envelope), and
+a refused room ends the stream with an error status (400 in the local run, 401 for a
+connection refused outright), which `EventSource` reports as `onerror`. The browser's own
+reconnect retries the same URL and token, so reconnect with a new `EventSource` and a fresh
+token.
 
 ## See also
 
