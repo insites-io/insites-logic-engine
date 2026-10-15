@@ -26,7 +26,7 @@ Authenticates a user and creates a session.
 
 There is a `sign_in` tag and no `sign_out` tag. Measured on a v6 staging instance on 15 October 2026 (TW#26876514): `insites-cli exec liquid` with `{% sign_out %}` failed with `Liquid syntax error (line 1): Unknown tag 'sign_out'`, `insites-cli check` reported `LiquidHTMLSyntaxError` `Unknown tag 'sign_out'` on the two pages that used it, and the tag reference the CLI ships lists `sign_in` and `session` but no `sign_out`.
 
-Sign out with the `user_session_destroy` mutation, which the v6 CRM module uses (`graphql/sessions/logout.graphql`):
+**Sign out with the `user_session_destroy` mutation, run from a `method: post` page that receives the authenticity token.** The v6 CRM module (`graphql/sessions/logout.graphql`), app-seedling 2.1.0 and app-portal all sign out with this mutation, and app-seedling 2.1.0 runs it from a `method: post` page as below. The full recipe is in [patterns](patterns.md#sign-out).
 
 ```graphql
 # app/graphql/sessions/sign_out.graphql
@@ -35,16 +35,30 @@ mutation sign_out {
 }
 ```
 
-```liquid
-{% liquid
-  if context.current_user
-    graphql signed_out = 'sessions/sign_out'
-  endif
-  redirect_to '/'
-%}
-```
+The schema marks it deprecated, `@deprecated(reason: "Use session tag")`, and returns a `HashObject`. No use of the `session` tag that the CLI's tag reference documents ends a sign-in (see the table), so `user_session_destroy` is the way to sign out until the platform documents another.
 
-The schema marks it deprecated, `@deprecated(reason: "Use session tag")`, and returns a `HashObject`. Signing out through the `session` tag was not measured, and the tag reference the CLI ships documents the `session` tag only as setting and deleting `context.session` fields, with nothing that ends a sign-in. Until a session-tag sign-out is documented, `user_session_destroy` is the measured way to sign out. app-seedling 2.1.0 signs out this way from a `method: post` page, and on the same instance a sign-out POST with the authenticity token ended the session (the next `/dashboard` request redirected to `/sign-in`), while a POST without the token arrived with no `context.current_user` and signed nobody out.
+#### What ends a sign-in, measured
+
+Measured on a v6 production and a v6 staging instance on 16 October 2026 (TW#26894310), with the same result on both. Each row started from a test user signed in with `sign_in`; "signed out" means the next request had no `context.current_user`.
+
+| What the page did | Signed out | Notes |
+|---|---|---|
+| `user_session_destroy` on a `method: post` page, authenticity token sent | **Yes** | The recommended way |
+| `user_session_destroy` on a `method: post` page, no token | **No** | The page saw no `context.current_user`, and the mutation did nothing even when run without an `if` around it (it answered `{"id": null}`). Another site cannot sign anyone out through this page |
+| `user_session_destroy` on a `method: get` page | **Yes** | Works, but a link from another site can sign the person out: the session cookie is `SameSite=Lax`, which browsers send on a top-level GET navigation (the cookie attribute was measured; a second site was not used) |
+| A legacy form (`resource: Session`, `{% form method: 'delete' %}`) posted to `/api/sessions` | **Yes, with or without the token** | Answered 204 both times. The authenticity token is not checked, so prefer the `method: post` page |
+| `{% session user_id = null %}`, and the same for `user` and `current_user` | No | These are ordinary `context.session` fields. The sign-in is not stored in any of them |
+| `{% sign_in user_id: '' %}` | No | `Liquid::Error: sign_in tag: no user found`, and the user stayed signed in |
+| `{% session warden.user.user.key = null %}` | Yes | It deletes the platform's internal sign-in key from the session. That key is not documented anywhere: do not build on it |
+
+#### What `user_session_destroy` leaves behind
+
+Measured the same way, on both instances:
+
+- **It takes effect on the next request.** In the request that runs it, `context.current_user` is still set and the mutation answers `{"user_session_destroy": {"id": "<user id>"}}`. Redirect straight after it.
+- **The session id is not rotated, and that is safe.** Replaying a copy of the cookie taken before sign-out found no `context.current_user`: the session is held on the server, so signing out ends it for every copy of the cookie.
+- **Every field set with `{% session %}` survives sign-out, and the next sign-in.** A field set while signed in was still in `context.session` after `user_session_destroy`, and still there after `sign_in` signed the user in again; the session id rotated on sign-in and the fields moved with it. This was measured with the same user signing in again. Clear per-login state yourself, on sign-out and on sign-in, and store anything that means "this person passed a check" against their user id, as app-seedling 2.1.0 does with `two_factor_user_id`. The CSRF token survives too.
+- **Never print `context.session` whole.** While a user is signed in it holds the platform's sign-in record, `warden.user.user.key`, which is the user's id and the first 29 characters of their stored password hash (the bcrypt salt). Read the fields you set by name.
 
 ## Loading the Current User
 

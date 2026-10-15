@@ -30,10 +30,9 @@ Implement custom expiration logic:
 {% assign current_time = 'now' | date: '%s' %}
 {% assign session_age = current_time | minus: context.session.created_at %}
 {% if session_age > 3600 %}
-  <!-- Session expired, clear it -->
+  <!-- Session expired: clear your own fields. This does not end a sign-in; to sign the
+       person out, send them through the sign-out page in authentication/patterns.md -->
   {% session created_at = null %}
-  {% session user_id = null %}
-  <!-- Redirect to login -->
 {% endif %}
 ```
 
@@ -116,10 +115,14 @@ Persist critical session data to database:
 
 ```liquid
 {% if params.save_to_db %}
-  <!-- Save session to database record -->
+  <!-- Save the fields you set, by name. Never context.session whole: while someone is
+       signed in it holds the platform's sign-in record, including part of the
+       password hash -->
+  {% assign saved = { "cart_id": context.session.cart_id, "wizard_step": context.session.wizard_step } %}
+  {% assign saved_json = saved | json %}
   {% graphql res = 'save_session_data',
-    user_id: context.session.user_id,
-    data: context.session | json,
+    user_id: context.current_user.id,
+    data: saved_json,
     expires_at: 'now' | date: '%s' | plus: 86400
   %}
 

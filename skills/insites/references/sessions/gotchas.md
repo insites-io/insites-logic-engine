@@ -153,6 +153,16 @@ Configure consent managers to allow essential session cookies.
 
 Never expose session IDs in URLs or JavaScript. Use HttpOnly, Secure cookies.
 
+## Signing Out Keeps Session Data
+
+### A field survives sign-out and the next sign-in
+
+`user_session_destroy` ends the sign-in and keeps every field set with `{% session %}`. The next `sign_in` keeps them too: the session id rotates and the fields move with it. Measured on a v6 production and a v6 staging instance on 16 October 2026, with the same user signing in again. A per-login flag such as "two-factor passed" therefore outlives the sign-in it was set for. Clear it on sign-out and on sign-in, and store the user id rather than `true` so a check can compare it with `context.current_user.id`. See [authentication](../authentication/api.md#what-user_session_destroy-leaves-behind).
+
+### `context.session` holds the sign-in record
+
+While a user is signed in, `context.session` carries `warden.user.user.key`: the user's id and the first 29 characters of their stored password hash (the bcrypt salt). Never output it whole, store it, or send it anywhere (`{{ context.session | json }}`, a debug panel, a log line). Read the fields you set by name.
+
 ## See Also
 
 - [Configuration Guide](./configuration.md)

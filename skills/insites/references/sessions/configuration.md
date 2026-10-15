@@ -24,7 +24,7 @@ Only the authenticated user can access their session data. Each user has isolate
 
 - Default: Until browser closes or 30 days of inactivity
 - Configurable per deployment through platform settings
-- Cleared on logout
+- **Not** cleared by sign-out, or by the next sign-in: `user_session_destroy` keeps every field you set (measured 16 October 2026, see [authentication](../authentication/api.md#what-user_session_destroy-leaves-behind))
 - Persists across page navigation
 
 ### Session Initialization

@@ -135,7 +135,7 @@ query get_user($id: ID!) {
 
 ### Sign-out
 
-There is no `sign_out` tag: on a v6 staging instance on 15 October 2026 it failed with `Unknown tag 'sign_out'`. Run the `user_session_destroy` mutation instead (deprecated in the schema, "Use session tag", and used by the v6 CRM module):
+There is no `sign_out` tag: on a v6 staging instance on 15 October 2026 it failed with `Unknown tag 'sign_out'`. Run the `user_session_destroy` mutation instead, from a `method: post` page that receives the authenticity token (deprecated in the schema, "Use session tag", and used by the v6 CRM module and app-seedling). It does not clear your `{% session %}` fields; see [What ends a sign-in, measured](api.md#what-ends-a-sign-in-measured) and the [recipe](patterns.md#sign-out):
 
 ```graphql
 mutation sign_out {
