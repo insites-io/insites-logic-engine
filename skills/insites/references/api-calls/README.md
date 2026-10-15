@@ -48,7 +48,7 @@ mutation ($h: HashObject, $b: String) {
 
 ## How Long a Call May Take
 
-The schema describes `options.timeout` as a read timeout: "For calls triggered from background jobs default is 8s and max 180s. For calls triggered from web request default is 5s and max 5s." Measured on 14 October 2026 on a v6 production instance and a v6 staging instance (TW#26888003), a page is **not** held to 5 seconds, and the timeout is not a limit on the whole call. Every row ran on both instances; times are the range across the two.
+Until the 14 October 2026 release the schema described `options.timeout` as: "For calls triggered from background jobs default is 8s and max 180s. For calls triggered from web request default is 5s and max 5s." It now reads: "Read timeout of the HTTP request in seconds, from 1 to 180. When omitted, a default timeout applies; requests sent during a web request are capped at a shorter timeout than requests sent from a background job." Re-measured on 15 October 2026 after that release, every row below gave the same result. Measured on 14 October 2026 on a v6 production instance and a v6 staging instance (TW#26888003), a page is **not** held to 5 seconds, and the timeout is not a limit on the whole call. Every row ran on both instances; times are the range across the two.
 
 | Call made from a page | Result |
 |---|---|
