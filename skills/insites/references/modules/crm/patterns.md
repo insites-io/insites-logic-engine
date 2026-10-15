@@ -131,13 +131,13 @@ For exact-match instead of substring search, add `exact=true`. The match becomes
 There are two destructive verbs and they mean different things:
 
 ```http
-PATCH /crm/api/v2/contacts/<uuid>/archive?format=json HTTP/1.1
+POST /crm/api/v2/contacts/<uuid>/archive?format=json HTTP/1.1
 ```
 
 Sets `is_archived=true`. The contact is hidden from default IIA views but the record (and its sub-resources) remain. Reversible with:
 
 ```http
-PATCH /crm/api/v2/contacts/<uuid>/restore?format=json HTTP/1.1
+POST /crm/api/v2/contacts/<uuid>/restore?format=json HTTP/1.1
 ```
 
 Versus:
