@@ -99,10 +99,15 @@ Redirect to another URL:
 {% redirect_to "/thank-you" %}
 ```
 
-Redirects can include parameters:
+To redirect to a URL with values in it, build the URL first. `redirect_to` takes a single
+value: a filter chain after it is dropped with no error (see
+[tags](../liquid/tags/api.md#redirect_to)), and `{{ }}` inside a double-quoted argument
+only renders where `string_interpolation` is on, which it is not by default (not measured
+inside `redirect_to`):
 
 ```liquid
-{% redirect_to "/posts/{{ context.params.id }}" %}
+{% assign post_url = "/posts/" | append: context.params.id %}
+{% redirect_to post_url %}
 ```
 
 External redirects supported:

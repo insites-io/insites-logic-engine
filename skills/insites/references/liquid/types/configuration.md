@@ -11,11 +11,14 @@ This document covers the syntax, initialization, and available options for every
 {% assign double = "double quotes" %}
 ```
 
-Single and double quotes are interchangeable. No escaping differences between them.
+Single and double quotes are interchangeable unless the instance sets
+`string_interpolation: true`. Then `{{ }}` inside a double-quoted string renders, and a
+single-quoted string still does not. See [api](api.md#double-quoted-string-interpolation-opt-in).
 
 ### String interpolation
 
-Strings do not support inline interpolation. Use `capture` or filter chaining instead:
+Without `string_interpolation: true`, which v6 instances do not set by default, a string
+does not interpolate: `"Hi {{ n }}"` is the literal text. Use `capture` or filter chaining instead:
 
 ```liquid
 {% capture greeting %}Hello {{ user.name }}, welcome to {{ site_name }}{% endcapture %}
@@ -192,12 +195,13 @@ Nil cannot be explicitly assigned. It results from:
 
 ### Array filters
 
+There is no `push`, `unshift`, `pop` or `shift` filter on v6; see [api](api.md#add--remove-filters).
+
 | Filter | Purpose | Example |
 |--------|---------|---------|
-| `push` | Add to end | `{{ arr \| push: "d" }}` |
-| `unshift` | Add to start | `{{ arr \| unshift: "z" }}` |
-| `pop` | Remove from end | `{{ arr \| pop }}` |
-| `shift` | Remove from start | `{{ arr \| shift }}` |
+| `array_add` | Add to end | `{{ arr \| array_add: "d" }}` |
+| `array_prepend` | Add to start | `{{ arr \| array_prepend: "z" }}` |
+| `array_delete_at` | Remove by index (`0` for the first) | `{{ arr \| array_delete_at: 0 }}` |
 | `concat` | Merge arrays | `{{ arr1 \| concat: arr2 }}` |
 | `uniq` | Remove duplicates | `{{ arr \| uniq }}` |
 | `compact` | Remove nils | `{{ arr \| compact }}` |

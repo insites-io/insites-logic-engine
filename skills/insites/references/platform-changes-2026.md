@@ -11,7 +11,7 @@ Measured on a v6 staging instance on 9 October 2026 by running each feature:
 
 | Release | State on the instance |
 |---|---|
-| 26 February to 26 August | **Live.** Hash and array literals, `<<`, multiline literals, backslash escapes, `escape_regex`, `hkdf`, `asset_name_to_raw_url`, idempotent `split`, `#` comments inside `{% liquid %}`, `options: { timeout, read_replica }` on `records` all work. `string_interpolation` is **off** there (it is a per-instance flag). `liquid_raise_mode` is on. |
+| 26 February to 26 August | **Live.** Hash and array literals, `<<`, multiline literals, backslash escapes, `escape_regex`, `hkdf`, `asset_name_to_raw_url`, idempotent `split`, `#` comments inside `{% liquid %}`, `options: { timeout, read_replica }` on `records` all work. `string_interpolation` is **off** there and `liquid_raise_mode` is on. Both are per-instance flags: two v6 instances created in late September 2026 have no `string_interpolation` flag and `liquid_raise_mode` set to `false` (measured 15 October 2026). |
 | 9 and 16 September | Not exercisable from Liquid (deploy-time YAML strictness, content-type negotiation on errors, local-storage asset URLs). Assume live. |
 | 6 October | **Live from 15 October 2026.** `admin_logs` and `form_data` on `api_call_send` are in the schema of a v6 production and a v6 staging instance; at 14:54 that day neither had them. Server-Sent Events followed at 18:41 the same day, once the stack's real-time server was upgraded and routed ([websockets](websockets/README.md#server-sent-events)). |
 | 14 October | **Live from 15 October 2026.** `documents`, `embeddings`, `records_create` and the other stable names are in the schema, the `_rc` names are deprecated, and the schema descriptions are rewritten. Measured on the same two instances. |
@@ -27,8 +27,8 @@ updated, so re-measure rather than assume a date.
 ## 3 March: assign literals, clearer record errors
 
 - **Breaking if enabled:** `{{ }}` inside double-quoted strings interpolates when
-  `string_interpolation: true` is set (on by default for new instances, off for
-  existing). Single quotes never interpolate. [types](liquid/types/api.md)
+  `string_interpolation: true` is set. It is off unless set: two v6 instances created in
+  late September 2026 do not have it. Single quotes never interpolate. [types](liquid/types/api.md)
 - `assign` takes hash and array literals (`{% assign foo = {} %}`, `{% assign h = { "k": var, var: "v", "arr": [1, var] } %}`),
   writes by dot and bracket notation, appends with `<<`, and nests to any depth.
   `hash_assign` is deprecated. `function` accepts the same left-hand targets.
@@ -59,10 +59,11 @@ updated, so re-measure rather than assume a date.
 
 ## 19 May: asset cache control, policies by name
 
-- `cache_control` on `admin_assets_create` and `admin_asset_update` sets the stored
-  object's `Cache-Control` header. The notes call the `url` argument of
-  `admin_assets_create` deprecated and ignored, but the bundled schema still requires it:
-  send it and do not rely on its value. [graphql](graphql/api.md), [assets](assets/api.md)
+- `cache_control` on `admin_assets_create` and `admin_asset_update` sets the
+  `Cache-Control` header the asset is served with (measured at its plain address on
+  15 October 2026). `url` on `admin_assets_create` is optional on a live v6 instance: a
+  value you send is stored as given, and without one it is built from the name. The bundled
+  schema predates this and still marks `url` required. [graphql](graphql/api.md), [assets](assets/api.md)
 - `admin_page_create` and `admin_page_update` take `authorization_policies` as policy
   names, beside `authorization_policy_ids`. [graphql](graphql/api.md)
 - `asset_url`'s `?updated=` is one per-instance timestamp bumped whenever any asset

@@ -52,7 +52,8 @@ Use `function` for partials that compute and return data. Use `render` for parti
     render 'orders/errors', errors: order.errors
     break
   endif
-  redirect_to '/orders/' | append: order.id
+  assign order_url = '/orders/' | append: order.id
+  redirect_to order_url
 %}
 ```
 

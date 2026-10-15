@@ -391,18 +391,18 @@ For one value, prefer `{% function x = 'path' %}` with `{% return %}`: the calle
 | JSON or data structures | Yes | No |
 | User-generated content | Neither (security risk) | Neither (security risk) |
 
-**Security Warning:** Only use unescaped output for trusted content. Never use on user input:
+**Security Warning:** Only use unescaped output for trusted content. Never use it on user input, and do not treat `{{ }}` as escaping: on v6 instances it sanitizes, which keeps allowed tags (see [gotchas](gotchas.md#output-tags-are-not-html-escaped-an-escaped-quote-breaks-out-of-an-attribute)).
 
 ```liquid
-{%- UNSAFE: User input -%}
+{% comment %} UNSAFE: user input written raw {% endcomment %}
 {{ user.bio | html_safe }}
 
-{%- SAFE: Escaped user input ----}
+{% comment %} UNSAFE: {{ }} sanitizes rather than escapes, so allowed tags survive {% endcomment %}
 {{ user.bio }}
 
-{%- SAFE: Sanitized markup ----}
-{% assign sanitized = user.bio | sanitize %}
-{{ sanitized | html_safe }}
+{% comment %} SAFE: escaped into a variable, then printed as it is {% endcomment %}
+{%- assign bio_text = user.bio | escape -%}
+{% print bio_text %}
 ```
 
 **Performance:** `print` and `html_safe` have negligible performance difference; prefer `html_safe` for consistency with Liquid idioms.

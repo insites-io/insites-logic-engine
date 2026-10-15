@@ -32,14 +32,16 @@ redirect_trailing_slash: true
 
 The v6 system-pages module's own `app/config.yml` sets five of these: `liquid_check_mode`, `liquid_raise_mode`, `graphql_argument_type_mismatch_mode`, `slug_exact_match` and `escape_output_instead_of_sanitize`. insites-cli 6.1.0 uploads the file as it stands and does not read it.
 
+**`escape_output_instead_of_sanitize` decides what `{{ }}` does to its output, and it has read `false`.** It read `false` on two v6 instances created in late September 2026 (through `admin_current_instance.feature_flags`, 15 October 2026), and the v6 system-pages module ships it `false`. With it `false`, `{{ }}` **sanitizes** rather than escapes: `{{ '<b>x&y</b>' }}` was served as `<b>x&amp;y</b>`, so the tag was kept and only the ampersand was encoded (measured 1 October 2026). `{{ }}` is therefore not safe for untrusted text. What `true` does was not measured; the name says it escapes instead. Write untrusted values as the [tags gotcha](../liquid/tags/gotchas.md#output-tags-are-not-html-escaped-an-escaped-quote-breaks-out-of-an-attribute) shows: `| escape` into a variable, then `{% print %}` it.
+
 There is no `modules:` section: modules are installed through the Insites Console (see [Module Configuration](#module-configuration)).
 
 Flags that changed behaviour in 2026, all set in `app/config.yml`:
 
 | Flag | Default | What it does |
 |---|---|---|
-| `string_interpolation` | off on existing instances, on for new | `{{ }}` inside double-quoted strings renders. Breaking for templates that keep a literal `{{ }}` in double quotes. See [types](../liquid/types/api.md). |
-| `liquid_raise_mode` | `true` | A filter that rejects its arguments stops the render with a 500 and a diagnostic. Leave it on: off, a failed filter returns `''` or `false` and silently picks a branch. |
+| `string_interpolation` | off. Two v6 instances created in late September 2026 have no such flag, and a double-quoted `{{ n }}` rendered literally on both (15 October 2026) | `{{ }}` inside double-quoted strings renders. Breaking for templates that keep a literal `{{ }}` in double quotes. See [types](../liquid/types/api.md). |
+| `liquid_raise_mode` | per instance. `false` on two v6 instances created in late September 2026 (15 October 2026); on, on the v6 staging instance measured on 9 October 2026 | A filter that rejects its arguments stops the render with a 500 and a diagnostic. Set it to `true`: off, a failed filter returns `''` or `false` and silently picks a branch. |
 | `websockets_require_subscribed_partial` | `true` | A WebSocket channel with no `channels/<name>/subscribed` partial rejects every subscription instead of admitting any same-origin subscriber. The partial admits by outputting `true`. See [websockets](../websockets/README.md). |
 | `websockets_require_csrf_token` | on for new instances | Every `subscription.send` must carry the CSRF token; the token the socket was opened with now counts. A socket opened without `?authenticity_token=` in its URL is disconnected with `Can't verify CSRF token authenticity.` See [websockets](../websockets/README.md). |
 | `auto_manage_public_only_modules` | `false` | A module with only `public/` files is treated like app files on deploy, so files removed from the deploy are deleted. Opt in with care: it is a cousin of `modules_that_allow_delete_on_deploy`, which deletes a module's migration-written views when a module is flagged. |

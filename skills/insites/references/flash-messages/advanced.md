@@ -35,7 +35,7 @@ handle: flash_queue_helper
   {% assign queue = session.flash_queue | default: '[]' | parse_json %}
   {% assign new_message = 'message' | append: queue.size %}
 
-  {% assign queue = queue | push: new_message %}
+  {% assign queue = queue | array_add: new_message %}
   {% assign session.flash_queue = queue | json %}
 {% endif %}
 ```

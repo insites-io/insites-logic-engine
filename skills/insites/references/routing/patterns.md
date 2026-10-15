@@ -187,7 +187,9 @@ method: get
 {% if user.logged_in %}
   Dashboard content
 {% else %}
-  {% redirect_to "/login?next={{ context.location.pathname | url_encode }}" %}
+  {% assign next = context.location.pathname | url_encode %}
+  {% assign login_url = "/login?next=" | append: next %}
+  {% redirect_to login_url %}
 {% endif %}
 ```
 
@@ -259,7 +261,8 @@ method: post
       "message": "Item saved successfully"
     }
   {% else %}
-    {% redirect_to "/items/{{ item.id }}" %}
+    {% assign item_url = "/items/" | append: item.id %}
+    {% redirect_to item_url %}
   {% endif %}
 {% else %}
   {% if context.is_xhr %}

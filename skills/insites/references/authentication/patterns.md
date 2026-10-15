@@ -193,7 +193,9 @@ authorization_policies:
     graphql g = 'users/current', id: context.current_user.id
     assign profile = g.users.results.first
   else
-    redirect_to '/sign-in?return_to=' | append: context.location.pathname
+    assign return_to = context.location.pathname | url_encode
+    assign sign_in_url = '/sign-in?return_to=' | append: return_to
+    redirect_to sign_in_url
     break
   endif
 
@@ -414,7 +416,7 @@ Shared partials (`app/views/partials/signin/`):
 | One row per slot, unique `external_id` | 16 wrong guesses, limit 5 | **5 evaluated**, 11 refused |
 | Same | 16, 8 and 4 right codes at once | **exactly 1 signed in each time** |
 
-Reading a counter and writing it back is not atomic, and neither is `increment`. A unique `external_id` is: the losing creates fail with "External has already been taken". The cost is that anyone who knows an address can use up its five slots, which ends that code; the person asks for a new one, the same as after five wrong guesses.
+Reading a counter and writing it back is not atomic, and neither is `increment`. A conditional `records_update_all` with `sync: true` is, measured on 15 October 2026 ([graphql gotchas](../graphql/gotchas.md#a-read-then-write-counter-lets-concurrent-requests-through-a-synced-conditional-update-does-not)); the 9 October rows do not record whether `sync: true` was set. A unique `external_id` is: the losing creates fail with "External has already been taken". The cost is that anyone who knows an address can use up its five slots, which ends that code; the person asks for a new one, the same as after five wrong guesses.
 
 ### Variant 1: a six-digit code
 
@@ -709,7 +711,7 @@ query ($em: String, $non: String, $tok: String!) {
 
 - **A property written through `value` is stored as text**, so a later `value_int` filter does not match it. Written through `value_int` or `increment`, both filters match. Filter the way you wrote.
 - **A number passed as a property `value` fails the whole mutation with no exception.** The result carries only an `errors` key and nothing is written. Pass a string: `{%- assign n_text = n | append: '' -%}`.
-- **`records_update_all` with a filter on the old value is not a compare-and-swap**, and `increment: 1` loses updates under concurrency. Claim with a unique `external_id` instead (`signin/take_slot` above).
+- **`records_update_all` with a filter on the old value is a compare-and-swap only with `sync: true`**: check that `count` is 1 (measured 15 October 2026, see [graphql gotchas](../graphql/gotchas.md#a-read-then-write-counter-lets-concurrent-requests-through-a-synced-conditional-update-does-not)). Without `sync: true` it is not, and `increment: 1` loses updates under concurrency. This recipe claims with a unique `external_id` (`signin/take_slot` above), which needs neither.
 - **`{% liquid %}` cannot hold a `graphql` block.** Each query needs its own tag, so a loop over queries goes in a partial called with `function`.
 
 ## Moving people and their passwords from another platform

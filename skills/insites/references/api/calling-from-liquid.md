@@ -203,7 +203,8 @@ authorization_policies:
   {%- redirect_to "/my-app/contacts/new" -%}
 {%- else -%}
   {%- session flash: "Contact created" -%}
-  {%- redirect_to "/my-app/contacts/" | append: created.uuid -%}
+  {%- assign contact_url = "/my-app/contacts/" | append: created.uuid -%}
+  {%- redirect_to contact_url -%}
 {%- endif -%}
 ```
 

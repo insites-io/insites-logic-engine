@@ -248,7 +248,9 @@ Control redirects with logic and parameters.
 {% elsif user.logged_in %}
   <!-- Regular user -->
 {% else %}
-  {% redirect_to "/login?next={{ context.location.pathname | url_encode }}" %}
+  {% assign next = context.location.pathname | url_encode %}
+  {% assign login_url = "/login?next=" | append: next %}
+  {% redirect_to login_url %}
 {% endif %}
 ```
 
@@ -274,7 +276,8 @@ Maintain query parameters across redirect:
 {% assign next_page = context.params.page | default: 1 %}
 {% assign sort = context.params.sort | default: "date" %}
 
-{% redirect_to "/posts?page={{ next_page }}&sort={{ sort }}" %}
+{% capture posts_url %}/posts?page={{ next_page | url_encode }}&sort={{ sort | url_encode }}{% endcapture %}
+{% redirect_to posts_url %}
 ```
 
 ### Redirect Loops Prevention
@@ -290,7 +293,8 @@ Track redirect history to prevent loops:
   Redirect loop detected
 {% else %}
   {% assign next_count = redirect_count | plus: 1 %}
-  {% redirect_to "/page?_redirect_count={{ next_count }}" %}
+  {% assign page_url = "/page?_redirect_count=" | append: next_count %}
+  {% redirect_to page_url %}
 {% endif %}
 ```
 
