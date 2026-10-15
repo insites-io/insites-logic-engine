@@ -559,6 +559,6 @@ For the per-directory reference, see [`references/project-structure.md`](referen
 | Resource | Where |
 |----------|-----|
 | Insites docs and change log | https://docs.insites.io and https://docs.insites.io/change-log |
-| GraphQL schema | `references/graphql/schema/schema.json` (introspected from a live instance) |
+| GraphQL schema | `references/graphql/schema/schema.json` (SDL introspected from a live instance, indexed in `AGENTS.md`; regenerate both with `tools/generate-graphql-schema.mjs`) |
 | Liquid filters, tags, objects | `references/liquid/filters/`, `references/liquid/tags/`, `references/liquid/objects/` |
 | What the platform changed this year | `references/platform-changes-2026.md` |

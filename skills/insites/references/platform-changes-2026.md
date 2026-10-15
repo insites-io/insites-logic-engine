@@ -63,7 +63,7 @@ updated, so re-measure rather than assume a date.
   `Cache-Control` header the asset is served with (measured at its plain address on
   15 October 2026). `url` on `admin_assets_create` is optional on a live v6 instance: a
   value you send is stored as given, and without one it is built from the name. The bundled
-  schema predates this and still marks `url` required. [graphql](graphql/api.md), [assets](assets/api.md)
+  schema, regenerated on 16 October 2026, shows `url` as optional. [graphql](graphql/api.md), [assets](assets/api.md)
 - `admin_page_create` and `admin_page_update` take `authorization_policies` as policy
   names, beside `authorization_policy_ids`. [graphql](graphql/api.md)
 - `asset_url`'s `?updated=` is one per-instance timestamp bumped whenever any asset

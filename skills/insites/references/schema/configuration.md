@@ -45,7 +45,7 @@ properties:
 | Type | Storage | Use Case | GraphQL Accessor |
 |------|---------|----------|------------------|
 | `string` | Short text, indexed | Titles, names, slugs, IDs | `property(name:)` |
-| `text` | **Deprecated.** The schema's `PropertyTypeEnum` says "deprecated, please use string"; `string` holds long text | Do not use | `property(name:)` |
+| `text` | **Deprecated.** The schema's `PropertyTypeEnum` says "Deprecated, use string instead"; `string` holds long text | Do not use | `property(name:)` |
 | `integer` | Whole numbers | Quantities, counts, ages | `property_int(name:)` |
 | `float` | Decimal numbers | Prices, ratings, coordinates | `property_float(name:)` |
 | `boolean` | `true` / `false` | Flags, toggles, status | `property_boolean(name:)` |

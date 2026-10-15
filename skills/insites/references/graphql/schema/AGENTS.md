@@ -1,6 +1,683 @@
- [GraphQL Schema Index]|root: schema.json|IMPORTANT: This index maps all 434 schema types for LLM navigation. Use this file to find types, fields, and relationships. WORKFLOW: 1) Read AGENTS.md to find type/field names 2) Use index info to answer questions 3) For implementation details, consult schema.json.|INSTRUCTIONS|FOR_QUESTIONS:{When user asks about schema types, fields, queries, mutations: 1) Search AGENTS.md for relevant type names 2) Identify fields from compact notation 3) Provide comprehensive answer with ALL relevant operations 4) For complete SDL definitions, consult schema.json}|FOR_QUERIES:{To find query for a domain: 1) Check QUERY_FIELDS section 2) Find ALL operations matching domain 3) Note parameters for each 4) Return operation names and parameters}|FOR_MUTATIONS:{To find mutation: 1) Check MUTATION section 2) Find ALL operations by action (create/update/delete) 3) Note input type for each 4) Return mutation names and input types}|FOR_FILTERS:{To find filter input: 1) Check INPUTS|FILTER section 2) Search for domain + FilterInput or SortInput 3) Note available fields and operators from FILTER_OPS}|FOR_TYPES:{To describe type: 1) Find in OBJECTS| section 2) List ALL fields from compact notation 3) Cross-reference related types 4) For complete definition, reference schema.json}|FOR_RELATIONSHIPS:{To show relations: 1) Check INTERFACE_IMPLS for type hierarchies 2) Check RELATION_PATTERNS for navigation methods 3) Check QUERY_SHORTCUTS for shortcuts}|FOR_IMPLEMENTATION:{When writing code: 1) Use AGENTS.md to find type/field names 2) Use schema.json for exact types, nullability, defaults}|FOR_COMPREHENSIVE:{When answering operational questions (upload, export, etc): 1) List ALL relevant operations not just one 2) Show complete input/output for EACH operation 3) Include workflow steps for each 4) Cross-reference related types 5) Add quick reference table 6) Note schema.json for limits}|EXAMPLE_QUERY:{User asks "How do I filter users by email?": 1) Find UsersFilterInput in INPUTS|FILTER 2) Identify email field 3) Find UsersSortInput for sorting 4) Return comprehensive answer with: filter syntax, sort options, related types}|EXAMPLE_MUTATION:{User asks "How do I create a user?": 1) Find create_user in MUTATION 2) Identify UserInputType 3) Find User in OBJECTS|USER 4) Return: "Use create_user(input: UserInputType!) mutation. UserInputType fields: email, encrypted_password, external_id, first_name, last_name, password, phone_number, slug. Reference schema.json for required fields. Also see: create_users for bulk."}|EXAMPLE_RELATION:{User asks "How are users and listings related?": 1) Find User in OBJECTS|USER 2. Find Listing in OBJECTS|CORE 3. Check INTERFACE_IMPLS for HasUsersInterface 4. Return comprehensive: User has listings field, Listing has user_id, use related_user() or query listings with user_id filter}|EXAMPLE_UPLOAD:{User asks "How do I upload a file?": Return comprehensive response with: 1) ALL 5 upload methods (create_presigned_url, image_presign_url, property_upload, upload_image, attachment_presign_url) 2) Each method's input/response types with ALL fields 3) Workflow for each 4) Quick reference table 5) Related types (PresignedUrl, PropertyUpload, ImagePresignedUploadUrl) 6) Note to reference schema.json for limits}|IMPORTANT_NOTE:{AGENTS.md contains type names and fields only. For complete SDL definitions (types, nullability, defaults), reference schema.json. AGENTS.md is index for navigation; schema.json is source for implementation.}|QUICK_LOOKUP:{User:exists,Profile:exists,Customization:exists,Model:exists,Record:exists,Transaction:exists,Transactable:exists}|QUERY_HINTS:{get_users:users(filter,sort),get_listings:listings(filter,sort),get_user:user(id),get_listing:listing(id),get_profile:profile(id),get_customization:customization(id),search:embeddings(filter),export:export_data(input)}|MUTATION_HINTS:{create_user:create_user(input),create_listing:create_listing(input),create_customization:create_customization(input),update_user:update_user(id,input),update_listing:update_listing(id,input),delete_user:delete_user(id),delete_listing:delete_listing(id),upload:create_presigned_url(input)}|COMMON_ERRORS:{Wrong_type_name:Verify against AGENTS.md type names,Missing_required_fields:Check schema.json for ! markers,Wrong_parameter_name:Check QUERY_FIELDS for exact parameter names,Incomplete_answer:List ALL operations not just one,Missing_workflow:Omit steps for using operations,No_reference:Don't mention related types}
-|ROOT:{query:RootQuery,mutation:RootMutation}
-|QUERY_FIELDS|activities(ids,page,per_page,sort,uuids),admin_api_call_notifications(filter,sort),admin_assets(filter,sort),admin_assets_listing(id),admin_authorization_policies(filter,sort),admin_background_jobs(filter,page,per_page,sort),admin_current_instance,admin_email_notifications(filter,sort),admin_form_configurations(filter,sort),admin_forms(filter,sort),admin_graphql(filter,sort),admin_instance_metrics,admin_liquid_layouts(filter,sort),admin_liquid_partials(filter,sort),admin_model_schemas(filter,sort),admin_pages(exclude,filter,page,per_page,sort),admin_profiles(filter,page,per_page,sort),admin_sms_notifications(filter,sort),admin_tables(filter,page,per_page,sort),admin_transactable_schemas(filter,page,per_page,sort),admin_translations(filter,locale,page,per_page,sort),admin_user_profile_schemas(filter,page,per_page,sort),admin_users(filter,page,per_page,sort),admin_webhook_endpoints(filter,sort),admin_webhook_logs(filter,sort),authenticate(jwt,otp_code,password,temporary_token),background_jobs(filter,sort),cms_items(filter,sort),create_embedding(input),custom_images(filter,sort),customization(id),customizations(filter,sort),data_exports(filter,sort),delete_customization(id),delete_customizations(ids),delete_listing(id),delete_listings(ids),delete_model(id),delete_models(ids),delete_property_upload(id),delete_transactable(id),delete_transactables(ids),delete_user(id),delete_users(ids),email_notifications(filter,sort),embeddings(filter,sort),encrypted_constants(filter,sort),export_data(input),form(slug),form_configurations(filter,sort),form_submit(input),generate_presigned_url(input),graphql(id),graphql_queries(filter,sort),image_presign_url(input),import_customizations(input),import_listings(input),import_models(input),import_transactables(input),import_users(input),instance,listing(id),listing_location(id),listings(filter,sort),liquid_layouts(filter,sort),liquid_partials(filter,sort),model_schemas(field_definitions,name),models(filter,sort),notify_email(input),page(slug),pages(filter,sort),process_page(input),profile(id),profiles(filter,sort),property_upload(name,expires_in),record(id),records(filter,sort),send_email(input),session,sms_notifications(filter,sort),tags(filter,sort),timezones(identifier,name,utc_offset),transaction(id),transactions(filter,sort),transactable(id),transactables(filter,sort),update_customization(id,input),update_customizations(ids,input),update_listing(id,input),update_listings(ids,input),update_model(id,input),update_models(ids,input),update_property_upload(id,input),update_transactable(id,input),update_transactables(ids,input),update_user(id,input),update_users(ids,input),upload_image(input),upload_images(input),user(id),users(filter,sort),webhook_endpoints(filter,sort),webhook_logs(filter,sort)
-|MUTATION|api_call_send(input,options),assets_create_mutation(input),assets_presign_urls(input),create_customization(input),create_customization_import(input),create_customizations(input),create_custom_image(input),create_custom_images(input),create_presigned_url(input),create_property_upload(name,expires_in),create_transactable(input),create_transactable_import(input),create_transactables(input),create_user(input),create_users(input),delete_customization(id),delete_customizations(ids),delete_listing(id),delete_listings(ids),delete_model(id),delete_models(ids),delete_property_upload(id),delete_transactable(id),delete_transactables(ids),delete_user(id),delete_users(ids),export_data(input),form_submit(input),generate_presigned_url(input),image_presign_url(input),import_customizations(input),import_listings(input),import_models(input),import_transactables(input),import_users(input),notify_email(input),process_page(input),property_upload(name,expires_in),send_email(input),update_customization(id,input),update_customizations(ids,input),update_listing(id,input),update_listings(ids,input),update_model(id,input),update_models(ids,input),update_property_upload(id,input),update_transactable(id,input),update_transactables(ids,input),update_user(id,input),update_users(ids,input),upload_image(input),upload_images(input)
-|OBJECTS|ACTIVITY:{ActivityStreamsActivity{id,payload,uuid},ActivityStreamsActivityCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},ActivityStreamsActivityStreamCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages,unread_count},ActivityStreamsFeed{ids,name},ActivityStreamsHandler{filter,id,name,targets},ActivityStreamsHandlerCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages}}|ADMIN:{ApiCallNotification{callback,content,created_at,delay_by,forms,headers,id,name,physical_file_path,request_type,to,trigger_condition,updated_at},ApiCallNotificationCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},ApiCallSendPayload{errors,response},Asset{content_type,created_at,deleted_at,file_size,id,manually_managed,metadata,name,physical_file_path,updated_at,url},AssetCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},AssetsCreateMutationPayload{assets},AssetsListing{created_at,id,private_assets_url,public_assets_url,status},AssetsListingIdentifier{created_at,id},AssetsPresignUrlsMutationPayload{urls},AuthorizationPolicy{authorization_policy_associations,content,created_at,flash_alert,http_status,id,manually_managed,metadata,name,physical_file_path,redirect_to,updated_at},AuthorizationPolicyAssociation{authorizable_id,authorizable_type,authorization_policy_id,created_at,id,updated_at},AuthorizationPolicyCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},BackgroundJob{arguments,attempts,created_at,dead_at,error,error_class,error_message,failed_at,form_configuration_name,form_name,id,label,liquid_body,locked_at,partial_name,queue,resource_id,resource_type,retry_at,run_at,source_name,source_type,started_at,updated_at},BackgroundJobCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},BackgroundJobsResult{results},BaseError{message},CMSItemDefinition{fields,name,path},CMSItemDefinitionCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},CMSItemPayload{data,resource_name,type},CMSItemPayloadCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},EmailNotification{attachments,bcc,cc,content,created_at,delay_by,forms,from,id,layout,name,physical_file_path,reply_to,subject,to,trigger_condition,updated_at},EmailNotificationCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},FlashMessages{alert,notice},Form{api_call_notifications,async_callback_actions,async_callback_delay,async_callback_max_attempts,async_callback_priority,authorization_policies,callback_actions,configuration,created_at,default_payload,email_notifications,fields,flash_alert,flash_notice,id,liquid_body,name,physical_file_path,redirect_to,resource,resource_owner,response_headers,sms_notifications,spam_protection,updated_at},FormCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},FormConfiguration{api_call_notifications,async_callback_actions,async_callback_delay,async_callback_max_attempts,async_callback_priority,authorization_policies,callback_actions,configuration,created_at,default_payload,email_notifications,flash_alert,flash_notice,id,liquid_body,name,physical_file_path,redirect_to,resource,resource_owner,sms_notifications,spam_protection,updated_at},FormConfigurationCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},FormSubmitPayload{result,validation_errors},GraphQL{body,created_at,id,metadata,physical_file_path,updated_at},GraphQuery{created_at,id,name,physical_file_path,query_string,updated_at},GraphQueryCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},HTTPRequestContext{authentication_providers,body,current_full_path,current_path,current_url,flash,form_authenticity_token,headers,is_xhr,params,params_unfiltered,referer},Instance{id,name},InstanceMetrics{active_listings,active_users,marketplaces,models_count},LiquidLayout{configuration,created_at,id,metadata,name,physical_file_path,updated_at},LiquidLayoutCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},LiquidPartial{configuration,created_at,id,metadata,name,physical_file_path,updated_at},LiquidPartialCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},LogEntry{message,type},NotificationSendEmailPayload{is_scheduled_to_send},Otp{secret,verified},Page{content,created_at,format,handler,id,liquid_body,metadata,name,physical_file_path,redirect_to,response_headers,slug,updated_at},PageCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},PresignedUrl{fields,url},PresignedUploadUrl{upload_url,upload_url_payload},PrivateFile{created_at,file_size,id,updated_at,url},Property{name,property_attributes},PropertyUpload{created_at,error_message,expires_at,file_name,id,status,updated_at,url,versions},PropertyUploadPresignedUrl{payload,url},Response{body,headers,status},Result{model,user},SentNotification{created_at,id,name,status},SentNotificationCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},SmsNotification{content,created_at,deliver_at,deliver_in,forms,from,id,name,phone_to,physical_file_path,trigger_condition,updated_at},SmsNotificationCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},SmsSendPayload{is_scheduled_to_send},Table{created_at,id,marketplace_id,name,updated_at},TableCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},ThirdPartyIntegration{created_at,id,name,status,updated_at},ThirdPartyIntegrationCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},Translation{created_at,id,locale,marketplace_id,translation_key,updated_at,value},TranslationJson{created_at,id,locale,marketplace_id,updated_at,value},WebhookEndpoint{created_at,events,id,name,physical_file_path,secret,updated_at,url},WebhookEndpointCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},WebhookLog{created_at,endpoint,event,id,response,status,updated_at},WebhookLogCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages}}|AUTH:{Authenticate{jwt,otp_code,password,temporary_token},Authentication{created_at,deleted_at,id,provider,raw_info,token,token_expires_at,uid,updated_at},Session{expires_at,token,user}}|CORE:{CustomAddrress{address,address2,apartment,city,country,id,iso_country_code,lat,lng,name,postcode,service_radius,state,street,street_number,suburb},Listing{category,category_id,created_at,customizations,deleted_at,description,id,lng_lat,name,parent_id,property,property_uploads,slug,status,updated_at,user_id},ListingAddress{address,address2,apartment,city,country,id,iso_country_code,lat,lng,name,point,postcode,service_radius,state,street,street_number,suburb},ListingCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},ListingImage{alt,filename,id,image_original_height,image_original_width,name,urls},ListingsCommunication{verified},ListingsCustomization{address,addresses,attachment,attachments,created_at,customizable,customizable_id,customizable_type,deleted_at,external_id,human_name,id,image,images,name,property,property_array,property_boolean,property_float,property_int,property_json,property_object,properties,related_model,related_models,related_user,remote_model,sort_score,updated_at,user_id},ListingsCustomizationCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},ListingsCustomModelType{attribute_definitions,id,name},ListingsModelSchema{field_definitions,id,name},ListingsPrivateFile{created_at,file_size,id,updated_at,url},ListingUserProfile{customizations,email,first_name,id,last_name,phone,slug,user_id},Model{created_at,id,model_schema_name,name,parent_record_id,parent_table,properties,updated_at},ModelCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},ModelSchema{created_at,field_definitions,id,name,updated_at},ModelSchemaCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},Record{created_at,id,model_schema_name,name,parent_record_id,parent_table,properties,updated_at},RecordCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},RecordCreate{record},Transactable{created_at,id,name,properties,status,transactable_schema_id,updated_at},TransactableCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},TransactableSchema{created_at,field_definitions,id,name,updated_at},TransactableSchemaCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},TransactableType{description,id,name}}|USER:{Customization{address,addresses,attachment,attachments,created_at,custom_address,custom_addresses,custom_attachment,custom_attachments,custom_image,custom_images,customizable,customizable_id,customizable_type,deleted_at,external_id,human_name,id,image,images,model,models,name,properties,property,property_array,property_boolean,property_float,property_int,property_json,property_object,property_upload,related_model,related_models,related_user,remote_model,sort_score,updated_at,user,user_id},CustomAttachment{created_at,file_url,id},CustomAttributeDefinition{attribute_type,id,name},CustomImage{created_at,deleted_at,file_url,id,name,property_id,updated_at,uploader_id,url},CustomImageCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},Profile{created_at,customizations,deleted_at,email,first_name,id,last_name,phone,slug,updated_at,user_id},UpdateCustomizationsMutationPayload{customizations},UpdateUsersMutationPayload{users},User{created_at,customizations,deleted_at,email,external_id,first_name,id,last_name,listings,phone_number,profile,slug,updated_at},UserCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},UserListing{address,category,category_id,created_at,customizations,deleted_at,description,id,lng_lat,name,parent_id,slug,status,updated_at,user_id},UserListingCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},UserOtpDeleteTokenInformation{delete_token,expires_at},UserOtpSecretRefreshInformation{refresh_token,secret},UserProfileSchema{created_at,field_definitions,id,name,updated_at},UserProfileSchemaCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},UserSchema{created_at,field_definitions,id,name,updated_at}}|DATA:{Aggregations{compact,raw},DataExport{created_at,id,status,updated_at,url},DataExportCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},Document{id,properties,property,property_array,property_boolean,property_float,property_int,property_json,property_object},Embedding{content,created_at,embedding,id,metadata,token_count,updated_at},EmbeddingCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},EncryptedConstant{created_at,deleted_at,name,updated_at,value},EncryptedConstantCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},IndexSearchCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages},ObjectCount{count},ObjectUpload{errors,id,object},ImportCustomizationsMutationPayload{customizations},ImportTransactablesMutationPayload{transactables},ImportUsersMutationPayload{users},VersionCollection{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages}}|FILES:{AttachmentPresignedUploadUrl{upload_url,upload_url_payload},Image{filename,id,image_original_height,image_original_width,name,uploader_id,url,urls},ImagePresignedUploadUrl{upload_url,upload_url_payload}}|PAYLOADS:{ApiCallSendPayload{errors,response},AssetsCreateMutationPayload{assets},AssetsPresignUrlsMutationPayload{urls},FormSubmitPayload{result,validation_errors},ImportCustomizationsMutationPayload{customizations},ImportTransactablesMutationPayload{transactables},ImportUsersMutationPayload{users},NotificationSendEmailPayload{is_scheduled_to_send},SmsSendPayload{is_scheduled_to_send},UpdateCustomizationsMutationPayload{customizations},UpdateUsersMutationPayload{users}}|INPUTS|FILTER:{ActivitiesSortInput{created_at,id,updated_at},AggregationField{aggregations,customization_name,customization_property_name,field_name,name,profile_property_name,profile_type,size,sort,type},ApiCallNotificationsFilterInput{callback,content,created_at,delay,delay_by,headers,id,metadata,name,or,physical_file_path,to,trigger_condition,updated_at},ApiCallNotificationsSortInput{created_at,id,metadata,name,physical_file_path,updated_at},AssetUpdateAllInput{manually_managed},AssetUpdateInput{manually_managed,metadata,physical_file_path},AssetsSortInput{content_type,created_at,file_size,id,metadata,name,physical_file_path,updated_at,virtual_deleted_at},AuthorizationPoliciesFilterInput{content,created_at,flash_alert,id,metadata,name,or,physical_file_path,redirect_to,updated_at},AuthorizationPoliciesSortInput{created_at,id,metadata,name,physical_file_path,updated_at},BackgroundJobsFilterInput{created_at,failed_at,form_configuration_name,id,label,locked_at,or,queue,resource_id,resource_type,run_at,source_name,source_type,timestamp,type,updated_at},BackgroundJobsSortInput{attempts,class_name,created_at,enqueued_at,failed_at,form_configuration_name,id,label,locked_at,queue,resource_id,resource_type,retry,run_at,source_name,source_type,updated_at},BooleanFilter{is_null,not_value,value},Content{starts_with,value},ContentLength{gte,lte},DateFilter{exists,gt,gte,lt,lte,not_value,not_value_in,value,value_in},DateRange{gt,gte,lt,lte},EmailNotificationsFilterInput{attachments,bcc,cc,content,created_at,delay,delay_by,id,layout,layout_path,metadata,name,or,physical_file_path,subject,to,trigger_condition,updated_at},EmailNotificationsSortInput{created_at,id,metadata,name,physical_file_path,updated_at},EmbeddingsFilterInput{created_at,id,metadata,updated_at},EmbeddingsSortInput{created_at,embedding,id,updated_at},EncryptedConstantFilterInput{created_at,id,name,updated_at},EncryptedConstantsFilterInput{created_at,id,name,updated_at},EncryptedConstantsSortInput{created_at,id,name,updated_at},FloatFilter{gt,gte,lt,lte,not_value,not_value_in,value,value_in},FormConfigurationsFilterInput{async_callback_actions,callback_actions,created_at,default_payload,flash_notice,id,liquid_body,metadata,name,redirect_to,resource,resource_owner,updated_at},FormConfigurationsSortInput{created_at,id,metadata,name,physical_file_path,updated_at},FormsFilterInput{async_callback_actions,callback_actions,created_at,default_payload,flash_notice,id,liquid_body,metadata,name,or,physical_file_path,redirect_to,resource,resource_owner,updated_at},FormsSortInput{created_at,id,metadata,name,physical_file_path,updated_at},GraphqlFilterInput{created_at,id,metadata,name,or,physical_file_path,query_string,updated_at},GraphqlSortInput{created_at,id,metadata,name,physical_file_path,updated_at},IDFilter{gt,gte,lt,lte,not_value,not_value_in,value,value_in},IdRangeFilter{gt,gte,lt,lte},ImagesFilterInput{created_at,deleted_at,id,name,property_id,updated_at,uploader_id},ImagesSortInput{created_at,id,name,property_id,updated_at,uploader_id},IndexSearchFilterInput{query},IndexSearchSortInput{created_at,id,name},IntFilter{gt,gte,lt,lte,not_value,not_value_in,value,value_in},IntegerRangeFilter{gt,gte,lt,lte},IntegerFilter{not_value_in,range,value,value_in},JsonbAttributeFilter{value},JsonbFilter{attribute,contains,has_key,not_value,not_value_in,value,value_in},JsonbSort{name,order},LiquidLayoutsFilterInput{created_at,id,metadata,name,or,physical_file_path,updated_at},LiquidLayoutsSortInput{created_at,id,metadata,name,physical_file_path,updated_at},LiquidPartialsFilterInput{created_at,id,metadata,name,or,physical_file_path,updated_at},LiquidPartialsSortInput{created_at,id,metadata,name,physical_file_path,updated_at},ListingSortInput{field,order},ListingAggregation{fields,filter,global,name},ModelSchemasFilterInput{created_at,id,name,updated_at},ModelSchemasSortInput{created_at,id,name,updated_at},ModelsFilterInput{created_at,id,name,updated_at},ModelsSortInput{created_at,id,name,updated_at},NotificationTypeFilter{type},PageFilterInput{created_at,deleted_at,format,handler,id,metadata,name,or,physical_file_path,slug,updated_at},PageFormatFilter{value,values},PagesRequestMethodFilter{value,values},PagesSortInput{created_at,id,metadata,name,physical_file_path,slug,updated_at},ProfileFilterInput{created_at,deleted_at,email,first_name,id,last_name,slug,updated_at},PropertiesFieldInput{name,value},PropertyFilterInput{created_at,id,marketplace_id,name,updated_at},QueryAssetsFilterInput{content,content_length,created_at,id,name,updated_at},QueryCustomAttribute{name,value},QueryCustomization{address,created_at,external_id,id,name,parent_id,parent_type,slug,type_name,updated_at,user_id},QueryCustomModelType{name},QueryListing{addresses,created_at,creator,creator_id,creator_ids,custom_attributes,customizations,external_id,external_ids,has_creator,id,ids,is_deleted,name,properties,slug,transactable_type,without_ids},QueryListingLocation{location},QueryModelSchema{name},QueryTransactableType{name},QueryUser{email,external_id,first_name,id,last_name,slug,updated_at},QueryUserProfile{email,first_name,id,last_name,slug,user_id},RangeFilter{gte,lte},RecordsFilterInput{created_at,id,model_schema_name,external_id,updated_at},RecordsSortInput{created_at,id,updated_at},RelatedModelsFilterInput{model_schema_name},RelatedRecordsFilterInput{table},RelatedUsersFilterInput{},SentNotificationsFilterInput{created_at,id,name,status,updated_at},SentNotificationsSortInput{created_at,id,updated_at},SmsNotificationsFilterInput{content,created_at,deliver_at,deliver_in,from,id,name,or,phone_to,physical_file_path,trigger_condition,updated_at},SmsNotificationsSortInput{created_at,id,name,physical_file_path,updated_at},SortByChildField{field,order},SortByDistance{center,distance,field},SortByFieldOrder{field_order},SpamProtectionInput{enabled,recaptcha_v3_token},SpamProtectionInputType{enabled,recaptcha_v3_token},SpamProtectionRecaptchaV3Input{recaptcha_response_token},SpamProtectionRecaptchaV3InputType{recaptcha_response_token},StringFilter{contains,ends_with,gt,gte,lt,lte,not_value,not_value_in,starts_with,value,value_in},TableInputType{created_at,id,marketplace_id,name,updated_at},TablesFilterInput{created_at,id,marketplace_id,name,updated_at},TablesSortInput{created_at,id,name,updated_at},ThirdPartyIntegrationsFilterInput{created_at,id,name,status,updated_at},ThirdPartyIntegrationsSortInput{created_at,id,name,updated_at},TransactableSchemasFilterInput{created_at,id,name,updated_at},TransactableSchemasSortInput{created_at,id,name,updated_at},UniqIdFilter{not_value,not_value_in,value,value_in},UserProfileSchemasFilterInput{created_at,id,name,updated_at},UserProfileSchemasSortInput{created_at,id,name,updated_at},UsersFilterInput{created_at,deleted_at,email,first_name,id,last_name,slug,updated_at},UsersSortInput{created_at,email,first_name,id,last_name,slug,updated_at},VectorDistanceSort{distance,field,order},VersionFilterInput{version},VersionSortInput{field,order}}|CREATE:{ActiveRecordReference{id,ids,type},AddressImport{address,address2,apartment,city,country,iso_country_code,lat,lng,name,postcode,service_radius,state,street,street_number,suburb},ApiCallNotificationInputType{callback,content,delay_by,form_configuration_ids,headers,manually_managed,name,physical_file_path,request_headers,request_type,to,trigger_condition},ApiCallSendOptions{internal,timeout},ApiCallSendRequestInput{body,headers,method,url},AssetInput{file_size,manually_managed,metadata,name,physical_file_path,url},AssetPresignInput{path},AtachmentInputType{file,name,remote_file_url},AttachmentContentLengthRange{gte,lte},AttachmentModelPropertyInput{model_schema_name,property_name},AttachmentPresignUrlInput{content_disposition,content_length,model_property,user_property},AttachmentUserPropertyInput{property_name},AttachmentsImport{direct_path,id,name,url},AuthenticationInputType{provider,raw_info,token,token_expires_at,uid},AuthorizationPolicyInputType{content,flash_alert,manually_managed,metadata,name,physical_file_path,redirect_to},CustomAttachmentInputType{custom_attribute_name,direct_url,generate_file,owner_id,owner_type,page_slug,raw_remote_file_url,uploader_id},CustomAttributeInputType{array_append,array_remove,decrement,increment,name,value,value_array,value_boolean,value_float,value_int,value_json},CustomImageInputType{custom_attribute_name,direct_url,owner_id,owner_type,page_slug,uploader_id},CustomizationImport{addresses,attachments,created_at,customizable_id,customizable_type,id,images,properties,type_name,updated_at,user_id},CustomizationInputType{created_at,custom_attachments,custom_images,custom_model_type_id,custom_model_type_name,customizable_id,customizable_type,customizations,deleted_at,external_id,id,model_schema_name,models,properties,title,user_id},CustomizationSortOrder{field,order,property},CustomizationsInputType{name,values},CustomizationsSortOrder{name,order,property_name},DataExportModelsInput{filter,per_page,sort},DataExportRecordsInput{filter,per_page,sort},DataExportUsersInput{filter,per_page,sort},DataExportsFilterInput{created_at,id,updated_at},DataExportsSortInput{created_at,id,updated_at},DefaultProfileInputType{custom_attachments,custom_images,deleted_at,properties},EmailNotificationInputType{attachments,bcc,cc,content,delay_by,form_configuration_ids,from,layout,layout_path,manually_managed,name,physical_file_path,reply_to,subject,to,trigger_condition},EmbeddingCreateInputType{content,created_at,embedding,id,metadata,token_count,updated_at},EmbeddingUpdateInputType{content,created_at,embedding,id,metadata,token_count,updated_at},Endpoint{token,url},FormConfigurationInputType{async_callback_actions,async_callback_delay,async_callback_max_attempts,async_callback_priority,authorization_policy_ids,callback_actions,configuration,default_payload,flash_alert,flash_notice,liquid_body,metadata,name,physical_file_path,redirect_to,resource,resource_owner,spam_protection},FormInput{async_callback_actions,async_callback_delay,async_callback_max_attempts,async_callback_priority,authorization_policy_ids,callback_actions,configuration,default_payload,flash_alert,flash_notice,liquid_body,metadata,name,physical_file_path,redirect_to,resource,resource_owner,response_headers,spam_protection},FullTextQueryField{name,priority,profile_field},GeoBox{bottom,left,right,top},GeoBoxTopLeftBottomRight{bottom_right,top_left},GeoBoxTopRightBottomLeft{bottom_left,top_right},GeoPoint{lat,lng},GeoPointInShape{point},GeoPolygon{points},GeoPropertyFilterInput{center,distance_in_km},GeoQuery{box,box_top_left_bottom_right,box_top_right_bottom_left,point_in_shape,polygon,radius},GeoRadius{center,distance},GeoRadiusPropertyFilterInput{point,radius_in_km_from_property},GraphqlInputType{body,manually_managed,metadata,physical_file_path},ImageInputType{direct_url,image,name,remote_image_url},ImagePresignUrlInput{content_length,model_property,user_property,versions},ImagesImport{direct_path,id,name,url},IndexSearchQuery{query},JoinModelCollection{model_schema_name,records},JoinRecordCollection{parent_record_id,parent_table,records},LiquidLayoutInputType{configuration,manually_managed,metadata,name,physical_file_path},LiquidPartialInputType{configuration,manually_managed,metadata,name,physical_file_path},ModelPropertyInput{model_schema_name,property_name},ModelSchemaInputType{created_at,fieldDefinitions,id,name,updated_at},ModelUpdate{name,properties},MutationAssetsFilterInput{content,content_length,name},NestedCustomizationFilters{filters},NestedPropertyInputType{name,value},NewCustomImageInputType{custom_attribute_name,direct_url,name,owner_id,owner_type,uploader_id},NotificationEmailInput{bcc,cc,from,reply_to,send_to,subject},NotificationTemplateInput{bcc,cc,from,reply_to,send_to,subject},PageInputType{configuration,content,format,handler,liquid_body,metadata,name,physical_file_path,redirect_to,response_headers,slug},PresignUrl{acl,content_disposition,content_length,expires_in,max_file_size,name},PresignUrlInput{acl,content_disposition,content_length,expires_in,max_file_size,name},ProcessPageInputType{page_slug},ProcessStrategyInputType{format,strategy},PropertyInputType{name,value},PropertySort{field,order},PropertyUploadContentLengthInput{gte,lte},PropertyUploadEncryptionGPGInput{is_symmetric,public_key},PropertyUploadEncryptionInput{aes_password,algorithm,gpg_public_key},PropertyUploadManipulateInput{blur,flatten,greyscale},PropertyUploadOptionsInput{acl,content_disposition,encryption,manipulate,max_file_size,output,resize,versions},PropertyUploadOutputInput{fit,format,height,quality},PropertyUploadResizeInput{fit,height,width},PropertyUploadVersionInput{prefix,suffix},Query{match_type,profile,profile_type,query,text},RecordInputType{properties},RecordsCreateInputType{parent_record_id,parent_table,properties},RecordsInputType{properties},RelatedModelsFilterInput{model_schema_name},RelatedRecordsFilterInput{table},RelatedUsersFilterInput{},SmsNotificationInputType{content,delay_by,form_configuration_ids,from,manually_managed,name,phone_to,physical_file_path,trigger_condition},SmsSendInput{from,phone_number,subject},SortOrder{field,order},SpamProtectionRecaptchaV3Input{recaptcha_response_token},SpamProtectionRecaptchaV3InputType{recaptcha_response_token},StandalonePropertyInputType{name,value},StandardSort{field,order},TableInputType{created_at,id,marketplace_id,name,updated_at},ThirdPartyIntegrationsFilterInput{created_at,id,name,status,updated_at},TransactableImport{created_at,external_id,id,name,properties,schema_id,updated_at},TransactableInputType{created_at,name,properties,schema_id},TransactableSchemaInputType{field_definitions,name},TranslationInputType{locale,translation_key,value},TranslationJsonInputType{locale,strategy,translation_key,value},UpdateApiCallNotificationInputType{callback,content,delay_by,headers,request_type,to,trigger_condition},UpdateAuthorizationPolicyInputType{content,flash_alert,redirect_to},UpdateCustomAttachmentInputType{file},UpdateEmailNotificationInputType{attachments,bcc,cc,content,layout,reply_to,subject,to,trigger_condition},UpdateFormConfigurationInputType{async_callback_actions,async_callback_delay,async_callback_max_attempts,async_callback_priority,authorization_policy_ids,callback_actions,default_payload,flash_alert,flash_notice,liquid_body,redirect_to,resource,resource_owner,spam_protection},UpdateFormInput{async_callback_actions,async_callback_delay,async_callback_max_attempts,async_callback_priority,authorization_policy_ids,callback_actions,default_payload,flash_alert,flash_notice,liquid_body,redirect_to,resource,resource_owner,response_headers,spam_protection},UpdateGraphqlInputType{body},UpdateLiquidLayoutInputType/configuration,UpdateLiquidPartialInputType{configuration},UpdateModelSchemaInputType{field_definitions},UpdatePageInputType{configuration,content,format,handler,liquid_body,redirect_to,response_headers,slug},UpdateSmsNotificationInputType{content,delay_by,from,phone_to,trigger_condition},UpdateStandalonePropertyInputType{value},UpdateTableInputType{created_at,marketplace_id,name,updated_at},UpdateTransactableSchemaInputType{field_definitions},UpdateTranslationInputType{value},UpdateUserProfileSchemaInputType{field_definitions},UserImport{email,external_id,first_name,id,last_name,password,phone_number,slug},UserInputType{email,encrypted_password,external_id,first_name,last_name,password,phone_number,slug},UserProfileImportType{email,external_id,first_name,id,last_name,password,phone_number,slug},UserProfileInputType{email,first_name,last_name,phone},UserProfileSchemaInputType{field_definitions,name},UserProfileUpdateType{email,first_name,last_name,phone},UserPropertyInput{property_name},UserUpdate{email,external_id,first_name,last_name,password,phone_number},ValueUploadInput{file_name,file_size,file_url,property_name,property_type,uploaded_file_name},VersionInput{blur,fit,format,height,manipulate,output,prefix,quality,resize,suffix,width},VersionManipulateInput{blur,flatten,greyscale},VersionOutputInput{format,quality},VersionResizeInput{background,fit,height,position,width}|ENUMS|ACCESS:{ACL{private,public}}|AUTH:{AuthenticationProvider{auth0,facebook,github,google,instagram,linkedin,openid_connect,saml,twitter},JwtAlgorithm{ES256,ES384,ES512,HS256,HS384,HS512,PS256,PS384,PS512,RS256,RS384,RS512,none}}|AGGREGATION:{AggregationSortFieldEnum{_count,_term},AggregationSortOrderEnum{asc,desc},AggregationTypeEnum{avg,max,min,terms}}|PRIORITY:{AsyncCallbackPriority{default,high,low}}|JOB:{BackgroundJobsTypeEnum{DEAD,RETRY,RUNNING,SCHEDULED}}|ATTACHMENT:{AttachmentContentDispositionEnum{download,inline}}|CMS:{CMSItemType{ActivityStreamsGroupingHandler,ActivityStreamsHandler,ApiCallNotification,Asset,AuthorizationPolicy,CustomModelType,EmailNotification,FormConfiguration,GraphQuery,InstanceConfig,InstanceProfileType,LiquidView,Migration,Modules,Page,SmsNotification,TransactableType,Translation,UserType}}|CUSTOMIZABLE:{CustomizableTypeEnum{Customization,Transactable,User,UserProfile}}|GEO:{DistanceUnit{cm,km,m,mi,nmi,yd}}|FORMAT:{PageFormat{csv,css,html,ics,js,json,pdf,rss,svg,text,txt,xml},PageHandler{liquid,markdown}}|IMAGE:{ImageFormat{avif,jpeg,png,webp},ImageResizeFit{contain,cover,fill,inside,outside},ImageResizePosition{bottom,bottom_left,bottom_right,center,left,right,top,top_left,top_right}}|LOG:{LogEntryType{debug,error,info}}|METHOD:{PageRequestMethod{delete,get,options,patch,post,put},PropertyUploadContentDisposition{attachment,inline}}|NOTIFICATION:{NotificationTypeEnum{API_CALL,EMAIL,SMS}}|OBJECTS:{ObjectsWithUploadsEnum{Record,User,UserProfile}}|OPERATOR:{OperatorEnum{AND,OR}}|PROCESS:{ProcessStrategy{pdf,text}}|PROPERTY:{PropertyTargetType{all,category,parent,user},PropertyTypeEnum{address,array,binary,boolean,date,datetime,decimal,file,float,geojson,integer,photo,string,text,time,upload},PropertyUploadACL{private,public},PropertyUploadFit{contain,cover,fill,inside,outside},PropertyUploadFormat{avif,jpeg,png,webp},PropertyUploadPosition{bottom,bottom_left,bottom_right,center,left,right,top,top_left,top_right}}|QUERY:{QueryMatchTypeEnum{EXACT,PHRASE,PREFIX},SelectPropertyTypeEnum{all,category,parent,user}}|REDIRECT:{PageRedifectCode{MOVED_PERMANENTLY,MOVED_TEMPORARILY}}|SORT:{SortOrderEnum{asc,desc}}|STATUS:{StatusEnum{active,disabled,inactive,pending}}|STRATEGY:{TranslationJsonStrategy{deep_merge,replace}}|TRANSACTION:{TransactionStatusEnum{pending,processed,failed},TransactionTypeEnum{authorization,capture,sale,void}}|UPLOAD:{UploadType{avatar,file},ValueUploadInputTypeEnum{csv,file}}|USER:{UserStatus{active,inactive}}|VECTOR:{VectorDistanceEnum{cosine,euclidean,l2_squared,l1}}|VERSION:{VersionAction{copy,create,remove,update},VersionItemType{manipulate,output,resize}}|WEBHOOK:{WebhookEvent{*}}|SCALARS|ActivityStreamsPayload{json},Any{any},CssColor{color},GeometryJSON{geojson},GPGKey{gpg_key},HashObject{hash},HeadersObject{headers},ImageBlur{0-1000},ImageQuality{0-100},ISO8601DateTime{iso8601},JSONDate{json_date},JSONPayload{json},LatDegree{lat},LngDegree{lng},ParamsObject{params},PropertiesObject{props},PropertyName{name},GeoPointType{lat,lon}|INTERFACES|ADMIN:{AdminSharedAttributesInterface{created_at,id,manually_managed,metadata,physical_file_path,updated_at},AdminNonDeployableSharedAttributesInterface{created_at,id,updated_at},AdminPropertiesInterface{fields@deprecated,properties}}|PROPERTY:{BasicPropertyInterface{id,property,property_array,property_boolean,property_float,property_int,property_json,property_object,properties},PropertiesInterface{properties},LegacyCustomAttributeInterface{property,property_array,property_boolean,property_float,property_int,property_json,property_object}}|RELATION:{HasModelsInterface{model,models,related_model,related_models,related_user,related_users,user,users},HasModelsInterfaceForRecords{model,models,related_model,related_models,user,users},HasRecordsInterface{related_record,related_records},HasUsersInterface{related_user,related_users},RelationOnDemandInterface{related_model,related_models,related_user},RemoteModelInterface{remote_model},RemoteRecordsInterface{remote_records},RemoteUsersInterface{remote_users}}|LISTING:{ListingsMetadata{category,category_id,human_name,lng_lat,name,parent_id,property_uploads,slug,sort_score},ListingCustomAttributeInterface{property,property_array,property_boolean,property_float,property_int,property_json,property_object,properties}}|UNIONS|Customizable{Listing,Profile,User}|INTERFACE_IMPLS|AdminSharedAttributesInterface->{ApiCallNotification,Asset,AuthorizationPolicy,EmailNotification,Form,FormConfiguration,GraphQL,GraphQuery,LiquidLayout,LiquidPartial,Page,WebhookEndpoint}|AdminNonDeployableSharedAttributesInterface->{SentNotification}|AdminPropertiesInterface->{ModelSchema,Table,TransactableSchema,UserProfileSchema}|BasicPropertyInterface->{Document}|PropertiesInterface->{Customization,Model,Profile}|LegacyCustomAttributeInterface->{Customization,Profile}|HasModelsInterface->{Model,User}|HasModelsInterfaceForRecords->{Record}|HasRecordsInterface->{Profile}|HasUsersInterface->{Profile,User}|RelationOnDemandInterface->{Customization,Listing,ListingsCustomization}|RemoteModelInterface->{Customization,Listing}|RemoteRecordsInterface->{Profile}|RemoteUsersInterface->{Profile}|ListingsMetadata->{Customization,Listing}|ListingCustomAttributeInterface->{Listing,ListingsCustomization}|COMMON_PATTERNS|PAGINATION:{current_page,has_next_page,has_previous_page,per_page,results,total_entries,total_pages}|TIMESTAMPS:{created_at:JSONDate,updated_at:JSONDate,deleted_at:JSONDate,virtual_deleted_at:JSONDate}|PROPERTY_ACCESS:{property(name):String,property_array(name):[String!],property_boolean(name):Boolean,property_float(name):Float,property_int(name):Int,property_json(name):JSONPayload,property_object(name):HashObject,properties(select):HashObject}|RELATION_PATTERNS:{related_model(model_schema_name,foreign_property,join_on_property):Model,related_models(model_schema_name,foreign_property,join_on_property):[Model!],related_user(foreign_property,join_on_property):User,remote_model(endpoint,join_on_property):Customization,remote_records(endpoint,join_on_property):Record,remote_users(endpoint,join_on_property):User,related_record(filter,foreign_property,join_on_property,sort,table):Record,related_records(filter,foreign_property,join_on_property,limit,sort,table):[Record!]}|FILTER_OPS:{eq,not_eq,in,not_in,gt,gte,lt,lte,contains,starts_with,ends_with,is_null,exists,has_key,array_contains,array_contains_any,array_overlaps}|SORT_OPS:{field:String,order:asc|desc}|RESPONSE:{errors:[BaseError!],response:Response{body,headers,status}}|ERRORS:{BaseError{message},BaseErrorLocation{column,line}}|UPLOAD_OPS:{property_upload(name,expires_in):PropertyUpload,create_presigned_url(input):PresignedUrl,image_presign_url(input):ImagePresignedUploadUrl,attachment_presign_url(input):AttachmentPresignedUploadUrl,property_upload_presigned_url(input):PropertyUploadPresignedUrl}|NOTIFICATION_OPS:{send_email(input):SmsSendPayload,notify_email(input):NotificationSendEmailPayload,api_call_send(input,options):ApiCallSendPayload}|IMPORT_OPS:{import_customizations(input):ImportCustomizationsMutationPayload,import_users(input):ImportUsersMutationPayload,import_transactables(input):ImportTransactablesMutationPayload,import_models(input),import_listings(input)}|EXPORT_OPS:{export_data(input):DataExport}|QUERY_SHORTCUTS|customization(id)->Customization,user(id)->User,listing(id)->Listing,model(id)->Model,record(id)->Record,transactable(id)->Transactable,profile(id)->Profile,session->Session
+# GraphQL Schema Index
 
+Generated by `tools/generate-graphql-schema.mjs` from the introspection of 2 v6 instances, which agreed, on 2026-10-16. Do not edit by hand: regenerate it. The full definitions (descriptions, argument types, defaults, nullability) are in [schema.json](schema.json), which is SDL despite its name.
+
+Counts: 61 queries, 153 mutations, 133 object types, 230 input types, 41 enums, 16 interfaces, 1 union, 17 custom scalars. Deprecated operations are included and marked, because the platform keeps them working; prefer the name the deprecation reason gives.
+
+How to use it: find the operation or type here, then read its definition in schema.json (`grep -nE '^  <name>[(:]' schema.json` for an operation, `grep -n '^type <Name> ' schema.json` for a type). `!` after an argument means it is required. A name not in this file does not exist on the instance.
+
+## QUERY
+
+activities(page, per_page, sort, ids, uuids): ActivityStreamsActivityCollection
+admin_api_call_notifications(page, per_page, filter, sort): ApiCallNotificationCollection!
+admin_assets(page, per_page, filter, sort): AssetCollection!
+admin_assets_listing(id!): AssetsListing!
+admin_authorization_policies(page, per_page, filter, sort): AuthorizationPolicyCollection!
+admin_background_jobs(page, per_page, filter, sort): BackgroundJobCollection!
+admin_current_instance: Instance!
+admin_email_notifications(page, per_page, filter, sort): EmailNotificationCollection!
+admin_form_configurations(page, per_page, filter, sort): FormConfigurationCollection!  [deprecated: use admin_forms]
+admin_forms(page, per_page, filter, sort): FormCollection!  [deprecated: Use page with mutation]
+admin_graphql(page, per_page, filter, sort): GraphQueryCollection!
+admin_instance_metrics: InstanceMetrics!
+admin_liquid_layouts(page, per_page, filter, sort): LiquidLayoutCollection!
+admin_liquid_partials(page, per_page, filter, sort): LiquidPartialCollection!
+admin_logs(filter, per_page): [AdminLogEntry!]!
+admin_model_schemas(page, per_page, filter, sort): ModelSchemaCollection!  [deprecated: Use admin_tables]
+admin_pages(page, per_page, filter, sort, metadata, has_key, value, name, exclude): PageCollection!
+admin_search_index(search_index!): HashObject
+admin_search_index_rc(search_index!): HashObject  [deprecated: Use admin_search_index]
+admin_sent_notifications(page, per_page, filter, sort): SentNotificationCollection!
+admin_sms_notifications(page, per_page, filter, sort): SmsNotificationCollection!
+admin_tables(page, per_page, filter, sort): TableCollection!
+admin_third_party_integrations(page, per_page, filter, sort): ThirdPartyIntegrationCollection!
+admin_transactable_schemas(page, per_page, filter, sort): TransactableSchemaCollection!  [deprecated: Use admin_tables]
+admin_user_profile_schemas(page, per_page, filter, sort): UserProfileSchemaCollection!  [deprecated: Use admin_tables]
+admin_user_schema: UserSchema!
+admin_versions(page, per_page, filter, sort, options): VersionCollection!
+cms_discovery(types): CMSItemDefinitionCollection  [deprecated: Use admin_* queries]
+cms_items(type!, page, per_page): CMSItemPayloadCollection  [deprecated: Use admin_* queries]
+constant(filter): EncryptedConstant  [deprecated: Use constants]
+constants(page, per_page, filter, sort): EncryptedConstantCollection!
+current_user: User
+custom_attribute_definition(name!): CustomAttributeDefinition  [deprecated: Use admin_* queries]
+customization(id, name): Customization  [deprecated: Use models instead.]
+customizations(page, per_page, query, sort, id, ids, external_id, external_ids, without_ids, user_id, user_ids, name, names, without_names, custom_model_type, model_schema, is_deleted, customizable_type, customizable_id, customizable_ids, properties, created_at, updated_at, aggregations): ListingsCustomizationCollection!  [deprecated: Use records instead]
+data_exports(page, per_page, filter, sort): DataExportCollection!
+documents(search_index!, page, per_page!, query, filter, sort, aggregations): IndexSearchCollection!
+documents_rc(search_index!, page, per_page!, query, filter, sort, aggregations): IndexSearchCollection!  [deprecated: Use documents]
+embeddings(page, per_page!, filter, sort, options): EmbeddingCollection!
+embeddings_rc(page, per_page!, filter, sort, options): EmbeddingCollection!  [deprecated: Use embeddings]
+feeds: [ActivityStreamsFeed]
+handlers(page, per_page): ActivityStreamsHandlerCollection
+images(page, per_page!, filter, sort): CustomImageCollection!  [deprecated: Use property upload]
+instance: Instance  [deprecated: Use admin_current_instance]
+listings(query, geo_query, sort, page, per_page, listing, aggregations): ListingCollection!  [deprecated: Use Record instead of Transactables]
+login_providers: [String]  [deprecated: Not needed]
+model(id, name): Customization  [deprecated: Use models instead]
+models(page, per_page!, filter, sort, options): ModelCollection!  [deprecated: Use records]
+pages(page, per_page, filter, sort, metadata, has_key, value, name, exclude): PageCollection!  [deprecated: use admin_pages]
+people(query, geo_query, sort, page, per_page, user, aggregations): UserListingCollection!  [deprecated: Use users]
+records(page, per_page!, filter, sort, options): RecordCollection!
+remote_records(page, per_page!, endpoint!, filter, sort): RecordCollection!
+remote_users(page, per_page!, filter, sort, endpoint!): UserCollection!
+request: HTTPRequestContext  [deprecated: Not needed]
+streams(page, per_page, feed_type!, feed_id, feed_name, reset_last_read): ActivityStreamsActivityStreamCollection
+transactable(id, slug, creator_id): Transactable!  [deprecated: Not needed]
+transactable_type(id, name): TransactableType  [deprecated: Not needed; use ModelSchema instead of TransactableType]
+transactable_types(ids, names): [TransactableType]  [deprecated: Not needed; use ModelSchema instead of TransactableType]
+transactables(page, per_page): TransactableCollection!  [deprecated: Use Records instead of Transactables]
+user(id, slug, email, external_id, is_deleted, options): User  [deprecated: Use users]
+users(page, per_page!, filter, sort, options): UserCollection!
+
+## MUTATION
+
+activity_create(payload!): ActivityStreamsActivity
+activity_delete_all(confirm): [ID]
+activity_publish(uuid!, feed_type!, ids!, at): JSONDate
+activity_unpublish(uuid, related_to_object, record_id): [ID]
+activity_unpublish_all(confirm): [ID]
+admin_api_call_notification_create(api_call_notification!): ApiCallNotification
+admin_api_call_notification_delete(id, physical_file_path): ApiCallNotification
+admin_api_call_notification_update(id, physical_file_path, api_call_notification!): ApiCallNotification
+admin_asset_delete(physical_file_path!): Asset
+admin_asset_delete_all(filter!, hard_delete): String
+admin_asset_update(physical_file_path!, asset!): Asset
+admin_asset_update_all(filter!, asset!): ObjectCount
+admin_assets_create(assets!): AssetsCreateMutationPayload
+admin_assets_listing_create: AssetsListingIdentifier!
+admin_assets_presign_urls(paths!): AssetsPresignUrlsMutationPayload
+admin_authorization_policy_create(authorization_policy!): AuthorizationPolicy
+admin_authorization_policy_delete(id, physical_file_path): AuthorizationPolicy
+admin_authorization_policy_update(id, physical_file_path, authorization_policy!): AuthorizationPolicy
+admin_background_job_delete(id!): BackgroundJob
+admin_background_job_retry(id!): BackgroundJob
+admin_background_jobs_delete_all(filter): BackgroundJobsResult
+admin_email_notification_create(email_notification!): EmailNotification
+admin_email_notification_delete(id, physical_file_path): EmailNotification
+admin_email_notification_delete_all(filter!): ObjectCount
+admin_email_notification_update(id, physical_file_path, email_notification!): EmailNotification
+admin_email_notification_update_all(filter!, email_notification!): ObjectCount
+admin_field_create(field!): Property  [deprecated: Use admin_property_create]
+admin_field_delete(id!): Property  [deprecated: Use admin_property_delete]
+admin_field_update(id!, field!): Property  [deprecated: Use admin_property_update]
+admin_form_configuration_create(form_configuration!): FormConfiguration  [deprecated: Use admin_form_create]
+admin_form_configuration_delete(id!): FormConfiguration  [deprecated: Use admin_form_delete]
+admin_form_configuration_update(id!, form_configuration!): FormConfiguration  [deprecated: Use admin_form_update]
+admin_form_create(form!): Form  [deprecated: Use page with mutation]
+admin_form_delete(physical_file_path, id): Form  [deprecated: Use page with mutation]
+admin_form_delete_all(filter!): ObjectCount  [deprecated: Use page with mutation]
+admin_form_update(id, physical_file_path, form!): Form  [deprecated: Use page with mutation]
+admin_form_update_all(filter!, form!): ObjectCount  [deprecated: Use page with mutation]
+admin_graphql_create(graphql!): GraphQL
+admin_graphql_delete(physical_file_path!): GraphQL
+admin_graphql_update(physical_file_path!, graphql!): GraphQL
+admin_liquid_layout_create(liquid_layout!): LiquidLayout
+admin_liquid_layout_delete(id, physical_file_path): LiquidLayout
+admin_liquid_layout_delete_all(filter!, sync): ObjectCount
+admin_liquid_layout_update(id, physical_file_path, liquid_layout!): LiquidLayout
+admin_liquid_layout_update_all(filter!, liquid_layout!): ObjectCount
+admin_liquid_partial_create(liquid_partial!): LiquidPartial
+admin_liquid_partial_delete(id, physical_file_path): LiquidPartial
+admin_liquid_partial_delete_all(filter!, sync): ObjectCount
+admin_liquid_partial_update(id, physical_file_path, liquid_partial!): LiquidPartial
+admin_liquid_partial_update_all(filter!, liquid_partial!): ObjectCount
+admin_model_schema_create(model_schema!): ModelSchema
+admin_model_schema_delete(id, physical_file_path): ModelSchema
+admin_model_schema_update(id, physical_file_path, model_schema!): ModelSchema
+admin_page_create(page!): Page
+admin_page_delete(id, physical_file_path): Page
+admin_page_update(id, physical_file_path, page!): Page
+admin_page_update_all(filter!, page!): ObjectCount!
+admin_pages_delete_all(filter!, sync): ObjectCount!
+admin_property_create(property!): Property
+admin_property_delete(id!): Property
+admin_property_update(id!, property!): Property
+admin_sms_notification_create(sms_notification!): SmsNotification
+admin_sms_notification_delete(id, physical_file_path): SmsNotification
+admin_sms_notification_update(id, physical_file_path, sms_notification!): SmsNotification
+admin_table_create(table!): Table
+admin_table_delete(physical_file_path!): Table
+admin_table_update(physical_file_path!, table!): Table
+admin_transactable_schema_create(transactable_schema!): TransactableSchema  [deprecated: Use records instead of transactables]
+admin_transactable_schema_delete(id!): TransactableSchema  [deprecated: Use records instead of transactables]
+admin_transactable_schema_update(id!, transactable_schema!): TransactableSchema  [deprecated: Use records instead of transactables]
+admin_translation_create(translation!): Translation  [deprecated: Please use admin_translation_set]
+admin_translation_delete(key!, locale!): Translation  [deprecated: Please use admin_translation_unset]
+admin_translation_set(translation!): Translation
+admin_translation_set_json(translation!, strategy!): TranslationJson
+admin_translation_unset(key!, locale!): Translation
+admin_translation_update(key!, locale!, translation!): Translation  [deprecated: Please use admin_translation_set]
+admin_user_profile_schema_create(user_profile_schema!): UserProfileSchema  [deprecated: Use records instead of user_profiles]
+admin_user_profile_schema_delete(id, physical_file_path): UserProfileSchema  [deprecated: Use records instead of user_profiles]
+admin_user_profile_schema_update(id, physical_file_path, user_profile_schema!): UserProfileSchema  [deprecated: Use records instead of user_profiles]
+api_call_send(data, template, options, api_call): ApiCallSendPayload
+attachment_presign_url(options): AttachmentPresignedUploadUrl!  [deprecated: Custom attachments were replaced with property upload]
+channel_send_message(channel_name!, room_id!, payload!): String
+constant_set(name!, value!): EncryptedConstant!
+constant_unset(name!): EncryptedConstant
+custom_attachment_create(form_configuration_name, form_name, custom_attachment!): CustomAttachment  [deprecated: Custom attachments were replaced with property upload]
+custom_attachment_delete(id!, form_configuration_name, form_name): CustomAttachment  [deprecated: Custom attachments were replaced with property upload]
+custom_attachment_update(id!, form_configuration_name, form_name, custom_attachment!): CustomAttachment  [deprecated: Custom attachments were replaced with property upload]
+custom_image_create(form_configuration_name, form_name, custom_image!): CustomImage  [deprecated: Custom images were replaced with property upload]
+custom_image_delete(id!, form_configuration_name, form_name): CustomImage  [deprecated: Custom images were replaced with property upload]
+custom_image_update(id!, form_configuration_name, form_name, custom_image!): CustomImage  [deprecated: Custom images were replaced with property upload]
+customization_create(form_configuration_name, form_name, customization, model): Customization!  [deprecated: Use records instead of customizations]
+customization_delete(id!, form_configuration_name, form_name): Customization!  [deprecated: use model_delete]
+customization_update(id!, form_configuration_name, form_name, customization, model): Customization!  [deprecated: Use records instead of customizations]
+customizations_delete_all(model_schema_name, filter, custom_model_type_name, all_custom_model_types, all_model_schemas, sync): ObjectCount!  [deprecated: use models_delete_all]
+data_export(models, records, users, split_files, encryption): DataExport!
+data_export_delete(id!): DataExport!
+documents_bulk_upsert(search_index!, documents!): HashObject
+documents_bulk_upsert_rc(search_index!, documents!): HashObject  [deprecated: Use documents_bulk_upsert]
+documents_delete(search_index!, id!): HashObject
+documents_delete_rc(search_index!, id!): HashObject  [deprecated: Use documents_delete]
+documents_insert(search_index!, id, document!): HashObject
+documents_insert_rc(search_index!, id, document!): HashObject  [deprecated: Use documents_insert]
+documents_upsert(search_index!, id, document!): HashObject
+documents_upsert_rc(search_index!, id, document!): HashObject  [deprecated: Use documents_upsert]
+email_send(data, template, email): NotificationSendEmailPayload
+embedding_create(embedding!): Embedding!
+embedding_create_rc(embedding!): Embedding!  [deprecated: Use embedding_create]
+embedding_delete(id!): Embedding!
+embedding_delete_rc(id!): Embedding!  [deprecated: Use embedding_delete]
+embedding_update(id!, embedding!): Embedding!
+embedding_update_rc(id!, embedding!): Embedding!  [deprecated: Use embedding_update]
+form_submit(id, fields!, form_name!): FormSubmitPayload  [deprecated: Use page with mutation]
+image_presign_url(options): ImagePresignedUploadUrl!  [deprecated: Custom images were replaced with property upload]
+import_models(models!, _index_rebuild, _id_remap): ImportCustomizationsMutationPayload
+import_transactables(transactables!, _index_rebuild, _id_remap): ImportTransactablesMutationPayload  [deprecated: use Models instead of Transactables]
+import_users(users!, _index_rebuild, _id_remap): ImportUsersMutationPayload
+jwt_decode_and_set_session(jwt_token!, jwt_algorithm): User  [deprecated: User query users.jwt_token and session tag]
+log(type!, message!): LogEntry  [deprecated: Use log tag]
+model_create(form_configuration_name, form_name, customization, model): Model!  [deprecated: Use records instead of models]
+model_delete(id!, form_configuration_name, form_name): Model!  [deprecated: Use records instead of models]
+model_update(id!, form_configuration_name, form_name, customization, model): Model!  [deprecated: Use records instead of models]
+models_delete_all(model_schema_name, filter, custom_model_type_name, all_custom_model_types, all_model_schemas, sync): ObjectCount!  [deprecated: Use records instead of models]
+models_update_all(filter, model_schema_name!, model!, sync): ObjectCount!  [deprecated: Use records instead of models]
+presigned_upload_url(options): PresignedUploadUrl!  [deprecated: use property_upload_presign_url or attachment_presign_url]
+property_upload_presigned_url(property_name!, table, model_schema_name, user, include_content_type, presign_url): PropertyUploadPresignedUrl!
+record_create(form_name, record!): Record!
+record_delete(id!, table, form_name): Record!
+record_update(id!, form_name, record!, _index_update): Record!
+records_create(records!): [RecordCreate!]!
+records_create_rc(records!): [RecordCreate!]!  [deprecated: Use records_create]
+records_delete_all(table, filter, any_table, sync): ObjectCount!
+records_update_all(filter, table!, record!, sync, _index_update): ObjectCount!
+session_create_field(name!, value!): HashObject
+session_delete_field(name!): HashObject
+sms_send(data, template, sms): SmsSendPayload
+transactable_create(form_configuration_name, transactable!): Transactable!  [deprecated: use Models instead of Transactables]
+transactable_delete(id!, form_configuration_name): Transactable!  [deprecated: use Models instead of Transactables]
+transactable_update(id!, form_configuration_name, transactable!): Transactable!  [deprecated: use Models instead of Transactables]
+transactables_delete_all(transactable_type_name, all_transactable_types): ObjectCount!  [deprecated: use Models instead of Transactables]
+update_models(models!): UpdateCustomizationsMutationPayload  [deprecated: Use records instead of models]
+update_users(users!): UpdateUsersMutationPayload  [deprecated: Use user_update or users_update_all]
+upload_delete(upload_object_id!, upload_object_type!, attribute_name, delete_all_properties, sync): ObjectUpload!
+user_create(form_configuration_name, form_name, user!, id): User
+user_delete(id!, form_configuration_name, form_name): User
+user_otp_delete_token(user_id!, otp_name): UserOtpDeleteTokenInformation
+user_otp_secret_refresh(user_id!, otp_name): UserOtpSecretRefreshInformation
+user_profile_delete(user_id!, profile_type!, form_configuration_name, form_name): Profile!  [deprecated: Use records instead of user_profiles]
+user_profiles_delete_all(user_profile_type_name, all_user_profile_types, user_id): ObjectCount!  [deprecated: Use records instead of user_profiles]
+user_session_create(email, password!, remember_me, form_configuration_name, form_name): User  [deprecated: Use sign_in tag]
+user_session_destroy(form_configuration_name, form_name): HashObject  [deprecated: Use session tag]
+user_update(form_configuration_name, form_name, user!, id): User
+users_delete_all(filter, all_users, sync): ObjectCount!
+users_update_all(filter, user!, all_users, sync): ObjectCount!
+
+## OBJECTS
+
+ActivityStreamsActivity {id, payload, uuid}
+ActivityStreamsActivityCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+ActivityStreamsActivityStreamCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages, unread_count}
+ActivityStreamsFeed {ids, name}
+ActivityStreamsHandler {filter, id, name, targets}
+ActivityStreamsHandlerCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+AdminLogEntry {created_at, data, id, message, type}
+Aggregations {compact, raw}
+ApiCallNotification {callback, content, created_at, delay_by, form_configurations, forms, headers, id, manually_managed, metadata, name, physical_file_path, request_type, to, trigger_condition, updated_at}
+ApiCallNotificationCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+ApiCallSendPayload {errors, response}
+Asset {content_type, created_at, deleted_at, file_size, id, manually_managed, metadata, name, physical_file_path, updated_at, url, virtual_deleted_at}
+AssetCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+AssetsCreateMutationPayload {assets}
+AssetsListing {created_at, id, private_assets_url, public_assets_url, status}
+AssetsListingIdentifier {created_at, id}
+AssetsPresignUrlsMutationPayload {urls}
+AttachmentPresignedUploadUrl {upload_url, upload_url_payload}
+Authenticate {jwt, otp_code, password, temporary_token}
+Authentication {created_at, deleted_at, id, provider, raw_info, token, token_expires_at, uid, updated_at}
+AuthorizationPolicy {authorization_policy_associations, content, created_at, flash_alert, http_status, id, manually_managed, metadata, name, physical_file_path, redirect_to, updated_at}
+AuthorizationPolicyAssociation {authorizable_id, authorizable_type, authorization_policy_id, created_at, id, updated_at}
+AuthorizationPolicyCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+BackgroundJob {arguments, attempts, created_at, dead_at, error, error_class, error_message, failed_at, form_configuration_name, form_name, id, label, liquid_body, locked_at, partial_name, queue, resource_id, resource_type, retry_at, run_at, source_name, source_type, started_at, updated_at}
+BackgroundJobCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+BackgroundJobsResult {results}
+BaseError {message}
+CMSItemDefinition {fields, name, path}
+CMSItemDefinitionCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+CMSItemPayload {data, resource_name, type}
+CMSItemPayloadCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+Communication {phone_number, verified}
+CustomAddrress {address, address2, apartment, city, country, id, iso_country_code, lat, lng, name, point, postcode, service_radius, state, street, street_number, suburb}
+CustomAttachment {created_at, file_url, id}
+CustomAttributeDefinition {attribute_type, id, name}
+CustomImage {created_at, deleted_at, file_url, id, name, property_id, updated_at, uploader_id, url}
+CustomImageCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+Customization {address, addresses, attachment, attachments, created_at, custom_address, custom_addresses, custom_attachment, custom_attachments, custom_image, custom_images, customizable, customizable_id, customizable_type, deleted_at, external_id, human_name, id, image, images, model, models, name, properties, property, property_array, property_boolean, property_float, property_int, property_json, property_object, property_upload, related_model, related_models, related_user, remote_model, sort_score, updated_at, user, user_id}
+DataExport {created_at, id, status, updated_at, url}
+DataExportCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+Document {id, properties, property, property_array, property_boolean, property_float, property_int, property_json, property_object}
+EmailNotification {attachments, bcc, cc, content, created_at, delay_by, form_configurations, forms, from, id, layout, layout_path, manually_managed, metadata, name, physical_file_path, reply_to, subject, to, trigger_condition, updated_at}
+EmailNotificationCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+Embedding {content, created_at, embedding, id, metadata, token_count, updated_at}
+EmbeddingCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+EncryptedConstant {created_at, deleted_at, name, updated_at, value}
+EncryptedConstantCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+FlashMessages {alert, notice}
+Form {api_call_notifications, async_callback_actions, async_callback_delay, async_callback_max_attempts, async_callback_priority, authorization_policies, callback_actions, configuration, created_at, default_payload, email_notifications, fields, flash_alert, flash_notice, id, liquid_body, manually_managed, metadata, name, physical_file_path, redirect_to, resource, resource_owner, response_headers, sms_notifications, spam_protection, updated_at}
+FormCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+FormConfiguration {api_call_notifications, async_callback_actions, async_callback_delay, async_callback_max_attempts, async_callback_priority, authorization_policies, callback_actions, configuration, created_at, default_payload, email_notifications, flash_alert, flash_notice, id, liquid_body, manually_managed, metadata, name, physical_file_path, redirect_to, resource, resource_owner, sms_notifications, spam_protection, updated_at}
+FormConfigurationCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+FormSubmitPayload {result, validation_errors}
+GeoPointType {lat, lon}
+GraphQL {body, created_at, id, manually_managed, metadata, physical_file_path, updated_at}
+GraphQuery {created_at, id, manually_managed, metadata, name, physical_file_path, query_string, updated_at}
+GraphQueryCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+HTTPRequestContext {authentication_providers, body, current_full_path, current_path, current_url, flash, form_authenticity_token, headers, is_xhr, params, params_unfiltered, referer}
+Image {filename, id, image_original_height, image_original_width, name, uploader_id, url, urls}
+ImagePresignedUploadUrl {upload_url, upload_url_payload}
+ImportCustomizationsMutationPayload {external_ids, ids}
+ImportTransactablesMutationPayload {external_ids, ids}
+ImportUsersMutationPayload {external_ids, ids}
+IndexSearchCollection {aggregations, current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+Instance {created_at, feature_flags, id, name, updated_at}
+InstanceMetrics {activities_total, addresses_total, attachments_total, images_total, records_total, transactables_total, user_profiles_total, users_total}
+LiquidLayout {body, created_at, format, id, manually_managed, metadata, path, physical_file_path, updated_at}
+LiquidLayoutCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+LiquidPartial {body, created_at, format, id, manually_managed, metadata, path, physical_file_path, updated_at}
+LiquidPartialCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+Listing {created_at, creator, creator_id, custom_address, custom_addresses, custom_attachment, custom_attachments, custom_image, custom_images, customizations, deleted_at, external_id, id, model, models, name, properties, property, property_array, property_json, related_model, related_models, related_user, remote_model, slug, sort_score, type, updated_at, user}
+ListingAddress {address, address2, apartment, city, country, id, iso_country_code, lat, lng, name, point, postcode, service_radius, state, street, street_number, suburb}
+ListingCollection {aggregations, current_page, has_next_page, has_previous_page, page, per_page, results, size, total_entries, total_pages}
+ListingImage {file_name, filename, id, image_original_height, image_original_width, name, url}
+ListingsCommunication {phone_number, verified}
+ListingsCustomization {created_at, custom_address, custom_addresses, custom_attachment, custom_attachments, custom_image, custom_images, custom_model_type, customizable, customizable_id, customizable_type, customizations, deleted_at, external_id, human_name, id, model, model_schema, models, name, properties, property, property_array, property_json, related_model, related_models, related_user, remote_model, updated_at, user, user_id}
+ListingsCustomizationCollection {aggregations, current_page, has_next_page, has_previous_page, page, per_page, results, size, total_entries, total_pages}
+ListingsCustomModelType {id, name}
+ListingsModelSchema {id, name}
+ListingsPrivateFile {content_type, created_at, file_name, id, name, size_bytes, url}
+ListingUserProfile {custom_address, custom_addresses, custom_attachment, custom_attachments, custom_image, custom_images, customizations, external_id, id, model, models, profile_type, properties, property, property_array, property_json, related_model, related_models, related_user, remote_model, user}
+LogEntry {id, message, type}
+Model {address, addresses, attachment, attachments, created_at, customizable_id, customizable_type, deleted_at, external_id, id, image, images, model, model_schema_id, model_schema_name, models, name, properties, property, property_array, property_boolean, property_float, property_int, property_json, property_object, property_upload, related_model, related_models, related_user, related_users, table, table_id, updated_at, user, user_id, users}
+ModelCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+ModelSchema {created_at, fields, id, manually_managed, metadata, name, parameterized_name, physical_file_path, properties, updated_at}
+ModelSchemaCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+NotificationSendEmailPayload {errors, is_scheduled_to_send}
+ObjectCount {count}
+ObjectUpload {errors, job_id, upload_object_id, upload_object_type, uploads}
+Otp {current_code, secret, secret_as_svg_qr_code}
+Page {authorization_policies, content, content_updated_at, created_at, deleted_at, dynamic_cache_expire, dynamic_cache_key, dynamic_cache_layout, format, handler, html_content, id, layout, layout_name, manually_managed, max_deep_level, metadata, physical_file_path, redirect_code, redirect_to, request_method, response_headers, searchable, slug, static_cache_expire, subdomain, updated_at}
+PageCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+PresignedUploadUrl {upload_url, upload_url_payload}
+PresignedUrl {access_url, path, upload_url}
+PrivateFile {content_type, created_at, file_name, id, name, size_bytes, url}
+Profile {address, addresses, attachment, attachments, custom_address, custom_addresses, custom_attachment, custom_attachments, custom_image, custom_images, customizations, deleted_at, id, image, images, model, models, profile_type, properties, property, property_array, property_boolean, property_float, property_int, property_json, property_object, property_upload, related_model, related_models, related_record, related_records, related_user, related_users, remote_records, remote_users, user, users}
+Property {attribute_type, belongs_to, created_at, default_value, id, manually_managed, metadata, name, options, physical_file_path, target_id, target_type, updated_at}
+PropertyUpload {extension, file_name, url, versions}
+PropertyUploadPresignedUrl {upload_url, upload_url_payload}
+Record {address, addresses, attachment, attachments, created_at, customizable_id, customizable_type, deleted_at, external_id, id, image, images, model, model_schema_id, model_schema_name, models, name, properties, property, property_array, property_boolean, property_float, property_int, property_json, property_object, property_upload, related_model, related_models, related_record, related_records, related_user, related_users, remote_records, remote_users, table, table_id, updated_at, user, user_id, users}
+RecordCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+RecordCreate {id, table}
+Response {body, headers, status}
+Result {changes, model, transactable, user}
+SentNotification {content, created_at, id, notification_id, notification_type, options, updated_at}
+SentNotificationCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+SmsNotification {content, created_at, delay_by, form_configurations, forms, id, manually_managed, metadata, name, physical_file_path, to, trigger_condition, updated_at}
+SmsNotificationCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+SmsSendPayload {errors, is_scheduled_to_send}
+Table {created_at, fields, id, manually_managed, metadata, name, parameterized_name, physical_file_path, properties, records_count, records_count_rc, updated_at}
+TableCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+ThirdPartyIntegration {created_at, id, settings, type, updated_at}
+ThirdPartyIntegrationCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+Transactable {created_at, creator, creator_id, custom_address, custom_image, customizations, external_id, id, is_deleted, model, models, name, property, property_array, related_model, related_models, related_user, slug, updated_at, user}
+TransactableCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+TransactableSchema {created_at, fields, id, manually_managed, metadata, name, parameterized_name, physical_file_path, properties, updated_at}
+TransactableSchemaCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+TransactableType {id, name}
+Translation {created_at, id, key, locale, updated_at, value}
+TranslationJson {deleted_records, key, locale, strategy, upserted_records, value_json}
+UpdateCustomizationsMutationPayload {ids}
+UpdateUsersMutationPayload {ids}
+User {address, addresses, attachment, attachments, authenticate, authentications, communication, created_at, custom_address, custom_addresses, custom_attachment, custom_attachments, custom_image, custom_images, customizations, deleted_at, email, encrypted_password, external_id, first_name, id, image, images, jwt_token, language, last_name, middle_name, model, models, name, otp, otp_tokens, profile, profiles, properties, property, property_array, property_boolean, property_float, property_int, property_json, property_object, property_upload, related_model, related_models, related_record, related_records, related_user, related_users, remote_records, remote_users, slug, social_friends, temporary_token, transactables, updated_at, user, users}
+UserCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+UserListing {authentications, communication, created_at, custom_address, custom_addresses, custom_attachment, custom_attachments, custom_image, custom_images, customizations, deleted_at, email, external_id, first_name, id, language, last_name, middle_name, model, models, name, profile, profiles, properties, property, property_array, property_json, related_model, related_models, related_user, remote_model, slug, sort_score, temporary_token, updated_at, user}
+UserListingCollection {aggregations, current_page, has_next_page, has_previous_page, page, per_page, results, size, total_entries, total_pages}
+UserOtpDeleteTokenInformation {otp_name, status, user_id}
+UserOtpSecretRefreshInformation {otp_name, status, user_id}
+UserProfileSchema {created_at, fields, id, manually_managed, metadata, name, parameterized_name, physical_file_path, properties, updated_at}
+UserProfileSchemaCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+UserSchema {properties}
+Version {created_at, event, id, item_id, item_type, resource, whodunnit}
+VersionCollection {current_page, has_next_page, has_previous_page, per_page, results, total_entries, total_pages}
+
+## INPUTS
+
+ActiveRecordReference {type!, ids, id}
+ActivitiesSortInput {id, created_at, updated_at}
+AddressImport {name!, address, address2, lat, lng, city, iso_country_code, postcode, suburb, state, street, street_number, apartment, country, service_radius}
+AggregationField {name!, field_name, aggregations, sort, size, type, profile_type, profile_property_name, customization_name, customization_property_name}
+AggregationSort {name, order}
+ApiCallFormDataFileInput {url, content_base64, filename, content_type}
+ApiCallFormDataPartInput {name!, value, file, content_type}
+ApiCallNotificationInputType {form_configuration_ids, physical_file_path!, name, trigger_condition, content, delay_by, to!, request_type!, headers, request_headers, callback, metadata, manually_managed}
+ApiCallNotificationsFilterInput {id, created_at, updated_at, callback, content, delay_by, delay, headers, metadata, name, to, trigger_condition, physical_file_path, or}
+ApiCallNotificationsSortInput {id, created_at, updated_at, name, metadata, physical_file_path}
+ApiCallSendOptions {internal, timeout, skip_ssl_verification}
+ApiCallSendRequestInput {url!, method!, headers, body, form_data}
+AssetInput {name!, url, physical_file_path!, metadata, file_size, manually_managed, cache_control}
+AssetPresignInput {path!}
+AssetsSortInput {id, created_at, updated_at, name, metadata, physical_file_path, file_size, content_type, virtual_deleted_at}
+AssetUpdateAllInput {manually_managed}
+AssetUpdateInput {physical_file_path!, metadata, manually_managed, cache_control}
+AtachmentInputType {name!, file, remote_file_url}
+AttachmentContentLengthRange {lte!, gte!}
+AttachmentModelPropertyInput {model_schema_name!, property_name!}
+AttachmentPresignUrlInput {model_property, user_property, content_disposition, content_length}
+AttachmentsImport {id, name!, url, direct_path}
+AttachmentUserPropertyInput {property_name!}
+AuthenticationInputType {uid, token, raw_info, token_expires_at, provider!}
+AuthorizationPoliciesFilter {value, value_in, not_value, not_value_in}
+AuthorizationPoliciesFilterInput {id, created_at, updated_at, content, flash_alert, metadata, name, physical_file_path, redirect_to, or}
+AuthorizationPoliciesSortInput {id, created_at, updated_at, name, metadata, physical_file_path}
+AuthorizationPolicyInputType {name, content!, flash_alert, redirect_to, physical_file_path, metadata, manually_managed}
+BackgroundJobsFilterInput {id, created_at, updated_at, type, timestamp, source_name, or, failed_at, form_configuration_name, label, locked_at, queue, resource_id, resource_type, run_at, source_type}
+BackgroundJobsSortInput {attempts, failed_at, form_configuration_name, label, locked_at, resource_id, resource_type, run_at, source_type, id, updated_at, retry, queue, class_name, created_at, enqueued_at, source_name}
+BooleanFilter {value, not_value, is_null}
+Content {starts_with, value}
+ContentLength {gte, lte!}
+ContentLengthRange {lte!, gte!}
+CustomAttachmentInputType {owner_id!, owner_type!, uploader_id, custom_attribute_name!, page_slug, raw_remote_file_url, direct_url, generate_file}
+CustomAttributeInputType {name!, value, value_int, value_float, value_boolean, value_array, value_json, array_append, array_remove, increment, decrement}
+CustomImageInputType {owner_id, owner_type, uploader_id, custom_attribute_name, direct_url, page_slug}
+CustomizationImport {id, user_id, type_name!, customizable_id, customizable_type, properties, addresses, attachments, images, created_at, updated_at}
+CustomizationInputType {id, title, user_id, external_id, custom_attachments, custom_images, custom_model_type_id, custom_model_type_name, customizable_id, customizable_type, customizations, model_schema_name, models, properties, deleted_at, created_at}
+CustomizationsInputType {name, values}
+CustomizationSortOrder {field, property, order}
+CustomizationsSortOrder {name, property_name, order}
+DataExportModelsInput {per_page, filter, sort}
+DataExportRecordsInput {per_page, filter, sort}
+DataExportsFilterInput {id, created_at, updated_at}
+DataExportsSortInput {id, created_at, updated_at}
+DataExportUsersInput {per_page, filter, sort}
+DateFilter {value, not_value, value_in, not_value_in, lte, lt, gte, gt, exists}
+DateRange {lte, lt, gte, gt}
+DefaultProfileInputType {deleted_at, properties, custom_attachments, custom_images}
+EmailNotificationInputType {form_configuration_ids, physical_file_path!, name, layout, layout_path, trigger_condition, content, delay_by, subject!, to, from, reply_to, cc, bcc, metadata, attachments, manually_managed}
+EmailNotificationsFilterInput {id, created_at, updated_at, bcc, cc, content, delay_by, delay, layout_path, layout, metadata, name, subject, to, trigger_condition, attachments, physical_file_path, or}
+EmailNotificationsSortInput {id, created_at, updated_at, name, metadata, physical_file_path}
+EmbeddingCreateInputType {id, embedding!, content, token_count, metadata, created_at, updated_at}
+EmbeddingsFilterInput {created_at, updated_at, id, metadata}
+EmbeddingsSortInput {id, created_at, updated_at, embedding}
+EmbeddingUpdateInputType {id, embedding, content, token_count, metadata, created_at, updated_at}
+EncryptedConstantFilterInput {id, created_at, updated_at, name}
+EncryptedConstantsFilterInput {id, created_at, updated_at, name}
+EncryptedConstantsSortInput {id, created_at, updated_at, name}
+Endpoint {url!, token}
+FormConfigurationInputType {authorization_policy_ids, physical_file_path!, name, resource!, resource_owner!, liquid_body, configuration, callback_actions, default_payload, async_callback_actions, async_callback_delay, async_callback_priority, async_callback_max_attempts, flash_notice, flash_alert, redirect_to, spam_protection, metadata}
+FormConfigurationsFilterInput {id, created_at, updated_at, async_callback_actions, callback_actions, default_payload, flash_notice, liquid_body, metadata, name, redirect_to, resource, resource_owner}
+FormConfigurationsSortInput {id, created_at, updated_at, name, metadata, physical_file_path}
+FormInput {authorization_policy_ids, physical_file_path!, name, resource!, resource_owner!, liquid_body, configuration, callback_actions, default_payload, async_callback_actions, async_callback_delay, async_callback_priority, async_callback_max_attempts, flash_notice, flash_alert, redirect_to, spam_protection, metadata, response_headers}
+FormsFilterInput {id, created_at, updated_at, async_callback_actions, callback_actions, default_payload, flash_notice, liquid_body, metadata, name, redirect_to, resource, resource_owner, physical_file_path, or}
+FormsSortInput {id, created_at, updated_at, name, metadata, physical_file_path}
+FullTextQueryField {name, profile_field, priority}
+GeoBox {top!, left!, bottom!, right!}
+GeoBoxTopLeftBottomRight {top_left, bottom_right}
+GeoBoxTopRightBottomLeft {top_right, bottom_left}
+GeoPoint {lat!, lng!}
+GeoPointInShape {point}
+GeoPolygon {points}
+GeoPropertyFilterInput {center, distance_in_km, sort}
+GeoQuery {box, box_top_right_bottom_left, box_top_left_bottom_right, radius, polygon, point_in_shape}
+GeoRadius {center, distance!}
+GeoRadiusPropertyFilterInput {point, radius_in_km_from_property}
+GraphqlFilterInput {id, created_at, updated_at, metadata, name, query_string, physical_file_path, or}
+GraphqlInputType {body!, physical_file_path!, metadata, manually_managed}
+GraphqlSortInput {id, created_at, updated_at, name, metadata, physical_file_path}
+IdRangeFilter {lte, lt, gte, gt}
+ImageInputType {name!, image, remote_image_url, direct_url}
+ImagePresignUrlInput {versions, content_length, model_property, user_property}
+ImagesFilterInput {id, name, property_id, created_at, updated_at, deleted_at, uploader_id}
+ImagesImport {id, name!, url, direct_path}
+ImagesSortInput {id, property_id, uploader_id, created_at, updated_at, deleted_at}
+IndexSearchFilterInput {name!, exists, value, not_value, value_in, value_in_operator, not_value_in, prefix, range}
+IndexSearchQuery {keyword, operator, fields, properties, match_type, analyzer}
+IndexSearchSortInput {name!, order}
+IntegerFilter {value, value_in, not_value_in, range}
+IntegerRangeFilter {lte, lt, gte, gt}
+JoinModelCollection {join_on_property, foreign_property!, property_type}
+JoinRecordCollection {join_on_property, foreign_property!, property_type}
+JsonbAttributeFilter {key!, value, value_int, value_float, value_boolean, value_array, contains, value_in, array_value_in, array_overlaps, array_contains, exists, not_value, not_value_int, not_value_float, not_value_boolean, not_value_array, not_contains, not_value_in, not_array_value_in, not_array_overlaps, not_array_contains, not_exists}
+JsonbFilter {contains, has_key, attribute, attributes, exclude}
+JsonbSort {order!, name!}
+LiquidLayoutInputType {path!, body, metadata, format, physical_file_path!, manually_managed}
+LiquidLayoutsFilterInput {id, created_at, updated_at, path, metadata, body, physical_file_path, or}
+LiquidLayoutsSortInput {id, created_at, updated_at, path, metadata, physical_file_path}
+LiquidPartialInputType {path!, body, format, physical_file_path, metadata, manually_managed}
+LiquidPartialsFilterInput {id, created_at, updated_at, path, metadata, body, physical_file_path, or}
+LiquidPartialsSortInput {id, created_at, updated_at, path, metadata, physical_file_path}
+ListingAggregation {name, fields, filter, global}
+LogsFilterInput {id, type, message}
+ModelPropertyInput {model_schema_name!, property_name!}
+ModelSchemaInputType {name, physical_file_path!, fields, properties, metadata}
+ModelSchemasFilterInput {id, created_at, updated_at, name, parameterized_name, metadata, physical_file_path, or}
+ModelSchemasSortInput {id, created_at, updated_at, name, parameterized_name, metadata, physical_file_path}
+ModelsFilterInput {created_at, deleted_at, external_id, id, model_schema_id, model_schema_name, models, related_models, users, related_users, name, or, properties, updated_at, user_id}
+ModelsSortInput {id, external_id, model_schema_id, created_at, updated_at, deleted_at, random_sort, properties}
+ModelUpdate {id!, user_id, type_name!, customizable_id, customizable_type, properties, addresses, attachments, images, created_at, updated_at}
+MutationAssetsFilterInput {id, created_at, updated_at, metadata, name, physical_file_path, deleted_at}
+NestedCustomizationFilters {id, ids, user_id, user_ids, name, is_deleted, ignore_deleted, created_at, properties}
+NestedPropertyInputType {id, _destroy, attribute_type, default_value, metadata, name!, belongs_to, options}
+NewCustomImageInputType {owner_id!, owner_type!, uploader_id, custom_attribute_name!, page_slug, raw_remote_image_url, direct_url}
+NotificationEmailInput {subject!, content!, to!, from!, cc, bcc, reply_to, delay}
+NotificationTemplateInput {name!}
+NotificationTypeFilter {value, value_in, not_value, not_value_in}
+PageFilterInput {id, content, searchable, slug, layout_name, layout, redirect_to, redirect_code, format, authorization_policies, metadata, created_at, updated_at, deleted_at, content_updated_at, physical_file_path, subdomain, or, request_method}
+PageFormatFilter {value, value_in, not_value, not_value_in}
+PageInputType {authorization_policy_ids, authorization_policies, static_cache_expire, dynamic_cache_expire, dynamic_cache_key, dynamic_cache_layout, content, format, handler, layout, layout_name, max_deep_level, metadata, redirect_code, redirect_to, request_method, response_headers, searchable, physical_file_path!, slug, manually_managed, subdomain}
+PagesRequestMethodFilter {value, value_in, not_value, not_value_in}
+PagesSortInput {id, created_at, updated_at, slug, metadata, physical_file_path, content_updated_at, redirect_to, redirect_code}
+PresignUrl {acl, content_length, content_type}
+PresignUrlInput {type, content_disposition, acl, versions, content_length}
+ProcessPageInputType {slug!, params}
+ProcessStrategyInputType {synchronous, strategy!, file_name!, body, page}
+ProfileFilterInput {properties, name, name_filter}
+PropertiesFieldInput {name!, attribute_type!}
+PropertyFilterInput {name!, contains, within_radius, not_within_radius, distance_sphere, ends_with, exists, value, value_int, not_value_int, value_float, not_value_float, value_boolean, not_value_boolean, value_in, array_contains, array_overlaps, value_array, not_value_array, range, starts_with, not_contains, not_ends_with, not_starts_with, not_value, not_value_in, not_array_contains, not_array_overlaps, property_type, allow_empty, case_sensitive}
+PropertyInputType {name!, value, value_int, value_float, value_boolean, value_array, value_json, value_upload, array_append, array_remove, increment, decrement}
+PropertySort {order!, name!}
+PropertyUploadContentLengthInput {lte!, gte}
+PropertyUploadEncryptionGPGInput {key!, armor}
+PropertyUploadEncryptionInput {gpg}
+PropertyUploadManipulateInput {greyscale, blur, flatten}
+PropertyUploadOptionsInput {acl, content_disposition, cache_control, content_length, versions}
+PropertyUploadOutputInput {quality, format}
+PropertyUploadResizeInput {height, width, fit, position, background, without_enlargement}
+PropertyUploadVersionInput {name!, output, resize, manipulate}
+Query {keyword, operator, fields, properties, match_type, raw}
+QueryAssetsFilterInput {id, created_at, updated_at, metadata, name, physical_file_path, content_type, file_size, deleted_at, manually_managed, virtual_deleted_at, or}
+QueryCustomAttribute {name!, value, values, values_operator, range, exclude, exists}
+QueryCustomization {id, name, parameterized_name, user_id, addresses, properties}
+QueryCustomModelType {id, ids, name, names}
+QueryListing {has_creator, creator, addresses, is_deleted, id, ids, without_ids, custom_attributes, properties, transactable_type, customizations, created_at, name, slug, creator_id, creator_ids, external_id, external_ids}
+QueryListingLocation {geo_query, street, suburb, postcode, city, cities, state, country, exists}
+QueryModelSchema {id, ids, name, names}
+QueryOptionsInput {read_replica, timeout}
+QueryTransactableType {id, ids, name, names}
+QueryUser {created_at, customizations, email, emails, external_id, externals_id, first_name, id, ids, is_deleted, last_name, middle_name, name, profiles, slug, without_ids}
+QueryUserProfile {geo_query, is_deleted, custom_attributes, properties, customizations, addresses, profile_type, name}
+Range {lte, lt, gte, gt}
+RangeFilter {lte, lt, gte, gt}
+RecordInputType {id, user_id, external_id, attachments, images, table, records, properties, deleted_at, created_at, updated_at}
+RecordsCreateInputType {id, external_id, table, properties, deleted_at, created_at, updated_at}
+RecordsFilterInput {created_at, deleted_at, external_id, id, table_id, table, related_records, related_users, or, properties, updated_at, user_id, fulltext}
+RecordsInputType {table, values}
+RecordsSortInput {id, external_id, table_id, created_at, updated_at, deleted_at, random_sort, properties}
+RelatedModelsFilterInput {filter, join}
+RelatedRecordsFilterInput {filter, join!}
+RelatedUsersFilterInput {filter, join}
+SentNotificationsFilterInput {id, created_at, updated_at, content, notification_type, notification_id, or}
+SentNotificationsSortInput {id, created_at, updated_at}
+SmsNotificationInputType {name, form_configuration_ids, form_ids, physical_file_path!, trigger_condition, content, delay_by, to, metadata}
+SmsNotificationsFilterInput {id, created_at, updated_at, callback, content, delay_by, delay, metadata, name, to, trigger_condition, physical_file_path, or}
+SmsNotificationsSortInput {id, created_at, updated_at, name, metadata, physical_file_path}
+SmsSendInput {to!, content!, delay}
+SortByChildField {field_name, child_type}
+SortByDistance {field_name!, reference_point!, unit}
+SortByFieldOrder {field_name!, values!}
+SortOrder {field, name, property_name, profile_field, profile_property, profile_type, child_field, distance, profile_distance, order}
+SpamProtectionInput {recaptcha_v2, recaptcha_v3, hcaptcha}
+SpamProtectionInputType {recaptcha_v2, recaptcha_v3}
+SpamProtectionRecaptchaV3Input {action!, minimum_score}
+SpamProtectionRecaptchaV3InputType {action!, minimum_score}
+StandalonePropertyInputType {attribute_type, default_value, metadata, name!, target_id, target_type!, belongs_to, options}
+StandardSort {order!, order_by_values}
+StringFilter {case_sensitive, exact, contains, value, value_in, starts_with, ends_with, not_contains, not_value, not_value_in, not_starts_with, not_ends_with}
+TableInputType {physical_file_path!, properties, metadata}
+TablesFilterInput {id, created_at, updated_at, name, parameterized_name, metadata, physical_file_path, or}
+TablesSortInput {id, created_at, updated_at, name, parameterized_name, metadata, physical_file_path}
+ThirdPartyIntegrationsFilterInput {id, created_at, updated_at, type, or}
+ThirdPartyIntegrationsSortInput {id, created_at, updated_at, type}
+TransactableImport {id!, slug!, name, creator_id!, type_name!, properties, addresses, attachments, images, created_at, updated_at}
+TransactableInputType {creator_id, currency, description, name, properties, quantity, slug, state_event, transactable_type_name}
+TransactableSchemaInputType {name, fields, properties, physical_file_path!}
+TransactableSchemasFilterInput {id, created_at, updated_at, name, parameterized_name, or}
+TransactableSchemasSortInput {id, created_at, updated_at, name, parameterized_name}
+TranslationInputType {key!, locale!, value!, manually_managed}
+TranslationJsonInputType {key!, locale!, value_json!}
+UniqIdFilter {value, value_in, not_value_in, range}
+UpdateApiCallNotificationInputType {form_configuration_ids, physical_file_path, name, trigger_condition, content, delay_by, to, request_type, headers, request_headers, callback, metadata, manually_managed}
+UpdateAuthorizationPolicyInputType {name, content, flash_alert, redirect_to, physical_file_path, metadata, manually_managed}
+UpdateCustomAttachmentInputType {owner_id, owner_type, uploader_id, custom_attribute_name, page_slug, direct_url}
+UpdateEmailNotificationInputType {form_configuration_ids, physical_file_path, name, layout, layout_path, trigger_condition, content, delay_by, subject, to, from, reply_to, cc, bcc, metadata, attachments, manually_managed}
+UpdateFormConfigurationInputType {name, authorization_policy_ids, physical_file_path, resource, resource_owner, liquid_body, configuration, callback_actions, default_payload, async_callback_actions, async_callback_delay, async_callback_max_attempts, async_callback_priority, flash_notice, flash_alert, redirect_to, spam_protection, metadata}
+UpdateFormInput {authorization_policy_ids, physical_file_path, name, resource, resource_owner, liquid_body, configuration, callback_actions, default_payload, async_callback_actions, async_callback_delay, async_callback_priority, async_callback_max_attempts, flash_notice, flash_alert, redirect_to, spam_protection, metadata, response_headers}
+UpdateGraphqlInputType {path, body, physical_file_path, metadata}
+UpdateLiquidLayoutInputType {path, body, metadata, format, physical_file_path, manually_managed}
+UpdateLiquidPartialInputType {path, body, format, physical_file_path, metadata, manually_managed}
+UpdateModelSchemaInputType {name, physical_file_path, fields, properties, metadata}
+UpdatePageInputType {authorization_policy_ids, authorization_policies, static_cache_expire, dynamic_cache_expire, dynamic_cache_key, dynamic_cache_layout, content, format, handler, layout, layout_name, max_deep_level, metadata, redirect_code, redirect_to, request_method, response_headers, searchable, physical_file_path, slug, deleted_at, manually_managed, subdomain}
+UpdateSmsNotificationInputType {name, form_configuration_ids, physical_file_path, trigger_condition, content, delay_by, to, metadata}
+UpdateStandalonePropertyInputType {attribute_type, default_value, metadata, name, target_id, target_type, belongs_to, options}
+UpdateTableInputType {name, physical_file_path, properties, metadata}
+UpdateTransactableSchemaInputType {name, fields, properties, physical_file_path}
+UpdateTranslationInputType {key, locale, value, manually_managed}
+UpdateUserProfileSchemaInputType {name, physical_file_path, fields, properties, metadata}
+UserImport {id, email!, password, first_name, last_name, middle_name, name, slug!, encrypted_password, external_id, created_at, updated_at, profiles, properties}
+UserInputType {email, slug, external_id, first_name, middle_name, last_name, name, password, deleted_at, profiles, authentications, properties, custom_attachments, custom_images}
+UserProfileImportType {type_name!, id, properties, addresses, attachments, images}
+UserProfileInputType {name, values}
+UserProfileSchemaInputType {name, physical_file_path!, fields, properties, metadata}
+UserProfileSchemasFilterInput {id, created_at, updated_at, metadata, name, parameterized_name, physical_file_path, or}
+UserProfileSchemasSortInput {id, created_at, updated_at, name, parameterized_name, metadata, physical_file_path}
+UserProfileUpdateType {type_name!, id!, properties, addresses, attachments, images}
+UserPropertyInput {property_name!}
+UsersFilterInput {id, external_id, email, name, first_name, last_name, slug, created_at, updated_at, deleted_at, or, profiles, properties, related_models, related_records, related_users}
+UsersSortInput {id, external_id, email, slug, name, first_name, last_name, created_at, updated_at, deleted_at, profile_properties, properties}
+UserUpdate {id!, email!, first_name, last_name, middle_name, name, slug!, external_id, created_at, updated_at, profiles}
+ValueUploadInput {synchronous, type!, file_path, content, remote_url, acl, encryption, cache_control, content_disposition, content_type}
+VectorDistanceSort {order!, embedding}
+VersionFilterInput {id, created_at, updated_at, event, item_id, item_type, whodunnit, or}
+VersionInput {name!, output, resize, manipulate}
+VersionManipulateInput {greyscale, blur, flatten}
+VersionOutputInput {quality, format}
+VersionResizeInput {height, width, fit, position, background, without_enlargement}
+VersionSortInput {id, created_at, updated_at, event, item_id, item_type, whodunnit}
+
+## ENUMS
+
+ACL {private, public}
+AggregationSortFieldEnum {_term, _count}
+AggregationSortOrderEnum {asc, desc}
+AggregationTypeEnum {terms, max, min, avg}
+AsyncCallbackPriority {low, default, high}
+AttachmentContentDispositionEnum {inline, download}
+AuthenticationProvider {auth0, facebook, linkedin, twitter, instagram, google, github, saml, openid_connect}
+BackgroundJobsTypeEnum {SCHEDULED, DEAD, RETRY, RUNNING}
+CMSItemType {ActivityStreamsGroupingHandler, ActivityStreamsHandler, ApiCallNotification, Asset, AuthorizationPolicy, CustomModelType, EmailNotification, FormConfiguration, GraphQuery, InstanceConfig, InstanceProfileType, LiquidView, Migration, Modules, Page, SmsNotification, TransactableType, Translation, UserType}
+CustomizableTypeEnum {Transactable, User, UserProfile, Customization}
+DistanceUnit {cm, m, km, yd, mi, nmi}
+GeoSortOrderEnum {ASC, DESC, NONE}
+ImageFormat {jpeg, png, webp, avif}
+ImageResizeFit {cover, contain, fill, inside, outside}
+ImageResizePosition {center, top, right_top, right, right_bottom, bottom, left_bottom, left, left_top}
+JwtAlgorithm {none, HS256, HS384, HS512, RS256, RS384, RS512, ES256, ES384, ES512, PS256, PS384, PS512}
+LogEntryType {error, info, debug}
+NotificationTypeEnum {API_CALL, EMAIL, SMS}
+ObjectsWithUploadsEnum {User, Record, UserProfile}
+OperatorEnum {AND, OR}
+PageFormat {html, json, xml, rss, csv, pdf, css, text, js, txt, svg, ics}
+PageHandler {liquid, markdown}
+PageRedifectCode {MOVED_PERMANENTLY, MOVED_TEMPORARILY}
+PageRequestMethod {delete, get, patch, post, put, options}
+ProcessStrategy {text, pdf}
+PropertyTargetType {ModelSchema, User, UserProfileSchema}
+PropertyTypeEnum {string, integer, float, decimal, datetime, time, date, binary, boolean, array, address, file, photo, text, geojson, upload}
+PropertyUploadACL {private, public}
+PropertyUploadContentDisposition {inline, attachment}
+PropertyUploadFit {cover, contain, fill, inside, outside}
+PropertyUploadFormat {jpeg, png, webp, avif}
+PropertyUploadPosition {top, right_top, right, right_bottom, bottom, left_bottom, left, left_top, center}
+QueryMatchTypeEnum {EXACT, ENDS_WITH, STARTS_WITH, CONTAINS, FUZZY}
+SelectPropertyTypeEnum {int, float, boolean, array, json, object, string}
+SortOrderEnum {DESC, ASC}
+TranslationJsonStrategy {merge, overwrite}
+UploadType {image, attachment}
+ValueUploadInputTypeEnum {plain, image, pdf}
+VectorDistanceEnum {euclidean}
+VersionAction {create, update, destroy}
+VersionItemType {Customization, User, UserProfile}
+
+## INTERFACES
+
+AdminNonDeployableSharedAttributesInterface {created_at, id, updated_at} -> SentNotification
+AdminPropertiesInterface {fields, properties} -> ModelSchema, Table, TransactableSchema, UserProfileSchema
+AdminSharedAttributesInterface {created_at, id, manually_managed, metadata, physical_file_path, updated_at} -> ApiCallNotification, Asset, AuthorizationPolicy, EmailNotification, Form, FormConfiguration, GraphQL, GraphQuery, LiquidLayout, LiquidPartial, ModelSchema, Page, Property, SmsNotification, Table, TransactableSchema, UserProfileSchema
+BasicPropertyInterface {id, properties, property, property_array, property_boolean, property_float, property_int, property_json, property_object} -> Document
+HasModelsInterface {model, models, related_model, related_models, related_user, related_users, user, users} -> Model, Profile, User
+HasModelsInterfaceForRecords {model, models, related_model, related_models, user, users} -> Record
+HasRecordsInterface {related_record, related_records} -> Profile, Record, User
+HasUsersInterface {related_user, related_users} -> Record
+LegacyCustomAttributeInterface {custom_address, custom_addresses, custom_attachment, custom_attachments, custom_image, custom_images} -> Customization, Profile, User
+ListingCustomAttributeInterface {custom_address, custom_addresses, custom_attachment, custom_attachments, custom_image, custom_images, properties, property, property_array, property_json} -> Listing, ListingUserProfile, ListingsCustomization, UserListing
+ListingsMetadata {sort_score} -> Customization, Listing, UserListing
+PropertiesInterface {address, addresses, attachment, attachments, id, image, images, properties, property, property_array, property_boolean, property_float, property_int, property_json, property_object, property_upload} -> Customization, Model, Profile, Record, User
+RelationOnDemandInterface {model, models, related_model, related_models, related_user, user} -> Customization, Listing, ListingUserProfile, ListingsCustomization, Transactable, UserListing
+RemoteModelInterface {remote_model} -> Customization, Listing, ListingUserProfile, ListingsCustomization, UserListing
+RemoteRecordsInterface {remote_records} -> Profile, Record, User
+RemoteUsersInterface {remote_users} -> Profile, Record, User
+
+## UNIONS
+
+Customizable = Listing | Profile | User
+
+## SCALARS
+
+ActivityStreamsPayload: Arbitrary JSON object describing an activity (legacy activity streams)
+Any: Value of any type: string, number, boolean, object or array. A string input is used as is; any other input is converted to its JSON text (e.g. 5 becomes "5", true becomes "true"). Output is returned unchanged
+CssColor: CSS color as a string: hex ("#000000"), name ("red"), rgba ("rgba(0,0,0,0.5)") or hsla ("hsla(0, 0%, 0%, 0.5)"). The value is not validated
+GeometryJSON: GeoJSON geometry object (https://tools.ietf.org/html/rfc7946) given as an input object with type and coordinates. Supported types: Point [lng, lat], MultiPoint [[lng, lat], ...], LineString [[lng, lat], ...] and Polygon [[[lng, lat], ...]], with longitude first. Point example: {"type": "Point", "coordinates": [100.0, 0.0]}, Polygon example: {"type": "Polygon", "coordinates": [[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]]]}. Invalid coordinates or another type return an error
+GPGKey: ASCII-armored GPG (OpenPGP) public key; an invalid key returns an error
+HashObject: Object made of keys and values, nested to any depth (also known as a map, dictionary or hash). Accepts an object or a string with JSON text of an object; anything else returns an error. In Liquid you can build one from a JSON literal, e.g. {% assign object = { "color": "green" } %}
+HeadersObject: Represents data defined by Insites stored in context.headers variable.
+ImageBlur: Blur radius applied to an image: a number from 0.3 to 1000; higher values blur more
+ImageQuality: Image compression quality: an integer from 0 (lowest quality, smallest file) to 100 (highest quality)
+ISO8601DateTime: An ISO 8601-encoded datetime
+JSONDate: Date and time, returned in ISO 8601 format (e.g. "2024-05-01T13:30:00.000Z"). On input the value is passed as is to the receiving argument; use ISO 8601
+JSONPayload: Any JSON value (object, array, string, number, boolean or null), passed through unchanged
+LatDegree: Latitude in decimal degrees, a number within -90.0..90.0; numeric strings are accepted
+LngDegree: Longitude in decimal degrees, a number within -180.0..180.0; numeric strings are accepted
+ParamsObject: Represents data defined by Insites stored in context.params variable.
+PropertiesObject: Property values of a record as a JSON object (or a string containing one) mapping property names to values, for example { color: "green" }
+PropertyName: Name of a property: letters, digits, underscores and slashes only

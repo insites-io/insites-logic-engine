@@ -152,7 +152,7 @@ views/pages/api/products/details/get.liquid   slug: .../products/:uuid    reads 
 
 The same applies to `put`, `patch`, `delete` and `post` pages that take an id from the path: put the id in the slug (`.../products/:id`). A static sibling such as `.../products/variants` still takes priority over `.../products/:uuid`, per Route Priority & Matching Rules in [Configuration](./configuration.md).
 
-**`max_deep_level` is not a reliable cap.** The platform schema defines `max_deep_level` as the URL nesting a slug resolves (`PageInputType.max_deep_level`, default 3): slug `abc` with 2 "will resolve /abc, abc/1, abc/2, but will NOT resolve abc/2/something". The page measured above declares `max_deep_level: 4` in its source and still answered a path ten segments below its slug. Do not rely on it to stop a page answering deeper paths.
+**`max_deep_level` is not a reliable cap.** The platform schema defines `max_deep_level` as the URL nesting a slug resolves (`PageInputType.max_deep_level`, default 3), and its two descriptions disagree: `PageInputType` says slug `abc` with 2 "resolves /abc and /abc/1 but not /abc/1/something", counting the slug itself, while the `Page` type says it "resolves /abc, /abc/1 and /abc/2, but not /abc/2/something". The page measured above declares `max_deep_level: 4` in its source and still answered a path ten segments below its slug. Do not rely on it to stop a page answering deeper paths.
 
 ## Open Redirects
 

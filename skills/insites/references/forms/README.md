@@ -43,7 +43,7 @@ callback_actions: >
 
 Key points:
 
-- **`resource_owner` is required** (`resource_owner: String!` on the schema's `Form` type), and the schema describes it as who can submit the form: "If set to anyone, please make sure to provide authorization_policies". Every form definition in app-seedling, app-portal and the v6 modules uses `anyone` (58 found, 13 October 2026), so the guard is the `authorization_policies` list, not `resource_owner`. The 21 such forms in app-seedling and app-portal carry no `authorization_policies` line; do not copy that.
+- **`resource_owner` is required** (`resource_owner: String!` on the schema's `Form` type), and the schema describes it as who can submit the form: "When set to anyone, protect the form with authorization_policies". Every form definition in app-seedling, app-portal and the v6 modules uses `anyone` (58 found, 13 October 2026), so the guard is the `authorization_policies` list, not `resource_owner`. The 21 such forms in app-seedling and app-portal carry no `authorization_policies` line; do not copy that.
 - **Field-level validation** lives in YAML `validation:` blocks (e.g. `presence: true`, `length: { minimum: N }`, `format: ...`).
 - **Cross-field checks and side effects** live in the `callback_actions` Liquid block (the example above checks password match before calling the mutation).
 - Form definitions are invoked from pages/partials via the platform's form-rendering helpers; on submit, validations run first and `callback_actions` only runs if validation passes.
