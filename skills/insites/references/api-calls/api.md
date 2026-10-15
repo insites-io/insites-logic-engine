@@ -244,7 +244,7 @@ and `body`:
   or from `content_base64`; names may repeat (`files[]`); the `Content-Type` and boundary
   are generated and one you pass in `headers` is ignored; up to 100 parts, 10 downloaded
   files and 50MB in all; `body` and `form_data` cannot be combined. Part of the 6 October
-  2026 platform release, which a v6 staging instance did not yet carry on 9 October 2026.
+  2026 platform release, live on Insites v6 instances from 15 October 2026.
 
 ```graphql
 mutation upload($url: String!, $photo_url: String!, $file_info: String!) {
@@ -256,6 +256,32 @@ mutation upload($url: String!, $photo_url: String!, $file_info: String!) {
     ]
   }) { response { status body } }
 }
+```
+
+Measured on a v6 production instance on 15 October 2026 (TW#26892599), sending four parts to
+an echo service from a page: two text parts arrived as form fields (one with
+`content_type: "application/json"`), a `content_base64` file and a `url` file (a PNG the
+instance downloaded first) arrived as files, the request carried
+`Content-Type: multipart/form-data; boundary=...`, and the call returned 200.
+
+What it is for: any service that takes an upload rather than JSON.
+
+- **Read a document with AI or OCR.** Send an uploaded invoice, contract or photo (the
+  property's URL as `file.url`) to the service, store the fields it returns in a table. Run it
+  in a background job if the service is slow.
+- **Attach a file elsewhere.** A helpdesk ticket attachment, a bill in an accounting system, a
+  document in a client's own system.
+- **Send something you generated.** A CSV or PDF built in Liquid goes as
+  `file.content_base64` (`| base64_encode`), with no temporary upload.
+
+```liquid
+{% capture newline %}
+{% endcapture %}
+{% liquid
+  # report_rows is an array of CSV lines, such as "Acme,42"
+  assign csv = report_rows | join: newline | base64_encode
+  graphql r = 'integrations/upload_report', url: context.constants.REPORTS_URL, b64: csv
+%}
 ```
 
 `download_file`'s `max_size` is enforced on the bytes received, not only on the declared
