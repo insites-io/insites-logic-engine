@@ -66,37 +66,67 @@ method: post
 %}
 ```
 
-## Logout Flow
+## Sign Out
+
+The shape app-seedling 2.1.0 uses, and the one that measured safe (see [api.md](api.md#what-ends-a-sign-in-measured)): a form that posts the authenticity token, a `method: post` page that clears your own per-login fields and runs `user_session_destroy`, and a `method: get` page at the same slug that says the person is signed out. The two pages are two files, for example `app/views/pages/sign_out.liquid` and `app/views/pages/sign_out_submit.liquid`, because a page carries one method.
+
+Run as written on a v6 staging instance on 16 October 2026, with the slug changed: through the rendered form, the person was signed out, `two_factor_user_id` was gone, a field the page does not clear was still there, and the browser landed on the GET page. A post with no token left the person signed in with every field intact.
+
+```graphql
+# app/graphql/sessions/sign_out.graphql
+mutation sign_out {
+  user_session_destroy
+}
+```
+
+```liquid
+{%- comment -%} app/views/partials/sessions/sign_out_form.liquid, rendered in the header {%- endcomment -%}
+<form action="/sign-out" method="post">
+  <input type="hidden" name="authenticity_token" value="{{ context.authenticity_token }}">
+  <button type="submit">Sign out</button>
+</form>
+```
 
 ```liquid
 ---
-slug: sessions
-method: delete
+slug: sign-out
+method: post
+layout: ''
 ---
-{% parse_json flash %}
-  { "notice": "app.sessions.signed_out", "from": {{ context.location.pathname | json }} }
-{% endparse_json %}
-{% liquid
+{%- liquid
+  comment
+    A post without a valid authenticity token arrives with no context.current_user,
+    so this does nothing and another site cannot sign anyone out.
+  endcomment
   if context.current_user
+    session two_factor_user_id = null
     graphql signed_out = 'sessions/sign_out'
   endif
-  assign flash_json = flash | json
-  session sflash = flash_json
-  redirect_to '/'
-%}
+  redirect_to '/sign-out'
+-%}
 ```
 
-There is no `sign_out` tag (`Unknown tag 'sign_out'`, measured on a v6 staging instance on 15 October 2026). `app/graphql/sessions/sign_out.graphql` holds `mutation sign_out { user_session_destroy }`; see [api.md](api.md#signing-out-there-is-no-sign_out-tag).
-
-The logout form uses a hidden `_method` field:
-
-```html
-<form method="post" action="/sessions">
-  <input type="hidden" name="authenticity_token" value="{{ context.authenticity_token }}">
-  <input type="hidden" name="_method" value="delete">
-  <button type="submit">Sign Out</button>
-</form>
+```liquid
+---
+slug: sign-out
+method: get
+---
+{%- liquid
+  if context.current_user
+    redirect_to '/dashboard'
+    break
+  endif
+-%}
+<h1>You are signed out</h1>
+<a href="/sign-in">Sign in again</a>
 ```
+
+Why each part is there (measured on 16 October 2026 unless it says otherwise):
+
+- **The `if context.current_user`** is what makes the page safe without a token check of its own: a post with no token reaches the page signed out.
+- **The `session ... = null` lines** are needed because sign-out keeps every `{% session %}` field, and so does the next sign-in. Clear each per-login field you set (two-factor passed, a cart tied to the account, a "came from" path), here and again when someone signs in.
+- **The redirect** is needed because `user_session_destroy` takes effect on the next request; the page that runs it still sees the user.
+- **Not a `method: get` page**, because the session cookie is `SameSite=Lax`, so a link from another site could sign the person out (inferred from the cookie attribute), and **not the legacy `resource: Session` form**, which signs out without checking the token.
 
 ## Registration Flow
 

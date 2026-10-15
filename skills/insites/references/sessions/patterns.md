@@ -141,29 +141,21 @@ Toggle features per user:
 
 ## Authentication State Pattern
 
-Track login and permissions:
+A session field is not a sign-in. Sign people in with the `sign_in` tag and read `context.current_user`; a field such as `user_id` or `logged_in` signs nobody in, and setting it to `null` signs nobody out (measured on a v6 production and a v6 staging instance on 16 October 2026, see [authentication](../authentication/api.md#what-ends-a-sign-in-measured)).
+
+Keep per-login state in the session, next to the sign-in, and tie it to the user it was set for:
 
 ```liquid
-<!-- On successful login -->
-{% graphql res = 'get_user', id: params.user_id %}
-{% session user_id = res.user.id %}
-{% session user_email = res.user.email %}
-{% session logged_in = true %}
+{%- comment -%} After the second factor passes for this user {%- endcomment -%}
+{% session two_factor_user_id = user.id %}
 
-<!-- Check auth in pages -->
-{% if context.session.logged_in %}
-  <p>Welcome, {{ context.session.user_email }}</p>
-{% else %}
-  <a href="/login">Please log in</a>
-{% endif %}
-
-<!-- Logout -->
-{% if params.logout %}
-  {% session user_id = null %}
-  {% session user_email = null %}
-  {% session logged_in = null %}
+{%- comment -%} Check it against the signed-in user, not only that it is set {%- endcomment -%}
+{% if context.current_user and context.session.two_factor_user_id == context.current_user.id %}
+  ...
 {% endif %}
 ```
+
+Sign-out does not clear these fields, and they are still there after the next sign-in, so clear them in both places. The sign-out page is in [authentication patterns](../authentication/patterns.md#sign-out).
 
 ## See Also
 
