@@ -103,14 +103,17 @@ server (AnyCable), which also serves `/websocket`; the instance never sees it. M
 
 | | Insites production and staging | A stack that serves SSE |
 |---|---|---|
-| `X-Anycable-Version` on a `/websocket` upgrade | `1.2.3` | `1.6.16` |
+| `X-Anycable-Version` on a `/websocket` upgrade | `1.2.3` | `1.6.15` or `1.6.16` |
 | `/anycable-events` answered by | the instance (its 404 page) | the real-time server, as `text/event-stream` |
 
 AnyCable added Server-Sent Events in 1.4.4 (September 2023), so 1.2.3 cannot serve them:
 run locally, it refuses the `--sse` option, while 1.6.16 with `--sse --sse_path=/anycable-events`
-delivered a broadcast to the release note's `EventSource` code unchanged. Three other v6
+delivered a broadcast to the release note's `EventSource` code unchanged. On a staging stack
+that serves SSE, the documented request with a session cookie and the page's CSRF token
+answered `200 text/event-stream` with `welcome` then `confirm_subscription`, and 401 without
+them, so the feature works as documented where the stack has it. Three other v6
 instances on the same two stacks gave the same answers. Instances still hosted on the older
-shared Sydney stack run 1.6.15, which could serve SSE, but there too `/anycable-events`
+shared production stack run 1.6.15, which could serve SSE, but there `/anycable-events`
 reaches the instance and answers 404, so it is not switched on or not routed (TW#26892599).
 
 Until the stacks are upgraded:
