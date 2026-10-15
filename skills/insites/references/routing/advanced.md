@@ -210,6 +210,8 @@ Each file sets appropriate Content-Type automatically based on extension.
 Detect requested format via Accept header.
 
 > **Unreliable.** A request that sent `Accept: application/json` produced no `HTTP_ACCEPT` key in `context.headers`; the platform appears to consume the header to choose the page format. Prefer a `format:` front-matter key or a separate slug per format, and test this on your instance before relying on it.
+>
+> The platform's own matching is strict: a `format: json` page answered 404 to `Accept: application/json, text/plain, */*` (axios's default) and to a request with no `Accept`, and of the five values tried answered 200 only to `application/json` and `*/*` (one v6 staging instance, 15 October 2026). See [pages gotchas](../pages/gotchas.md#a-format-json-page-answers-404-to-some-accept-headers).
 
 ```liquid
 <!-- File: products/:id.liquid -->

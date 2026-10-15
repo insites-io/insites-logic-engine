@@ -22,15 +22,29 @@ Authenticates a user and creates a session.
 
 **The session id rotates.** `sign_in` issues a new `_insites_session_id` cookie on the request that signs the user in; the cookie from before sign-in is not signed in. Measured on an instance on 15 October 2026 for password, emailed code and emailed link sign-in. Session fixation is therefore not possible: an attacker who plants a session id before the victim signs in holds a session that stays signed out.
 
-### sign_out
+### Signing out: there is no `sign_out` tag
 
-Destroys the current session.
+There is a `sign_in` tag and no `sign_out` tag. Measured on a v6 staging instance on 15 October 2026 (TW#26876514): `insites-cli exec liquid` with `{% sign_out %}` failed with `Liquid syntax error (line 1): Unknown tag 'sign_out'`, `insites-cli check` reported `LiquidHTMLSyntaxError` `Unknown tag 'sign_out'` on the two pages that used it, and the tag reference the CLI ships lists `sign_in` and `session` but no `sign_out`.
 
-```liquid
-{% sign_out %}
+Sign out with the `user_session_destroy` mutation, which the v6 CRM module uses (`graphql/sessions/logout.graphql`):
+
+```graphql
+# app/graphql/sessions/sign_out.graphql
+mutation sign_out {
+  user_session_destroy
+}
 ```
 
-No parameters. The session is invalidated immediately. Typically followed by a redirect.
+```liquid
+{% liquid
+  if context.current_user
+    graphql signed_out = 'sessions/sign_out'
+  endif
+  redirect_to '/'
+%}
+```
+
+The schema marks it deprecated, `@deprecated(reason: "Use session tag")`, and returns a `HashObject`. Signing out through the `session` tag was not measured. app-seedling 2.1.0 signs out this way from a `method: post` page, and on the same instance a sign-out POST with the authenticity token ended the session (the next `/dashboard` request redirected to `/sign-in`), while a POST without the token arrived with no `context.current_user` and signed nobody out.
 
 ## Loading the Current User
 

@@ -104,13 +104,37 @@ Edges and quirks of the CMS module that bite when authoring or consuming file-ba
 
 ---
 
-## 11. Authorization policies are evaluated in order — short-circuits on first failure
+## 11. When several policies fail, the one created first decides the redirect, not the one listed first
 
-**Bites:** a page with `[allowed_if_admin, allowed_if_logged_in]` denies a non-logged-in user with the admin policy's flash message instead of the login policy's.
+**Bites:** a page lists `is_user_logged_in` before `is_user_allowed`, both fail for the visitor, and the visitor is sent to `is_user_allowed`'s `redirect_to`. The list in the page's front matter does not decide which redirect applies.
 
-**Why:** policies execute in declaration order, and the first one to fail wins (its `flash_alert` and `redirect_to` apply). They don't all run and produce a combined error message.
+**Why:** measured on one v6 staging instance on 15 October 2026 (TW#26876514). Three policies that always deny were deployed, each redirecting to its own page: `fail_a` (id 4655), `fail_b` (id 4656) and `fail_0` (id 4659, created later, and its name sorts first):
 
-**Avoid:** order policies from most-permissive to most-restrictive (or order them so the **most-relevant** failure message appears first). For the example, list `allowed_if_logged_in` before `allowed_if_admin`.
+| Page lists | Redirected to | Created first |
+|---|---|---|
+| `fail_a`, `fail_b` | `fail_a`'s | `fail_a` |
+| `fail_b`, `fail_a` | `fail_a`'s | `fail_a` |
+| `fail_b`, `fail_0` | `fail_b`'s | `fail_b` |
+
+So the winner is not the policy listed first, not the one listed last, and not the first by name. It is the one with the lower id, which is the one created first on the instance. app-seedling's `/dashboard` showed the same on that instance: it lists `is_user_logged_in` (id 4683) before `is_user_allowed` (id 4682), and a signed-in user with no `client` profile, who fails both, went to `is_user_allowed`'s `/verify-2fa`, not `is_user_logged_in`'s `/401`. Creation order is not in the repository, and an instance where the policies were deployed in a different order will behave differently. This is one instance. Whether every policy runs or evaluation stops at the first failure was not measured, and neither was which `flash_alert` is shown.
+
+**Avoid:** do not depend on which policy decides. Make each policy's `redirect_to` correct on its own. `redirect_to` is rendered as Liquid (see [metadata.md](metadata.md#authorization-policies)), so check sign-in state inside it:
+
+```liquid
+---
+name: is_user_allowed
+redirect_to: '{% if context.current_user %}/verify-2fa{% else %}/sign-in{% endif %}'
+---
+```
+
+```liquid
+---
+name: is_user_logged_in
+redirect_to: '{% if context.current_user %}/401{% else %}/sign-in{% endif %}'
+---
+```
+
+With both written this way, a signed-out visitor reaches `/sign-in` whichever policy decides. On the same instance, `/dashboard`, `/profile` and `/dashboard?x=1&y=2` all went to `/sign-in` with `return_to`, and a signed-in user who had not passed 2FA still went to `/verify-2fa`. Do not try to fix the order by deleting and re-creating policies: the next instance the code is deployed to has its own order.
 
 ---
 

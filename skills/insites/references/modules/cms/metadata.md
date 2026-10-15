@@ -195,7 +195,18 @@ Files that define a single yes/no access rule. Referenced by name from page fron
 |---|---|
 | `name` | Policy name. Matches the file path used by pages to reference this policy. |
 | `flash_alert` | Flash message shown to the user when access is denied. |
-| `redirect_to` | Path the user is redirected to on denial (e.g. `api/401`, `/login`). |
+| `redirect_to` | Path the user is redirected to on denial (e.g. `api/401`, `/login`). Rendered as Liquid, and the platform adds `return_to` itself; see below. |
+
+**`redirect_to` is Liquid, and the platform adds `return_to`.** Measured on a v6 staging instance on 15 October 2026 (TW#26876514), signed out:
+
+| `redirect_to` | Request | Redirected to |
+|---|---|---|
+| `/pwlqa/landed-a` | `/pwlqa/order-ab` | `/pwlqa/landed-a?return_to=%2Fpwlqa%2Forder-ab` |
+| `/pwlqa/landed-a` | `/pwlqa/order-ab?x=1&y=2` | `/pwlqa/landed-a?return_to=%2Fpwlqa%2Forder-ab%3Fx%3D1%26y%3D2` |
+| `'/pwlqa/landed-l?rt={{ context.location.pathname \| url_encode }}'` | `/pwlqa/order-lq` | `/pwlqa/landed-l?rt=%2Fpwlqa%2Forder-lq&return_to=%2Fpwlqa%2Forder-lq` |
+| `'/pwlqa/landed-{% if context.current_user %}in{% else %}out{% endif %}'` | `/pwlqa/order-st` | `/pwlqa/landed-out?return_to=%2Fpwlqa%2Forder-st` |
+
+So the value can branch on `context.current_user`, and the platform appends `return_to=<path and query>`, URL-encoded, after any query the value already has. The page that receives `return_to` must still check it before redirecting to it; see [routing/gotchas.md](../../routing/gotchas.md). When several policies fail, the one created first on the instance decides the redirect, so use this to make each `redirect_to` right on its own: see [gotchas.md](gotchas.md#11-when-several-policies-fail-the-one-created-first-decides-the-redirect-not-the-one-listed-first).
 
 **Body:** Liquid that evaluates to truthy (allowed) or falsy/blank (denied). Often calls `{% graphql %}` to look up tokens, sessions, or user state.
 

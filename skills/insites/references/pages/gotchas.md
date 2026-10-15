@@ -14,7 +14,24 @@ Common errors, limits, and debugging guidance for page files.
 
 **Cause:** The slug in front matter does not match the requested URL, or the file extension does not match the expected content type.
 
-**Solution:** Verify the `slug:` in front matter matches the URL pattern. Check that `.json.liquid` files are requested as `/path.json`, not `/path`.
+**Solution:** Verify the `slug:` in front matter matches the URL pattern. Check that `.json.liquid` files are requested as `/path.json`, not `/path`. For a `format: json` page, also check the request's `Accept` header: see [below](#a-format-json-page-answers-404-to-some-accept-headers).
+
+### A `format: json` page answers 404 to some `Accept` headers
+
+**Cause:** the instance picks the page's format from the request's `Accept` header. Measured on one v6 staging instance on 15 October 2026 (TW#26876514) against a page with `slug: api/check-user-email-signup` and `format: json`, with `curl`:
+
+| `Accept` sent | Status |
+|---|---|
+| `*/*` | 200 |
+| `application/json` | 200 |
+| `application/json, text/plain, */*` | **404** |
+| `text/html` | 404 |
+| none | 404 |
+| `*/*`, URL ending `.json` (`/api/check-user-email-signup.json`) | 200 |
+
+`application/json, text/plain, */*` is the default `Accept` of axios, so an `axios.get` of the bare slug gets a 404, and so does a client that sends no `Accept` header. On the same instance app-seedling's TestCafe e2e tests failed 5 of 5 with 404 until each request set `Accept: application/json`, then passed 5 of 5.
+
+**Solution:** have the client send `Accept: application/json`; app-seedling sets it in `app/assets/services/apiServices.js`. Whether the `.json` suffix also rescues the axios default was not measured. Test the endpoint with the client that will call it, not only with `curl`, whose default is `*/*`.
 
 ### "CSRF token is invalid" on POST/PUT/DELETE
 

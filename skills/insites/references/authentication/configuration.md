@@ -135,11 +135,15 @@ query get_user($id: ID!) {
 
 ### Sign-out
 
-```liquid
-{% sign_out %}
+There is no `sign_out` tag: on a v6 staging instance on 15 October 2026 it failed with `Unknown tag 'sign_out'`. Run the `user_session_destroy` mutation instead (deprecated in the schema, "Use session tag", and used by the v6 CRM module):
+
+```graphql
+mutation sign_out {
+  user_session_destroy
+}
 ```
 
-No parameters. Destroys the current session immediately. Under the hood this executes the `user_session_destroy` GraphQL mutation.
+See [api.md](api.md#signing-out-there-is-no-sign_out-tag).
 
 ## CSRF Token Configuration
 
