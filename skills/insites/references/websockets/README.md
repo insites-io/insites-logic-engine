@@ -9,7 +9,32 @@ outbound API call, such as a language model reply, made from a background job an
 the browser when it finishes. The full recipe is in [patterns](patterns.md).
 
 Everything on this page was measured on 14 October 2026 on a v6 production instance and a
-v6 staging instance, with the same result on both (TW#26888003).
+v6 staging instance, with the same result on both (TW#26888003). The Server-Sent Events
+section was measured on 15 October 2026 (TW#26892599).
+
+## What to use it for
+
+Any time work finishes after the page has loaded and the visitor should see it without
+refreshing. The work runs somewhere else (a background job, a form callback, another user's
+action), and that code sends a message to a room the page is subscribed to.
+
+| Use | What sends the message | Room |
+|---|---|---|
+| An AI answer: the page asks, a job calls the model (up to 180 s), the answer appears | The background job, when the call returns | One per visitor or per conversation, signed ([patterns](patterns.md)) |
+| Progress of a long job: an import, an export, a bulk email, a data migration | The job, after each batch ("1,200 of 4,000"), then "done" with a link to the file | One per job run |
+| A live dashboard or list: new orders, new leads, a status board | The form or callback that creates or changes the record | One per dashboard, or per account |
+| A record someone else is changing: "Updated by Sam a moment ago" | The update callback | One per record |
+| Notifications for a signed-in user | Whatever creates the notification | One per user, with their signed id |
+| Chat, or anything the browser also sends | The browser over the WebSocket, then Liquid in `receive.liquid` | One per conversation |
+
+**Which transport.** If the page only listens (every row but the last), use
+[Server-Sent Events](#server-sent-events): a plain `EventSource`, no protocol to handle, and the
+payload arrives bare. If the browser also sends, use the WebSocket. Both reach the same rooms,
+so one page can listen with SSE while another talks over the WebSocket.
+
+**Keep the room the boundary.** Anyone holding a room id can subscribe, so the room decides
+who sees what. Sign it ([patterns](patterns.md#3-admit-only-signed-rooms)) and never put
+private data in a room shared by people who should not all see it.
 
 ## Files
 

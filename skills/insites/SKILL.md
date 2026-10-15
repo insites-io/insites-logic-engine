@@ -303,6 +303,10 @@ Need integrations?
 ├─ Call external REST API → api-calls/
 ├─ Call a slow API (over 5 s, e.g. a language model) → background-jobs/ + websockets/patterns.md
 ├─ Push live updates to the browser → websockets/ (channels, channel_send_message)
+│   ├─ AI answer, job progress, live dashboard, notifications (page only listens) → Server-Sent Events
+│   └─ Chat or anything the browser also sends → WebSocket
+├─ Upload a file to another service (multipart) → api-calls/api.md (form_data)
+├─ Read the instance's own log from code (support view, alerts) → graphql/api.md (admin_logs)
 ├─ OAuth2 providers → authentication/ (OAuth2 flow with sign_in tag)
 ├─ Webhook receiver → pages/ (POST endpoint)
 └─ Store API keys/secrets → constants/

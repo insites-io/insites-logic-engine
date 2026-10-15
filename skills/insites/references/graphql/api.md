@@ -158,9 +158,25 @@ Reads the entries the `log` tag writes, oldest first: the latest 20 with no lowe
 up to 500 after `id` when one is given, so pass the last id back to follow the log.
 `type` and `message` take the usual string operators (`contains`, `starts_with`,
 `ends_with`, case-insensitive unless `case_sensitive: true`), applied to roughly the
-latest 1000 entries. Part of the 6 October 2026 platform release: on 9 October 2026 a v6
-staging instance still answered `Field 'admin_logs' doesn't exist on type 'RootQuery'`,
-so check before building on it.
+latest 1000 entries. Part of the 6 October 2026 platform release, live on Insites v6
+instances from 15 October 2026.
+
+Measured on a v6 production instance on 15 October 2026 (TW#26892599): an entry written with
+`{% log marker, type: 'claude_probe_logs' %}` was returned by `admin_logs` filtered on that
+`type` within 7 seconds (not in the same request that wrote it). `id` is a string such as
+`"1792066001.1670814"`, and `data` carries `stack` (the file and line that logged) and
+`context.url`, **the full request URL including its query string**, so never put a secret
+in a URL that logs.
+
+What it is for:
+
+- **A support view.** An admin page listing the instance's recent errors or a chosen `type`,
+  so support can see what went wrong for a client without developer tools.
+- **Alerts.** A scheduled background job reads entries since the last `id` it saw and sends an
+  email or a webhook when errors pass a threshold, or when an email fails (`MailNotSent`
+  entries carry the mail server's reason since the 14 October release).
+- **A job's own record.** Log with a `type` per job run, then show those entries beside the
+  job's result, for example under an import's summary.
 
 ### constant_set
 
