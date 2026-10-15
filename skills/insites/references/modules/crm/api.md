@@ -21,10 +21,10 @@ The following hold for every CRM-specific endpoint unless explicitly noted on a 
 ```
 
 - IDs are UUIDs everywhere except **custom fields**, which use numeric `:id` (platform schema constraint — not a bug, do not "fix" it).
-- Lifecycle operations are exposed as `PATCH` with a semantic suffix:
-  - `PATCH /crm/api/v2/contacts/:uuid/archive`
-  - `PATCH /crm/api/v2/contacts/:uuid/restore`
-  - `PATCH /crm/api/v2/companies/:uuid/assign-contacts`
+- Archive and restore are `POST` with a semantic suffix. `PATCH` on these URLs returns 405 (tested on a v6 instance, CRM 6.1.4, 15 October 2026):
+  - `POST /crm/api/v2/contacts/:uuid/archive`
+  - `POST /crm/api/v2/contacts/:uuid/restore`
+  - `PATCH /crm/api/v2/companies/:uuid/assign-contacts`  (not tested with this change)
 
 ### Request format
 
@@ -144,8 +144,8 @@ CRUD plus archive/restore lifecycle. Sub-resources for addresses, personal info,
 | `GET` | `/crm/api/v2/contacts/:uuid` | Read one contact |
 | `PATCH` | `/crm/api/v2/contacts/:uuid` | Update a contact |
 | `DELETE` | `/crm/api/v2/contacts/:uuid` | Delete a contact |
-| `PATCH` | `/crm/api/v2/contacts/:uuid/archive` | Archive (soft-hide) |
-| `PATCH` | `/crm/api/v2/contacts/:uuid/restore` | Restore from archive |
+| `POST` | `/crm/api/v2/contacts/:uuid/archive` | Archive (soft-hide) |
+| `POST` | `/crm/api/v2/contacts/:uuid/restore` | Restore from archive |
 
 **Sub-resources** — same CRUD shape, full field references at `<your-insites-instance>/admin/api/crm/<sub-resource>/overview`:
 
@@ -214,8 +214,8 @@ CRUD plus archive/restore. Includes an `assign-contacts` lifecycle action.
 | `GET` | `/crm/api/v2/companies/:uuid` | Read one company |
 | `PATCH` | `/crm/api/v2/companies/:uuid` | Update a company |
 | `DELETE` | `/crm/api/v2/companies/:uuid` | Delete a company |
-| `PATCH` | `/crm/api/v2/companies/:uuid/archive` | Archive |
-| `PATCH` | `/crm/api/v2/companies/:uuid/restore` | Restore |
+| `POST` | `/crm/api/v2/companies/:uuid/archive` | Archive |
+| `POST` | `/crm/api/v2/companies/:uuid/restore` | Restore |
 | `PATCH` | `/crm/api/v2/companies/:uuid/assign-contacts` | Link contacts to a company |
 
 **Sub-resources** — full field references at `<your-insites-instance>/admin/api/crm/<sub-resource>/overview`:
