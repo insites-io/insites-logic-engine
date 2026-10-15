@@ -20,6 +20,8 @@ Authenticates a user and creates a session.
 
 **Behavior:** Sets a session cookie. After this tag, `context.current_user` is populated for subsequent requests.
 
+**The session id rotates.** `sign_in` issues a new `_insites_session_id` cookie on the request that signs the user in; the cookie from before sign-in is not signed in. Measured on an instance on 15 October 2026 for password, emailed code and emailed link sign-in. Session fixation is therefore not possible: an attacker who plants a session id before the victim signs in holds a session that stays signed out.
+
 ### sign_out
 
 Destroys the current session.
