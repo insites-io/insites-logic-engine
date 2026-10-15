@@ -13,7 +13,8 @@ Measured on a v6 staging instance on 9 October 2026 by running each feature:
 |---|---|
 | 26 February to 26 August | **Live.** Hash and array literals, `<<`, multiline literals, backslash escapes, `escape_regex`, `hkdf`, `asset_name_to_raw_url`, idempotent `split`, `#` comments inside `{% liquid %}`, `options: { timeout, read_replica }` on `records` all work. `string_interpolation` is **off** there (it is a per-instance flag). `liquid_raise_mode` is on. |
 | 9 and 16 September | Not exercisable from Liquid (deploy-time YAML strictness, content-type negotiation on errors, local-storage asset URLs). Assume live. |
-| 6 October | **Not yet.** `admin_logs` answers "Field 'admin_logs' doesn't exist on type 'RootQuery'". Treat `form_data` on `api_call_send`, Server-Sent Events subscriptions, `.txt` as `text/plain` and the 404 for a missing asset as pending until the instance picks the release up. On 14 October 2026 `/anycable-events` still answered with the instance's own 404 page on a production and a staging instance ([websockets](websockets/README.md#server-sent-events-are-not-served-yet)). |
+| 6 October | **Live from 15 October 2026.** `admin_logs` and `form_data` on `api_call_send` are in the schema of a v6 production and a v6 staging instance; at 14:54 that day neither had them. Server-Sent Events followed at 18:41 the same day, once the stack's real-time server was upgraded and routed ([websockets](websockets/README.md#server-sent-events)). |
+| 14 October | **Live from 15 October 2026.** `documents`, `embeddings`, `records_create` and the other stable names are in the schema, the `_rc` names are deprecated, and the schema descriptions are rewritten. Measured on the same two instances. |
 
 Instances on the Insites dedicated stack receive platform releases as the stack is
 updated, so re-measure rather than assume a date.
@@ -173,13 +174,16 @@ updated, so re-measure rather than assume a date.
 
 ## 6 October: Server-Sent Events, multipart API calls, admin_logs
 
-Not yet on the instance measured on 9 October 2026.
+Live on Insites v6 production and staging instances from 15 October 2026. Server-Sent
+Events followed at 18:41 that day.
 
-- A channel can be subscribed to over Server-Sent Events at `/anycable-events` (not served on
-  14 October 2026, see [websockets](websockets/README.md)), with the
+- A channel can be subscribed to over Server-Sent Events at `/anycable-events`, with the
   whole identifier URL-encoded as JSON, the CSRF token in the query string as
-  `authenticity_token`, read-only, and a refused subscription ending the stream with
-  401. The same `subscribed` partial and config flags apply.
+  `authenticity_token`, read-only, and a refused subscription ending the stream with an
+  error status. The same `subscribed` partial and config flags apply. Measured end to end
+  on both Insites stacks on 15 October 2026 once the real-time server was upgraded and
+  routed; a refused room answers 400 and a request with no session or token 401. See
+  [websockets](websockets/README.md#server-sent-events).
 - `form_data` on `api_call_send` sends `multipart/form-data`. [api-calls](api-calls/api.md)
 - `admin_logs` reads the `log` tag's entries from GraphQL. [graphql](graphql/api.md)
 - The instance answers 503 with `Retry-After` and `partner_portal_unavailable` while the
@@ -190,3 +194,37 @@ Not yet on the instance measured on 9 October 2026.
   `.txt` pages are `text/plain`. A missing asset is 404. `admin_background_jobs` refuses
   a timestamp filter that is not a date. `log` entries no longer go missing after one
   failed delivery.
+
+
+## 14 October: stable GraphQL names, schema descriptions, refused emails
+
+Live on Insites v6 production and staging instances from 15 October 2026.
+
+- The 12 fields that only had an `_rc` name now have a stable one, with the same
+  arguments and results: `documents`, `documents_insert`, `documents_upsert`,
+  `documents_bulk_upsert`, `documents_delete`, `embeddings`, `embedding_create`,
+  `embedding_update`, `embedding_delete`, `admin_search_index`, `records_create`, and
+  `records_count` on `Table`. Each `_rc` name stays in the schema, marked deprecated with
+  "Use <stable name>". **A default schema read leaves deprecated fields out**, so
+  introspection, autocomplete and tools built on them show only the stable names. Ask for
+  `fields(includeDeprecated: true)` to see the `_rc` ones. Use the stable names in new
+  code. [graphql](graphql/api.md)
+- Every query, mutation, argument, field, input type, enum value and scalar has a
+  description, and every root field a category, including the new Notifications
+  (`api_call_send`, `email_send`, `sms_send`) and Uploads. The `options.timeout`
+  description now reads "from 1 to 180 ... requests sent during a web request are capped
+  at a shorter timeout than requests sent from a background job". What a page actually
+  allows is measured in [api-calls](api-calls/README.md#how-long-a-call-may-take); it did
+  not change with this release. The schema copy in `graphql/schema/` predates this release.
+- Deprecated, with the replacement named in the schema: `admin_model_schemas`,
+  `admin_transactable_schemas` and `admin_user_profile_schemas` (use `admin_tables`),
+  `admin_forms` (use a page with a mutation), and `authentications` on `User`. The
+  messages on `admin_translation_update` and `admin_translation_delete` now name
+  `admin_translation_set` and `admin_translation_unset`.
+- A refused email's `MailNotSent` log entry carries the mail server's reason, the
+  notification name, the recipients, the subject, the template and line that sent it,
+  and the background job id, and a permanent refusal is not retried. `BackgroundJob Error`
+  entries carry the job id and class.
+- `sync: true` on `records_delete_all`, `users_delete_all` and `admin_pages_delete_all`
+  now deletes before the mutation returns. `content_type.starts_with` on a presigned
+  upload URL is enforced. Property filters inside `or` in `models` respect the table.

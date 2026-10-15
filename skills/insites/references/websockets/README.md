@@ -9,7 +9,32 @@ outbound API call, such as a language model reply, made from a background job an
 the browser when it finishes. The full recipe is in [patterns](patterns.md).
 
 Everything on this page was measured on 14 October 2026 on a v6 production instance and a
-v6 staging instance, with the same result on both (TW#26888003).
+v6 staging instance, with the same result on both (TW#26888003). The Server-Sent Events
+section was measured on 15 October 2026 (TW#26892599).
+
+## What to use it for
+
+Any time work finishes after the page has loaded and the visitor should see it without
+refreshing. The work runs somewhere else (a background job, a form callback, another user's
+action), and that code sends a message to a room the page is subscribed to.
+
+| Use | What sends the message | Room |
+|---|---|---|
+| An AI answer: the page asks, a job calls the model (up to 180 s), the answer appears | The background job, when the call returns | One per visitor or per conversation, signed ([patterns](patterns.md)) |
+| Progress of a long job: an import, an export, a bulk email, a data migration | The job, after each batch ("1,200 of 4,000"), then "done" with a link to the file | One per job run |
+| A live dashboard or list: new orders, new leads, a status board | The form or callback that creates or changes the record | One per dashboard, or per account |
+| A record someone else is changing: "Updated by Sam a moment ago" | The update callback | One per record |
+| Notifications for a signed-in user | Whatever creates the notification | One per user, with their signed id |
+| Chat, or anything the browser also sends | The browser over the WebSocket, then Liquid in `receive.liquid` | One per conversation |
+
+**Which transport.** If the page only listens (every row but the last), use
+[Server-Sent Events](#server-sent-events): a plain `EventSource`, no protocol to handle, and the
+payload arrives bare. If the browser also sends, use the WebSocket. Both reach the same rooms,
+so one page can listen with SSE while another talks over the WebSocket.
+
+**Keep the room the boundary.** Anyone holding a room id can subscribe, so the room decides
+who sees what. Sign it ([patterns](patterns.md#3-admit-only-signed-rooms)) and never put
+private data in a room shared by people who should not all see it.
 
 ## Files
 
@@ -90,13 +115,54 @@ The mutation answers `{"channel_send_message": "dispatched"}`. A hash passed as 
 arrives in the browser as a JSON object. It worked from a background job, which is the case
 that matters: the job has no browser of its own and the room is how it finds one.
 
-## Server-Sent Events are not served yet
+## Server-Sent Events
 
-The 6 October 2026 platform release adds subscribing over Server-Sent Events at
-`/anycable-events` ([platform changes](../platform-changes-2026.md)). On 14 October 2026 both
-instances answered `/anycable-events?identifier=...` with the instance's own 404 page, byte for
-byte the body served for a made-up path apart from its CSRF token. Use the WebSocket until an
-instance answers that path with an event stream.
+A page that only listens can subscribe with `EventSource` at `/anycable-events` instead of a
+WebSocket. The channels, the `subscribed` partial, the config flags and `channel_send_message`
+are the same, and a broadcast reaches SSE and WebSocket subscribers alike.
+
+```js
+const identifier = JSON.stringify({ channel: 'replies', room_id: room });
+const source = new EventSource('/anycable-events?identifier=' + encodeURIComponent(identifier)
+  + '&authenticity_token=' + encodeURIComponent(token));
+source.onmessage = function (event) { show(JSON.parse(event.data)); };
+```
+
+Measured on a v6 production and a v6 staging instance at 18:45 (UTC+7) on 15 October 2026
+(TW#26892599), with a session cookie and the page's CSRF token:
+
+| Case | Result on both instances |
+|---|---|
+| Subscribe | `200 text/event-stream`, then `welcome` and `confirm_subscription` events |
+| A background job calls a 3-second API and sends the result to the room | One `message` event 4.6 s after subscribing, whose `data` is the payload itself, with no `identifier`/`message` envelope |
+| A room the `subscribed` partial refuses | 400, no `confirm_subscription`, stream closed |
+| A channel with no `subscribed` partial | 400, as above |
+| No session cookie and no token | 401 |
+
+How it differs from the WebSocket:
+
+- **The identifier goes in the URL** as URL-encoded JSON, and the CSRF token goes in the same
+  URL as `authenticity_token`. Render it with `{{ context.authenticity_token }}`.
+- **Read-only.** There is no `send`, and `receive.liquid` is never called over SSE.
+- **The payload arrives bare.** `event.data` is exactly what `channel_send_message` sent.
+- **A refusal is an error status, not a message.** `EventSource` reports it as `onerror`, with
+  no reason. The reason is in the instance log as before.
+- **Reconnect yourself.** The browser's own retry reuses the same URL and token, which fails
+  once the session changes. Close the source and open a new one with a fresh token.
+
+Availability: SSE arrived with the 6 October 2026 platform release, but it also needs the
+stack's real-time server, which serves both `/websocket` and `/anycable-events`, to support
+and route it. On the Insites stacks that happened on 15 October 2026: the server moved from
+version 1.2.3, which predates SSE, to 1.6.16 at about 18:25, and SSE was switched on and
+routed by 18:41. Before that, `/anycable-events` answered with the instance's own 404 page.
+To check any instance:
+
+```bash
+curl -s -m 5 -o /dev/null -D - "https://<host>/anycable-events?identifier=x"
+```
+
+`text/event-stream` (a 401 here is expected, as the request has no session) means it is
+served; a `text/html` 404 means it is not. Use a GET: a HEAD request gets 405.
 
 ## See also
 
