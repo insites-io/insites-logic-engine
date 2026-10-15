@@ -359,6 +359,7 @@ For a tool whose users are invited rather than registered, a one-time emailed li
 - **The same answer for every address.** A request for an address with no account writes a row with status `miss`, sends nothing, and answers exactly like a real one, so the response never tells an attacker who has access. Measured: 0.31 to 0.35 s for an unknown address against 0.33 to 0.40 s for a known one. The known address is 50 to 80 ms slower because mail is queued; the gap is small and is not removed.
 - **Limits count every row**, allowed or not: per email and per network address over a window. Read the address from `X-Real-IP` or the **first** `X-Forwarded-For` entry; the last entry is an internal proxy address (see [objects gotchas](../liquid/objects/gotchas.md#problem-reading-the-visitors-address-from-the-wrong-header)).
 - **POST pages check a session flag.** A POST without a valid `authenticity_token` is not refused; it arrives with an **empty session**. A sign-in endpoint never reads `context.current_user`, so the token check does nothing for it unless the page looks. The form page sets a flag and the POST page refuses without it ([forms gotchas](../forms/gotchas.md#comparing-the-authenticity-token-yourself)). Measured: no token, no session cookie, and a forged token each got 403 and wrote no row.
+- **Signing in starts a new session.** `sign_in` rotates the session cookie: `_insites_session_id` changes on the request that signs the person in, and the cookie the browser held before sign-in is not signed in. Measured on an instance on 15 October 2026 for password, code and link sign-in. A session id planted before sign-in is worthless after it, so session fixation is not possible and the pages need no step of their own to prevent it.
 - **Email through a registered template only.** `email_send(template: { name: "..." }, data: $d)` with `data` built as one Liquid variable. An inline `email: {...}` with no template, or a GraphQL object literal holding variables as `data`, answers `is_scheduled_to_send: true` and sends nothing.
 
 Shared partials (`app/views/partials/signin/`):
@@ -420,7 +421,7 @@ name: signin_code
 properties:
   - name: email        # lowercased
     type: string
-  - name: code_hash    # HMAC-SHA256 of "email:code", keyed with the SIGNIN_HMAC_KEY constant
+  - name: code_hash    # HMAC-SHA256 of "email:code", keyed with the SIGN_IN_HMAC_KEY constant
     type: string
   - name: expires_at
     type: datetime
@@ -436,7 +437,7 @@ The hash binds the email in, so a code issued to one address can never match ano
 {%- comment -%} signin/code_hash.liquid. Called as: function h = 'signin/code_hash', email: email, code: code {%- endcomment -%}
 {%- liquid
   assign h = ''
-  assign key = context.constants.SIGNIN_HMAC_KEY
+  assign key = context.constants.SIGN_IN_HMAC_KEY
   if key != blank
     assign msg = email | append: ':' | append: code
     assign h = msg | compute_hmac: key
