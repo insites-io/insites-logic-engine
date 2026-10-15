@@ -13,7 +13,7 @@ Measured on a v6 staging instance on 9 October 2026 by running each feature:
 |---|---|
 | 26 February to 26 August | **Live.** Hash and array literals, `<<`, multiline literals, backslash escapes, `escape_regex`, `hkdf`, `asset_name_to_raw_url`, idempotent `split`, `#` comments inside `{% liquid %}`, `options: { timeout, read_replica }` on `records` all work. `string_interpolation` is **off** there (it is a per-instance flag). `liquid_raise_mode` is on. |
 | 9 and 16 September | Not exercisable from Liquid (deploy-time YAML strictness, content-type negotiation on errors, local-storage asset URLs). Assume live. |
-| 6 October | **Live from 15 October 2026, except Server-Sent Events.** `admin_logs` and `form_data` on `api_call_send` are in the schema of a v6 production and a v6 staging instance; at 14:54 that day neither had them. `/anycable-events` still answers with the instance's own 404 page: the stack's real-time server was upgraded to a version that supports SSE that evening, but SSE is not yet switched on and routed ([websockets](websockets/README.md#server-sent-events-are-not-available-yet)). |
+| 6 October | **Live from 15 October 2026.** `admin_logs` and `form_data` on `api_call_send` are in the schema of a v6 production and a v6 staging instance; at 14:54 that day neither had them. Server-Sent Events followed at 18:41 the same day, once the stack's real-time server was upgraded and routed ([websockets](websockets/README.md#server-sent-events)). |
 | 14 October | **Live from 15 October 2026.** `documents`, `embeddings`, `records_create` and the other stable names are in the schema, the `_rc` names are deprecated, and the schema descriptions are rewritten. Measured on the same two instances. |
 
 Instances on the Insites dedicated stack receive platform releases as the stack is
@@ -174,17 +174,16 @@ updated, so re-measure rather than assume a date.
 
 ## 6 October: Server-Sent Events, multipart API calls, admin_logs
 
-Live on Insites v6 production and staging instances from 15 October 2026, apart from
-Server-Sent Events.
+Live on Insites v6 production and staging instances from 15 October 2026. Server-Sent
+Events followed at 18:41 that day.
 
 - A channel can be subscribed to over Server-Sent Events at `/anycable-events`, with the
   whole identifier URL-encoded as JSON, the CSRF token in the query string as
   `authenticity_token`, read-only, and a refused subscription ending the stream with an
-  error status. The same `subscribed` partial and config flags apply. **Not available on
-  Insites instances yet**: the address is served by the stack's real-time server, not by
-  the instance. The Insites stacks ran version 1.2.3 of it, which predates SSE, until the
-  evening of 15 October 2026, when both moved to 1.6.16; SSE still has to be switched on. See
-  [websockets](websockets/README.md#server-sent-events-are-not-available-yet).
+  error status. The same `subscribed` partial and config flags apply. Measured end to end
+  on both Insites stacks on 15 October 2026 once the real-time server was upgraded and
+  routed; a refused room answers 400 and a request with no session or token 401. See
+  [websockets](websockets/README.md#server-sent-events).
 - `form_data` on `api_call_send` sends `multipart/form-data`. [api-calls](api-calls/api.md)
 - `admin_logs` reads the `log` tag's entries from GraphQL. [graphql](graphql/api.md)
 - The instance answers 503 with `Retry-After` and `partner_portal_unavailable` while the
