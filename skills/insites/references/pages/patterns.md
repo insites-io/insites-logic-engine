@@ -133,7 +133,8 @@ authorization_policies:
 {% liquid
   assign flash_json = flash | json
   session sflash = flash_json
-  redirect_to '/products/' | append: context.params.id
+  assign product_url = '/products/' | append: context.params.id
+  redirect_to product_url
   break
 %}
 ```

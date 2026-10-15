@@ -97,7 +97,7 @@ Track session behavior and patterns:
   {% capture events %}{{ context.session.events | default: '' }}{% endcapture %}
   {% assign event_list = events | split: ';' %}
   {% assign new_event = params.action | append: '=' | append: 'now' | date: '%s' %}
-  {% assign event_list = event_list | push: new_event %}
+  {% assign event_list = event_list | array_add: new_event %}
   {% session events = event_list | join: ';' %}
 {% endif %}
 

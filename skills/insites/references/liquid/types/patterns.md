@@ -73,11 +73,11 @@ The most common source of bugs is incorrect truthiness checks. Empty strings are
 {% parse_json errors %}[]{% endparse_json %}
 
 {% if title == blank %}
-  {% assign errors = errors | push: "Title is required" %}
+  {% assign errors = errors | array_add: "Title is required" %}
 {% endif %}
 
 {% if price == blank %}
-  {% assign errors = errors | push: "Price is required" %}
+  {% assign errors = errors | array_add: "Price is required" %}
 {% endif %}
 
 {% if errors.size > 0 %}
@@ -95,7 +95,7 @@ The most common source of bugs is incorrect truthiness checks. Empty strings are
 {% for item in all_items %}
   {% if item.published == true %}
     {% if item.visible != false %}
-      {% assign visible_items = visible_items | push: item %}
+      {% assign visible_items = visible_items | array_add: item %}
     {% endif %}
   {% endif %}
 {% endfor %}

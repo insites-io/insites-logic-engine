@@ -141,10 +141,13 @@ existing policy or the mutation fails.
 `cache_control: "max-age=31536000, public"` is stored in the asset's metadata and applied
 as the `Cache-Control` header on the stored object, so edge caches and browsers follow
 your policy. Upload the bytes with `admin_assets_presign_urls`, then call
-`admin_assets_create` with `name` and `physical_file_path`. Sources disagree about `url`:
-the bundled schema declares `AssetInput.url: String!` and the v6 assets module sends it,
-while the 19 May release notes call it deprecated and ignored. Send it, and do not rely on
-its value.
+`admin_assets_create` with `name` and `physical_file_path`. `url` is optional. Introspected
+on a v6 production and a v6 staging instance on 15 October 2026, `AssetInput` and
+`AssetUpdateInput` both take `cache_control`, and `AssetInput.url` is not required: a `url`
+you send is stored as given, and without one it is built from the name. `cache_control` was
+served as the `Cache-Control` header at the asset's plain address. The bundled
+[schema.json](schema/schema.json) predates the 14 October release and still shows
+`url: String!` with no `cache_control`; trust a live introspection over it.
 
 ### admin_logs
 ```graphql

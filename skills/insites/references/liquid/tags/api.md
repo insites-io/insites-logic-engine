@@ -101,6 +101,18 @@ Issue an HTTP redirect.
 {% comment %} A request parameter is never passed to redirect_to unchecked: see routing/gotchas.md, Open redirects {% endcomment %}
 ```
 
+`redirect_to` takes a single value, not a filter chain. A filter after it is dropped with
+no error: inside `{% liquid %}`, a `redirect_to` of `'/sign-in?stale=1&next='` followed by
+`| append: enc_go` redirected to `/sign-in?stale=1&next=` (measured on a v6 production instance on
+8 October 2026). Build the URL first, then redirect to the variable:
+
+```liquid
+{% liquid
+  assign order_url = '/orders/' | append: order.id
+  redirect_to order_url
+%}
+```
+
 ## session
 
 Set or clear session data.
@@ -296,9 +308,9 @@ Measured on one v6 staging instance on 15 October 2026 (TW#26876514); see [gotch
 
 | Method | Escaped | Use For |
 |--------|---------|---------|
-| `{{ var }}` | No. Output goes through a sanitizer, which removed an injected tag but did not keep a quote inside an attribute | Text you trust. Not an attribute value from a user or the database |
+| `{{ var }}` | No, unless the instance sets `escape_output_instead_of_sanitize: true` (it read `false` on two new v6 instances; see [configuration](../../configuration/README.md)). Output goes through a sanitizer, which removed an injected tag, kept an allowed `<b>` tag and did not keep a quote inside an attribute | Text you trust. Never untrusted text, in an attribute or between tags |
 | `{{ var \| escape }}` | No, inside an attribute: the `&quot;` reached the browser as `"` and the attribute was broken out of | Not an attribute value |
-| `{% print escaped %}`, where `escaped` was set with `\| escape` | Yes. The escaped string is written as it is | Any value inside an HTML attribute |
+| `{% print escaped %}`, where `escaped` was set with `\| escape` | Yes. The escaped string is written as it is | Any untrusted value, inside an HTML attribute or between tags |
 | `{% print var %}` | No (raw) | Pre-sanitized HTML, SVG, trusted markup |
 | `{{ var \| html_safe }}` | No (raw) | Same as print -- marks string as safe |
 

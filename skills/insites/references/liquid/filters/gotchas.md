@@ -184,11 +184,12 @@ first (`'Jane.Doe' | escape_regex` is `Jane\.Doe`); see [api.md](api.md#escape_r
 {%- assign ok = raw | is_date_in_past -%}
 {%- if ok -%} ... {%- endif -%}
 ```
-By default an instance runs with `liquid_raise_mode` on: a rejected argument stops the
+With `liquid_raise_mode` on, a rejected argument stops the
 render with a 500 and a full diagnostic (`is_date_in_past filter - first argument must be a
 parsable time, received: not-a-date`, measured on a v6 staging instance, 9 October 2026),
-so no placeholder value reaches your logic. Keep it that way. On an instance that has
-turned it off, a failing filter returns `''`, which is truthy, and since the 12 August 2026
+so no placeholder value reaches your logic. It is a per-instance flag, not a default: two
+v6 instances created in late September 2026 read `false` (15 October 2026). Set
+`liquid_raise_mode: true` in `app/config.yml`. On an instance that has it off, a failing filter returns `''`, which is truthy, and since the 12 August 2026
 platform release the boolean filters (`array_any`, `array_include`, `end_with`,
 `hcaptcha`, `is_date_before`, `is_date_in_past`, `is_email_valid`, `is_gpg_valid`,
 `is_token_valid`, `matches`, `start_with`) return `false` instead. Neither is a right

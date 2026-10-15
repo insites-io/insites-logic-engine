@@ -196,11 +196,11 @@ insites-cli logs <environment> --json | jq 'select(.error_type == "error")'
 
 ## pull
 
-Export app data from an environment into a zip file.
+Download the instance's `app/` folder as a zip: code only, with no records, modules or assets. It is not a backup. On 27 September 2026 it returned 16 files (7.7 KB) from an instance holding about 13,000 records, 25 modules and 126 assets. For the data, use [`data export`](#data) (see [Backup Before Operations](patterns.md#backup-before-operations)).
 
 ```bash
 insites-cli pull <environment>
-insites-cli pull <environment> -p ./backup.zip
+insites-cli pull <environment> -p ./app.zip
 ```
 
 | Option | Default | Description |

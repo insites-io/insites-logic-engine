@@ -128,9 +128,13 @@ The same holds for every admin listing measured on two v6 instances on 7 October
 
 `constants(per_page: 1000)` returns the first 1000 and no `total_entries`. Page with `page:` until a page comes back short; an instance can hold more than 1000 constants, and a reader that stops at one page sees a constant past it as absent.
 
-### A read-then-write counter lets concurrent requests through
+### A read-then-write counter lets concurrent requests through; a synced conditional update does not
 
-Measured on a production instance on 9 October 2026 with sixteen sessions posting at once: a count read and written back through `records_update_all` with a filter on the old value let 14 of 16 guesses through a limit of 5, and `increment: 1` let two of sixteen racing requests both win, twice. Neither is a compare-and-swap. A unique `external_id` is: create one row per slot with `external_id: "<key>-<n>"`, and exactly one racing create succeeds while the rest fail with "External has already been taken". Worked example: [`signin/take_slot`](../authentication/patterns.md#what-both-variants-share).
+Measured on a production instance on 9 October 2026 with sixteen sessions posting at once: a count read and written back through `records_update_all` with a filter on the old value let 14 of 16 guesses through a limit of 5, and `increment: 1` let two of sixteen racing requests both win, twice. That run does not record whether `sync: true` was set.
+
+**With `sync: true`, a filtered `records_update_all` is a compare-and-swap.** Measured on a v6 production and a v6 staging instance on 15 October 2026: 16 concurrent conditional updates gave exactly one `count` of 1 in each of 24 rounds, and the stored row matched the winner. Without `sync: true` it is not: in one round all 16 reported a `count` of 1. Filter on the old value, set `sync: true`, and treat `count: 1` as the win and `count: 0` as a loss.
+
+A unique `external_id` is a compare-and-swap too: create one row per slot with `external_id: "<key>-<n>"`, and exactly one racing create succeeds while the rest fail with "External has already been taken". Worked example: [`signin/take_slot`](../authentication/patterns.md#what-both-variants-share).
 
 ### A property written through `value` is text
 

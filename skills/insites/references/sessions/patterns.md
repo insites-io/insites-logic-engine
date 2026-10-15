@@ -105,7 +105,7 @@ Track recent searches:
 {% if params.q %}
   {% capture history %}{{ context.session.search_history | default: '' }}{% endcapture %}
   {% assign searches = history | split: '|' %}
-  {% assign searches = searches | unshift: params.q %}
+  {% assign searches = searches | array_prepend: params.q %}
   {% assign searches = searches | slice: 0, 10 %}
   {% session search_history = searches | join: '|' %}
 {% endif %}

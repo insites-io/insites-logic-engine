@@ -68,9 +68,10 @@ Writing `"email": {{ email }}` is a syntax error that names the key.
 
 With `string_interpolation: true` in `app/config.yml`, `{{ }}` inside a **double**-quoted
 string renders, filters included: `{% assign greeting = "Hello {{ name | upcase }}!" %}`.
-Single-quoted strings never interpolate. The flag is off on existing instances and on
-by default on new ones; the v6 staging instance measured on 9 October 2026 had it off
-(`"Hi {{ n }}"` printed literally). Turning it on is a breaking change for any template
+Single-quoted strings never interpolate. The flag is off unless `app/config.yml` sets it:
+two v6 instances created in late September 2026 had no `string_interpolation` flag, and on
+both `"Hi {{ n }}"` printed literally (measured 15 October 2026), as it did on the v6
+staging instance measured on 9 October 2026. Turning it on is a breaking change for any template
 that keeps a literal `{{ }}` inside double quotes: move those to single quotes first.
 
 ### parse_json (filter)
@@ -318,13 +319,18 @@ All operators require spaces on both sides.
 ### Add / remove filters
 
 ```liquid
-{{ arr | push: item }}
-{{ arr | unshift: item }}
-{{ arr | pop }}
-{{ arr | shift }}
+{{ arr | array_add: item }}             {% comment %} append {% endcomment %}
+{{ arr | array_prepend: item }}         {% comment %} insert at the start {% endcomment %}
+{{ arr | array_delete_at: 0 }}          {% comment %} without the first element {% endcomment %}
+{{ arr | array_delete_at: last_index }} {% comment %} without the last: last_index = arr.size | minus: 1 {% endcomment %}
 {{ arr | concat: other_arr }}
-{{ arr | array_add: item }}
 ```
+
+Insites v6 has no `push`, `unshift`, `pop` or `shift` filter. On a v6 instance `push`
+failed with "undefined filter" (28 September 2026), and the filter reference shipped with
+insites-cli (216 filters, 13 October 2026) lists none of the four; it lists `array_add`,
+`array_prepend` and `array_delete_at`. To read the element you remove, use `first` or
+`last` before the delete. `{% assign arr << item %}` also appends.
 
 ### Transform filters
 

@@ -223,7 +223,8 @@ See [Custom Error Pages](https://docs.insites.io/developers-guide/custom-error-p
     render 'shared/error', errors: result.errors
     break
   endif
-  redirect_to '/products/' | append: result.record_create.id
+  assign product_url = '/products/' | append: result.record_create.id
+  redirect_to product_url
 %}
 ```
 

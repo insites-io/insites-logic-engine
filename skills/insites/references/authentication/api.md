@@ -44,7 +44,7 @@ mutation sign_out {
 %}
 ```
 
-The schema marks it deprecated, `@deprecated(reason: "Use session tag")`, and returns a `HashObject`. Signing out through the `session` tag was not measured. app-seedling 2.1.0 signs out this way from a `method: post` page, and on the same instance a sign-out POST with the authenticity token ended the session (the next `/dashboard` request redirected to `/sign-in`), while a POST without the token arrived with no `context.current_user` and signed nobody out.
+The schema marks it deprecated, `@deprecated(reason: "Use session tag")`, and returns a `HashObject`. Signing out through the `session` tag was not measured, and the tag reference the CLI ships documents the `session` tag only as setting and deleting `context.session` fields, with nothing that ends a sign-in. Until a session-tag sign-out is documented, `user_session_destroy` is the measured way to sign out. app-seedling 2.1.0 signs out this way from a `method: post` page, and on the same instance a sign-out POST with the authenticity token ended the session (the next `/dashboard` request redirected to `/sign-in`), while a POST without the token arrived with no `context.current_user` and signed nobody out.
 
 ## Loading the Current User
 
@@ -182,8 +182,9 @@ Redirect anonymous users to the login page instead of showing 403:
 ```liquid
 {% liquid
   unless profile
-    assign return_to = context.location.pathname
-    redirect_to '/sign-in?return_to=' | append: return_to
+    assign return_to = context.location.pathname | url_encode
+    assign sign_in_url = '/sign-in?return_to=' | append: return_to
+    redirect_to sign_in_url
     break
   endunless
 %}

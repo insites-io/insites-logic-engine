@@ -90,7 +90,8 @@ Cache asset metadata for faster page loads:
 {% cache 'asset_manifest', expire: 86400 %}
   {% assign assets = '' | split: ',' %}
   {% for image in 'images/gallery/*.jpg' | glob_assets %}
-    {% assign assets = assets | push: image | asset_url %}
+    {% assign image_url = image | asset_url %}
+    {% assign assets = assets | array_add: image_url %}
   {% endfor %}
   {{ assets | json }}
 {% endcache %}

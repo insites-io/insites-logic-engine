@@ -88,7 +88,7 @@ To do a deep merge, merge nested hashes separately:
   {% parse_json pair %}
     { "key": {{ item[0] | json }}, "value": {{ item[1] | json }} }
   {% endparse_json %}
-  {% assign pairs = pairs | push: pair %}
+  {% assign pairs = pairs | array_add: pair %}
 {% endfor %}
 ```
 
@@ -103,8 +103,8 @@ To do a deep merge, merge nested hashes separately:
 {% for item in items %}
   {% assign id_str = item.id | append: "" %}
   {% unless seen_ids contains id_str %}
-    {% assign unique_items = unique_items | push: item %}
-    {% assign seen_ids = seen_ids | push: id_str %}
+    {% assign unique_items = unique_items | array_add: item %}
+    {% assign seen_ids = seen_ids | array_add: id_str %}
   {% endunless %}
 {% endfor %}
 ```
@@ -117,7 +117,7 @@ To do a deep merge, merge nested hashes separately:
 {% for item in array_a %}
   {% assign item_str = item | append: "" %}
   {% if array_b contains item_str %}
-    {% assign intersection = intersection | push: item %}
+    {% assign intersection = intersection | array_add: item %}
   {% endif %}
 {% endfor %}
 ```
@@ -130,7 +130,7 @@ To do a deep merge, merge nested hashes separately:
 {% for item in array_a %}
   {% assign item_str = item | append: "" %}
   {% unless array_b contains item_str %}
-    {% assign difference = difference | push: item %}
+    {% assign difference = difference | array_add: item %}
   {% endunless %}
 {% endfor %}
 ```
@@ -146,7 +146,7 @@ To do a deep merge, merge nested hashes separately:
     {% parse_json empty_arr %}[]{% endparse_json %}
     {% hash_assign groups[group_key] = empty_arr %}
   {% endif %}
-  {% assign updated = groups[group_key] | push: item %}
+  {% assign updated = groups[group_key] | array_add: item %}
   {% hash_assign groups[group_key] = updated %}
 {% endfor %}
 ```
