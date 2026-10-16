@@ -203,3 +203,43 @@ registerValidator("api-no-credentials-in-url", (filePath: string, content: strin
   }
   return violations;
 });
+
+// ---- Liquid tag validators (rules/liquid-syntax.md) ----
+
+/** File kinds that hold Liquid templates. */
+const LIQUID_KINDS = new Set(["page", "partial", "layout", "command", "form", "policy"]);
+
+/** Blank out comment blocks, keeping their newlines so line numbers still match the file. */
+function blankLiquidComments(content: string): string {
+  const keepNewlines = (s: string) => s.replace(/[^\n]/g, " ");
+  return content
+    .replace(/\{%-?\s*comment\s*-?%\}[\s\S]*?\{%-?\s*endcomment\s*-?%\}/g, keepNewlines)
+    .replace(/\{%-?\s*liquid\b[\s\S]*?-?%\}/g, (block) =>
+      block.replace(/^([ \t]*)comment\b[\s\S]*?^[ \t]*endcomment\b/gm, keepNewlines)
+    );
+}
+
+/** liquid-no-sign-out-tag: there is no sign_out tag; sign out with user_session_destroy. */
+registerValidator("liquid-no-sign-out-tag", (filePath: string, content: string) => {
+  if (!LIQUID_KINDS.has(fileKindForPath(filePath) ?? "")) return [];
+  const text = blankLiquidComments(content);
+  const hits: number[] = [];
+  const tagRe = /\{%-?\s*sign_out\b/g;
+  let m: RegExpExecArray | null;
+  while ((m = tagRe.exec(text)) !== null) hits.push(m.index);
+  const blockRe = /\{%-?\s*liquid\b([\s\S]*?)-?%\}/g;
+  while ((m = blockRe.exec(text)) !== null) {
+    const bodyStart = m.index + m[0].indexOf(m[1]);
+    const lineRe = /^[ \t]*sign_out\b/gm;
+    let lm: RegExpExecArray | null;
+    while ((lm = lineRe.exec(m[1])) !== null) hits.push(bodyStart + lm.index);
+  }
+  return hits.map((index) => ({
+    ruleId: "liquid-no-sign-out-tag",
+    severity: "error" as const,
+    line: text.substring(0, index).split("\n").length,
+    message:
+      "There is no sign_out tag (Unknown tag 'sign_out'). Sign out with the user_session_destroy " +
+      "mutation from a method: post page; see auth-sign-out-post-with-token.",
+  }));
+});
