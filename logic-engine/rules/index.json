@@ -237,6 +237,23 @@
       "evidence_source": "0 of 1,368 IIA module API pages take a credential in the URL.",
       "audit_ref": "audit/api-endpoints-2026-09.md#credentials",
       "validator": "api-no-credentials-in-url"
+    },
+    {
+      "id": "liquid-no-sign-out-tag",
+      "file": "liquid-syntax.md",
+      "applies_to": ["page", "partial", "layout", "command", "form", "policy"],
+      "severity": "error",
+      "evidence": "cli-audit",
+      "evidence_source": "insites-cli check reports Unknown tag 'sign_out', and the CLI's tag reference has no sign_out (v6 staging instance, 15 October 2026).",
+      "validator": "liquid-no-sign-out-tag"
+    },
+    {
+      "id": "auth-sign-out-post-with-token",
+      "file": "authorization.md",
+      "applies_to": ["page", "form"],
+      "severity": "warning",
+      "evidence": "runtime-failure",
+      "evidence_source": "Seven ways to end a sign-in measured on a v6 production and a v6 staging instance on 16 October 2026: only a method: post page with the authenticity token both signs out and refuses another site. app-seedling v2.1.0 signs out this way."
     }
   ],
   "deferred_decisions": [

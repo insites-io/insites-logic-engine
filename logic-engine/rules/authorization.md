@@ -134,3 +134,56 @@ audit_ref: audit/v0-conflicts-batch2.md#rule-r-12
 **Verified by:**
 - Compliant: `app-seedling/modules/dashboard/public/authorization_policies/is_user_logged_in.liquid:9-22`
 - VIOLATION: `addon-ecommerce/.../order_created_date_valid.liquid:6-16` — calls `time_diff` on `order_details.created_at` without checking if `order_details` is blank
+
+---
+
+```yaml
+---
+id: auth-sign-out-post-with-token
+applies_to: [page, form]
+severity: warning
+evidence: runtime-failure
+evidence_source: "Measured on a v6 production and a v6 staging instance on 16 October 2026 (TW#26894310), same result on both. user_session_destroy on a method: post page signed out with the authenticity token and did nothing without it (the page saw no context.current_user). On a method: get page it signed out, and the session cookie is SameSite=Lax, so a link from another site can trigger it (cookie attribute measured; no second site used). A legacy resource: Session form posted to /api/sessions signed out with and without the token (204 both times). The mutation took effect on the next request and kept every {% session %} field. app-seedling v2.1.0 signs out this way."
+related: [liquid-no-sign-out-tag]
+---
+```
+
+**Rule:** Sign out from a `method: post` page that receives the authenticity token. The page checks `context.current_user`, clears the per-login fields it set with `{% session %}`, runs `user_session_destroy`, and redirects. Do not sign out from a `method: get` page, and do not use the legacy `resource: Session` form.
+
+**Why:**
+- **A `method: get` sign-out can be triggered by another site.** The session cookie is `SameSite=Lax`, which browsers send on a top-level GET navigation, so a link or redirect elsewhere signs the person out.
+- **The legacy form does not check the token.** A `resource: Session` form posted to `/api/sessions` signed out with no authenticity token at all.
+- **A `method: post` page without the token sees no `context.current_user`**, so the `if` makes it do nothing. That is what makes it safe without a token check of its own.
+- **Sign-out keeps every `{% session %}` field, and so does the next sign-in.** A flag such as "passed two-factor" stays set for the next person to sign in on that browser unless the page clears it.
+- **The mutation takes effect on the next request.** The page that runs it still sees the user, so redirect straight after it.
+
+**How to apply:** Two pages at one slug, because a page carries one method (`pages-one-http-method`), plus a form that posts the token.
+
+```liquid
+---
+slug: sign-out
+method: post
+layout: ''
+---
+{%- liquid
+  if context.current_user
+    session two_factor_user_id = null
+    graphql signed_out = 'sessions/sign_out'
+  endif
+  redirect_to '/sign-out'
+-%}
+```
+
+```liquid
+<form action="/sign-out" method="post">
+  <input type="hidden" name="authenticity_token" value="{{ context.authenticity_token }}">
+  <button type="submit">Sign out</button>
+</form>
+```
+
+The `method: get` page at the same slug only tells the person they are signed out. Never sign out by clearing `{% session user_id = null %}` (it is an ordinary field and does not end the sign-in), and never by writing the platform's internal session key (it works, and it is undocumented). The full recipe, run as written on a v6 staging instance, is in `skills/insites/references/authentication/patterns.md#sign-out`.
+
+**Verified by:**
+- `app-seedling` v2.1.0 `app/views/pages/account/sign_out_submit.liquid:1-21` — `method: post`, `if context.current_user`, clears its two-factor pass, runs the mutation, redirects
+- `app-seedling` v2.1.0 `app/views/partials/account/sign_out_form.liquid:10-13` — the form that posts the authenticity token
+- `app-seedling` v2.1.0 `app/views/pages/account/sign_out.liquid` — the `method: get` page at the same slug

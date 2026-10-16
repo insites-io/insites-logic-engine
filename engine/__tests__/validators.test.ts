@@ -154,3 +154,38 @@ describe("API endpoint validators", () => {
     });
   });
 });
+
+describe("liquid-no-sign-out-tag", () => {
+  const PAGE = "app/views/pages/sign_out_submit.liquid";
+  const hits = async (path: string, content: string) =>
+    (await validate(path, content)).violations.filter((v) => v.ruleId === "liquid-no-sign-out-tag");
+
+  it("flags the tag, with its trim variant, on the right line", async () => {
+    const r = await hits(PAGE, "---\nslug: sign-out\n---\n{% sign_out %}\n{%- sign_out -%}");
+    expect(r.map((v) => v.line)).toEqual([4, 5]);
+  });
+
+  it("flags sign_out as a statement inside a liquid block", async () => {
+    const r = await hits(PAGE, "{%- liquid\n  if context.current_user\n    sign_out\n  endif\n-%}");
+    expect(r.map((v) => v.line)).toEqual([3]);
+  });
+
+  it("does not flag the mutation, a query named sign_out, or a comment about the tag", async () => {
+    const content = [
+      "{%- comment -%}There is no {% sign_out %} tag.{%- endcomment -%}",
+      "{%- liquid",
+      "  comment",
+      "    sign_out is not a tag",
+      "  endcomment",
+      "  graphql signed_out = 'sessions/sign_out'",
+      "  assign sign_out_url = '/sign-out'",
+      "-%}",
+      "{% sign_in user_id: user.id %}",
+    ].join("\n");
+    expect(await hits(PAGE, content)).toHaveLength(0);
+  });
+
+  it("does not check a GraphQL file", async () => {
+    expect(await hits("app/graphql/sessions/sign_out.graphql", "{% sign_out %}")).toHaveLength(0);
+  });
+});
