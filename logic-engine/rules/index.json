@@ -254,6 +254,15 @@
       "severity": "warning",
       "evidence": "runtime-failure",
       "evidence_source": "Seven ways to end a sign-in measured on a v6 production and a v6 staging instance on 16 October 2026: only a method: post page with the authenticity token both signs out and refuses another site. app-seedling v2.1.0 signs out this way."
+    },
+    {
+      "id": "forms-enquiry-to-sales-pipeline",
+      "file": "forms.md",
+      "applies_to": ["form", "page"],
+      "severity": "info",
+      "evidence": "skill-only",
+      "evidence_source": "Insites product decision, 17 October 2026: strongly recommended on enquiry forms, never built unasked. Endpoints, fields and seed values read from module-v6-pipelines v6.0.2 and module-v6-crm v6.1.4; the worked example is not yet run on an instance.",
+      "related": ["csrf-token-required", "pipe-vars-through-json-filter", "render-vs-function-tags"]
     }
   ],
   "deferred_decisions": [
