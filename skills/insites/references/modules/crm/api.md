@@ -100,7 +100,7 @@ LIST endpoints return:
 | `sort_order` | `DESC` | `ASC` or `DESC` (case-insensitive) |
 | `search_by` | resource-specific | Field name to search against |
 | `keyword` | — | Search keyword |
-| `exact` | `false` | `"true"` matches whole-value, case-sensitive |
+| `exact` | `false` | `"true"` matches the whole value, ignoring case (measured on a v6 production instance, 17 October 2026: the email in upper case finds the contact, a fragment does not) |
 
 Resource-specific filters (e.g. `system_field` on system fields) are documented per resource.
 
