@@ -263,6 +263,15 @@
       "evidence": "skill-only",
       "evidence_source": "Insites product decision, 17 October 2026: strongly recommended on enquiry forms, never built unasked. Endpoints, fields and seed values read from module-v6-pipelines v6.0.2 and module-v6-crm v6.1.4; the worked example was run end to end on a v6 production instance on 17 October 2026.",
       "related": ["csrf-token-required", "pipe-vars-through-json-filter", "render-vs-function-tags"]
+    },
+    {
+      "id": "schema-table-metadata",
+      "file": "schema.md",
+      "applies_to": ["schema"],
+      "severity": "error",
+      "evidence": "skill-only",
+      "evidence_source": "Insites product decision, 17 October 2026: every table has a name, field groups, and a tooltip on every field. None of the 114 schema files in the v6 IIA modules carries a group or a tooltip yet. Keys and the IIA Databases screen's use of them read from module-v6-data v6.0.2, module-v6-cms v6.0.2 and the cli-tool databases mock; not yet measured on an instance.",
+      "related": ["schema-property-functions"]
     }
   ],
   "deferred_decisions": [
