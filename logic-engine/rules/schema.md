@@ -54,12 +54,22 @@ id: schema-table-metadata
 applies_to: [schema]
 severity: error
 evidence: skill-only
-evidence_source: "Insites product decision by the Product Owner, 17 October 2026: every table has a name, field groups, and a tooltip on every field. Not yet followed by the IIA modules: of 114 schema files across the 10 v6 module repos that have a schema folder (counted 17 October 2026), 1 carries a table label (module-v6-cms system_api_enpoints.yml, with an empty groups list), 1 carries property labels, and none carry a group or a tooltip. The keys and how the IIA Databases screen reads them come from module-v6-data v6.0.2 (2755e6c), module-v6-cms v6.0.2 (946e189) and the cli-tool mock of the databases response (v5.9.2); the citations are under Verified by. Read from source, not yet measured on an instance."
+evidence_source: "Insites product decision by the Product Owner, 17 October 2026: every table a person sees in the IIA Databases screen has a name, field groups, and a tooltip on every field. The rule covers those tables only. The Databases list (module-v6-data v6.0.2, controllers/databases/get_list.liquid:41-87) leaves out every table whose name starts with modules/insites_, nine named modules/ins_* custom field tables, and any table whose metadata has the key insites_databases_hidden. All 114 schema files in the v6 IIA modules sit under modules/insites_*/private/schema, so none of them is listed there and none is in scope. The keys and how the screen reads them come from module-v6-data v6.0.2 (2755e6c), module-v6-cms v6.0.2 (946e189) and the cli-tool mock of the databases response (v5.9.2); the citations are under Verified by. Read from source, not yet measured on an instance."
 related: [schema-property-functions]
 ---
 ```
 
-**Rule:** Every table schema you write names the table, groups its fields, and gives every field a label, a place and a tooltip:
+**Rule:** Every table that appears in the IIA Databases screen names the table, groups its fields, and gives every field a label, a place and a tooltip. In practice that is a project's own `app/schema` tables: the customer and app tables a person opens, reads and edits in the admin.
+
+**Scope:** The rule is about what people see, so it covers the tables the Databases screen lists and nothing else. The list leaves out:
+
+- every table whose name starts with `modules/insites_`, which is every schema file under `modules/insites_<name>/private/schema` in the IIA modules,
+- nine named custom field tables (`modules/ins_core/crm_company_custom_field` and its siblings),
+- any table whose `metadata` has the key `insites_databases_hidden`.
+
+Those tables are not shown to anyone in the admin, so they are exempt. If you are unsure whether a table is listed, apply the rule: the keys cost nothing on a hidden table.
+
+What each key holds:
 
 | Key | Where | What it holds |
 |---|---|---|
@@ -78,7 +88,7 @@ What a tooltip says:
 
 Hard-code the group uuids in the file. Generate each one once, when you write the schema, and never regenerate it: `group_id` on every property points at it, so a uuid that changes between deploys or between instances leaves every field pointing at a group that no longer exists.
 
-**Why:** These keys are what the IIA Databases screen shows. The table list's "Database Table Name" column is `metadata.label` with nothing to fall back on, so a table with no label has a blank name in the list. The item form shows each group as a heading with its fields under it in `weight` order, labels each field with `metadata.label` (or its raw `name`), and shows `metadata.help_text_tooltip` beside it. Fields with no `group_id`, or with a `group_id` that matches no group, are moved below every group, so an ungrouped field sinks to the bottom of the form. In the items list, a table with no groups at all sorts its columns on a `weight` outside `metadata`, so the weights you set are not used there. Without the tooltips, the next person to open a record has to guess what a field holds and which codes are allowed.
+**Why:** Customer tables are shown in the admin, and these keys are what the IIA Databases screen shows. The table list's "Database Table Name" column is `metadata.label` with nothing to fall back on, so a table with no label has a blank name in the list. The item form shows each group as a heading with its fields under it in `weight` order, labels each field with `metadata.label` (or its raw `name`), and shows `metadata.help_text_tooltip` beside it. Fields with no `group_id`, or with a `group_id` that matches no group, are moved below every group, so an ungrouped field sinks to the bottom of the form. In the items list, a table with no groups at all sorts its columns on a `weight` outside `metadata`, so the weights you set are not used there. Without the tooltips, the next person to open a record has to guess what a field holds and which codes are allowed.
 
 The severity is `error` because it is a required Insites standard, not a suggestion: a table that ships without these keys is incomplete, even though nothing fails at runtime.
 
@@ -157,6 +167,7 @@ No table name, so the Databases list shows a blank name. No groups, labels or to
 - The file's `metadata` is what the instance stores: the bundled GraphQL schema describes `Table.metadata` and `Property.metadata` as "Free-form data attached to the resource with the metadata key of its file (or the metadata argument of an admin mutation)". See [`graphql/schema/schema.json`](../../skills/insites/references/graphql/schema/schema.json).
 - A shipped schema file with table and property metadata: `module-v6-cms` v6.0.2 `schema/system_api_enpoints.yml` (`metadata.label`, `metadata.groups`, and `label` and `weight` on each property).
 - The shape of groups and of each field's keys: `cli-tool` v5.9.2 `cli/mock/responses/databases.js:464-520`, a databases response with four groups of `{id: <uuid>, name, weight}` and properties carrying `group_id`, `weight` and `help_text_tooltip`.
+- Which tables are listed: `module-v6-data` v6.0.2 `pos/modules/insites_databases/private/views/partials/controllers/databases/get_list.liquid:41-87`, the filter behind `/insites/databases` (`vue/src/services/DatabasesServices.js:3-9`, called from `Databases.vue:197`): `not_starts_with: "modules/insites_"` on `name` and `parameterized_name`, a `not_value_in` list of nine `modules/ins_*` custom field tables, and `has_key: "insites_databases_hidden"` with `exclude: true`. All 114 schema files in the v6 IIA modules are under `modules/insites_*/private/schema` (counted 17 October 2026).
 - The table list: `module-v6-data` v6.0.2 `vue/src/views/Databases/Databases.vue:320`, the "Database Table Name" column is `metadata?.label` with no fallback.
 - Grouping and order: `module-v6-data` v6.0.2 `vue/src/modules/DatabasesModule.js:4-55` (`sortDatabaseFields`: groups by `weight`, fields by `metadata.weight` inside each group, ungrouped fields appended after every group, and with no groups a sort on `field.weight` at line 50; called for the items list at `DatabaseItems.vue:1269`) and `:98-136` (`setFieldGrouping`: a `group_id` that matches no group is cleared and the field is placed after the groups).
 - The item form: `module-v6-data` v6.0.2 `vue/src/views/Databases/routes/DatabaseItems/routes/ManageDatabaseItem/sections/DatabaseItemForm/DatabaseItemForm.vue:14` (group heading), `:23` and `:51` (`metadata.label || name`), `:26` and `:54` (`help_text_tooltip`).

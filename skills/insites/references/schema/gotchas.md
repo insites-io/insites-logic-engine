@@ -120,7 +120,7 @@ Writing the empty `{}` into another upload property is refused (`tried to store 
 
 ## A Table With No Metadata Looks Broken in the Admin
 
-The IIA Databases screen reads the table and field `metadata` (see `schema-table-metadata` in `logic-engine/rules/schema.md`, and [configuration.md](configuration.md#table-and-field-metadata)). Read from module-v6-data v6.0.2, not measured on an instance:
+The IIA Databases screen reads the table and field `metadata` (see `schema-table-metadata` in `logic-engine/rules/schema.md`, and [configuration.md](configuration.md#table-and-field-metadata)). This matters for the tables that screen lists, which are a project's own `app/schema` tables. It does not list tables whose name starts with `modules/insites_` (every IIA module private table), nine named custom field tables, or tables whose metadata has `insites_databases_hidden`. Read from module-v6-data v6.0.2, not measured on an instance:
 
 - **No `metadata.label` on the table:** the "Database Table Name" column in the table list is blank. It has no fallback to the table's `name`.
 - **A field with no `group_id`:** it is placed after every group, so it sinks to the bottom of the item form. A `group_id` that matches no group is treated the same way, which is what happens when a group's uuid changes between deploys.

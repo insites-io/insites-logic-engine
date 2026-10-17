@@ -86,9 +86,9 @@ be set when the ACL is private, and the unsigned `url` does not open it.
 
 ## Table and Field Metadata
 
-**Required.** Every table schema carries a name, field groups, and a label, group, order and tooltip on every field (rule `schema-table-metadata` in `logic-engine/rules/schema.md`). The `metadata` you write in the file is what the instance stores as the table's and each property's `metadata`, and it is what the IIA Databases screen shows.
+**Required for every table shown in the IIA Databases screen**, which means a project's own `app/schema` tables: each carries a name, field groups, and a label, group, order and tooltip on every field (rule `schema-table-metadata` in `logic-engine/rules/schema.md`). Module private tables (`modules/insites_<name>/private/schema`) are not listed in that screen and are exempt. The `metadata` you write in the file is what the instance stores as the table's and each property's `metadata`, and it is what the IIA Databases screen shows.
 
-```yaml
+```yml
 name: enquiry
 metadata:
   label: "Website Enquiries"            # the table's name in the Databases list

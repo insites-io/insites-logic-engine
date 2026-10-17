@@ -270,7 +270,7 @@
       "applies_to": ["schema"],
       "severity": "error",
       "evidence": "skill-only",
-      "evidence_source": "Insites product decision, 17 October 2026: every table has a name, field groups, and a tooltip on every field. None of the 114 schema files in the v6 IIA modules carries a group or a tooltip yet. Keys and the IIA Databases screen's use of them read from module-v6-data v6.0.2, module-v6-cms v6.0.2 and the cli-tool databases mock; not yet measured on an instance.",
+      "evidence_source": "Insites product decision, 17 October 2026: every table shown in the IIA Databases screen has a name, field groups, and a tooltip on every field. The list leaves out tables named modules/insites_*, nine custom field tables and tables with insites_databases_hidden (module-v6-data get_list.liquid:41-87), so the 114 IIA module private schema files are exempt. Keys and the IIA Databases screen's use of them read from module-v6-data v6.0.2, module-v6-cms v6.0.2 and the cli-tool databases mock; not yet measured on an instance.",
       "related": ["schema-property-functions"]
     }
   ],
