@@ -118,6 +118,15 @@ Three states, three different reads (TW#26855355, measured on the v6 Ecommerce m
 
 Writing the empty `{}` into another upload property is refused (`tried to store {} in property upload which is not a valid URL`). Read with `property(name:)` first and branch on the shape before copying one upload property into another.
 
+## A Table With No Metadata Looks Broken in the Admin
+
+The IIA Databases screen reads the table and field `metadata` (see `schema-table-metadata` in `logic-engine/rules/schema.md`, and [configuration.md](configuration.md#table-and-field-metadata)). Read from module-v6-data v6.0.2, not measured on an instance:
+
+- **No `metadata.label` on the table:** the "Database Table Name" column in the table list is blank. It has no fallback to the table's `name`.
+- **A field with no `group_id`:** it is placed after every group, so it sinks to the bottom of the item form. A `group_id` that matches no group is treated the same way, which is what happens when a group's uuid changes between deploys.
+- **No groups at all:** the items list sorts its columns on a `weight` outside `metadata`, so `metadata.weight` is not used there.
+- **Updating metadata through the admin API:** the admin's own save sends the whole metadata object, starting from what the table already has. Do the same, and send every key of a field's `metadata`, so nothing you did not mean to change is dropped.
+
 ## See Also
 
 - [README.md](README.md) -- overview and getting started
