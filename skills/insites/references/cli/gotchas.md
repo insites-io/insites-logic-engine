@@ -61,6 +61,28 @@ lsof -ti :3030 | xargs kill
 - Review conflicting migrations
 - Resolve manually or create compensating migration
 
+## Large Files Through the Insites Proxy
+
+An environment added with an Insites Console access token (`insites-cli env add <environment> --url <proxy> --token iak_...`) sends every request through the Insites proxy, not straight to the instance. The proxy has two size limits that the instance itself does not have. Measured on 17 October 2026 on a fresh v6 production instance, with a 4.8 MB page (`views/pages/<name>.html.liquid`, 4,800,056 bytes of body):
+
+| Request through the proxy | Answer |
+|---|---|
+| `admin_page_create` with the page in `content` (a 5.17 MB JSON request) | 200, the page is created |
+| `admin_pages` asking for that page's `content`, even one page per request | **502** `{"error": "The instance response is too large for the proxy"}` |
+| The same list without `content` | 200 |
+| `sync` of the page's file (`PUT /api/app_builder/marketplace_releases/sync`) | **413** `{"message":"Request Entity Too Large"}` |
+| `pull` (`POST /api/app_builder/marketplace_releases/backup`, then the zip) | 200. The zip is downloaded from storage, so it never passes through the proxy |
+| A partial release of the page's file, zipped (`deploy --partial-deploy`) | 200. Compressed, the page is a fraction of its size |
+
+**The limits:**
+- An answer over **4 MB** is refused with a 502. The proxy's code sets this limit (`MAX_RESPONSE_BYTES = 4 * 1024 * 1024`), and the 502 above is it. Asking for fewer items per page does not help once a single item is over 4 MB.
+- A request is refused with a 413 at about 5 MB. A single-file sync of the 4.8 MB page was refused. insites-cli's own deploy code records that the proxy passed a 4.5 MB release and refused a 5.5 MB one (12 October 2026).
+
+**What to do instead:**
+- **Read** a large file's content from `pull`. The body of each page in the zip is the file without its front matter, and on 17 October 2026 it matched the admin API's `content` byte for byte for all 129 pages of a v6 production instance. Read everything else about the file with the admin API, leaving the large field out.
+- **Write** a large file with `deploy --partial-deploy` of just that file. The release is zipped, and a partial deploy leaves files outside the build in place. The admin API's create and update also accept a page over 4 MB, but they cannot write the settings that only a page's file carries.
+- Neither limit applies to an environment added with the browser sign-in (`insites-cli env add <environment> --instance-uuid <uuid>`), which talks to the instance directly.
+
 ## Linting (insites-cli audit) Findings
 
 `insites-cli audit` reports deprecated code and file-layout faults (see [`api.md`](api.md#audit)) and exits 0 either way. The errors below come from a sync, a deploy or a page render, not from the audit.

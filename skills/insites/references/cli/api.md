@@ -196,7 +196,7 @@ insites-cli logs <environment> --json | jq 'select(.error_type == "error")'
 
 ## pull
 
-Download the instance's `app/` folder as a zip: code only, with no records, modules or assets. It is not a backup. On 27 September 2026 it returned 16 files (7.7 KB) from an instance holding about 13,000 records, 25 modules and 126 assets. For the data, use [`data export`](#data) (see [Backup Before Operations](patterns.md#backup-before-operations)).
+Download the instance's `app/` folder as a zip: code only, with no records, modules or assets. It is not a backup. On 27 September 2026 it returned 16 files (7.7 KB) from an instance holding about 13,000 records, 25 modules and 126 assets. For the data, use [`data export`](#data) (see [Backup Before Operations](patterns.md#backup-before-operations)). Through the Insites proxy, `pull` is also how to read a file over 4 MB: the zip is downloaded from storage, so the proxy's size limit does not apply (see [Large Files Through the Insites Proxy](gotchas.md#large-files-through-the-insites-proxy)).
 
 ```bash
 insites-cli pull <environment>
@@ -309,7 +309,7 @@ insites-cli env refresh-token [environment]
 | `add [environment] --instance-uuid <u>` | UUID required; `--email` for a shared-stack instance | Add a new environment. On the private stack it signs you in to the Insites Console in the browser |
 | `list` | no args | List all known environments |
 | `refresh-token <environment>` | environment required | Sign in again for one environment, changing only its entry. insites-cli 6.0.0 and later |
-| `add <environment> --url <proxy> --token iak_...` | both required | Sign in with a personal access token from the Insites Console's CLI tab, using the command the Console shows. Requests go through the Insites proxy, which checks your role on each request and records each deploy against you. insites-cli 6.1.0 and later |
+| `add <environment> --url <proxy> --token iak_...` | both required | Sign in with a personal access token from the Insites Console's CLI tab, using the command the Console shows. Requests go through the Insites proxy, which checks your role on each request and records each deploy against you. The proxy refuses an answer over 4 MB and a request of about 5 MB: see [Large Files Through the Insites Proxy](gotchas.md#large-files-through-the-insites-proxy). insites-cli 6.1.0 and later |
 
 On the private stack the CLI stores your Insites Console sign-in, not the instance key, and asks the Console for the key at the start of each command (insites-cli 6.0.0 and later). Removing someone's access in the Console stops their next command. When nothing identifies the stack, a new environment uses `private`.
 
