@@ -155,7 +155,7 @@ Start it from the page:
 {% background job_id = 'emails/send_batch', source_name: 'batch_notification', max_attempts: 1, recipients: recipients %}
 ```
 
-Pass `data` as one variable, never as a GraphQL object literal: the literal form answers `is_scheduled_to_send: true` and sends nothing (see [api.md](api.md#email_send)). `insites-cli check run` flags the query inside the loop (`NestedGraphQLQuery`); here that is expected, because `email_send` takes one message per call. Keep `max_attempts: 1` unless the job records who it has already sent to, or a retry sends the whole batch again.
+Pass `data` as one variable, never as a GraphQL object literal with `$variables` inside it, which is refused when the query is parsed (see [api.md](api.md#email_send)). `insites-cli check run` flags the query inside the loop (`NestedGraphQLQuery`); here that is expected, because `email_send` takes one message per call. Keep `max_attempts: 1` unless the job records who it has already sent to, or a retry sends the whole batch again.
 
 ## See Also
 

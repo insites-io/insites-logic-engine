@@ -5,7 +5,7 @@
 - Emails: `app/emails/`
 - SMS: `app/smses/`
 
-> **Module path:** When building a module, use `modules/<module_name>/private/emails/` and `modules/<module_name>/private/smses/` for email/SMS templates. These are typically private since they are triggered internally by module logic.
+> **Module path:** The IIA modules keep their emails in `modules/<module_name>/private/notifications/email_notifications/<name>.liquid`, with `name:` in the front matter beside `to`, `from`, `subject` and `layout`, and send them as `modules/<module_name>/<name>`. Use the same path in a module of your own; see [configuration](configuration.md#emails-in-a-module). They are private because module logic sends them.
 
 ## Email Template
 
@@ -34,6 +34,7 @@ layout: mailer
 | `layout` | No | Name of a layout in `app/views/layouts/` (`mailer`). Leave it out and the body is sent as written |
 | `cc` | No | CC recipients |
 | `bcc` | No | BCC recipients |
+| `unique_args` | No | A JSON string the email provider echoes back on every delivery event; see [configuration](configuration.md#tagging-a-send-unique_args) |
 
 ## Sending Emails
 

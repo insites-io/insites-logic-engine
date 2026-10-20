@@ -216,7 +216,9 @@ Live on Insites v6 production and staging instances from 15 October 2026.
   description now reads "from 1 to 180 ... requests sent during a web request are capped
   at a shorter timeout than requests sent from a background job". What a page actually
   allows is measured in [api-calls](api-calls/README.md#how-long-a-call-may-take); it did
-  not change with this release. The schema copy in `graphql/schema/` predates this release.
+  not change with this release. The schema copy in `graphql/schema/` postdates this release:
+  it was introspected on 16 October 2026 and again on 20 October 2026, with no change
+  between the two.
 - Deprecated, with the replacement named in the schema: `admin_model_schemas`,
   `admin_transactable_schemas` and `admin_user_profile_schemas` (use `admin_tables`),
   `admin_forms` (use a page with a mutation), and `authentications` on `User`. The
@@ -225,7 +227,9 @@ Live on Insites v6 production and staging instances from 15 October 2026.
 - A refused email's `MailNotSent` log entry carries the mail server's reason, the
   notification name, the recipients, the subject, the template and line that sent it,
   and the background job id, and a permanent refusal is not retried. `BackgroundJob Error`
-  entries carry the job id and class.
+  entries carry the job id and class. Not re-measured since; before this release a refusal
+  showed only as a `BackgroundJob Error` with no recipient, sender or subject, and still
+  answered `is_scheduled_to_send: true` ([emails gotchas](emails-sms/gotchas.md#a-refused-send-looks-sent)).
 - `sync: true` on `records_delete_all`, `users_delete_all` and `admin_pages_delete_all`
   now deletes before the mutation returns. `content_type.starts_with` on a presigned
   upload URL is enforced. Property filters inside `or` in `models` respect the table.

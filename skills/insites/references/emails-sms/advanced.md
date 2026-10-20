@@ -170,6 +170,34 @@ events: ['email/send_failed']
 {% endif %}
 ```
 
+## Logging a Database-Stored Notification's Send
+
+A notification stored with `admin_email_notification_create`, such as a Form Builder email, cannot carry `unique_args` ([gotchas](gotchas.md#a-database-stored-notification-cannot-carry-unique_args)), so its delivery events cannot be matched to a row. The CRM and Forms modules get round this from the notification's `trigger_condition`, the one field the platform renders first with the submitted form in scope. Read from module-v6-forms release/v6.1.2 (`functions/notifications/logged_trigger`) and module-v6-crm release/v6.1.5 (`lib/emails/send_notification`) on 20 October 2026, TW#26887904.
+
+The trigger:
+
+1. Asks `admin_liquid_partials` whether `modules/insites_crm/lib/emails/send_notification` exists. That partial is public on purpose, because private partials are not listed there.
+2. If it exists, captures the notification's own fields (Reply-To, To, CC, BCC, From, subject, body, layout, name) with the same Liquid the notification stores, resets every variable the header partials assigned so the body renders in the scope the platform would give it, and calls the partial. The CRM writes the Email Logs row, stamps its id into `unique_args` and sends through its file-based `test_send` email.
+3. Renders `false`, so the platform does not send a second, unlogged copy.
+4. If the partial does not exist (a CRM older than 6.1.5, or a downgrade), renders `true` and nothing else, so the platform sends the stored fields itself, unlogged, as before. A missing partial never stops an email.
+
+The shape Forms writes into `trigger_condition` (the `@@...@@` markers are filled with the notification's stored fields on every save):
+
+```liquid
+{%- graphql email_log_check -%}query email_log_check { admin_liquid_partials(per_page: 1, filter: { path: { value: "modules/insites_crm/lib/emails/send_notification" } }) { total_entries } }{%- endgraphql -%}
+{%- if email_log_check.admin_liquid_partials.total_entries > 0 -%}
+{%- capture email_log_to -%}<stored to>{%- endcapture -%}
+{%- capture email_log_from -%}<stored from>{%- endcapture -%}
+...
+{%- function email_log_sent = 'modules/insites_crm/lib/emails/send_notification', to: email_log_to, cc: email_log_cc, bcc: email_log_bcc, reply_to: email_log_reply_to, from: email_log_from, subject: email_log_subject, content: email_log_content, layout: email_log_layout, email_name: email_log_name, module: 'Insites Forms' -%}
+false
+{%- else -%}true{%- endif -%}
+```
+
+The notification's fields stay as they are, so the Form Builder still edits them, and every save writes the trigger again from them. An edit made anywhere else does not reach the trigger. Measured on a v6 staging instance on 19 October 2026: the trigger rendered once per submission, a few seconds after it, and the email that left had the same To, From, Reply-To, CC, BCC, subject, layout and body as the stored notification.
+
+The CRM's own form notifications (`insites_internal_email`, `insites_external_email`) do the same from release/v6.1.5, calling the private `functions/emails/send_notification` directly.
+
 ## See Also
 
 - [Configuration Guide](./configuration.md)
