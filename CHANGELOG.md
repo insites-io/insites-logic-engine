@@ -4,6 +4,9 @@ All notable changes to the Insites Logic Engine will be documented in this file.
 
 ## [Unreleased]
 
+### Bug Fix
+- **Forms uploads follow the instance's upload settings, not a fixed list** (`modules/forms/{gotchas,api}.md`, TW#26909777). Both pages said public-form uploads are checked against a fixed list of twelve extensions and that `.heic` is refused. That has been out of date since module-v6-forms v6.1.0. Read at module-v6-forms v6.1.1 with module-v6-crm v6.1.4: with CRM 6.1.1 or later, `functions/attachments/allowed_upload` hands the decision to the CRM's `functions/validate_upload`, which reads the instance's `upload_restrictions` record (edited at `/admin/insites#/assets/configuration`). The mode defaults to `denylist`, and the seeded denylist holds 19 script and executable types, so `.heic` is allowed; in `allowlist` mode only the listed extensions are. The twelve-extension list applies only with a CRM older than 6.1.1. An allowed `.heic` is pinned to `application/octet-stream`, because neither module's type table knows it. The size cap is the smaller of 10 MiB and the settings' `max_file_size_mb`, and the CRM's exact type match refuses a `.jpg` declared `application/octet-stream` or a `.csv` declared `text/plain`. A request with no `filename` can now be refused with the constant `insites_forms_require_filename`.
+
 ## [2.4.0] - 2026-10-20
 
 ### New Feature
