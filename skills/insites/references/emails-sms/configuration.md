@@ -29,7 +29,7 @@ The template sees only what the mutation passed as `data`, so every value comes 
 | Parameter | Required | Type | Description |
 |-----------|----------|------|-------------|
 | `to` | Yes | String | Recipient email address, usually `'{{ data.to }}'` |
-| `from` | Yes | String | Sender address. It must be one the instance can send from (`no-reply@insites.site`, or an address at a connected domain). See [Sending from the instance's verified sender](#sending-from-the-instances-verified-sender) |
+| `from` | Yes | String | Sender address. It must be one the instance can send from: any address at `insites.site`, or an address at a connected domain with email live. Any other address is refused after `email_send` answers `true`. See [Which From addresses are accepted](#which-from-addresses-are-accepted) |
 | `reply_to` | No | String | Reply-to email address |
 | `subject` | Yes | String | Email subject line with Liquid support |
 | `layout` | No | String | Name of a layout in `app/views/layouts/`, without the extension (`mailer` for `app/views/layouts/mailer.liquid`). Leave it out and the body is sent as written |
@@ -118,8 +118,6 @@ Only a file-based email can carry `unique_args`. An email notification stored in
 
 ## Sending from the instance's verified sender
 
-<!-- TW#26904307 measured facts pending: gap 3 -->
-
 The `from` must be an address the instance can authenticate. A customer's own domain that is not verified for the instance fails the receiving server's SPF, DKIM and DMARC checks, so do not put an address from CMS Globals or a form field in `from`. The v6 CRM module works out the instance's sender for you. These are internal functions of the CRM module, not published controllers, so their arguments and return keys can change between releases; read here from module-v6-crm v6.1.4:
 
 ```liquid
@@ -160,6 +158,20 @@ reply_to: >
 ```
 
 Measured on one v6 staging instance on 15 October 2026 (TW#26876514), whose sender resolved to `no-reply@insites.site`, by reading the instance's sent-email log: with no Globals record the sign-in email went `from` `< no-reply@insites.site >` with an empty `reply_to`; with `company_name` "Seedling QA" and `company_email_1` set, it went `from` `Seedling QA < no-reply@insites.site >` with that address as `reply_to`. Delivery to an inbox was not part of the measurement.
+
+### Which From addresses are accepted
+
+Measured on a v6 production instance on 20 October 2026, with four `email_send` calls that differed only in `from`, each to the same recipient:
+
+| `from` | `is_scheduled_to_send` | Sent-notification record |
+|---|---|---|
+| `Insites <no-reply@insites.site>` | `true` | Written |
+| `Migrations <migrations@insites.site>` | `true` | Written |
+| `Probe <probe-tw26904307@insites.site>`, a local part never set up anywhere | `true` | Written |
+| `Probe <probe@example.com>`, a domain not connected to the instance | `true` | **None**: refused after scheduling |
+
+So any address at `insites.site` is accepted on a production instance, and so, per the Insites docs, is an address at a connected domain with email live (not tested here). Any other From is refused silently: `email_send` has already answered `true`, and no record is written ([gotchas](gotchas.md#a-refused-send-looks-sent)). Delivery past the record, whether SendGrid accepted or bounced the message, was not checked.
+
 
 ## Email Layouts
 

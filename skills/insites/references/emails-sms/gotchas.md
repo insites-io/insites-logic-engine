@@ -101,7 +101,7 @@ Hello {{ data.user.first_name | default: 'Customer' }},
 
 ### SPF/DKIM/DMARC Failures
 
-Send only from an address the instance is verified for: the domain set up in Insites Console, or `no-reply@insites.site`. The CRM module resolves it for you; see [configuration](configuration.md#sending-from-the-instances-verified-sender).
+Send only from an address the instance is verified for: the domain set up in Insites Console, or an address at `insites.site`. Any other From is refused after `email_send` answers `true`, with no sent-notification record ([configuration](configuration.md#which-from-addresses-are-accepted)). The CRM module resolves it for you; see [configuration](configuration.md#sending-from-the-instances-verified-sender).
 
 ```yaml
 ---
