@@ -33,7 +33,18 @@ The template reads it as `data`: `to: '{{ data.to }}'` in its front matter, `{{ 
 
 The payload is `is_scheduled_to_send: Boolean!` (its `errors` field is deprecated).
 
-**Send through a registered template.** Measured on Insites instances in October 2026: an inline `email: {...}` with no `template`, and a `data` written as a GraphQL object literal with variables inside it, both answer `is_scheduled_to_send: true` and send nothing. A template called by name with `data` passed as one variable delivered in 1 to 3 seconds. So `is_scheduled_to_send: true` is not proof of delivery.
+**Send through a registered template.** Measured on Insites instances in October 2026: an inline `email: {...}` with no `template` answers `is_scheduled_to_send: true` and sends nothing. A template called by name with `data` passed as one variable delivered in 1 to 3 seconds. So `is_scheduled_to_send: true` is not proof of delivery; a send the mail server refuses later answers `true` as well ([gotchas](gotchas.md#a-refused-send-looks-sent)).
+
+**How to pass `data`.** Measured on a v6 staging instance on 20 October 2026, each send checked against the `admin_sent_notifications` record it wrote:
+
+| `data` written as | Result |
+|---|---|
+| A hash built in Liquid and passed as one variable (`data: mail`) | Sent; the record holds the values |
+| A Liquid hash literal with variables inside it, on the `graphql` tag (`data: { "to": to, ... }`) | Sent; the record holds the values |
+| A GraphQL object literal of constants in the `.graphql` file | Sent |
+| A GraphQL object literal with GraphQL variables inside it (`data: { to: $to }`) | Refused when the query is parsed: `argumentLiteralsIncompatible`, "Expected type 'HashObject'" |
+
+Pass a hash variable, or a Liquid literal, as `data`. Never put `$variables` inside a GraphQL object literal. An earlier note in these pages said a literal with variables inside it answers `true` and sends nothing; that did not reproduce on 20 October 2026.
 
 ### sms_send
 

@@ -8,7 +8,7 @@ An email or SMS is a template file. Its front matter sets who it goes to and how
 
 Emails are defined in `app/emails/` with front matter metadata:
 
-> **Module path:** In modules, email templates live in `modules/<module_name>/private/emails/` and SMS in `modules/<module_name>/private/smses/`. These are typically private since they are triggered internally by module logic.
+> **Module path:** In a module, emails live in `modules/<module_name>/private/notifications/email_notifications/<name>.liquid` with `name:` in the front matter. See [Emails in a module](#emails-in-a-module).
 
 ```yaml
 ---
@@ -35,8 +35,90 @@ The template sees only what the mutation passed as `data`, so every value comes 
 | `layout` | No | String | Name of a layout in `app/views/layouts/`, without the extension (`mailer` for `app/views/layouts/mailer.liquid`). Leave it out and the body is sent as written |
 | `cc` | No | String/Array | Carbon copy recipients |
 | `bcc` | No | String/Array | Blind carbon copy recipients |
+| `unique_args` | No | String | A JSON object written as a string, Liquid allowed, sent to the email provider so it comes back on every delivery event. See [Tagging a send: `unique_args`](#tagging-a-send-unique_args) |
+
+## Emails in a module
+
+The IIA v6 modules keep every email in `private/notifications/email_notifications/`, one file per email, with `name:` in the front matter. Read on master on 20 October 2026: module-v6-crm v6.1.4 has `insites_internal_email`, `insites_external_email` and `test_send` (`email_invitation_accepted` and `email_new_administrator` sat in the same folder until v6.1.3 removed them, when invitations moved to Insites Console); module-v6-forms has `test_email_default_template`, `test_email_cms_layout` and `test_email_visual_editor`. No v6 module has a `private/emails/` directory.
+
+`modules/insites_crm/private/notifications/email_notifications/insites_internal_email.liquid` (v6.1.4) opens:
+
+```yaml
+---
+name: insites_internal_email
+enabled: true
+delay: 0
+trigger_condition: true
+```
+
+and is followed by `subject`, `to`, `from`, `reply_to`, `cc`, `bcc` and `layout`. A module sends its email with the module prefix, `modules/<module_name>/<name>`, as in the CRM's `private/graphql/emails/send_test.graphql`:
+
+```graphql
+mutation send_test($data: HashObject!) {
+  email_send(
+    data: $data
+    template: { name: "modules/insites_crm/test_send" }
+  ) {
+    errors {
+      message
+    }
+    is_scheduled_to_send
+  }
+}
+```
+
+The platform accepts `emails/<name>.liquid` as well: the schema describes an email's `physical_file_path` as `emails/<name>.liquid` "(or legacy `notifications/email_notifications/<name>.liquid`), optionally prefixed with `modules/<module_name>/public/` or `modules/<module_name>/private/`", and marks `name` deprecated because it is derived from the path. The IIA modules use the second form and still set `name:`; follow them when you add an email to an IIA module. SMS works the same way (`smses/<name>.liquid` or `notifications/sms_notifications/<name>.liquid`); no v6 module sends SMS.
+
+## Tagging a send: `unique_args`
+
+`unique_args` in an email's front matter is sent to SendGrid as the `unique_args` of the message's `X-SMTPAPI` header, and SendGrid echoes those keys on every delivery event (delivered, bounce, open, click). Use it to tie an event back to your own record of the send.
+
+Write it as a JSON object inside a YAML string. Liquid inside the string renders with the email's `data`. A YAML hash is refused at deploy. Measured on an Insites instance on 5 October 2026.
+
+The v6 CRM module stamps the id of its Email Logs row this way from v6.1.3. `modules/insites_crm/private/notifications/email_notifications/test_send.liquid` in v6.1.4 (release/v6.1.5 adds `cc` and `bcc`):
+
+```yaml
+---
+name: test_send
+to: '{{ data.to }}'
+delay: 0
+enabled: true
+trigger_condition: true
+from: '{{ data.from }}'
+reply_to: '{{ data.reply_to }}'
+# TW#26847666: the prefix is set by functions/emails/send_logged: '[Test] ' for a test send, empty for a resend.
+subject: '{{ data.subject_prefix }}{{ data.subject }}'
+# TW#26847666: SendGrid echoes unique_args on every delivery event, so the event finds its
+# Email Logs row. A JSON string, never a YAML hash (the platform refuses that with a 422).
+unique_args: '{"email_log_id":"{{ data.email_log_id }}"}'
+layout: >
+  {%- if data.layout != blank -%}
+  {{ data.layout }}
+  {%- else -%}
+  modules/insites_crm/insites_external_email_layout
+  {%- endif -%}
+---
+```
+
+The value comes from `data`. `functions/emails/send_logged` creates the Email Logs row first, adds its id to the data, then sends:
+
+```liquid
+graphql log_result = 'modules/insites_crm/email_logs/create_email_log', uuid: log_uuid, sent_at: sent_at, email_name: email_name, module: module, to: data.to, ...
+assign log_id = log_result.items.id | append: ''
+...
+assign send_data = data | add_hash_key: 'email_log_id', log_id | add_hash_key: 'subject_prefix', prefix
+graphql result = 'modules/insites_crm/emails/send_test', data: send_data
+```
+
+`send_test.graphql`, shown [above](#emails-in-a-module), sends it. On the way back, the CRM's event receiver (`controllers/emails/email_logs/record_events`) reads `email_log_id` as a top-level key of each SendGrid event, where SendGrid puts custom arguments, and falls back to a nested `unique_args` object.
+
+Only a file-based email can carry `unique_args`. An email notification stored in the database, such as a Form Builder notification, cannot; see [gotchas](gotchas.md#a-database-stored-notification-cannot-carry-unique_args).
+
+`unique_args` is not in the GraphQL schema: `EmailNotification` and `EmailNotificationInputType` have no such field (introspected 20 October 2026), so it cannot be read back through the admin API.
 
 ## Sending from the instance's verified sender
+
+<!-- TW#26904307 measured facts pending: gap 3 -->
 
 The `from` must be an address the instance can authenticate. A customer's own domain that is not verified for the instance fails the receiving server's SPF, DKIM and DMARC checks, so do not put an address from CMS Globals or a form field in `from`. The v6 CRM module works out the instance's sender for you. These are internal functions of the CRM module, not published controllers, so their arguments and return keys can change between releases; read here from module-v6-crm v6.1.4:
 
