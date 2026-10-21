@@ -48,9 +48,9 @@ Common errors, limits, and debugging guidance for layout files.
 
 **Solution:** Include `{{ content_for_layout }}` exactly once. If content_for blocks are duplicating, check that partials using `content_for` are not rendered multiple times.
 
-### "CSRF token invalid on forms inside layout"
+### Forms inside the layout act as if nobody is signed in
 
-**Cause:** Forms in layout partials (e.g., search bar, logout button) are missing the CSRF token.
+**Cause:** Forms in layout partials (e.g., search bar, logout button) are missing the CSRF token. The request is not rejected; it arrives with `context.current_user` null (rule `auth-sign-out-post-with-token` in `logic-engine/rules/authorization.md`).
 
 **Solution:** Include the authenticity token in every non-GET form, even those rendered from the layout:
 ```liquid

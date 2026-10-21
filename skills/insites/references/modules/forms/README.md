@@ -20,7 +20,7 @@ Forms declares **no** controller aliases, so there is nothing to `{% function %}
 
 ## Surface at a glance
 
-Counted in module-v6-forms v6.0.3 on 9 October 2026: 20 page files under `private/views/pages/api/forms/`, all under `/insites/forms`. 16 carry `modules/insites_crm/insites_only_allowed_by_administrators`; 4 carry no policy and say "public on purpose" in their front matter.
+Counted in module-v6-forms v6.1.1 on 20 October 2026: 21 page files under `private/views/pages/api/forms/`, all under `/insites/forms`. 17 carry `modules/insites_crm/insites_only_allowed_by_administrators`; 4 carry no policy and say "public on purpose" in their front matter.
 
 | Resource | Operations | Access |
 |---|---|---|
@@ -29,6 +29,7 @@ Counted in module-v6-forms v6.0.3 on 9 October 2026: 20 page files under `privat
 | **Email notifications** | Create, update, send a test, two previews | Admin |
 | **Attachments** | Credentials, register, delete | Credentials and register public; delete admin |
 | **Presigner** | Credentials for a file field of a published form | Public |
+| **Files** | Open a public-form upload through a five-minute signed link | Admin |
 | **Viewer** | Renders a published form as a page | Public |
 
 ## Layout map
@@ -36,7 +37,7 @@ Counted in module-v6-forms v6.0.3 on 9 October 2026: 20 page files under `privat
 ```
 modules/forms/
 ├── README.md            ← you are here
-├── api.md               ← the 20 endpoints
+├── api.md               ← the 21 endpoints
 ├── configuration.md     ← IIA walkthrough, field types, migration
 ├── patterns.md          ← worked examples
 ├── gotchas.md           ← edges visible in source

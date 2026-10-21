@@ -10,13 +10,17 @@ Query records from any schema-defined table.
 
 ```graphql
 records(
-  page: Int
-  per_page: Int
-  filter: RecordFilter
-  sort: [RecordSort]
-  options: { read_replica: Boolean, timeout: Int }
-) : RecordCollection
+  page: Int = 1
+  per_page: Int!
+  filter: RecordsFilterInput
+  sort: [RecordsSortInput!]
+  options: QueryOptionsInput   # { read_replica: Boolean, timeout: Int }
+) : RecordCollection!
 ```
+
+`per_page` is required (`Int!`, "must be greater than 0"); there is no default. A
+`records` or `users` query without it fails with `missingRequiredArguments`. `page`
+defaults to 1.
 
 `options` (also on `users`, `admin_versions` and the deprecated `models`) controls how the
 read executes. `read_replica: true` runs the whole operation on a read replica when the
@@ -47,11 +51,12 @@ Query user records (built-in user table).
 
 ```graphql
 users(
-  page: Int
-  per_page: Int
-  filter: UserFilter
-  sort: [UserSort]
-) : UserCollection
+  page: Int = 1
+  per_page: Int!
+  filter: UsersFilterInput
+  sort: [UsersSortInput!]
+  options: QueryOptionsInput
+) : UserCollection!
 ```
 
 User records have built-in fields: `id`, `email`, `created_at`, `updated_at`. Custom properties are accessed via the same property accessors as records.
@@ -61,7 +66,7 @@ User records have built-in fields: `id`, `email`, `created_at`, `updated_at`. Cu
 ### record_create
 
 ```graphql
-record_create(record: RecordInput!) : Record
+record_create(record: RecordInputType!) : Record!
 ```
 
 ```graphql
@@ -84,7 +89,7 @@ mutation($title: String!, $price: String) {
 ### record_update
 
 ```graphql
-record_update(id: ID!, record: RecordInput!) : Record
+record_update(id: ID!, record: RecordInputType!) : Record!
 ```
 
 Only properties listed in the `properties` array are modified. Omitted properties are untouched.
@@ -343,7 +348,7 @@ results {
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `page` | Int | 1 | Current page number (1-indexed) |
-| `per_page` | Int | 20 | Records per page |
+| `per_page` | Int! | None, required | Records per page; must be greater than 0 |
 
 ### Response fields
 

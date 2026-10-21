@@ -80,9 +80,9 @@ app/views/pages/users/:id/delete.liquid (method: delete - delete)
 
 ### Missing CSRF Token
 
-**Symptoms:** POST/PUT/DELETE forms fail with 403 Forbidden
+**Symptoms:** A POST/PUT/DELETE form is accepted, but the page acts as if nobody is signed in: `context.current_user` is blank and anything gated on it does nothing.
 
-**Cause:** Form submission missing CSRF token
+**Cause:** The form submission is missing the `authenticity_token`, or the token is stale. A missing token does not reject the request; it nulls `context.current_user` for that request (measured on a v6 production and a v6 staging instance on 16 October 2026, rule `auth-sign-out-post-with-token` in `logic-engine/rules/authorization.md`). A page that never reads `context.current_user` is not protected by the token at all, so it must validate its own inputs.
 
 **Solution:** Include token in forms:
 

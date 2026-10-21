@@ -8,15 +8,15 @@ Edges visible in module-v6-forms v6.0.3 source on 9 October 2026; item 5 re-read
 
 ## 2. The instance API key opens nothing
 
-**Bites:** `Authorization: instance_...` against `/insites/forms` runs as an anonymous visitor and the admin policy refuses it. **Why:** no page calls the CRM API-key guard; the 16 admin pages check the session. **Avoid:** a signed-in administrator session with `X-CSRF-Token`, as the SPA does.
+**Bites:** `Authorization: instance_...` against `/insites/forms` runs as an anonymous visitor and the admin policy refuses it. **Why:** no page calls the CRM API-key guard; the 17 admin pages (v6.1.1) check the session. **Avoid:** a signed-in administrator session with `X-CSRF-Token`, as the SPA does.
 
 ## 3. The presigner serves only forms the admin created
 
 **Bites:** a hand-written form file gets `422 upload is not available for this field`. **Why:** `functions/attachments/presigner_target` allows a `model`/`property` pair only when `admin_forms` lists a form with that `resource` and field; `get_forms_for_presigner.graphql` notes module-shipped forms are not listed, and it reads at most 200 forms. **Avoid:** build the form in IIA, or presign from your own page.
 
-## 4. Refusals are always the same text
+## 4. Field refusals are generic; file refusals say why
 
-**Bites:** debugging a presign from the response. **Why:** every refusal, platform errors included, answers one generic reason so the platform's "did you mean" table list never leaks; a platform refusal logs `Insites Forms - presigner refused by the platform`. **Avoid:** read the instance logs.
+**Bites:** debugging a presign from the response, and getting `upload is not available for this field` with no detail. **Why:** at v6.1.1, `controllers/attachments/presign_public_form_upload` answers that one generic reason when the `model`/`property` pair is not a form's upload field and when the platform refuses the presign, so the platform's "did you mean" table list never leaks; a platform refusal logs `Insites Forms - presigner refused by the platform`. A refusal of the file itself returns its specific reason from `functions/attachments/allowed_upload` (line 49 assigns `verdict.reason`), for example `file type .exe is not allowed`, `declared content type image/png does not match .pdf` or `filename is required`, in `{ "errors": { "file": "<reason>" }, "max_kib": <cap> }` with status `422`. **Avoid:** read `errors.file` first; for the generic reason, check the form's `resource` and field, then read the instance logs.
 
 ## 5. Uploads follow the instance's upload settings, not a fixed list
 
@@ -26,9 +26,9 @@ Edges visible in module-v6-forms v6.0.3 source on 9 October 2026; item 5 re-read
 
 **Bites:** reading `GenerateFormCode.js`, finding `credentials-url="/insites/api/database/presigner-auto-upload.json?..."` (or `presigner-auto.json`), and concluding that generated forms skip the upload checks; no v6 module serves either URL, so both answer `404`. **Why:** the generator writes that URL only for a field with `auto_upload: true` (`generateFileAutoUploader`), and nothing sets that flag: both writers in `ManageForm.vue` are commented out, as they were in v5. Generated embed code loads `InsitesFormProcessor.js` from `components.insites.io/forms/` through the `form_code` partial, and that script, whose own auto-upload code is also commented out, sends a single-file field to `GET /insites/forms/presigner?model=<resource>&property=<field>` and a `file_multiple` field to `GET /insites/forms/attachments/credentials` then `POST /insites/forms/attachments`. All three run `functions/attachments/allowed_upload` (item 5). A field given `auto-upload` with that URL by hand never uploads: `<ins-input-file>` waits on the credentials request, which resolves only on a `200`. **Avoid:** watch those three endpoints in the network tab when debugging a form upload; never add `auto-upload` to a generated field by hand.
 
-## 7. A workflow notification never stores the typed From address
+## 7. A notification never stores the typed From address
 
-**Bites:** `PUT` `from: "Acme <hello@acme.com>"` and read back an include. **Why:** `functions/notifications/sender_fields` stores `modules/insites_crm/email_layout/form_notification_from` so the address is chosen at send time; the production stack refuses other senders with a 550 while reporting the mail scheduled (comment in the function, measured 29 September 2026). Autoresponders keep the typed From. **Avoid:** read `metadata.from_name`; never parse `from`.
+**Bites:** `PUT` `from: "Acme <hello@acme.com>"` and read back an include, on a workflow notification or an autoresponder. **Why:** `functions/notifications/sender_fields` stores an include of `modules/insites_crm/email_layout/form_notification_from` so the address is chosen at send time; the production stack refuses other senders with a 550 while reporting the mail scheduled (comment in the function, measured 29 September 2026). Workflow notifications have done this since TW#26813291; autoresponders store the same include since v6.1.0. Since v6.1.1 the include also carries the Sender chosen in the Form Builder (`metadata.sender_address`), and `form_notification_from` honours it only on Insites CRM 6.1.4 or later and only when it is on the instance's Console sender list; otherwise it sends from the list's default. **Avoid:** read `metadata.from_name` and `metadata.sender_address`; never parse `from`.
 
 ## 8. CRM 6.1.2 is a runtime requirement
 
@@ -36,7 +36,7 @@ Edges visible in module-v6-forms v6.0.3 source on 9 October 2026; item 5 re-read
 
 ## 9. `trigger_condition` is the string `"true"` or it is a draft
 
-**Bites:** boolean `true` or `"True"` creates a draft that never fires. **Why:** both controllers compare `== "true"`. **Avoid:** send the exact string.
+**Bites:** boolean `true` or `"True"` creates a draft that never fires. And an autoresponder sent with `trigger_condition: "true"` on a form with no spam protection is saved with `trigger_condition` `"false"` and `metadata.held_for_spam_protection: true`, so it never sends, unless its chosen Sender is on the instance's Console sender list and not at `insites.site`. **Why:** both controllers compare `== "true"`. For an autoresponder, `controllers/forms/email_notifications/add_email_notification.liquid` lines 30 to 43 (and the edit controller) ask `functions/notifications/autoresponder_allowed`: with reCAPTCHA on it may send from any listed sender; with it off, only from a listed sender at a verified customer domain, read through Insites CRM 6.1.4 (`functions/notifications/listed_senders`). On an older CRM the list counts as absent and the autoresponder stays held. **Avoid:** send the exact string; read `trigger_condition` and `metadata.held_for_spam_protection` back after saving an autoresponder; turn on spam protection or choose a customer-domain sender.
 
 ## 10. Delete needs the matching path
 

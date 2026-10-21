@@ -33,9 +33,9 @@ Common errors, limits, and debugging guidance for page files.
 
 **Solution:** have the client send `Accept: application/json`; app-seedling sets it in `app/assets/services/apiServices.js`. Whether the `.json` suffix also rescues the axios default was not measured. Test the endpoint with the client that will call it, not only with `curl`, whose default is `*/*`.
 
-### "CSRF token is invalid" on POST/PUT/DELETE
+### POST/PUT/DELETE runs as an anonymous visitor
 
-**Cause:** The form submission is missing the `authenticity_token` field, or the token has expired.
+**Cause:** The form submission is missing the `authenticity_token` field, or the token has expired. The request is not rejected and no error is shown: it arrives with `context.current_user` null (rule `auth-sign-out-post-with-token` in `logic-engine/rules/authorization.md`, measured 16 October 2026). A page that never reads `context.current_user` gets no protection from the token and must validate its own inputs.
 
 **Solution:** Include `<input type="hidden" name="authenticity_token" value="{{ context.authenticity_token }}">` in every non-GET form.
 

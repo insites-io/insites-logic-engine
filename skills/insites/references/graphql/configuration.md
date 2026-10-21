@@ -124,7 +124,7 @@ mutation create($title: String!, $price: String) {
 }
 ```
 
-**All property values are strings** in the input, regardless of the schema type. The platform coerces them:
+**`value` is always a string** in `PropertyInputType` (`value: String`), regardless of the schema type; a number passed as `value` fails the whole mutation ([`gotchas.md`](gotchas.md), "A property written through `value` is text"). The schema describes `value` as "converted to the type of the property", but a value written this way does not match a later `value_int` filter, so use the typed arguments (`value_int`, `value_float`, `value_boolean`, `value_array`) when the type matters. Written through `value`:
 
 | Schema Type | GraphQL Input Example |
 |-------------|----------------------|
