@@ -21,7 +21,7 @@
 {% endcache %}
 ```
 
-Cached CSRF tokens fail validation on POST requests.
+A cached token is stale, or another visitor's, so the POST is not rejected but arrives with `context.current_user` null. Keep the token outside the cached block.
 
 ## Cache Key Collisions
 

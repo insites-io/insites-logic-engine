@@ -266,7 +266,7 @@ properties:
     type: string           # JSON string for flexible data
 ```
 
-Use `created_at` (automatic) for the event timestamp. Store extra context as a JSON string in `text`.
+Use `created_at` (automatic) for the event timestamp. Store extra context as a JSON string in the `metadata` `string` property.
 
 ## See Also
 

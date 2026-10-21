@@ -56,16 +56,9 @@ Removing a property from the YAML only removes it from the schema definition. Da
 
 ## Optimizing for Search and Filtering
 
-### String vs Text
+### Use `string` for all text
 
-`string` properties are indexed and searchable via filters. `text` properties are stored but not indexed by default. Choose accordingly:
-
-| Use `string` for | Use `text` for |
-|-------------------|----------------|
-| Titles, names, slugs | Long descriptions, body content |
-| Status fields, enums | HTML content, markdown |
-| IDs, references | JSON data stored as text |
-| Anything you filter on | Content you only display |
+Use `string` for short and long text alike: titles, slugs, status codes, body content, HTML, markdown and JSON. The schema states no length limit for `string`, and its `PropertyTypeEnum` marks `text` "Deprecated, use string instead" ([`configuration.md`](configuration.md), property types). Do not create `text` properties.
 
 ### Denormalization for Performance
 
@@ -87,9 +80,9 @@ properties:
 
 **Trade-off:** Faster reads, but you must update denormalized fields when the source changes. Use a command or background job to keep them in sync.
 
-## Storing JSON in Text Fields
+## Storing JSON in String Fields
 
-For flexible, schemaless data within a record, store serialized JSON in a `text` property:
+For flexible, schemaless data within a record, store serialized JSON in a `string` property:
 
 ```yaml
 name: product
@@ -223,7 +216,7 @@ filter: {
 ## Indexing and Performance
 
 - `string` type properties are indexed in ElasticSearch, enabling efficient filtering and search.
-- `text` type properties are stored but querying against them is slower.
+- `text` is deprecated in the schema; use `string`.
 - Filtering on multiple properties simultaneously works but performance degrades with many conditions.
 - For high-volume queries (thousands of records), prefer pagination over large `per_page` values.
 - The maximum practical `per_page` value is around 1000. For bulk operations, use the Data Import/Export API instead.

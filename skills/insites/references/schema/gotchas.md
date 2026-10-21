@@ -52,12 +52,12 @@ Common errors, limits, and troubleshooting for schema files.
 |----------|-------|-------|
 | Properties per schema | ~200 | Practical limit; no hard cap documented |
 | Property name length | 255 chars | Must be valid identifier |
-| String property value | ~255 chars | Use `text` for longer content |
-| Text property value | ~16 MB | Platform-dependent |
+| String property value | No limit stated in the schema | `string` holds long text; do not use `text` |
+| `text` type | Deprecated | The schema's `PropertyTypeEnum` says "Deprecated, use string instead" |
 | Upload max file size | Configurable | Set via `max_size` in options |
 | Schema files per app | No hard limit | Limited by deploy time |
 | Array property values | JSON array | Must be valid JSON string |
-| Nested objects | Not supported | Use `text` with JSON or separate tables |
+| Nested objects | Not supported | Use a `string` holding JSON, or separate tables |
 
 ## Troubleshooting Flowchart
 

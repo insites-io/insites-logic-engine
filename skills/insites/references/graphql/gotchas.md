@@ -65,7 +65,7 @@ Common errors, limits, and troubleshooting for GraphQL in Insites.
 | Resource | Limit | Notes |
 |----------|-------|-------|
 | `per_page` maximum | ~1000 | Use pagination for larger sets |
-| Default `per_page` | 20 | If not specified |
+| Default `per_page` | None | Required (`per_page: Int!` on `records` and `users`); omitting it is a `missingRequiredArguments` error |
 | Query depth | ~5 levels | Nested `related_record` / `related_records` |
 | Properties per filter | No hard limit | Performance degrades with many conditions |
 | Inline query size | Practical only | Long queries should use named files |

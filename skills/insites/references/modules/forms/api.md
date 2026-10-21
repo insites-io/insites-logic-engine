@@ -1,6 +1,6 @@
 # Forms — Endpoints
 
-All 20 endpoints sit under `/insites/forms`. File paths are relative to the module's `private/views/pages/api/forms/`. Counted in module-v6-forms v6.0.3 on 9 October 2026.
+All 21 endpoints sit under `/insites/forms`. File paths are relative to the module's `private/views/pages/api/forms/`. Counted in module-v6-forms v6.1.1 on 20 October 2026: 17 admin, 4 public.
 
 ## Conventions
 
@@ -31,6 +31,7 @@ All 20 endpoints sit under `/insites/forms`. File paths are relative to the modu
 | POST | `/insites/forms/attachments` | Public | `attachments/post.liquid` |
 | GET | `/insites/forms/presigner` | Public | `upload/upload.liquid` |
 | GET | `/insites/forms/viewer` | Public | `viewer/viewer.liquid` |
+| GET | `/insites/forms/files/:id` | Admin | `files/get.liquid` |
 
 `controllers/forms/file/get_credentials.liquid` is empty and unreferenced.
 
@@ -64,7 +65,8 @@ The controller rewrites before saving:
 
 - Create path: `modules/ins_forms/public/notifications/email_notifications/<type>_<form id>.liquid`.
 - `default_template`: layout becomes `modules/insites_crm/insites_internal_email_layout` (workflow) or `insites_external_email_layout` (autoresponder); content becomes an include of `email_notifications/workflow_content` or `autoresponder_content`. `cms_layout`: a workflow is forced onto the internal layout. `visual_editor`: layout null.
-- Workflow `from` becomes an include of `modules/insites_crm/email_layout/form_notification_from` with only the From Name (`functions/notifications/sender_fields`) when the installed CRM is 6.1.2 or later (`functions/notifications/core_sender_ready`). An autoresponder keeps the typed `from`. `metadata.from_name` is always written.
+- `from` becomes an include of `modules/insites_crm/email_layout/form_notification_from` with the From Name (`functions/notifications/sender_fields`) when the installed CRM is 6.1.2 or later (`functions/notifications/core_sender_ready`): for a workflow notification, and for an autoresponder since v6.1.0. Since v6.1.1 the include also passes `metadata.sender_address`, the Sender chosen in the Form Builder, which CRM 6.1.4 honours when it is on the Console sender list. `metadata.from_name` is always written.
+- An autoresponder on a form with no `spam_protection`, sent with `trigger_condition: "true"`, is saved with `trigger_condition` `"false"` and `metadata.held_for_spam_protection: true` unless its Sender is on the Console sender list and not at `insites.site` (`functions/notifications/autoresponder_allowed`). [`gotchas.md`](gotchas.md) item 9.
 - `trigger_condition == "true"` picks the strict mutation (subject, to, from, content required); anything else the draft mutation.
 
 Returns `{ id, trigger_condition, subject, to, reply_to, from, cc, bcc, physical_file_path, content, metadata }`.
@@ -91,6 +93,8 @@ Both public presigns cap at `max_kib = 10240` (10 MiB) and allow `pdf doc docx x
 
 **`DELETE /insites/forms/attachments`** (admin). Passes `context.params` to CRM's `_globals/delete_attachments`; body in [`../crm/globals/attachments.md`](../crm/globals/attachments.md).
 
-**`GET /insites/forms/presigner`** (public). Params `model`, `property`, `filename`, `content_type`. Allowed only when `model` is the `resource` of one of the first 200 `admin_forms` and `property` is a field of it whose `field_type` is blank or in `upload file photo image attachment` (`functions/attachments/presigner_target`). Returns `{ "s3_upload": { "direct_upload_url", "form_data" } }`. Every refusal, platform errors included, carries the fixed reason `upload is not available for this field`.
+**`GET /insites/forms/presigner`** (public). Params `model`, `property`, `filename`, `content_type`. Allowed only when `model` is the `resource` of one of the first 200 `admin_forms` and `property` is a field of it whose `field_type` is blank or in `upload file photo image attachment` (`functions/attachments/presigner_target`). Returns `{ "s3_upload": { "direct_upload_url", "form_data" } }`. A field that is not allowed, and a platform refusal of the presign, carry the fixed reason `upload is not available for this field`; a refused file carries its own reason from `allowed_upload` ([`gotchas.md`](gotchas.md) item 4).
+
+**`GET /insites/forms/files/:id`** (admin, `controllers/attachments/open_file`). Since v6.1.0 both public presigns store uploads private (`acl: private` in `graphql/attachments/presign_public_form_upload.graphql` and `get_public_s3_form.graphql`), so their storage link does not open. This page opens one for a signed-in administrator: it looks the record up and redirects to a signed link that lasts five minutes (`property_upload(..., expires_in: 300)` in `graphql/attachments/get_file_link.graphql`); the link is never printed. Params `table` and `property` default to `modules/insites_crm/attachment` and `file`; any other pair must be an upload field of a form on the instance (`functions/attachments/presigner_target`). Anything else answers `404` with `{ "errors": { "file": "not found" } }`. Older public uploads open through the same redirect. Build the link with `functions/attachments/file_page_link`, for example `/insites/forms/files/45?table=form_contact&property=cv`.
 
 **`GET /insites/forms/viewer?form=<name>`** (public). A full HTML document: the v2.15.1 component bundle, the `form_code` partial, `{% include_form %}` of the named form with `<form>` swapped for `<div>` and reCAPTCHA removed, then `InsitesFormProcessor.formPreview(...)`.

@@ -50,7 +50,11 @@ Validation rules (`vue/src/models/validationRules.js`): `presence`, `email`, `da
 
 ## Seeds and migrations
 
-Nothing is seeded. One migration, `private/migrations/20260929220000_form_notifications_platform_sender.liquid`, rewrites the stored `from` of every workflow notification (prefix `modules/ins_forms/public/notifications/email_notifications/workflow_`) to the `form_notification_from` include and keeps the typed name in `metadata.from_name`. It skips already-migrated rows and autoresponders, passes `trigger_condition` and `delay_by` back so drafts stay drafts, and only logs an error when the CRM is below 6.1.2.
+Nothing is seeded. Three migrations at v6.1.1, all in `private/migrations/`:
+
+- `20260929220000_form_notifications_platform_sender.liquid` rewrites the stored `from` of every workflow notification (prefix `modules/ins_forms/public/notifications/email_notifications/workflow_`) to the `form_notification_from` include and keeps the typed name in `metadata.from_name`. It skips already-migrated rows and autoresponders, passes `trigger_condition` and `delay_by` back so drafts stay drafts, and only logs an error when the CRM is below 6.1.2.
+- `20261012000000_autoresponder_platform_sender.liquid` (v6.1.0) does the same for autoresponders, and switches off a switched-on autoresponder on a form with no spam protection, marking it `metadata.held_for_spam_protection`. Below CRM 6.1.2 it changes nothing and logs an error.
+- `20261013000000_autoresponder_customer_sender.liquid` (v6.1.1) switches a held autoresponder back on when its Sender is on the Console sender list and not at `insites.site`. Without that list (CRM before 6.1.4) it changes nothing.
 
 ## Tests
 

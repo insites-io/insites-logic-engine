@@ -25,16 +25,16 @@ mutation create($title: String!, $price: String, $available: String) {
 }
 ```
 
-**Signature:** `record_create(record: RecordInput!) : Record`
+**Signature:** `record_create(record: RecordInputType!) : Record!`
 
-`RecordInput` fields:
+`RecordInputType` fields used here:
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `table` | String | Yes | Must match a schema `name` |
-| `properties` | [PropertyInput] | No | Array of `{ name, value }` pairs |
+| `table` | String | Yes, for `record_create` | Must match a schema `name` |
+| `properties` | [PropertyInputType] | No | Array of `{ name, value }` pairs |
 
-All property values are passed as `String` in GraphQL variables -- the platform coerces them based on the schema type definition.
+`PropertyInputType.value` is a `String`, so pass every value as a string, numbers included (`value: "{{ n }}"`). A number passed as `value` fails the whole mutation with only an `errors` key and nothing written ([`../graphql/gotchas.md`](../graphql/gotchas.md), "A property written through `value` is text"). The schema describes `value` as "New value as a string; it is converted to the type of the property", but a property written through `value` does not match a later `value_int` filter. For a typed value use the typed argument: `value_int`, `value_float`, `value_boolean`, `value_array`, `value_json` or `value_upload`.
 
 ## Updating Records
 
@@ -57,7 +57,7 @@ mutation update($id: ID!, $title: String, $price: String) {
 }
 ```
 
-**Signature:** `record_update(id: ID!, record: RecordInput!) : Record`
+**Signature:** `record_update(id: ID!, record: RecordInputType!) : Record!`
 
 Only properties included in the `properties` array are modified. Omitted properties remain unchanged.
 
@@ -117,7 +117,9 @@ query list($page: Int = 1, $limit: Int = 20) {
 }
 ```
 
-**Signature:** `records(filter: RecordFilter, page: Int, per_page: Int, sort: [RecordSort]) : RecordCollection`
+**Signature:** `records(page: Int = 1, per_page: Int!, filter: RecordsFilterInput, sort: [RecordsSortInput!], options: QueryOptionsInput) : RecordCollection!`
+
+`per_page` is required and has no default; leaving it out is a `missingRequiredArguments` error.
 
 ### Filter Options
 
