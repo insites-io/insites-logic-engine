@@ -54,7 +54,7 @@ Generates a relative URL to asset.
 **Example:**
 ```liquid
 <img src="{{ 'icons/user.svg' | asset_path }}" alt="User">
-<video src="{{ 'videos/intro.mp4' | asset_path }}"></video>
+<video src="{{ 'media/intro.mp4' | asset_path }}"></video>
 ```
 
 ## Asset Context Variables
