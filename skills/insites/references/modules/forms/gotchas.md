@@ -24,7 +24,7 @@ Edges visible in module-v6-forms v6.0.3 source on 9 October 2026. Each entry: wh
 
 ## 6. Generated form code presigns through the Data module
 
-**Bites:** watching `/insites/forms/presigner` and seeing nothing. **Why:** `GenerateFormCode.js` writes `credentials-url="/insites/api/database/presigner-auto-upload.json?..."` (or `presigner-auto.json`) into the embed code, while the forms presigner's comment says the public script calls it with `model` and `property`. Which URL a live form hits depends on the uploader script on the CDN, not in this repo. No v6 module serves `/insites/api/database/presigner-auto.json` or `presigner-auto-upload.json`: the only presigner page in the twelve module-v6 repositories is Forms' own `insites/forms/presigner` (`pages/api/forms/upload/upload.liquid`; read at module-v6-forms v6.1.1 and the default branch of the other eleven on 20 October 2026). **Avoid:** check the page's network tab, and do not build on the `presigner-auto` URLs.
+**Bites:** watching `/insites/forms/presigner` and seeing nothing. **Why:** `GenerateFormCode.js` writes `credentials-url="/insites/api/database/presigner-auto-upload.json?..."` (or `presigner-auto.json`) into the embed code, while the forms presigner's comment says the public script calls it with `model` and `property`. Which URL a live form hits depends on the uploader script on the CDN, not in this repo. **Avoid:** check the page's network tab.
 
 ## 7. A notification never stores the typed From address
 
