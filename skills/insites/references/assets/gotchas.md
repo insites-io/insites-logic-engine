@@ -137,7 +137,7 @@ Only inline SVGs you control. User-uploaded SVGs should be served as image sourc
 
 ### Size Limits Affect Upload Speed
 
-- Assets over 100MB: Use separate CDN or chunked upload
+- Audio and video over 100 MB: CloudShell refuses them, so host them on a separate CDN or video service and link to it
 - Many small files: Bundle to reduce HTTP requests
 - Uncompressed CSS/JS: Minify before deployment
 
