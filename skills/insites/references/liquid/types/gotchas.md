@@ -135,6 +135,17 @@ the error above, which names the line.
 A literal that already contained `\\`, `\"` or `\'` parses either way but now yields a
 different value, and no deploy error points at it: search for those three sequences.
 
+### A `size` param that is ignored: `params.size` is the key count
+
+On a hash, `.size` is the built-in key count, and it wins over a key named `size`. So `params.size`, `query_params.size` and `context.params.size` never read the `size` query parameter: `?page=2&size=50` gives `2`, the number of params sent. A list controller that sizes its page this way returns as many rows as the caller sent params, whatever `size` says. Read the key by name, then default:
+
+```liquid
+{%- assign size = params['size'] | default: 10 | plus: 0 -%}
+{%- if size < 1 -%}{%- assign size = 10 -%}{%- endif -%}
+```
+
+Every IIA v6 list controller was fixed this way in the releases of 22 and 23 October 2026 (API 6.0.3, CMS 6.0.3, CRM 6.1.5, Forms 6.1.2, Locator 6.0.3, Permissions 6.0.3, Pipelines 6.0.4; F0001). A caller of an older release that sends `size` gets pages sized by its param count.
+
 ### "My array from split contains empty strings"
 
 **Cause:** Splitting a string with leading/trailing delimiters or consecutive delimiters produces empty string elements.

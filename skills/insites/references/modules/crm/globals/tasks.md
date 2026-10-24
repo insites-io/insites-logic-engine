@@ -26,6 +26,8 @@ CRUD plus `complete` / `open` lifecycle PATCH actions. A task can be associated 
 
 **Required field on create:** `task_name`.
 
+**List filters (CRM 6.1.5+).** `GET /crm/api/v2/tasks` accepts `page`, `size`, `sort_by`, `sort_order`, `search_by`, `keyword`, exactly one of `opportunity_uuid` / `contact_uuid` / `company_uuid`, `status` (`open` or `completed`), `assignee_uuid` (the `uuid` on `assignee`), and `due_date_from` / `due_date_to` (`YYYY-MM-DD`, inclusive). `search_by` defaults to `task_name`. **Any other parameter answers 400** naming it, as do a blank value, a malformed date, and more than one relation param; `format` and the platform's `slug` params are always allowed. Read from module-v6-crm v6.1.5 (`functions/_external/unknown_params`, the Get Tasks API definition).
+
 ### Example — create a task
 
 ```http

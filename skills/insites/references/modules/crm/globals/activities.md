@@ -20,6 +20,10 @@ For shared conventions, see [`../api.md`](../api.md).
 
 **Required fields on create:** `type`, `feature_type`, `feature.uuid`.
 
+**Validation (CRM 6.1.5+).** `type` must be one of `call`, `chat`, `email`, `event`, `file_note`, `meeting`, `sms`, `other`; `feature_type` one of `contact`, `company`, `opportunity`; and `feature.uuid` must be an existing record of that type (a contact uuid sent with `feature_type: opportunity` is refused). A failure answers **422** with `type: validation_error` and one `errors[]` entry per failing field (`errors[].field` is `type`, `feature_type` or `feature.uuid`), and creates nothing, event stream entry included. PATCH checks only the fields sent, each falling back to the stored value, and moves the activity to the new record's Activities tab when `feature_type` changes; an unknown activity uuid is 404. A successful create answers **200**, not 201. Read from module-v6-crm v6.1.5, `functions/activities/validate` and the Add/Update Activity API definitions.
+
+**List filters (CRM 6.1.5+).** `GET /crm/api/v2/activities` accepts `page`, `size`, `sort_by`, `sort_order`, `search_by`, `keyword`, `has_pagination`, exactly one of `opportunity_uuid` / `contact_uuid` / `company_uuid`, `type`, and `created_from` / `created_to` (`YYYY-MM-DD`, inclusive, on `created_at`). `search_by` defaults to `type`. **Any other parameter answers 400** naming it (`functions/_external/unknown_params`), as do a blank value, a malformed date, and more than one relation param. `format` and the platform's `slug`/`slugs`/`slug2`... params are always allowed. A caller that used to send an extra or misspelled param and got the unfiltered list now gets 400.
+
 ## Example — log a call activity against a contact
 
 ```http
@@ -41,7 +45,7 @@ Content-Type: application/json
 ```
 
 ```json
-HTTP/1.1 201 Created
+HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
