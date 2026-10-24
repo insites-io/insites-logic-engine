@@ -222,6 +222,8 @@ Set the HTTP response status code.
 {% response_status 503 %}
 ```
 
+`response_status` inside a partial called with `{% render %}` sets the page's status, and the partial's output is emitted. So two pages (a GET and a POST, since a page takes one method) can each be two lines that render one shared partial, and that partial can answer a 400. Measured on an instance in September 2026.
+
 ## response_headers
 
 Set custom HTTP response headers. Pass a JSON string.

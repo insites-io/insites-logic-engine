@@ -10,11 +10,13 @@ Common errors, limits, and troubleshooting for schema files.
 
 **Solution:** Verify the `name` field in your YAML matches exactly what you use in `filter: { table: { value: "..." } }`. Run `insites-cli deploy dev` to push schema changes. Names are case-sensitive.
 
-### "Name must match filename"
+### The `name:` Key Decides the Table, Not the Filename
 
-**Cause:** The `name` field inside the YAML file does not match the filename. For example, `app/schema/product.yml` contains `name: products` (plural mismatch).
+**Symptom:** a query for the table named after the file finds nothing, or two files you expected to be two tables are one.
 
-**Solution:** Ensure the `name` field exactly matches the filename without extension. `product.yml` must have `name: product`.
+**Cause:** when a schema file has a `name:` key, that key is the table name, whatever the file is called. Measured on a v6 production instance on 24 October 2026: syncing `app/schema/a.yml` holding `name: b` was accepted with no error and created a table named `b`, recorded against the file `schema/a.yml`. One v6 IIA module ships exactly this (a schema file whose name has a typo, with the correct spelling in `name:`), and the module queries the table by the `name:` value. Through the admin API (`admin_table_create`), which has no `name` argument, the table name comes from `physical_file_path`.
+
+**Solution:** keep `name:` equal to the filename so the two cannot disagree, and when they do, query by `name:`.
 
 ### "Property not found" or null values in query results
 
@@ -57,15 +59,13 @@ Common errors, limits, and troubleshooting for schema files.
 | Upload max file size | Configurable | Set via `max_size` in options |
 | Schema files per app | No hard limit | Limited by deploy time |
 | Array property values | JSON array | Must be valid JSON string |
-| Nested objects | Not supported | Use a `string` holding JSON, or separate tables |
+| Nested objects | Not supported | Use a `string` holding JSON (it reads back as a string; see below), or separate tables |
 
 ## Troubleshooting Flowchart
 
 ```
 Schema issue?
 ├── Deploy error?
-│   ├── "Name must match filename"
-│   │   └── Fix: Align name field with filename
 │   └── YAML syntax error
 │       └── Fix: Validate YAML (check indentation, colons, dashes)
 │
@@ -126,6 +126,22 @@ The IIA Databases screen reads the table and field `metadata` (see `schema-table
 - **A field with no `group_id`:** it is placed after every group, so it sinks to the bottom of the item form. A `group_id` that matches no group is treated the same way, which is what happens when a group's uuid changes between deploys.
 - **No groups at all:** the items list sorts its columns on a `weight` outside `metadata`, so `metadata.weight` is not used there.
 - **Updating metadata through the admin API:** the admin's own save sends the whole metadata object, starting from what the table already has. Do the same, and send every key of a field's `metadata`, so nothing you did not mean to change is dropped.
+
+## A `string` Holding JSON Reads Back as a String
+
+A `string` property that stores JSON comes back from `property(name: ...)` as text, not as an object, and `property_object` does not parse it: that accessor is for properties stored as objects, not for a `string` column. Measured on an instance in September 2026. Parse it in the template:
+
+```liquid
+{% assign settings = row.settings | parse_json %}
+```
+
+## Restricted Property Names: `errors` and `model`
+
+A property named `errors` or `model` is refused at deploy with `Name not allowed name, list of restricted names: errors, model`. Measured on an instance in September 2026. Rename it (`car_model`, `validation_errors`).
+
+## A Property Name Can Start With a Digit
+
+Measured on a v6 production instance on 24 October 2026: `admin_table_create` accepted a property named `1abc`, and `record_create` wrote it and `property(name: "1abc")` read it back. This was checked through the admin API only, not through a schema file deployed by the CLI. A name starting with a letter is still the safer choice for anything that turns property names into identifiers (generated forms, exports, JavaScript).
 
 ## See Also
 

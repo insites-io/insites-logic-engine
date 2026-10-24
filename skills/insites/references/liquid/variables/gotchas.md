@@ -265,9 +265,9 @@ World
 {%- comment %} Works but hash_assign returns nil {%- endcomment %}
 ```
 
-**Solution:** Use hash_assign then reference:
+**Solution:** `hash_assign` is deprecated; write the key with `assign`, then reference it:
 ```liquid
-{%- hash_assign config['key'] = 'value' -%}
+{%- assign config['key'] = 'value' -%}
 {%- if config -%}
   {{ config['key'] }}
 {%- endif -%}

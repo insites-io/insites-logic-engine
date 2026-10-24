@@ -94,10 +94,12 @@ insites-cli sync <environment> -l
 | Option | Default | Description |
 |---|---|---|
 | `-c, --concurrency <number>` | `3` | Maximum concurrent connections to the server |
-| `-f, --file <file>` | none | Sync a single file once and exit (no watcher) |
+| `-f, --file <file>` | none | Meant to sync a single file once and exit. Currently throws `RangeError: path should be a path.relative()d string` for any path; see [gotchas](gotchas.md#sync---file-throws-rangeerror) |
 | `-l, --livereload` | off | Use livereload to refresh the browser on each sync |
 
-**There is no `--watch` flag**; watch is the default. Use `-f` to opt out and sync exactly one file.
+**There is no `--watch` flag**; watch is the default.
+
+**Syncing a schema file provisions the table.** Syncing `app/schema/<name>.yml` creates or updates the table, answering `WARNING: Data schema was updated. It will take a while for the change to be applied.`, and the table is usable within seconds. A full `deploy` is not needed for a schema change.
 
 ---
 

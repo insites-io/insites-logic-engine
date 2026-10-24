@@ -23,6 +23,22 @@ Production should only receive through:
 2. Staging tests
 3. Formal deployment process
 
+### 403 With `error code: 1010`
+
+**Issue**: a script gets `403` and a 17-byte body, `error code: 1010`, on every URL, while the same request from `curl` works.
+
+**Cause**: the firewall in front of instances on the Insites stack refuses some HTTP library default user agents. Measured on a v6 production instance on 24 October 2026: Python `urllib`'s default `Python-urllib/3.x` was refused; `curl`, `python-requests`, a custom string and no `User-Agent` at all were answered.
+
+**Solution**: send your own `User-Agent` (and an `Accept` header) from every script. See [Two APIs, two credentials](../building-on-insites/01-two-apis-two-credentials.md#send-accept-and-user-agent-from-every-script).
+
+### `sync --file` Throws `RangeError`
+
+**Issue**: `insites-cli sync <env> --file <path>` (or `-f`) stops with `RangeError: path should be a path.relative()d string`, for any path, relative or absolute.
+
+**Cause**: the CLI resolves the argument to an absolute path and passes that to its ignore-list check, which accepts only relative paths.
+
+**Solution**: until the CLI is fixed, run `insites-cli sync <env>` on the directory and stop it once the file has synced, or deploy. Measured in September 2026.
+
 ### Token Expiration
 
 **Issue**: Authentication fails with "Invalid token"

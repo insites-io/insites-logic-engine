@@ -274,6 +274,12 @@ On the receiving side, check before parsing and answer 400 rather than raising a
 %}
 ```
 
+## A Form Whose Table Is Missing Answers 503
+
+A form whose `resource` names a table that does not exist on the instance is refused with **HTTP 503**, which reads exactly like an outage. The body says `Missing validation in form Admin::FormConfigurationForm: resource ... is not allowed`. Measured on a v6 production instance on 29 September 2026.
+
+Create the table first, then the form. When moving forms to a new instance, move the schema before the forms. A 503 that names `resource` is a missing table, not a down instance.
+
 ## Form Limits and Constraints
 
 | Aspect | Limit | Notes |

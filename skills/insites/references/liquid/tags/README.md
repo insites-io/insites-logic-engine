@@ -80,7 +80,7 @@ Use `{% liquid %}` for multi-line tag-only code. Do NOT line-wrap within the blo
 
 | Category | Tags |
 |----------|------|
-| Data | `graphql`, `parse_json`, `hash_assign` |
+| Data | `graphql`, `parse_json`, `hash_assign` (deprecated: use `assign h["key"] = value`) |
 | Partials | `function`, `render`, `return`, `export` |
 | Layout | `content_for`, `yield`, `theme_render_rc` |
 | HTTP | `redirect_to`, `response_status`, `response_headers` |

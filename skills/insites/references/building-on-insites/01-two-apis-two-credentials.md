@@ -92,6 +92,15 @@ then, using the names it returns:
 Note that `__type(name: "Mutation")` returns `null` on an instance. The mutation type is
 not called `Mutation`, so ask the schema for its real name first.
 
+## Send `Accept` and `User-Agent` from every script
+
+Two headers that browsers and `curl` send for you, and some HTTP libraries do not:
+
+- **`Accept`.** An instance picks a page's response format from the `Accept` header. Measured on a v6 production instance on 24 October 2026: a module REST call (`/crm/api/v2/contacts`) with no `Accept` header, from Python's `urllib`, which sends none, answered **404 with the HTML Not Found page**; the same call with `Accept: */*` answered 200 with JSON. On other instances the same request has come back as the Not Found body with HTTP 200. Send `Accept: application/json` (or `*/*`) on every call.
+- **`User-Agent`.** Instances on the Insites stack sit behind a firewall that refuses some library default agents with **403** and the body `error code: 1010`. Measured the same day: Python `urllib`'s default (`Python-urllib/3.x`) was refused on every URL, while `curl`, `python-requests`, a custom string and a request with no `User-Agent` header at all were answered. Send your own `User-Agent` naming your tool.
+
+A 403 with `error code: 1010` is the firewall, not the instance and not your credential.
+
 ## Diagnosing a 401
 
 | Symptom | Cause |

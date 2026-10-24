@@ -4,7 +4,7 @@ Liquid in Insites supports six core data types: String, Number, Boolean, Nil, Ha
 
 ## Key Purpose
 
-Every value in Liquid has a type that determines how it behaves in output, comparisons, and iteration. Insites extends standard Liquid with Hash and Array initialization via `parse_json`, and adds operators like `hash_assign` and `array_any` for richer data manipulation.
+Every value in Liquid has a type that determines how it behaves in output, comparisons, and iteration. Insites extends standard Liquid with Hash and Array initialization via `parse_json`, and adds key assignment (`assign h["key"] = value`) and filters like `array_any` for richer data manipulation.
 
 ## When to Use
 

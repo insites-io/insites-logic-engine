@@ -165,7 +165,7 @@ Use these on `results` items to read typed values:
 | `property_boolean(name: "field")` | Boolean | `active: property_boolean(name: "active")` |
 | `property_array(name: "field")` | [String] | `tags: property_array(name: "tags")` |
 | `property_upload(name: "field")` | Upload | `image: property_upload(name: "image") { url }` |
-| `property_object(name: "field")` | JSON | `meta: property_object(name: "metadata")` |
+| `property_object(name: "field")` | JSON | `meta: property_object(name: "metadata")`. Not for a `string` property holding JSON: that reads back as text; parse it with `parse_json` ([gotchas](gotchas.md#a-string-holding-json-reads-back-as-a-string)) |
 
 ## Related Record Accessors
 

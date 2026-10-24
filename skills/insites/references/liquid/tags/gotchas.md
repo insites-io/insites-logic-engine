@@ -294,6 +294,29 @@ Use try/catch for safe operations (parsing, type coercion):
 
 ---
 
+## Block Tags Inside `{% liquid %}` Take One Line Each
+
+Inside a `{% liquid %}` block every tag is its own line, and that includes the opening and closing tags of a block. A one-line comment fails with `'comment' tag was never closed`:
+
+```liquid
+{% liquid
+  comment this breaks endcomment
+%}
+```
+
+Put `comment` and `endcomment` on their own lines, with the text between them:
+
+```liquid
+{% liquid
+  comment
+    this works
+  endcomment
+  assign x = 1
+%}
+```
+
+The same applies to `if`/`endif`, `for`/`endfor` and `case`/`endcase`. Measured on an instance in September 2026.
+
 ## Output Tags Are Not HTML-Escaped: an Escaped Quote Breaks Out of an Attribute
 
 **Error:** a value written into an HTML attribute as `value="{{ x | escape }}"` still breaks out of the attribute.

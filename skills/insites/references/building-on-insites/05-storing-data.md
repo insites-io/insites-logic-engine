@@ -75,11 +75,12 @@ screens, none of the validation and none of the API.
 ```graphql
 mutation {
   admin_table_create(table: {
-    name: "modules/ins_databases/my_thing"
-    physical_file_path: "modules/ins_databases/schema/my_thing.yml"
+    physical_file_path: "modules/ins_databases/public/schema/my_thing.yml"
   }) { id name }
 }
 ```
+
+The input takes `physical_file_path`, `properties` and `metadata`, and no `name`: the table name comes from the path (`my_thing` here, with the module prefix, `modules/ins_databases/my_thing`). A table under the Databases module goes in `modules/ins_databases/public/schema/`; the `public/` segment is part of the path.
 
 A table carries `name`, `parameterized_name`, `properties`, `metadata`,
 `physical_file_path`, `manually_managed` and `records_count` (`records_count_rc` before the

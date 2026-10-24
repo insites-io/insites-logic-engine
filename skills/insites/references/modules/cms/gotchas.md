@@ -145,3 +145,13 @@ With both written this way, a signed-out visitor reaches `/sign-in` whichever po
 **Why:** CMS does not have webhook integration. Only modules with API-driven write paths (CRM contact/company create+update) fire webhooks.
 
 **Avoid:** for change notifications on CMS content, watch git history (if you sync files to a repo) or use the event stream API from the data module to log application-level events.
+
+---
+
+## 13. Deployed partials and layouts have no name in the CMS
+
+**Bites:** the CMS lists partials and layouts you deployed with a dash where the name should be.
+
+**Why:** the CMS reads the display name from `metadata.partial_name` (partials) and `metadata.layout_name` (layouts). A deploy or sync does not set either.
+
+**Avoid:** set the key in the record's metadata after deploying when a readable name matters. See [partials configuration](../../partials/configuration.md#display-name-in-the-cms).

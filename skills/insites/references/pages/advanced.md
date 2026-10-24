@@ -27,7 +27,7 @@ The GraphQL query uses `related_record`:
 
 ```graphql
 query {
-  records(filter: { table: { value: "order" } }) {
+  records(per_page: 20, filter: { table: { value: "order" } }) {
     results {
       id
       customer: related_record(table: "customer", join_on_property: "customer_id") {

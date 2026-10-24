@@ -155,8 +155,8 @@ Nil cannot be explicitly assigned. It results from:
 ### Modifying hashes
 
 ```liquid
-{% hash_assign user["role"] = "admin" %}
-{% hash_assign user["address"]["city"] = "New York" %}
+{% assign user["role"] = "admin" %}
+{% assign user["address"]["city"] = "New York" %}
 {% assign merged = defaults | hash_merge: overrides %}
 ```
 

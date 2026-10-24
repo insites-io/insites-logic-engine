@@ -57,9 +57,11 @@ app/views/pages/articles/:id.liquid (for individual items)
 
 ### HTTP Method Conflicts
 
-**Symptoms:** POST/PUT/DELETE requests return 405 Method Not Allowed
+**Symptoms:** a POST, PUT or DELETE to a URL that works with GET answers as if the page did not exist
 
-**Cause:** Missing or wrong method in front matter
+**Cause:** Missing or wrong method in front matter. A request whose method matches no page is answered as **Not Found**, not 405. Measured on a v6 production instance on 24 October 2026: POST, PUT and DELETE to existing GET pages all returned the instance's 404 page, the same body as a URL with no page at all. It has also been seen answering that body with **HTTP 200** on another instance, so do not rely on the status either. The one exception seen is the root `/`, where a POST answered `405` with the plain text `No route matches [POST] "/"`.
+
+A 405 only comes from a page that sets it itself: the CRM module ships `method: patch` guard pages on its `archive` and `restore` URLs that answer `405` with `Allow: POST`.
 
 **Solution:** Specify method explicitly:
 
@@ -200,6 +202,14 @@ Three different rules, measured against the platform and the v6 module code on 1
 | File name length | 255 characters | OS file system limit |
 | Special characters | Limited | Avoid: `<>:"/\|?*` in filenames |
 
+### Detecting "Not Found" From a Script
+
+**Symptoms:** a check that treats a short response, or any non-404, as "the page exists" gets it wrong in both directions.
+
+**Cause:** the Not Found answer is the instance's own `system_pages/404` page, so its size and even its status vary. Measured on a v6 production instance on 24 October 2026, the same missing URL returned 1,847 bytes with `Accept: */*` and 732 bytes with `Accept: application/json`, both with status 404. On another instance it was a 279-byte body with **HTTP 200**, the same length as a legitimate empty JSON payload from a working endpoint.
+
+**Solution:** never detect Not Found by length or by status alone. Make every endpoint you write answer a shape you control (a JSON object with a known key, for example), and treat any response without it as "not this endpoint". When you must recognize the platform's page, match its body text on that instance.
+
 ## Troubleshooting Flowchart
 
 ```
@@ -213,8 +223,8 @@ Is the page returning 404?
 ├─ Dynamic route parameter not working?
 │  └─ Check param name: /users/:id uses context.params.id
 │
-└─ Method not allowed (405)?
-   └─ Add front matter: method: post (or put/delete)
+└─ Works with GET, Not Found with POST/PUT/DELETE?
+   └─ Add a page with front matter: method: post (or put/delete)
 
 Is context.params.xyz undefined?
 ├─ Parameter in URL? /posts/:xyz
