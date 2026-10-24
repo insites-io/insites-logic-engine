@@ -13,7 +13,7 @@ CRM ships two public email layouts that other modules and your app can render:
 | `modules/insites_crm/external_email_layout` | Customer-facing emails (notifications to contacts) |
 | `modules/insites_crm/internal_email_layout` | Admin-facing emails (notifications to instance staff) |
 
-Reference them in your own email templates by the path above (or override them in your app by placing a same-named partial in your `app/views/layouts/`). Override resolution follows the standard Insites partial-shadowing rule: app-level files win over module-level files when paths match.
+Reference them in your own email templates by the path above (or override them in your app with a same-named layout file in `app/views/layouts/`; only layouts belong there, because the admin API refuses a partial stored under `views/layouts/`, see [partials gotchas](../../partials/gotchas.md#physical-file-path-is-invalid-for-a-partial-under-viewslayouts)). Override resolution follows the standard Insites partial-shadowing rule: app-level files win over module-level files when paths match.
 
 The CRM module's files are not in your repo, so shadowing is the only way to change a layout. Your own modules under `modules/` are yours to edit.
 

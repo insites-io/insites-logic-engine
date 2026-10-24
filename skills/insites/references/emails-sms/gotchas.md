@@ -205,6 +205,32 @@ events: ['user/welcome']
 
 Event name must match: `send_event('user/welcome', payload)`
 
+## Notifications on a New Instance
+
+### A New v6 Instance Does Not Suppress Email
+
+A new v6 instance sends email for real from the start. There is no suppression or sandbox mode. Data loaded into a production instance can fire autoresponders and workflow emails to real people, for example when a form submission or a record create triggers a notification. Load data with notifications switched off, or into an instance whose email recipients you control, and switch notifications on once the load is checked.
+
+### Updating a Notification Resets Fields You Leave Out
+
+`UpdateEmailNotificationInputType` is not a partial update: the schema gives `trigger_condition` a default of `"true"` and `delay_by` a default of `"0"`. When `trigger_condition` and `delay_by` are omitted, the update writes those defaults, so an update that changes only the subject switches a disabled notification back on. Attaching a form to a notification resets them the same way. Measured in September and October 2026.
+
+```graphql
+mutation {
+  admin_email_notification_update(id: 123, email_notification: {
+    subject: "New subject"
+    trigger_condition: "false"   # send the current values back, every time
+    delay_by: "0"
+  }) { id trigger_condition delay_by }
+}
+```
+
+Read `trigger_condition` and `delay_by` back after every update.
+
+### API Call Notification Headers Cannot Be Written Through Admin GraphQL
+
+`admin_api_call_notification_create` and `_update` store `headers` and `request_headers` as a Ruby hash string (`{"k" => "v"}`), in any form they are sent, and the save is refused with `headers invalid json`. If it is saved anyway, every send fails. Write the notification as a file (`app/notifications/api_call_notifications/<name>.liquid`, with `request_headers: |-` in front matter) and sync or deploy it. Measured in October 2026.
+
 ## Debugging Tips
 
 ### Enable Email Logs

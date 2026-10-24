@@ -158,7 +158,7 @@ Common patterns and practical examples for using Insites global objects.
 
 ### Canonical URL for SEO
 ```liquid
-<link rel="canonical" href="{{ context.location.origin }}{{ context.location.pathname }}">
+<link rel="canonical" href="https://{{ context.location.host }}{{ context.location.pathname }}">
 ```
 
 ### Page Metadata Display
@@ -236,8 +236,8 @@ Common patterns and practical examples for using Insites global objects.
 
 ### Dynamic Asset URLs
 ```liquid
-<script src="{{ context.location.origin }}/api/config.js"></script>
-<img src="{{ context.location.origin }}/images/logo.png" alt="Logo">
+<script src="https://{{ context.location.host }}/api/config.js"></script>
+<img src="https://{{ context.location.host }}/images/logo.png" alt="Logo">
 ```
 
 ### User-Agent Based Feature Toggling

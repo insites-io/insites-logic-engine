@@ -140,6 +140,16 @@ A unique `external_id` is a compare-and-swap too: create one row per slot with `
 
 A property written with `value` is stored as text, so a later `value_int` filter does not match it; written with `value_int` or `increment`, both filters match. And a **number** passed as `value` fails the whole mutation with no exception: the result holds only an `errors` key and nothing is written. Pass a string (`value: "{{ n }}"`, or `n | append: ''` before binding it as a variable).
 
+### Sorting by a property is lexicographic
+
+`sort: [{ properties: { name: "weight", order: ASC } }]` compares the stored text, so `10` sorts before `2`. There is no error; the order is just wrong. Measured on an instance in September 2026. Sort on a fixed-width value (store `002`, `010`), or read the records and sort them in Liquid on the integer value:
+
+```liquid
+{% assign items = result.records.results | sort: 'weight_int' %}
+```
+
+where `weight_int` is read with `property_int: "weight"` in the query.
+
 ## Troubleshooting Flowchart
 
 ```

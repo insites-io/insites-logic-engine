@@ -194,6 +194,28 @@ After deploying new assets, users may need to hard-refresh (Ctrl+Shift+R) to see
 
 **Best practice:** Educate users or use service workers for cache invalidation.
 
+## Uploading Assets Through the Admin API
+
+### A File Uploaded Without a Content-Type Is Typed From Its Bytes
+
+When an asset is uploaded to a presigned URL without a `Content-Type` header, the file store guesses the type from the file's first bytes and serves the file with that type. Measured in October 2026: 5 of 146 copied assets came out wrong, including `.js` files served as `image/svg+xml`. The browser refuses a script served as an image with no visible error, so the page silently loses its JavaScript.
+
+Always send the type that matches the extension, as `insites-cli` does:
+
+```javascript
+await fetch(uploadUrl, { method: 'PUT', body: bytes, headers: { 'Content-Type': 'text/javascript' } });
+```
+
+Then check the type each file is served with at the address pages use (`curl -sI <asset URL>`), not only that the file exists.
+
+### The Presign Path Has No `assets/` Prefix
+
+`admin_assets_presign_urls(paths: [{ path: ... }])` takes the path under the instance's assets folder, which is where `asset_url` points. Send `styles/app.css`, not `assets/styles/app.css`: with the prefix the file lands at `assets/assets/styles/app.css`, where nothing looks. A module's public asset goes under `modules/<module>/` without `public/assets/`.
+
+### Copied Uploads Get New URLs
+
+Files in upload properties do not keep their URLs when copied to another instance: each copy is signed into a new folder on the destination's storage. Any text that links to an uploaded file (rich text, JSON in a property) must be rewritten to the new URL. Only site asset URLs survive a move by swapping the host.
+
 ## See Also
 
 - [Configuration Guide](./configuration.md)
