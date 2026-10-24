@@ -27,7 +27,7 @@ Six routes, five operations: PUT and PATCH include the same controller. All six 
 
 ### List
 
-`params.page` (default 1), `params.size` (default 10); no keyword or sort. `get_api_endpoints.graphql` reads `admin_pages` with `format: json` and no `source_name` metadata key, sorted `updated_at DESC`. Returns `{ total_entries, total_pages, current_page, per_page, results: [ { id, created_at, updated_at, request_method, slug, metadata, format, physical_file_path } ] }`; failure 400 `{ message: "Failed to list endpoints.", errors }`.
+`params.page` (default 1), `params['size']` (default 10; read by key since API 6.0.3, before which the page size was the number of params sent, see [Liquid types gotchas](../../liquid/types/gotchas.md)); no keyword or sort. `get_api_endpoints.graphql` reads `admin_pages` with `format: json` and no `source_name` metadata key, sorted `updated_at DESC`. Returns `{ total_entries, total_pages, current_page, per_page, results: [ { id, created_at, updated_at, request_method, slug, metadata, format, physical_file_path } ] }`; failure 400 `{ message: "Failed to list endpoints.", errors }`.
 
 ### Get
 
