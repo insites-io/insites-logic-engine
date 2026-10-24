@@ -31,6 +31,8 @@ authorization_policies:
 
 Inline auth checks are permitted as **secondary** guards (defense in depth), but the **primary** check MUST be in front matter.
 
+**An inline check still ships the layout.** Measured on a v6 production instance on 20 August 2026: an anonymous GET of a page guarded only by an inline check answered 404 and still returned 40,210 bytes, the layout's full navigation with 32 internal URLs. The layout renders around the page body, so an inline check inside the body cannot stop it. A front-matter policy runs before either.
+
 **Exception, proposed for review: JSON API pages called by machines.** A failed front-matter policy answers with a redirect to its `redirect_to`, not a 401 on the URL that was called, and a client that follows redirects re-issues a POST as a GET. The CRM V2 endpoints moved to an inline guard for this reason in May 2026 (TW#26083226): 88 pages call `modules/insites_crm/functions/auth/api_key_guard` as their first statement and answer 401 JSON on failure. For an API page, an inline guard that runs **before any data access** and fails closed is an acceptable primary check. See `api-endpoints.md` (`api-pages-declare-a-guard`).
 
 **Verified by:**

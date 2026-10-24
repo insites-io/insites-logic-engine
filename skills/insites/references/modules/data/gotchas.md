@@ -128,3 +128,23 @@ GET    /databases/api/v2/database/:table_id/items   ← singular
 **Why:** item endpoints have two path params: `database/:table_id/items/:id`. `:table_id` identifies which database the item belongs to; `:id` identifies the item within that database. Two different numeric ids in the same path.
 
 **Avoid:** when building paths, source `:table_id` from the database you're working in (probably constant for a given client) and `:id` from the item itself. Mismatching them returns 404 (the item exists but belongs to a different table) or 401 (auth policy `is_valid_database_id` rejects).
+
+---
+
+## 13. The items list ignores `properties.<name>=` filters
+
+**Bites:** `GET .../database/:table_id/items?properties.workspace=abc` returns **every row**, including rows from other workspaces. A filter value that matches nothing still returns them all, so nothing looks wrong.
+
+**Why:** the items list does not filter on property query params. Only `search_by` with `keyword` is honored, and it is a **substring** match. A search that matches nothing answers **404 `{"errors":""}`**, not an empty list. Measured on a v6 production instance on 28 September 2026.
+
+**Avoid:** never rely on the list to separate tenants or to find one row. Search with `search_by` + `keyword`, page through every result page, then filter again in your own code by exact value. Treat a 404 with `{"errors":""}` on a search as "no match".
+
+---
+
+## 14. Property values must be strings, integers included
+
+**Bites:** creating or updating an item with `{"properties.count": 3}` is refused.
+
+**Why:** the v6 Data REST API refuses a JSON number as a property value (measured 28 September 2026). The same holds for GraphQL, where `PropertyInputType.value` is a `String`.
+
+**Avoid:** send every value as a string: `{"properties.count": "3"}`.

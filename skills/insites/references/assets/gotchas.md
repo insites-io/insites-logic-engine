@@ -216,6 +216,13 @@ Then check the type each file is served with at the address pages use (`curl -sI
 
 Files in upload properties do not keep their URLs when copied to another instance: each copy is signed into a new folder on the destination's storage. Any text that links to an uploaded file (rich text, JSON in a property) must be rewritten to the new URL. Only site asset URLs survive a move by swapping the host.
 
+### `admin_assets` Lists Folders, and Paths Can Hold Spaces
+
+Measured on a v6 production instance while copying assets between instances:
+
+- **`admin_assets` returns folders as well as files.** A folder's path ends in `/`. That trailing slash is the only reliable test: `file_size` is `null` on some real files too (32 of them on one instance), so a null size does not mean a folder.
+- **Paths can contain spaces** (19 of 120 on one instance), and the storage URL carries them unencoded. Percent-encode the URL before fetching it.
+
 ## See Also
 
 - [Configuration Guide](./configuration.md)

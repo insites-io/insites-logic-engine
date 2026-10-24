@@ -28,7 +28,6 @@ Insites provides a comprehensive set of filters organized by category: Array, Ha
 - `hash_dig` - Extract nested values
 - `hash_keys` - Extract all keys
 - `hash_values` - Extract all values
-- `hash_assign` - Assign values to hash
 - `hash_delete` - Remove hash entries
 - `hash_size` - Get hash size
 

@@ -106,7 +106,7 @@ Don't rely on HTTP status alone — also inspect the body shape.
 
 **Why:** the V2 API has both archive (`POST /<resource>/<uuid>/archive`) and delete (`DELETE`). They are different verbs with different results. A delete cannot be undone via the API.
 
-**Avoid:** default to archive. Reserve delete for genuinely-bad data (test records, GDPR right-to-erasure). When archive is what you want, use the lifecycle PATCH paths — they preserve data and are reversible with `/restore`.
+**Avoid:** default to archive. Reserve delete for genuinely-bad data (test records, GDPR right-to-erasure). When archive is what you want, `POST /<resource>/<uuid>/archive`: it preserves data and is reversible with `POST .../restore`. `PATCH` on either URL answers 405 with `Allow: POST`. module-v6-crm ships an explicit `method: patch` guard page for each, for contacts and companies alike.
 
 ---
 

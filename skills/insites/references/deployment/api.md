@@ -39,7 +39,7 @@ insites-cli sync [environment]
 insites-cli sync dev
 ```
 
-File sync only - no migrations or schema changes.
+Sync sends files. It does not run migrations. It **does** apply schema files: syncing `app/schema/<name>.yml` creates or updates that table within seconds (the CLI answers `WARNING: Data schema was updated. It will take a while for the change to be applied.`). Measured on v6 instances in September and October 2026.
 
 ### Watch Mode
 

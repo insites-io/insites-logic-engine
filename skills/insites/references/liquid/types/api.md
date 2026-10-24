@@ -283,9 +283,14 @@ All operators require spaces on both sides.
 ### Modification
 
 ```liquid
-{% hash_assign hash["key"] = "value" %}
-{% hash_assign hash["nested"]["key"] = "value" %}
+{% assign hash["key"] = "value" %}
+{% assign hash["nested"]["key"] = "value" %}
 {% assign merged = hash1 | hash_merge: hash2 %}
+```
+
+`assign` writes by key. The older `hash_assign` tag does the same, still works, and is deprecated (the linter reports `DeprecatedTag`); do not use it in new code.
+
+```liquid
 ```
 
 ### Hash filters

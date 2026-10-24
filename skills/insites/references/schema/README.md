@@ -20,7 +20,7 @@ You never write SQL. You never interact with PostgreSQL or ElasticSearch directl
 ## How It Works
 
 1. Create a YAML file in `app/schema/` (e.g., `app/schema/product.yml`).
-2. Declare a `name` that **must** match the filename (without `.yml`).
+2. Declare a `name`. Keep it equal to the filename (without `.yml`): when they differ, `name` decides the table and no error is raised (see [gotchas](gotchas.md#the-name-key-decides-the-table-not-the-filename)).
 3. List `properties` with `name` and `type` for each field.
 4. Deploy with `insites-cli deploy` -- the platform provisions the table automatically.
 5. Access data via GraphQL mutations (`record_create`, `record_update`, `record_delete`) and queries (`records`).

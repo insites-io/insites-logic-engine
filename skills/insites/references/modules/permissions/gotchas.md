@@ -41,3 +41,7 @@ Edges visible in `modules/insites_permissions/` at module-v6-permissions v6.0.2 
 ## 10. The three public policy partials guard nothing
 
 **Bites:** editing `public/views/partials/api/ins_*_api_authorization_policy.liquid` expecting an effect. **Why:** each returns `true` and no page in this or any other v6 module references them (grep of all eleven worktrees, 9 October 2026).
+
+## 11. v5 profile type paths fail on v6
+
+**Bites:** code or data moved from a v5 instance that names a profile type as `modules/ins_permissions/<type>` fails on v6 with `Invalid field`. **Why:** v6 profile types live under `modules/ins_profiles/public/user_profile_types/` (see item 7); the `ins_permissions` path does not exist. Seen on a move to v6 in October 2026. **Avoid:** rewrite each `modules/ins_permissions/<type>` reference to the `ins_profiles` path, in code and in any rows or profiles that store the path.

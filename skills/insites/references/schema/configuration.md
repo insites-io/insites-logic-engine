@@ -35,7 +35,7 @@ properties:
 
 ### Rules
 
-- `name` **must** match the filename without extension (`product.yml` requires `name: product`).
+- Keep `name` equal to the filename without extension (`product.yml` with `name: product`). It is not enforced: when they differ, `name` decides the table (see [gotchas](gotchas.md#the-name-key-decides-the-table-not-the-filename)).
 - `properties` is an array of objects, each with `name` and `type`.
 - Property names must be unique within a schema.
 - Property names should use `snake_case`.
@@ -133,6 +133,7 @@ properties:
 - **Hard-code the group uuids.** Every `group_id` points at one, so a uuid that changes between deploys leaves fields pointing at a group that no longer exists, and they drop below every group.
 - **Labels, group names and tooltips can be reworded at any time.** Property names and stored codes (including `select` options) cannot: renaming one orphans the rows that already hold the old value.
 - Tables created or changed with `admin_table_create`, `admin_table_update` or `admin_property_update` take the same keys in their `metadata` argument.
+- **Table metadata merges; property metadata is replaced whole.** A metadata-only `admin_table_update` merges into the table's existing metadata and leaves its properties alone, so adding `groups` to a populated table is safe. `admin_property_update` replaces the property's metadata: send the full set (`label`, `ui_element`, `group_id`, `weight`, `help_text_tooltip`, `options`) every time, or the keys you left out are dropped. Both measured twice on instances in August 2026.
 
 ## Built-in Fields
 

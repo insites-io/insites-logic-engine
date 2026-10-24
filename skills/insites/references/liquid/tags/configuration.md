@@ -236,7 +236,7 @@ Sets custom HTTP response headers. Accepts a JSON string.
 
 ## hash_assign
 
-Modifies a hash value by key path (supports nested keys).
+**Deprecated.** Use `assign obj["key"] = value`, which does the same. Modifies a hash value by key path (supports nested keys).
 
 ```liquid
 {% hash_assign obj["key"] = "value" %}

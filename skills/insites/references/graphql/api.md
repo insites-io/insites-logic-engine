@@ -214,7 +214,7 @@ Used on `results` items to read typed property values.
 | `property_boolean(name: String!)` | Boolean | `active: property_boolean(name: "active")` |
 | `property_array(name: String!)` | [String] | `tags: property_array(name: "tags")` |
 | `property_upload(name: String!)` | Upload | `image: property_upload(name: "image") { url }` |
-| `property_object(name: String!)` | JSON | `meta: property_object(name: "metadata")` |
+| `property_object(name: String!)` | JSON | `meta: property_object(name: "metadata")`. A `string` property holding JSON reads back as text; parse it with `parse_json` |
 
 ### Upload accessor fields
 

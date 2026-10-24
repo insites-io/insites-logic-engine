@@ -61,35 +61,83 @@ Invoke from a form's `callback_actions`:
 
 ## Webhook receiver
 
+File: `modules/dashboard/public/views/pages/api/_external/v2/stripe/webhook.json.liquid`. The front matter comes first in the file; a comment above it stops it being read as front matter.
+
 ```liquid
-{% comment %} modules/dashboard/public/views/pages/api/_external/v2/stripe/webhook.json.liquid {% endcomment %}
 ---
 slug: api/_external/v2/stripe/webhook
 method: post
+format: json
 ---
 {% liquid
-  assign signature = context.headers.HTTP_STRIPE_SIGNATURE
-  assign expected = context.constants.stripe_webhook_secret
+  comment
+    Verify before acting. Stripe signs "<t>.<raw body>" with HMAC-SHA256 and sends
+    Stripe-Signature: t=<unix seconds>,v1=<hex>[,v1=<hex>...]
+  endcomment
+  assign secret = context.constants.stripe_webhook_secret
+  assign header = context.headers.HTTP_STRIPE_SIGNATURE
+  assign raw = context.post_params
+  assign t = ''
+  assign given = '[]' | parse_json
+  assign parts = header | default: '' | split: ','
+  for part in parts
+    assign kv = part | strip | split: '='
+    if kv[0] == 't'
+      assign t = kv[1]
+    elsif kv[0] == 'v1'
+      assign given = given | array_add: kv[1]
+    endif
+  endfor
 
-  comment %} TODO: signature-verification helper — Stripe HMAC-SHA256 over (timestamp + . + body) {% endcomment
+  assign verified = false
+  if secret != blank and t != blank and raw != blank
+    assign signed_payload = t | append: '.' | append: raw
+    assign expected = signed_payload | compute_hmac: secret
+    comment
+      Reject replays: refuse a timestamp more than five minutes from now.
+    endcomment
+    assign now = 'now' | strftime: '%s' | plus: 0
+    assign age = now | minus: t
+    if given contains expected and age <= 300 and age >= -300
+      assign verified = true
+    endif
+  endif
 
-  case context.params.type
-    when 'checkout.session.completed'
-      graphql res = 'modules/dashboard/payments/mark_paid', session_id: context.params.data.object.id
-    when 'invoice.payment_failed'
-      graphql res = 'modules/dashboard/payments/mark_failed', invoice_id: context.params.data.object.id
-  endcase
-
-  response_status 200
-  print '{"received":true}'
+  if verified
+    assign event = raw | parse_json
+    case event.type
+      when 'checkout.session.completed'
+        graphql res = 'modules/dashboard/payments/mark_paid', session_id: event.data.object.id
+      when 'invoice.payment_failed'
+        graphql res = 'modules/dashboard/payments/mark_failed', invoice_id: event.data.object.id
+    endcase
+    response_status 200
+    print '{"received":true}'
+  else
+    response_status 400
+    print '{"error":"invalid signature"}'
+  endif
 %}
 ```
 
-The webhook page is unauthenticated by request token — its identity comes from the Stripe-signed `Stripe-Signature` header, which the page must verify against `stripe_webhook_secret`.
+This page was run on a v6 production instance on 24 October 2026, with a literal secret in place of the constant and the two `graphql` calls replaced by an `assign`. A correct signature, and a correct signature sent as the second of two `v1` values, answered 200. A signature made with another secret, a timestamp ten minutes old, no `Stripe-Signature` header, and a body changed after signing each answered 400.
+
+What it rests on, measured the same day:
+
+- **`context.post_params` is the raw request body**, byte for byte. A JSON POST with no authenticity token reached the page and `context.post_params` held the exact string sent. Stripe signs those bytes, so verify against them, never against `context.params` re-serialized.
+- **`compute_hmac` with only the secret is HMAC-SHA256 as lowercase hex**, the format of Stripe's `v1` value. The instance's output matched a locally computed HMAC-SHA256 of the same body and key.
+- **The header arrives as `context.headers.HTTP_STRIPE_SIGNATURE`**, keyed the CGI way (see [objects gotchas](../liquid/objects/gotchas.md)).
+
+Rules that follow:
+
+- **An empty secret must fail closed.** The `secret != blank` check is not optional: a missing constant would otherwise compare blank with blank.
+- **Answer 400 on a mismatch and do nothing else.** Stripe retries a non-2xx delivery, so a real event that failed because of a misconfigured secret is not lost.
+- **`stripe_webhook_secret` is the endpoint's signing secret** (`whsec_...`) from the Stripe dashboard, not the API secret key, and it differs between test and live mode.
+- Only `v1` signatures count. Stripe may send several `v1` values while a secret is being rolled; accept any one of them.
 
 ## Open work / known gaps
 
-This stub does not yet cover: subscription lifecycle (trialing → active → past_due), refunds, customer portal links, multi-currency, Stripe Connect / marketplace flows, idempotency keys, webhook signature verification helper. Add as concrete walkthroughs are written from real production integrations.
+This stub does not yet cover: subscription lifecycle (trialing → active → past_due), refunds, customer portal links, multi-currency, Stripe Connect / marketplace flows, idempotency keys. Add as concrete walkthroughs are written from real production integrations.
 
 ## See Also
 

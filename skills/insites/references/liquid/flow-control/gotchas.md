@@ -186,6 +186,20 @@ Liquid gives `and` and `or` no precedence. It groups a chain from the right (the
 {%- if text_lower contains "word" -%}
 ```
 
+### Problem: Negating `contains` With `== false`
+```liquid
+{%- if tags contains "draft" == false -%}
+```
+
+This is a syntax error, not a false comparison: `Expected end_of_string but found comparison`.
+
+**Solution:** negate with `unless`:
+```liquid
+{%- unless tags contains "draft" -%}
+  ...
+{%- endunless -%}
+```
+
 ## Scope and Variable Gotchas
 
 ### Problem: Variable Assignment in Conditional

@@ -9,6 +9,10 @@ All partials reside in `app/views/partials/`. The path in render/function maps d
 
 > **Module path:** In modules, partials live in `modules/<module_name>/public/views/partials/` (accessible to the app and other modules) or `modules/<module_name>/private/views/partials/` (internal only). Call them with the module prefix: `{% render 'modules/<module_name>/products/card' %}` reads `modules/<module_name>/public/views/partials/products/card.liquid` or the same path under `private/`. Both trees are valid: `app/` holds the site itself, and `modules/<name>/` holds code you want to reuse or package (see [`project-structure.md`](../project-structure.md)).
 
+## Display Name in the CMS
+
+The CMS lists a partial by `metadata.partial_name` and a layout by `metadata.layout_name`. A partial or layout created by a deploy or sync has neither, so the CMS shows a dash in the name column. Set the key in the record's metadata (for example with `admin_liquid_partial_update`) when the file should have a readable name in the CMS. Found on an instance in August 2026 by reading the one record that had a name.
+
 ## Naming Rules
 
 - NO underscore prefix (use `card.liquid`, NOT `_card.liquid`)

@@ -17,6 +17,10 @@ properties:
 
 A stock instance declares no user properties. Until a property is declared, `property_array` on it reads back `[]` and a filter on it returns a GraphQL error inside the result, with no Liquid error. Write it with `user_update(id: ..., user: { properties: [{ name: "roles", value_array: $roles }] })`. Insites' own Console declares its user properties the same way.
 
+## A made-up profile type returns null, not an error
+
+`profile(profile_type: "...")` on a user does not check that the type exists. Measured on a v6 production instance on 24 October 2026: `users(per_page: 1) { results { profile(profile_type: "<a type that does not exist>") { id } } }` answered 200 with `profile: null` and no error. A null profile therefore does not tell you whether the person lacks the profile or the type name is wrong. Check the type name against the profile type files before trusting a null.
+
 ## File location
 
 ```

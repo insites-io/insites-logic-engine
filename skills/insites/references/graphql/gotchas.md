@@ -86,6 +86,27 @@ Facts the schema does not state, each measured on a v6 production instance (CRM 
 - **Sent twice, a remap import creates a second copy of every row in the batch.** A write whose answer was lost (gateway timeout, empty 200) must be **read back, never resent**: query the table with `filter: { external_id: { value_in: [...] } }` and treat "every id present" as "the write landed".
 - Without `_id_remap`, ids are kept as sent, so the same batch twice is idempotent.
 
+### An empty 200 is a rate limit, not an empty result
+
+Under load the admin API can answer **HTTP 200 with an empty body**. Seen on a v6 staging instance in October 2026 on about one call in eight during a sustained read, and handled by the Insites Migration Tool on both stacks. At the status line it is indistinguishable from success, and a reader that parses it as "no records" silently produces a short copy.
+
+Treat a 429 and an empty 200 the same way: retry, spaced and bounded (seconds apart, a handful of times), then stop and say the instance is rate limiting. Never record an empty 200 as zero rows, and for a write, read back before resending (see above).
+
+### Page small on tables that hold large text
+
+A `per_page` the endpoint accepts is not one every table can serve. On a v6 production instance a 1,000-row page of a table holding HTML documents never returned, and 10 rows took 18.3 seconds; there was no error, only a timeout. Start small on wide tables, shrink the page when a request times out, and check that the rows collected equal `total_entries` before treating a read as complete.
+
+### `import_models` refuses the whole batch for one unknown property
+
+If any model in an `import_models` batch carries a property the destination table does not have, the entire batch is refused, not just that row. This bites when a table's schema differs between two instances, for example after a module renamed a property. Check every row's property names against the destination table (`admin_tables` with `properties { name }`) before importing, and rename or drop the unknown ones.
+
+### `import_users` writes profiles in a second step
+
+Measured on a v6 production instance on 28 September 2026:
+
+- **Create** applies `encrypted_password` and `created_at`, and **ignores `profiles`**. Write each person's profiles in a second call after the person exists.
+- **Update** (an existing id, `_id_remap: false`) **ignores `encrypted_password`**: a person who already existed keeps their password on the instance. It adds a profile the person does not have yet, and fails with `Duplicate values ... instance_profile_type_id` for one they already have **unless that profile's existing `id` is sent** with it. Read the person's profiles first and send their ids.
+
 ### Names go in variables, not in the query text
 
 `property_upload(name:)`, `property_upload_presigned_url(table:, property_name:)` and the `table` filter all accept variables. Pass a property or table name as a `String!` variable; a name interpolated into the query text is a GraphQL injection path when the name comes from a schema you did not write (a source instance being migrated, for example).

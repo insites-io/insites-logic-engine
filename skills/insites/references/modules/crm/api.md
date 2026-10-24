@@ -21,9 +21,11 @@ The following hold for every CRM-specific endpoint unless explicitly noted on a 
 ```
 
 - IDs are UUIDs everywhere except **custom fields**, which use numeric `:id` (platform schema constraint — not a bug, do not "fix" it).
-- Archive and restore are `POST` with a semantic suffix. `PATCH` on these URLs returns 405 (tested on a v6 instance, CRM 6.1.4, 15 October 2026):
+- Archive and restore are `POST` with a semantic suffix. `PATCH` on these URLs returns 405 (tested on a v6 instance, CRM 6.1.4, 15 October 2026). Companies work the same way: module-v6-crm's `companies/archive_company.liquid` is `method: post`, and `archive_company_patch_guard.liquid` answers a `PATCH` with 405 and `Allow: POST`:
   - `POST /crm/api/v2/contacts/:uuid/archive`
   - `POST /crm/api/v2/contacts/:uuid/restore`
+  - `POST /crm/api/v2/companies/:uuid/archive`
+  - `POST /crm/api/v2/companies/:uuid/restore`
   - `PATCH /crm/api/v2/companies/:uuid/assign-contacts`  (not tested with this change)
 
 ### Request format

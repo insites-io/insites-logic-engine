@@ -87,7 +87,7 @@ The workaround the CRM and Forms modules use since 19 and 20 October 2026 is to 
 
 ### Property Names to Avoid
 
-The schema documents no reserved property names. `model` and `errors` are reported to clash when used as table property names; this was not tested here. Avoid both.
+A table property cannot be named `errors` or `model`: deploy refuses it with `Name not allowed name, list of restricted names: errors, model`. See [schema gotchas](../schema/gotchas.md#restricted-property-names-errors-and-model).
 
 ## Missing Context Variables
 
