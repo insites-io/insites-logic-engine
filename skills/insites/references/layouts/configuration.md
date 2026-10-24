@@ -31,7 +31,7 @@ layout: application
 | Front Matter Value  | Layout File Used                          | Use Case              |
 |---------------------|-------------------------------------------|-----------------------|
 | *(omitted)*         | `app/views/layouts/application.liquid`    | Default behavior      |
-| `layout: application` | `app/views/layouts/application.liquid`  | Explicit default      |
+| `layout: application` | `app/views/layouts/application.liquid`  | Explicit default. If the instance has no `application` layout record, the page renders 200 with no frame; see [gotchas](gotchas.md#layout-application-with-no-layout-record-renders-a-bare-page) |
 | `layout: admin`     | `app/views/layouts/admin.liquid`          | Admin section         |
 | `layout: mailer`    | `app/views/layouts/mailer.liquid`         | Email templates       |
 | `layout: ""`        | No layout (raw output)                    | API endpoints, AJAX   |

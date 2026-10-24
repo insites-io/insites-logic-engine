@@ -67,9 +67,29 @@ Common errors, limits, and debugging guidance for page files.
 
 ### "Layout not found"
 
-**Cause:** The `layout:` value in front matter references a layout file that does not exist in `app/views/layouts/`.
+**Cause:** The `layout:` value in front matter references a layout file that does not exist in `app/views/layouts/`. The page is refused on save with "Could not find Layout". The default `application` layout is the exception: when it has no record, the page saves and renders 200 with no frame (see [layouts gotchas](../layouts/gotchas.md#layout-application-with-no-layout-record-renders-a-bare-page)).
 
 **Solution:** Create the layout file or fix the name. Use `layout: ""` for no layout.
+
+### A searchable page cannot use `include_form` or `content_for`
+
+**Cause:** on v6 a page with `searchable: true` is refused when it uses `{% include_form %}` (logged as `include_form tag not supported in searchable pages`) or `{% content_for %}`. Measured on v6 instances in October 2026, on login and form pages moved from another instance.
+
+**Solution:** set `searchable: false` on a page that renders a form. A form page rarely belongs in search or the sitemap. For `content_for`, either set `searchable: false` or pass the value with `export` and `print` instead (see [layouts gotchas](../layouts/gotchas.md#content_for-on-a-searchable-page-is-refused-at-save-time)).
+
+```yaml
+---
+slug: login
+searchable: false
+---
+{% include_form 'sign_in' %}
+```
+
+### "Slug has already been taken" on a new instance
+
+**Cause:** a new v6 instance ships starter pages at common slugs: the home page (`/`), `401`, `403`, `404`, `500` and `maintenance`. A page you create at one of those slugs fails with "Slug has already been taken".
+
+**Solution:** update the starter page at that slug instead of creating a second one, or delete the starter page first. Check the existing pages before deploying a site's own home and error pages to a new instance.
 
 ## Content Type and Charset
 

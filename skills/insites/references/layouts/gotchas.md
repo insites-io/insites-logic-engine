@@ -63,6 +63,33 @@ Common errors, limits, and debugging guidance for layout files.
 
 **Solution:** Add metadata to the page front matter and access it via `context.page.metadata.key_name`. Use the `default` filter for fallbacks: `{{ context.page.metadata.title | default: "My App" }}`.
 
+### A partial stored under `views/layouts/` is refused
+
+`app/views/layouts/` holds layouts only. Saving a partial there through the admin API fails with "Physical file path is invalid" (measured October 2026). Move it to `app/views/partials/layouts/` and render it as `'layouts/<name>'`. See [partials gotchas](../partials/gotchas.md#physical-file-path-is-invalid-for-a-partial-under-viewslayouts).
+
+### `layout: application` with no layout record renders a bare page
+
+**Cause:** a new instance has no `application` layout record. A page that uses the default layout (no `layout:` key, or `layout: application`) still renders with status 200, but with no frame around it: no `<head>` assets, header or footer. Any other layout name that does not exist is refused when the page is saved, with "Could not find Layout". So the default is the one case where a missing layout is silent. Measured on v6 instances in October 2026.
+
+**Solution:** create `app/views/layouts/application.liquid` before relying on the default, or name the layout the site actually has. After moving a site, open a page on the default layout and check it has its frame.
+
+### `content_for` on a searchable page is refused at save time
+
+A page with `searchable: true` cannot use `{% content_for %}`: the page is refused when it is saved. Either set `searchable: false`, or pass the value with `export` and write it in the layout with `print`:
+
+```liquid
+{%- comment %} page {%- endcomment %}
+{% liquid
+  assign page_title = 'Pricing'
+  export page_title, namespace: 'page'
+%}
+
+{%- comment %} layout {%- endcomment %}
+<title>{% print context.exports.page.page_title %}</title>
+```
+
+Measured on v6 instances in October 2026. See also [pages gotchas](../pages/gotchas.md#a-searchable-page-cannot-use-include_form-or-content_for).
+
 ## Limits
 
 | Resource                          | Limit         | Notes                                      |

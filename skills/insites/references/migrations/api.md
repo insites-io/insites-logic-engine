@@ -104,7 +104,7 @@ insites-cli migrations retry 20240110120000 staging
 
 Shows the migration's current state, then runs it again. The same call as `migrations run`. Added in insites-cli 6.0.0.
 
-There is no command to reset a migration to pending or to read a migration's output. The instance API has no endpoint for either. The error messages `migrations status` prints are what the instance records.
+There is no command to reset a migration to pending, to mark one as done without running it, or to read a migration's output. To record a migration as run without its effect, see [Recording a migration as run without running its body](#recording-a-migration-as-run-without-running-its-body). The instance API has no endpoint for either. The error messages `migrations status` prints are what the instance records.
 
 ## Constants in Migrations
 
@@ -125,6 +125,27 @@ Define application constants during migration:
 ```
 
 Constants available via `context.constants` after deployment.
+
+## Recording a migration as run without running its body
+
+A migration runs once on each instance. A new instance has run none of a site's migrations, so the first deploy of the site's code there runs every one of them. When the site's data has already been copied to the new instance, a migration that seeds rows runs again over it and makes duplicates. Measured in October 2026: a deploy after a data copy added a second set of 21 locations, 2 categories and 10 custom fields.
+
+There is no command to mark a migration as done. Record it as run by running it with an empty body, then putting the real body back:
+
+```bash
+# 1. Deploy the migration file with an empty body (same file name and timestamp)
+: > app/migrations/20240110120000_seed_locations.liquid
+insites-cli deploy production
+
+# 2. Run it: the empty body does nothing, and the migration is now recorded as run
+insites-cli migrations run 20240110120000 production
+
+# 3. Restore the real body and deploy again; a migration already run is not run again
+git checkout app/migrations/20240110120000_seed_locations.liquid
+insites-cli deploy production
+```
+
+Do this before the first deploy of the site's code, for each migration the old instance has already run (`insites-cli migrations list <environment>` on the old instance). A migration that changes a table or settings rather than adding rows is usually safe to record the same way when its result was copied, but check the new instance has what it does.
 
 ## Migration Timing
 

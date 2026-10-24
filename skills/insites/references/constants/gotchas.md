@@ -60,6 +60,12 @@ mutation { constant_set(name: "KEY", value: "val") { name } }
 
 **Solution:** Avoid logging constant values. If you must log for debugging, use a placeholder: `{% log 'SECRET is set', type: 'debug' %}`.
 
+### Instance-issued constants must never be copied
+
+Insites issues some constants to each instance for itself: every constant whose name starts with `insites_` (including `insites_console_sso_key`, the key Console signs people in with, and the Console API, event stream and CRM activity keys) and `jwt_encryption_secret`. Copying one from another instance makes the new instance answer with the old instance's key. Measured in September 2026: copying `insites_console_sso_key` locked Console sign-in out of the new instance.
+
+When moving constants between instances, skip any name matching `^(insites_|jwt_encryption_secret$)`, and never overwrite a constant the new instance already holds without checking why it has its own value.
+
 ## Limits
 
 | Resource                       | Limit              | Notes                                          |

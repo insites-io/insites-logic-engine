@@ -309,9 +309,25 @@ every page that uses it. A page whose own body redirects first wins.
 {%- comment %} Path might be different in staging {%- endcomment %}
 ```
 
-**Solution:** Use context.location for absolute URLs:
+**Solution:** Build absolute URLs from `context.location.host`:
 ```liquid
-<img src="{{ context.location.origin }}/images/logo.png">
+<img src="https://{{ context.location.host }}/images/logo.png">
+```
+
+### Problem: `context.location.origin` renders empty
+```liquid
+{%- comment %} WRONG: origin is an empty string, so this is a relative URL {%- endcomment %}
+<a href="{{ context.location.origin }}/reset">Reset</a>
+
+{%- comment %} WRONG: never equal, so every real POST is refused {%- endcomment %}
+{% if context.headers.HTTP_ORIGIN != context.location.origin %}
+```
+
+Measured on an instance in September 2026: `context.location.origin` rendered an empty string, while `context.location.host` and `context.headers.HTTP_HOST` held the host and `context.headers.HTTP_ORIGIN` held the browser's origin. An origin check against it refuses every real submission, and a link built from it in an email becomes a relative path.
+
+**Solution:** build the origin from the host:
+```liquid
+{% assign origin = 'https://' | append: context.location.host %}
 ```
 
 ### Problem: Accessing Production Constants in Staging

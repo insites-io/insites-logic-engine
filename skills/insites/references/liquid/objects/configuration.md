@@ -74,7 +74,7 @@ context.location.pathname     # /products/slug
 context.location.search       # {"sort":"price","page":"1"}: parsed parameters as JSON, not the raw query
 context.location.host         # example.com
 context.location.href         # /products/slug?sort=price&page=1: path and query, no scheme or host
-context.location.origin       # Protocol + host
+context.location.origin       # renders EMPTY; build it as https://{{ context.location.host }}
 ```
 
 ### context.device

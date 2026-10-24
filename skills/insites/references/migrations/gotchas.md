@@ -215,6 +215,14 @@ Plan migration dependencies carefully. Avoid circular logic.
 
 Keep migrations focused and testable. One concern per migration.
 
+## A Deploy to a New Instance Re-Runs Every Migration
+
+### Seeds Duplicate Data That Was Copied First
+
+A new instance has run none of the site's migrations, so the first deploy of the site's code runs all of them, including seed migrations whose rows were already copied across. Measured in October 2026: one deploy duplicated 21 locations, 2 categories and 10 custom fields.
+
+Guard seeds so they check before creating (see [Migration Fails on Second Run](#migration-fails-on-second-run)), and when moving a site, record its migrations as run before the first deploy: [api](api.md#recording-a-migration-as-run-without-running-its-body).
+
 ## See Also
 
 - [Configuration Guide](./configuration.md)

@@ -363,7 +363,7 @@ For one value, prefer `{% function x = 'path' %}` with `{% return %}`: the calle
 
 ## Using print vs html_safe for Unescaped Output
 
-**Overview:** Both `print` and `html_safe` output unescaped content, but usage contexts differ.
+**Overview:** Both `print` and `html_safe` skip escaping, but they are not the same. `print` writes the string exactly as it is. `html_safe` also decodes HTML entities, so `&quot;` becomes `"` and `&lt;` becomes `<`. Measured in October 2026: an escaped value written with `html_safe` inside an attribute broke out of it, and the same value written with `print` did not.
 
 **print Tag:** Output unescaped HTML directly:
 
@@ -373,7 +373,7 @@ For one value, prefer `{% function x = 'path' %}` with `{% return %}`: the calle
 {%- Output: <strong>Bold text</strong> -%}
 ```
 
-**html_safe Filter:** Mark a string as safe from escaping:
+**html_safe Filter:** Mark a string as safe from escaping. It decodes entities first:
 
 ```liquid
 {% assign markup = '<em>Italic</em>' %}
@@ -386,8 +386,8 @@ For one value, prefer `{% function x = 'path' %}` with `{% return %}`: the calle
 | Scenario | Use print | Use html_safe |
 |----------|-----------|---------------|
 | Output raw HTML | Yes | No |
-| Filter on a variable | No | Yes |
-| Conditionally output markup | Either | Either |
+| A value escaped with `\| escape`, in an attribute or between tags | Yes | No: the entities are decoded again |
+| Conditionally output markup | Yes | Only when the value has no entities that must stay encoded |
 | JSON or data structures | Yes | No |
 | User-generated content | Neither (security risk) | Neither (security risk) |
 
@@ -405,7 +405,13 @@ For one value, prefer `{% function x = 'path' %}` with `{% return %}`: the calle
 {% print bio_text %}
 ```
 
-**Performance:** `print` and `html_safe` have negligible performance difference; prefer `html_safe` for consistency with Liquid idioms.
+```liquid
+{% assign label = 'Say "hi"' | escape %}
+<input value="{{ label | html_safe }}">   {%- comment %} WRONG: value="Say "hi"" {%- endcomment %}
+<input value="{% print label %}">          {%- comment %} RIGHT: value="Say &quot;hi&quot;" {%- endcomment %}
+```
+
+**Performance:** the difference is negligible. Choose by behavior: prefer `print`, because it writes the text exactly.
 
 ---
 
