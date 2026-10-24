@@ -235,23 +235,43 @@ Or include in form data:
 
 **Problem:** Spam protection tag renders but doesn't validate submissions.
 
-**Cause:** Missing provider configuration in module manifest or secret key not set correctly.
+**Cause:** The instance has no CAPTCHA keys. reCAPTCHA keys are not read from a module manifest or from environment variables: each instance holds its own, entered in the Integrations screen of the IIA admin (also reachable from Console). Until they are entered, a form that uses `{% spam_protection "recaptcha_v2" %}` or `"recaptcha_v3"` fails, and the instance logs `can't find configuration for CAPTCHA`. Measured on new v6 instances in October 2026. `hcaptcha` is different: it works on a new instance with no setup, because it uses the platform's own key.
 
 **Solution:**
 
-1. Configure in module manifest:
-```yaml
-module_config:
-  spam_protection:
-    provider: recaptcha_v2
-    site_key: YOUR_SITE_KEY
-    secret_key: YOUR_SECRET_KEY
+1. In the Integrations screen of the instance, enter the reCAPTCHA site key and secret key.
+2. In the Google reCAPTCHA console, add the instance's domain to the key's allowed domains. A key that does not list the domain fails on that site even when it is entered.
+3. Submit the form once and check the logs for the CAPTCHA error.
+
+### Moving a site to a new instance: CAPTCHA keys never move with it
+
+The keys belong to the instance, so nothing copies them: not a deploy, not a data copy. The secret key cannot be read back once saved (not through GraphQL, not in the admin), so it cannot be copied from the old instance either. Before forms go live on the new instance:
+
+- Get the secret key from the Google reCAPTCHA console, or create a new key pair there.
+- Add the new domain to the key in Google.
+- Enter both keys in the new instance's Integrations screen, then test a submission.
+
+## Posted Values Arrive HTML-Entity-Decoded
+
+**Problem:** A posted field holding `&quot;` arrives in `context.params` as a bare `"`. `&#34;` and `&#x22;` decode the same way, and `&amp;` becomes `&`. JSON sent as a text field then fails `parse_json` whenever one of its strings contains an entity, and text that passes is silently changed. Measured on a v6 instance in September 2026.
+
+**Solution:** escape `&`, `<` and `>` as JSON escapes on the sending side, so nothing is left to decode. The JSON stays valid and parses to the same values:
+
+```javascript
+const body = JSON.stringify(state)
+  .replace(/&/g, '\\u0026').replace(/</g, '\\u003c').replace(/>/g, '\\u003e');
 ```
 
-2. Verify environment variables:
-```bash
-RECAPTCHA_SITE_KEY=xxxxx
-RECAPTCHA_SECRET_KEY=xxxxx
+On the receiving side, check before parsing and answer 400 rather than raising a Liquid error:
+
+```liquid
+{% liquid
+  if context.params.state | is_json_valid
+    assign state = context.params.state | parse_json
+  else
+    response_status 400
+  endif
+%}
 ```
 
 ## Form Limits and Constraints

@@ -100,12 +100,31 @@ Some filters consume iterators:
 </script>
 ```
 
-**Solution:** Always use json filter:
+**Solution:** Always use the json filter, and escape `<` and `>` when the JSON goes into an HTML page:
 ```liquid
 <script>
-  var data = {{ object | json }};  // CORRECT
+  var data = {{ object | json | replace: '<', '\u003c' | replace: '>', '\u003e' }};  // CORRECT
 </script>
 ```
+
+### Problem: `| json` in an HTML Page Is Rewritten by the Output Sanitizer
+```liquid
+<script>
+  var data = {{ object | json }};  // WRONG when any value can contain <
+</script>
+```
+
+The output sanitizer runs over the rendered page, including the JSON. A string value such as `<<Suggested note>>` is treated as a tag: it comes out lower-cased and entity-escaped, and a stray `&lt;/suggested&gt;` is appended after the closing `]`, so the script fails to parse. Measured on an instance in September 2026. Escaping only `</` does not prevent it.
+
+**Solution:** `| json | replace: '<', '\u003c' | replace: '>', '\u003e'`. Liquid leaves the escape alone, and `JSON.parse` turns `\u003c` back into `<`. A hash returned as the body of a JSON-format page was measured escaping itself (no raw `<` in the response), so the fault is JSON written into HTML. The `escape_output_instead_of_sanitize` flag is described in [configuration](../../configuration/README.md).
+
+### Problem: Filters That Do Not Exist on v6
+| Not a filter on v6 | Use instead |
+|---|---|
+| `push` | `array_add` ([types api](../types/api.md#add--remove-filters)) |
+| `md5`, `sha256` | `digest: 'md5'`, `digest: 'sha256'` ([configuration](configuration.md)) |
+| `hmac_sha256` | `compute_hmac` ([api](api.md)) |
+
 
 ### Problem: Double Encoding
 ```liquid

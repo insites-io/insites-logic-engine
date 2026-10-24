@@ -26,7 +26,7 @@ Persistent session hash. Set values via GraphQL mutations.
 {{ context.location.search }}
 {{ context.location.host }}
 {{ context.location.href }}
-{{ context.location.origin }}
+{{ context.location.origin }}   {%- comment %} renders empty: see gotchas {%- endcomment %}
 {{ context.location.protocol }}
 {{ context.location.port }}
 ```

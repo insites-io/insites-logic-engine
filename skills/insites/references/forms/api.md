@@ -86,15 +86,7 @@ Place anywhere in your form. Validation occurs server-side during form processin
 </form>
 ```
 
-Configuration in module manifest:
-
-```yaml
-module_config:
-  spam_protection:
-    provider: recaptcha_v2
-    site_key: YOUR_SITE_KEY
-    secret_key: YOUR_SECRET_KEY
-```
+The reCAPTCHA keys are not set in a module manifest or in environment variables. Each instance holds its own, entered in the Integrations screen of the IIA admin, and they do not move when a site moves to a new instance. `hcaptcha` uses the platform's key and needs no setup. See [gotchas](gotchas.md#spam-protection-not-validating).
 
 ## Filters
 

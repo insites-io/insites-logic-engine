@@ -49,6 +49,17 @@
 
 **Solution:** Text written in the partial works (`<h1>Products</h1>`). When the site serves more than one language, move it to translation files and read it with `{{ 'app.products.title' | t }}` (see Translation Filter in [`liquid/filters/README.md`](../liquid/filters/README.md#translation-filter)).
 
+### "Physical file path is invalid" for a partial under `views/layouts/`
+
+**Cause:** the admin API refuses to save a partial whose path is under `views/layouts/` (for example `app/views/layouts/blog/sidebar.liquid`), with "Physical file path is invalid". That folder is for layouts only. Measured in October 2026 while copying a site's partials to a new v6 instance.
+
+**Solution:** keep partials under `app/views/partials/`. A partial that a layout renders goes in a subfolder there, and the call changes to match:
+
+```liquid
+{% render 'layouts/blog/sidebar' %}
+{%- comment %} file: app/views/partials/layouts/blog/sidebar.liquid {%- endcomment %}
+```
+
 ## Limits
 
 | Limit | Value | Notes |

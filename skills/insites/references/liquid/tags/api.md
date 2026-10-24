@@ -247,7 +247,7 @@ Modify hash values by key. Supports nested keys.
 
 ## print
 
-Output without HTML escaping (unescaped). Equivalent to `| html_safe`.
+Output without HTML escaping (unescaped). Writes the string exactly as it is. Not the same as `| html_safe`, which also decodes HTML entities (`&quot;` becomes `"`).
 
 ```liquid
 {% print rendered_html %}
@@ -312,7 +312,7 @@ Measured on one v6 staging instance on 15 October 2026 (TW#26876514); see [gotch
 | `{{ var \| escape }}` | No, inside an attribute: the `&quot;` reached the browser as `"` and the attribute was broken out of | Not an attribute value |
 | `{% print escaped %}`, where `escaped` was set with `\| escape` | Yes. The escaped string is written as it is | Any untrusted value, inside an HTML attribute or between tags |
 | `{% print var %}` | No (raw) | Pre-sanitized HTML, SVG, trusted markup |
-| `{{ var \| html_safe }}` | No (raw) | Same as print -- marks string as safe |
+| `{{ var \| html_safe }}` | No, and it decodes entities: an `&quot;` in the value becomes a real `"`, which breaks out of an attribute | Trusted markup with no entities that must stay encoded. Not the same as `print` |
 
 ## See Also
 
