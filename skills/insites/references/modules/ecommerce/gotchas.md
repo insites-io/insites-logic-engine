@@ -68,7 +68,7 @@ Edges visible in module-v6-ecommerce v6.0.2 source, read on 9 October 2026. Each
 
 **Bites:** a JSON write that fails still returns HTTP 200 when the request has no `?format=json`.
 
-**Why:** all 105 controllers wrap `modules/insites_crm/functions/response_handler` in `if context.params.format == 'json'`. The module's own `functions/response_handler.liquid` exists (prints `data`, defaults status to 400, sets headers) but the V2 controllers do not use it; the admin quote-PDF controller does.
+**Why:** all 105 controllers in v6.0.2 wrap `modules/insites_crm/functions/response_handler` in `if context.params.format == 'json'`. v6.1.0's six gift-card controllers (`gift_card/{list,by_code,issue}`, `order_gift_card/{list,create,delete}`) call it without that gate, so they set the status and write JSON even when called from an HTML page, and they answer `{ "error", "message" }` rather than the `errors` array. The module's own `functions/response_handler.liquid` exists (prints `data`, defaults status to 400, sets headers) but the V2 controllers do not use it; the admin quote-PDF controller does.
 
 **Avoid:** always send `?format=json`. Read `errors` in the body as the source of truth. From Liquid, use `{% function %}` and leave `format` out of the params hash when the page is HTML; see [`02-calling-a-controller.md`](../../building-on-insites/02-calling-a-controller.md).
 
@@ -118,7 +118,7 @@ Edges visible in module-v6-ecommerce v6.0.2 source, read on 9 October 2026. Each
 
 **Bites:** "which ecommerce version is installed" gets three answers.
 
-**Why:** `hook_module_info` says `6.0.0`; the generated admin dependency partials say `v6.0.1`; `vue/package.json` says `6.0.2`; the git tag is v6.0.2. Release tooling bumps the package and tag but not the hook.
+**Why:** in v6.0.2, `hook_module_info` says `6.0.0`; the generated admin dependency partials say `v6.0.1`; `vue/package.json` says `6.0.2`; the git tag is v6.0.2. Release tooling bumped the package and tag but not the hook. v6.1.0 is the exception so far: all four say 6.1.0 (read 27 October 2026). An instance still on v6.0.x reports 6.0.0.
 
 **Avoid:** read the tag or the Console changelog for the version; use the hook only for "is it installed".
 
@@ -161,3 +161,34 @@ Edges visible in module-v6-ecommerce v6.0.2 source, read on 9 October 2026. Each
 **Why:** `private/views/pages/tests/_external/v2/` holds them. Both are behind `has_valid_instance_api_authorization`. The second deletes products by four named QA SKUs and says it is safe to re-run.
 
 **Avoid:** do not create products with SKUs `QA-CF-001`, `QA-V2-01`, `qa-batch-new-001` or `qa-tax-flags-import-r2` on a real instance.
+
+---
+
+## 17. From v6.1.0, `GET /carts/:x` takes a contact uuid, at the same path
+
+**Bites:** a client written for v6.0.x calls `GET /ecommerce/api/v2/carts/<cart uuid>` and gets `404` (or another contact's cart never comes back) after the module is upgraded.
+
+**Why:** v6.1.0 made carts one per contact. The page slug changed from `carts/:uuid` to `carts/:contact_uuid`, and `graphql/_external/v2/carts/get_cart.graphql` filters on `contact_uuid`, newest first. `PATCH` and `DELETE /carts/:uuid` still take the cart uuid. `POST /carts` for a contact that already has a cart returns that cart with `is_existing: true` and creates nothing.
+
+**Avoid:** on v6.1.0, read a cart by its contact, or list `/carts` with a filter when you hold only the cart uuid. Check `is_existing` after a create. Read the installed version first (gotcha 12) when the same client talks to both.
+
+---
+
+## 18. `product.is_website_display` is gone in v6.1.0
+
+**Bites:** `import_models`, GraphQL `record_create` or a V2 write that sends `is_website_display` fails on a v6.1.0 instance with an unknown property. Code that reads it gets null, so a check like `product.is_website_display == true` hides every product.
+
+**Why:** v6.1.0 replaced it with `out_of_stock_action` (`schema/products/product.yml`), which says what to do when stock runs out (`display_no_purchase`, `display_preorder`, `hide`), not whether the product is shown. No migration copies the old values.
+
+**Avoid:** use `status` (`enabled` or `disabled`) for visibility. Do not map an old visibility flag onto `out_of_stock_action`. Code that must run on both versions should treat a missing value as shown, for example `product.is_website_display != false`.
+
+---
+
+## 19. Rows written outside the module's save keep `net_price` and `unit_tax` at 0
+
+**Bites:** a product or variant created by `import_models`, plain GraphQL or a migration reads `net_price: 0` and `unit_tax: 0` through the V2 API, though its price is set.
+
+**Why:** v6.1.0 adds both as stored floats with `default_value: 0`. The admin save, the CSV import and V2 create and update compute them (`functions/products/net_price_and_unit_tax.liquid`), and two deploy migrations fill the rows that existed then. Nothing recomputes them for a row written any other way.
+
+**Avoid:** set them yourself with the module's rules: `net_price` is the active price before tax (the sale price when on sale), and `unit_tax` is the fixed tax amount, or the tax percentage of the net price (tax included) or of the price (tax excluded), rounded to 4 places. Or write through the V2 API.
+
