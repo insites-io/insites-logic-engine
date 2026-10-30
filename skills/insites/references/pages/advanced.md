@@ -170,10 +170,10 @@ Create a shared partial that runs common checks:
     assign profile = null
   endif
   assign context_data = '{}' | parse_json
-  hash_assign context_data['profile'] = profile
-  hash_assign context_data['is_admin'] = false
+  assign context_data['profile'] = profile
+  assign context_data['is_admin'] = false
   if profile.role == 'admin'
-    hash_assign context_data['is_admin'] = true
+    assign context_data['is_admin'] = true
   endif
   return context_data
 %}
