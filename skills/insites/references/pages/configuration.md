@@ -19,6 +19,18 @@ metadata:
 ---
 ```
 
+### Display name in the CMS
+
+The CMS lists a page by `metadata.page_name`. Set it in the front matter of every page, because a deploy replaces the page's `metadata` with whatever the file holds: a name typed in the admin is blanked by the next deploy of a file that does not carry it (measured on a v6 production instance on 30 October 2026; see [CMS gotcha 13](../modules/cms/gotchas.md#13-deployed-pages-partials-and-layouts-have-no-name-in-the-cms)).
+
+```liquid
+---
+slug: products/:id
+metadata:
+  page_name: Products - Detail
+---
+```
+
 ### Front matter properties
 
 | Property   | Type   | Default         | Description                                      |

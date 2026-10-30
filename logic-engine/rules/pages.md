@@ -54,3 +54,23 @@ supersedes: [pages-no-html]
 - Partial-based pages (preferred for composition): `app-portal/modules/website/public/views/pages/index.liquid` (uses `{% render %}` to delegate)
 
 **Note:** This rule was substantially rewritten during the v0 audit. The original wording ("NO raw HTML/JS/CSS in pages") was contradicted by 11.2% of real-world pages.
+
+---
+
+```yaml
+---
+id: pages-name-in-front-matter
+applies_to: [page]
+severity: warning
+evidence: runtime-failure
+evidence_source: "Measured on a v6 production instance on 30 October 2026 through CloudShell: the CMS page list reads metadata.page_name; a page deployed with no metadata read back metadata {} and showed no name; a name set in the admin was blanked by the next deploy of a file without it; a file carrying metadata.page_name read the name back after deploy."
+audit_ref: skills/insites/references/modules/cms/gotchas.md#13-deployed-pages-partials-and-layouts-have-no-name-in-the-cms
+---
+```
+
+**Rule:** Every page sets `metadata.page_name` in its front matter: a short, human name for the CMS page list, such as `Client - Page` or `Feature - Screen`.
+
+**Why:** The CMS shows a page by `metadata.page_name`, and a deploy replaces the page's `metadata` with the file's. A page without it is listed with no name, and a name typed into the admin is wiped by the next deploy, so the only name that lasts is the one in the file.
+
+**How to apply:** When creating or editing a page, add `metadata:` with `page_name:` to the front matter, alongside `slug` and `layout`. Keep any other `metadata` keys the page already uses in the same block.
+
