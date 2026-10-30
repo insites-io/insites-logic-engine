@@ -166,3 +166,30 @@ metadata:
 ```
 
 For a partial or layout, set the key in the record's metadata after deploying when a readable name matters. See [partials configuration](../../partials/configuration.md#display-name-in-the-cms) and [pages configuration](../../pages/configuration.md#display-name-in-the-cms).
+
+---
+
+## 14. A details layout answers 200 when no item matches
+
+**Bites:** a details layout is rendered even when no item matches the address: the response is 200 with an empty layout. Crawlers index blank pages and broken links look healthy.
+
+**Avoid:** check the item was found; if not, set `response_status: 404` and render not-found content. (Reported to the CMS team as a bug; remove this note once the CMS answers 404 itself.)
+
+---
+
+## 15. SEO metadata: v5 page keys and the keys v6 reads
+
+`modules/insites_cms/seo` reads these page `metadata` keys. A page carried over from v5 needs its keys renamed:
+
+| v5 key | v6 key |
+|---|---|
+| `description` | `meta_description` |
+| `canonical` | `canonical_url` |
+| `open_graph.facebook.title` | `open_graph_title` |
+| `open_graph.facebook.description` | `open_graph_description` |
+| `open_graph.facebook.url` | `open_graph_url` |
+| `open_graph.facebook.site_name` | `open_graph_site_name` |
+| `open_graph.facebook.type` | `open_graph_type` |
+| `enable_indexed` | `is_visible_to_search_engines` |
+
+The v6 partial omits blank og tags, reads `og:image` from `open_graph_image` as an upload (`.url`), and prints `noindex` everywhere except production.

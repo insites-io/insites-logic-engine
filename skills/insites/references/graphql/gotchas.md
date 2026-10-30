@@ -96,6 +96,8 @@ Treat a 429 and an empty 200 the same way: retry, spaced and bounded (seconds ap
 
 A `per_page` the endpoint accepts is not one every table can serve. On a v6 production instance a 1,000-row page of a table holding HTML documents never returned, and 10 rows took 18.3 seconds; there was no error, only a timeout. Start small on wide tables, shrink the page when a request times out, and check that the rows collected equal `total_entries` before treating a read as complete.
 
+Through the Insites proxy, a batch that takes over 25 seconds answers 504 and may still have been applied. See [Limits of the Insites Proxy](../cli/gotchas.md#limits-of-the-insites-proxy).
+
 ### `import_models` refuses the whole batch for one unknown property
 
 If any model in an `import_models` batch carries a property the destination table does not have, the entire batch is refused, not just that row. This bites when a table's schema differs between two instances, for example after a module renamed a property. Check every row's property names against the destination table (`admin_tables` with `properties { name }`) before importing, and rename or drop the unknown ones.

@@ -118,6 +118,16 @@ Three states, three different reads (TW#26855355, measured on the v6 Ecommerce m
 
 Writing the empty `{}` into another upload property is refused (`tried to store {} in property upload which is not a valid URL`). Read with `property(name:)` first and branch on the shape before copying one upload property into another.
 
+## A Property's Type Cannot Be Changed
+
+A property's `attribute_type` cannot be changed after it exists. `admin_property_update` refuses string to upload (`conversion of attribute from string to upload not supported`), and settings for the new type are accepted silently while the column stays the old type. Presigned upload URLs need the column to really be `upload` (otherwise `Could not find Property with type upload`).
+
+To convert: back up each row's value, delete the property, create it as `upload`, then write `null` to every affected row. Writing null clears old text; without it every `property_upload` read on the table fails with `Property upload should contain only hash`. Re-upload the files after that.
+
+## Use `string` for All Text
+
+Use `string` for all text, short or long. It has no 255-character limit, and `text` is deprecated. For long text, set `metadata.ui_element: multi_line`.
+
 ## A Table With No Metadata Looks Broken in the Admin
 
 The IIA Databases screen reads the table and field `metadata` (see `schema-table-metadata` in `logic-engine/rules/schema.md`, and [configuration.md](configuration.md#table-and-field-metadata)). This matters for the tables that screen lists, which are a project's own `app/schema` tables. It does not list tables whose name starts with `modules/insites_` (every IIA module private table), nine named custom field tables, or tables whose metadata has `insites_databases_hidden`. Read from module-v6-data v6.0.2, not measured on an instance:

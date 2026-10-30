@@ -329,7 +329,7 @@ Must be 18 or older
 }' | parse_json -%}
 
 {%- if context.environment.is_staging -%}
-  {%- hash_assign feature_flags['experimental'] = true -%}
+  {%- assign feature_flags['experimental'] = true -%}
 {%- endif -%}
 
 {%- if feature_flags.new_checkout -%}

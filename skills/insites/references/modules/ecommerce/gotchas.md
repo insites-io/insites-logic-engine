@@ -161,3 +161,9 @@ Edges visible in module-v6-ecommerce v6.0.2 source, read on 9 October 2026. Each
 **Why:** `private/views/pages/tests/_external/v2/` holds them. Both are behind `has_valid_instance_api_authorization`. The second deletes products by four named QA SKUs and says it is safe to re-run.
 
 **Avoid:** do not create products with SKUs `QA-CF-001`, `QA-V2-01`, `qa-batch-new-001` or `qa-tax-flags-import-r2` on a real instance.
+
+---
+
+## 17. Table fields change between module versions
+
+A module's tables can gain, lose or rename fields between versions (ecommerce 6.1.0 replaced `is_website_display` with `out_of_stock_action` on product, and fills `net_price` and `unit_tax` with 0 by default). Before writing or importing into `modules/<module>/<table>`, read the installed module version and build field lists for that version. A module's private table may not appear in `admin_tables`, so do not rely on it to validate fields.

@@ -77,7 +77,7 @@ lsof -ti :3030 | xargs kill
 - Review conflicting migrations
 - Resolve manually or create compensating migration
 
-## Large Files Through the Insites Proxy
+## Limits of the Insites Proxy
 
 An environment added with an Insites Console access token (`insites-cli env add <environment> --url <proxy> --token iak_...`) sends every request through the Insites proxy, not straight to the instance. The proxy has two size limits that the instance itself does not have. Measured on 17 October 2026 on a fresh v6 production instance, with a 4.8 MB page (`views/pages/<name>.html.liquid`, 4,800,056 bytes of body):
 
@@ -98,6 +98,12 @@ An environment added with an Insites Console access token (`insites-cli env add 
 - **Read** a large file's content from `pull`. The body of each page in the zip is the file without its front matter, and on 17 October 2026 it matched the admin API's `content` byte for byte for all 129 pages of a v6 production instance. Read everything else about the file with the admin API, leaving the large field out.
 - **Write** a large file with `deploy --partial-deploy` of just that file. The release is zipped, and a partial deploy leaves files outside the build in place. The admin API's create and update also accept a page over 4 MB, but they cannot write the settings that only a page's file carries.
 - Neither limit applies to an environment added with the browser sign-in (`insites-cli env add <environment> --instance-uuid <uuid>`), which talks to the instance directly.
+
+### Requests time out after 25 seconds
+
+Requests through the Insites proxy time out after 25 seconds with HTTP 504 (`The instance did not answer in time`, or `Endpoint request timed out` from the gateway in front of it). Retrying the same call waits the same 25 seconds again. Halve the page size, the id batch or the mutation batch and send again, down to one item. A large `total_entries` count can time out on its own: count in id ranges instead. A write that timed out may still have been applied, so only resend writes that are idempotent (keyed on `id` or `external_id`). Calls through a browser sign-in environment go straight to the instance and are not subject to this limit.
+
+502, 503, 504 and 508 (the instance's loop guard) are worth a spaced retry; 401 and 404 will be refused again.
 
 ## Linting (insites-cli audit) Findings
 

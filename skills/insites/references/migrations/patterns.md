@@ -17,7 +17,7 @@ Creates tables and indexes for the application
     columns: '[
       { name: "id", type: "uuid", primary_key: true },
       { name: "name", type: "string" },
-      { name: "description", type: "text" },
+      { name: "description", type: "string" },
       { name: "price", type: "decimal" },
       { name: "created_at", type: "timestamp" }
     ]'
