@@ -64,8 +64,8 @@ audit_ref: audit/v0-conflicts-batch2.md#rule-r-9
 {% comment %} Accumulate field errors {% endcomment %}
 {% if object.title == blank %}
   {% assign field_errors = c.errors.title | default: '[]' | parse_json | add_to_array: "can't be blank" %}
-  {% hash_assign c['errors']['title'] = field_errors %}
-  {% hash_assign c['valid'] = false %}
+  {% assign c['errors']['title'] = field_errors %}
+  {% assign c['valid'] = false %}
 {% endif %}
 
 {% comment %} EXECUTE only if valid; merge result back {% endcomment %}
@@ -77,6 +77,8 @@ audit_ref: audit/v0-conflicts-batch2.md#rule-r-9
 
 {% return object %}
 ```
+
+`hash_assign` is deprecated; `assign` writes hash keys directly.
 
 **Verified by:** `app-seedling/modules/dashboard/public/views/partials/account/2fa_functions/commands/execute.liquid:13-14` — explicitly assigns `valid: true` and returns object with both keys.
 

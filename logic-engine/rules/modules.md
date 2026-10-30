@@ -30,6 +30,7 @@ This matters because users coming from other platforms (Webflow, Shopify, WordPr
 
 **How to apply:**
 - When checking module availability in a decision rule, use `module_version_gte` / `module_version_lt` / `module_version_in_range` to test the version on the current instance — never `module_installed` (which would always return true).
+- A module's tables can gain, lose or rename fields between versions (ecommerce 6.1.0 replaced `is_website_display` with `out_of_stock_action` on product, and fills `net_price` and `unit_tax` with 0 by default). Before writing or importing into `modules/<module>/<table>`, read the installed module version and build field lists for that version. A module's private table may not appear in `admin_tables`, so do not rely on it to validate fields.
 - When extending another team's module, don't edit their files directly. Use composition: write your own pages/partials/commands that call the shared module's exports (`{% function %}`, `{% render %}`, GraphQL queries to shared schemas).
 - When you control the module, you can edit it freely. Modules in your own repo are yours to evolve.
 

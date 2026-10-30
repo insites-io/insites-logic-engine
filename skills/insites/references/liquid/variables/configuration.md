@@ -46,11 +46,11 @@ Parse JSON string to object/array:
 {%- endparse_json -%}
 ```
 
-### hash_assign
-Assign value to hash key:
+### Hash key assignment (`hash_assign` is deprecated)
+Assign a value to a hash key with `assign`:
 ```liquid
-{%- hash_assign my_hash['key'] = value -%}
-{%- hash_assign my_hash['nested']['key'] = value -%}
+{%- assign my_hash['key'] = value -%}
+{%- assign my_hash['nested']['key'] = value -%}
 ```
 
 ### increment/decrement

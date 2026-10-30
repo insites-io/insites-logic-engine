@@ -8,7 +8,7 @@ Advanced patterns, optimization strategies, and professional techniques for Insi
 ```liquid
 {%- assign original = source_data -%}
 {%- assign copy = original | deep_clone -%}
-{%- hash_assign copy['modified'] = true -%}
+{%- assign copy['modified'] = true -%}
 {%- comment %} original unchanged, copy modified {%- endcomment %}
 ```
 
@@ -47,7 +47,7 @@ Advanced patterns, optimization strategies, and professional techniques for Insi
 
 {%- for key in path -%}
   {%- if forloop.last -%}
-    {%- hash_assign current[key] = 'localhost' -%}
+    {%- assign current[key] = 'localhost' -%}
   {%- else -%}
     {%- assign current = current[key] -%}
   {%- endif -%}
@@ -132,8 +132,8 @@ Advanced patterns, optimization strategies, and professional techniques for Insi
 {%- assign parsed = raw_json | parse_json -%}
 {%- assign transformed = parsed | hash_merge: additional_data -%}
 {%- assign enriched = transformed -%}
-{%- hash_assign enriched['processed'] = true -%}
-{%- hash_assign enriched['processed_at'] = 'now' -%}
+{%- assign enriched['processed'] = true -%}
+{%- assign enriched['processed_at'] = 'now' -%}
 
 {{ enriched | json }}
 ```
@@ -293,7 +293,7 @@ Total: {{ total }}, Active: {{ active_count }}, Errors: {{ error_count }}
 
   {%- for key in computation_keys -%}
     {%- assign value = expensive_computation[key] -%}
-    {%- hash_assign cached_computations[key] = value -%}
+    {%- assign cached_computations[key] = value -%}
   {%- endfor -%}
 {%- endunless -%}
 
