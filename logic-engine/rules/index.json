@@ -272,6 +272,15 @@
       "evidence": "skill-only",
       "evidence_source": "Insites product decision, 17 October 2026: every table shown in the IIA Databases screen has a name, field groups, and a tooltip on every field. The list leaves out tables named modules/insites_*, nine custom field tables and tables with insites_databases_hidden (module-v6-data get_list.liquid:41-87), so the 114 IIA module private schema files are exempt. Keys and the IIA Databases screen's use of them read from module-v6-data v6.0.2, module-v6-cms v6.0.2 and the cli-tool databases mock; not yet measured on an instance.",
       "related": ["schema-property-functions"]
+    },
+    {
+      "id": "pages-name-in-front-matter",
+      "file": "pages.md",
+      "applies_to": ["page"],
+      "severity": "warning",
+      "evidence": "runtime-failure",
+      "evidence_source": "Measured on a v6 production instance on 30 October 2026 through CloudShell: the CMS lists pages by metadata.page_name, and a deploy replaces metadata with the front matter's, so a name set in the admin was wiped by the next deploy of a file without it.",
+      "audit_ref": "skills/insites/references/modules/cms/gotchas.md#13-deployed-pages-partials-and-layouts-have-no-name-in-the-cms"
     }
   ],
   "deferred_decisions": [
