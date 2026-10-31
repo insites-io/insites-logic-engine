@@ -64,8 +64,10 @@ related: [schema-property-functions]
 **Scope:** The rule is about what people see, so it covers the tables the Databases screen lists and nothing else. The list leaves out:
 
 - every table whose name starts with `modules/insites_`, which is every schema file under `modules/insites_<name>/private/schema` in the IIA modules,
-- nine named custom field tables (`modules/ins_core/crm_company_custom_field` and its siblings),
+- every table whose name starts with `modules/ins_` and not with `modules/ins_databases/`. Since module-v6-data v6.0.3 this covers every v5-era namespace (`ins_core`, `ins_database`, `ins_content_manager`, `ins_pipeline` and the rest), not only the nine custom field tables v6.0.2 named,
 - any table whose `metadata` has the key `insites_databases_hidden`.
+
+A table a person should see therefore goes in `app/schema`, in a site's own module (`modules/website/...`), or under `modules/ins_databases/`. **A v5 site's tables under `modules/ins_database/` (singular) are hidden on v6**: they exist, the site can read them, and the Databases screen shows nothing. Move them, do not report them missing.
 
 Those tables are not shown to anyone in the admin, so they are exempt. If you are unsure whether a table is listed, apply the rule: the keys cost nothing on a hidden table.
 
@@ -173,3 +175,71 @@ No table name, so the Databases list shows a blank name. No groups, labels or to
 - The item form: `module-v6-data` v6.0.2 `vue/src/views/Databases/routes/DatabaseItems/routes/ManageDatabaseItem/sections/DatabaseItemForm/DatabaseItemForm.vue:14` (group heading), `:23` and `:51` (`metadata.label || name`), `:26` and `:54` (`help_text_tooltip`).
 - Select options are stored codes: `module-v6-data` v6.0.2 `vue/src/components/DynamicFields/DynamicFields.vue:145-148`, each option is both the label and the value.
 - The admin's save: `module-v6-data` v6.0.2 `vue/src/views/Databases/routes/ManageDatabase/ManageDatabase.vue:399-422` (starts from the existing metadata and writes `label` and `groups` as `{id, name, weight}`) and `.../ManageField/ManageField.vue:119-143` (the full list of field metadata keys, `help_text_tooltip` among them).
+
+---
+
+```yaml
+---
+id: schema-ui-element-matches-type
+applies_to: [schema]
+severity: error
+evidence: real-project
+evidence_source: "Measured on a v6 production instance on 31 October 2026 (Click Therapy rebuild, TW#26951046): fields set to ui_element image on an upload column, and phone on a string column, saved without error, offered no table-view toggle and showed no column. Changing them to media_image and input fixed both. The type list, each element's attribute types and has_show_in_table are module-v6-data v6.0.3 vue/src/models/uiElements.js; the column keys are ColumnSettings.vue and useItemColumns.js."
+related: [schema-table-metadata]
+---
+```
+
+**Rule:** Give every property a `metadata.ui_element` that the Data module allows for its `attribute_type`, and set the table-view keys on the fields a person scans the list by.
+
+The admin saves any `ui_element` without complaint, so a mismatch fails silently: the field edits oddly, cannot be shown as a column, and the "Display Fields" panel leaves it out.
+
+| `attribute_type` | Use | Not |
+|---|---|---|
+| `upload` | `media_image`, `media_file` | `image` and `file` (those are for the legacy `photo` and `file` types) |
+| `string` phone numbers | `input` | `phone`, which requires `integer` and drops a leading zero |
+| `string` rich text | `html` | `rich_text`, which is not a ui_element |
+| `string` long text | `multi_line` | |
+
+**Which elements can be a column.** `multi_line`, `html`, `markdown`, `code`, `table`, and every image, file and media element have `has_show_in_table: false`. The Display Fields panel does not offer them, whatever you set. A long message field cannot be a list column on v6; show the name, email and subject, and open the item for the message.
+
+**Table-view keys**, on each property's `metadata`:
+
+| Key | Does |
+|---|---|
+| `is_shown_in_table: true` | The field is a column in the items list and appears switched on in Display Fields |
+| `column_weigthing: <n>` | Column order. **Spelled `weigthing`**, as the module reads it |
+| `is_searchable: true` | Offered in "Search By" |
+| `is_sortable: true` | The column header sorts |
+
+With none set, the items list shows only ID, Date Created and Last Updated, which reads as "the fields are missing".
+
+**Email fields:** set `is_linked_to_crm_contact: true` (element `email` on a `string`). The item screen then links the address to the matching CRM contact (`ManageDatabaseItem.vue` `setLinks`). This is separate from the contact's "Related data" panel, which lists every record whose `user_id` is that contact (module-v6-crm v6.1.6 `graphql/contacts/related_data/get_related_data.graphql`), so a form must also set the row's `user_id`.
+
+✅ **Correct:**
+```yml
+  - name: email_address
+    type: string
+    metadata:
+      label: "Email"
+      group_id: "a1f0c7d2-1b11-4c51-9e01-000000000001"
+      weight: 2
+      ui_element: email
+      is_linked_to_crm_contact: true
+      is_shown_in_table: true
+      is_searchable: true
+      is_sortable: true
+      column_weigthing: 2
+      help_text_tooltip: "The email address to reply to."
+  - name: photo
+    type: upload
+    metadata:
+      ui_element: media_image
+```
+
+❌ **Wrong:** `ui_element: image` on an `upload`, `ui_element: phone` on a `string`, `ui_element: rich_text`, and no `is_shown_in_table` anywhere.
+
+**Verified by:**
+- `module-v6-data` v6.0.3 `vue/src/models/uiElements.js` (`id`, `field_types`, `has_show_in_table`, `has_link_to_crm_contact` per element).
+- `module-v6-data` v6.0.3 `vue/src/components/ListPage/ColumnSettings/ColumnSettings.vue` and `.../DatabaseItems/composables/useItemColumns.js` (`is_shown_in_table`, `column_weigthing`).
+- Measured on a v6 production instance, 31 October 2026: the four fixes above, read back in the admin.
+

@@ -270,8 +270,17 @@
       "applies_to": ["schema"],
       "severity": "error",
       "evidence": "skill-only",
-      "evidence_source": "Insites product decision, 17 October 2026: every table shown in the IIA Databases screen has a name, field groups, and a tooltip on every field. The list leaves out tables named modules/insites_*, nine custom field tables and tables with insites_databases_hidden (module-v6-data get_list.liquid:41-87), so the 114 IIA module private schema files are exempt. Keys and the IIA Databases screen's use of them read from module-v6-data v6.0.2, module-v6-cms v6.0.2 and the cli-tool databases mock; not yet measured on an instance.",
-      "related": ["schema-property-functions"]
+      "evidence_source": "Insites product decision, 17 October 2026: every table shown in the IIA Databases screen has a name, field groups, and a tooltip on every field. The list leaves out tables named modules/insites_*, every modules/ins_* table outside modules/ins_databases/ (module-v6-data v6.0.3 functions/databases/table_rule), and tables with insites_databases_hidden, so the 114 IIA module private schema files are exempt. Keys and the IIA Databases screen's use of them read from module-v6-data v6.0.2, module-v6-cms v6.0.2 and the cli-tool databases mock; not yet measured on an instance.",
+      "related": ["schema-property-functions", "schema-ui-element-matches-type"]
+    },
+    {
+      "id": "schema-ui-element-matches-type",
+      "file": "schema.md",
+      "applies_to": ["schema"],
+      "severity": "error",
+      "evidence": "real-project",
+      "evidence_source": "Measured on a v6 production instance on 31 October 2026: image on an upload and phone on a string saved silently and could not be table columns; media_image and input fixed both. Types and has_show_in_table from module-v6-data v6.0.3 uiElements.js; column keys (is_shown_in_table, column_weigthing) from ColumnSettings.vue.",
+      "related": ["schema-table-metadata"]
     },
     {
       "id": "pages-name-in-front-matter",
