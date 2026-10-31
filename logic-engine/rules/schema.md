@@ -64,10 +64,10 @@ related: [schema-property-functions]
 **Scope:** The rule is about what people see, so it covers the tables the Databases screen lists and nothing else. The list leaves out:
 
 - every table whose name starts with `modules/insites_`, which is every schema file under `modules/insites_<name>/private/schema` in the IIA modules,
-- every table whose name starts with `modules/ins_` and not with `modules/ins_databases/`. Since module-v6-data v6.0.3 this covers every v5-era namespace (`ins_core`, `ins_database`, `ins_content_manager`, `ins_pipeline` and the rest), not only the nine custom field tables v6.0.2 named,
+- every table whose name starts with `modules/ins_` and not with `modules/ins_databases/` (module-v6-data v6.0.3 `functions/databases/table_rule`),
 - any table whose `metadata` has the key `insites_databases_hidden`.
 
-A table a person should see therefore goes in `app/schema`, in a site's own module (`modules/website/...`), or under `modules/ins_databases/`. **A v5 site's tables under `modules/ins_database/` (singular) are hidden on v6**: they exist, the site can read them, and the Databases screen shows nothing. Move them, do not report them missing.
+A table a person should see therefore goes in `app/schema`, in a site's own module (`modules/website/...`), or under `modules/ins_databases/`.
 
 Those tables are not shown to anyone in the admin, so they are exempt. If you are unsure whether a table is listed, apply the rule: the keys cost nothing on a hidden table.
 

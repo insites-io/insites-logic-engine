@@ -130,7 +130,7 @@ Use `string` for all text, short or long. It has no 255-character limit, and `te
 
 ## A Table With No Metadata Looks Broken in the Admin
 
-The IIA Databases screen reads the table and field `metadata` (see `schema-table-metadata` in `logic-engine/rules/schema.md`, and [configuration.md](configuration.md#table-and-field-metadata)). This matters for the tables that screen lists, which are a project's own `app/schema` tables. It does not list tables whose name starts with `modules/insites_` (every IIA module private table), any `modules/ins_*` table outside `modules/ins_databases/` (module-v6-data v6.0.3; v6.0.2 hid only nine named custom field tables), or tables whose metadata has `insites_databases_hidden`. Read from module-v6-data v6.0.2, not measured on an instance:
+The IIA Databases screen reads the table and field `metadata` (see `schema-table-metadata` in `logic-engine/rules/schema.md`, and [configuration.md](configuration.md#table-and-field-metadata)). This matters for the tables that screen lists, which are a project's own `app/schema` tables. It does not list tables whose name starts with `modules/insites_` (every IIA module private table), any `modules/ins_*` table outside `modules/ins_databases/` (module-v6-data v6.0.3), or tables whose metadata has `insites_databases_hidden`. Read from module-v6-data v6.0.2, not measured on an instance:
 
 - **No `metadata.label` on the table:** the "Database Table Name" column in the table list is blank. It has no fallback to the table's `name`.
 - **A field with no `group_id`:** it is placed after every group, so it sinks to the bottom of the item form. A `group_id` that matches no group is treated the same way, which is what happens when a group's uuid changes between deploys.
@@ -152,12 +152,6 @@ A property named `errors` or `model` is refused at deploy with `Name not allowed
 ## A Property Name Can Start With a Digit
 
 Measured on a v6 production instance on 24 October 2026: `admin_table_create` accepted a property named `1abc`, and `record_create` wrote it and `property(name: "1abc")` read it back. This was checked through the admin API only, not through a schema file deployed by the CLI. A name starting with a letter is still the safer choice for anything that turns property names into identifiers (generated forms, exports, JavaScript).
-
-## A v5 Site's Tables Are Hidden on v6
-
-A v5 site keeps its own tables under `modules/ins_database/<name>` (singular). module-v6-data v6.0.3 hides every `modules/ins_*` table outside `modules/ins_databases/` (`functions/databases/table_rule`), so after a move to v6 the site still reads and writes them and the Databases screen lists none of them. Measured on a v6 production instance on 31 October 2026: ten v5 tables with 7,424 rows, none listed. "No databases" here is a hidden namespace, not lost data.
-
-To fix: create each table as `modules/ins_databases/<name>` (`admin_table_create` with `physical_file_path: "modules/ins_databases/public/schema/<name>.yml"`; `app/schema/...` and `schema/...` were refused as invalid paths), copy the rows, repoint the GraphQL and forms, then delete the old tables.
 
 ## `record_create` Ignores `created_at`; `record_update` Honours It
 
