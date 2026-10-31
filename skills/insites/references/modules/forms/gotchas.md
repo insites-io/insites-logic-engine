@@ -49,3 +49,11 @@ Edges visible in module-v6-forms v6.0.3 source on 9 October 2026; item 5 re-read
 ## 12. The database list is filtered in Liquid
 
 **Bites:** adding an `is_archived` exclude to `get_databases.graphql` returns nothing on the dedicated stack. **Why:** an attribute exclude also drops tables that lack the key, and dedicated-stack tables carry none (TW#26813287, `functions/databases/drop_archived`). **Avoid:** reuse the function.
+
+## 13. hCaptcha is on, and the Form Builder shows no option ticked
+
+**Bites:** a form with `spam_protection: {hcaptcha: {}}` opens in the Form Builder with None, reCAPTCHA v2 and reCAPTCHA v3 all unticked, and reads as unprotected. **Why:** the Details tab offers only `recaptcha_v2` and `recaptcha_v3` (module-v6-forms admin `Details` component); it has no hCaptcha option, so nothing matches. The platform still enforces hCaptcha: the page carries the `h-captcha` widget and a submission without a token is refused. Measured on a v6 production instance on 31 October 2026, on forms written by the Insites Migration Tool. **Avoid:** read `spam_protection` through `admin_forms`, not the screen. Saving the form in the Form Builder may replace it.
+
+## 14. A submission sits on the contact under Related data, not Activities
+
+**Bites:** looking for form submissions in a contact's Activities timeline and finding none. **Why:** by design a submission is not an activity. The contact's **Related data** panel lists every record whose `user_id` is that contact (module-v6-crm v6.1.6 `graphql/contacts/related_data/get_related_data.graphql`), so that is where submissions belong. A row with no `user_id` appears on no contact. **Avoid:** in the form's callback, find or create the contact by email and set the record's `user_id`. Do not add an activity per submission. Measured on a v6 production instance on 31 October 2026.

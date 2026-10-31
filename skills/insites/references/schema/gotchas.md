@@ -130,7 +130,7 @@ Use `string` for all text, short or long. It has no 255-character limit, and `te
 
 ## A Table With No Metadata Looks Broken in the Admin
 
-The IIA Databases screen reads the table and field `metadata` (see `schema-table-metadata` in `logic-engine/rules/schema.md`, and [configuration.md](configuration.md#table-and-field-metadata)). This matters for the tables that screen lists, which are a project's own `app/schema` tables. It does not list tables whose name starts with `modules/insites_` (every IIA module private table), nine named custom field tables, or tables whose metadata has `insites_databases_hidden`. Read from module-v6-data v6.0.2, not measured on an instance:
+The IIA Databases screen reads the table and field `metadata` (see `schema-table-metadata` in `logic-engine/rules/schema.md`, and [configuration.md](configuration.md#table-and-field-metadata)). This matters for the tables that screen lists, which are a project's own `app/schema` tables. It does not list tables whose name starts with `modules/insites_` (every IIA module private table), any `modules/ins_*` table outside `modules/ins_databases/` (module-v6-data v6.0.3), or tables whose metadata has `insites_databases_hidden`. Read from module-v6-data v6.0.2, not measured on an instance:
 
 - **No `metadata.label` on the table:** the "Database Table Name" column in the table list is blank. It has no fallback to the table's `name`.
 - **A field with no `group_id`:** it is placed after every group, so it sinks to the bottom of the item form. A `group_id` that matches no group is treated the same way, which is what happens when a group's uuid changes between deploys.
@@ -152,6 +152,14 @@ A property named `errors` or `model` is refused at deploy with `Name not allowed
 ## A Property Name Can Start With a Digit
 
 Measured on a v6 production instance on 24 October 2026: `admin_table_create` accepted a property named `1abc`, and `record_create` wrote it and `property(name: "1abc")` read it back. This was checked through the admin API only, not through a schema file deployed by the CLI. A name starting with a letter is still the safer choice for anything that turns property names into identifiers (generated forms, exports, JavaScript).
+
+## `record_create` Ignores `created_at`; `record_update` Honours It
+
+`RecordInputType` takes `created_at` and `updated_at`. On `record_create` both are accepted and silently replaced with the current time. On `record_update` they are written. Measured on a v6 production instance on 31 October 2026: 7,424 copied rows all carried the copy date until a second pass set the originals with `record_update`, which left every property untouched. Copy, then restore the dates, then read them back.
+
+## `records_delete_all` With `sync: true` Times Out on a Large Table
+
+On a table of about 5,000 rows `records_delete_all(table:, sync: true)` answered 504 Gateway Timeout. Without `sync` it returns at once and the rows go in the background; poll `total_entries` until it is 0 before `admin_table_delete`. Measured on a v6 production instance on 31 October 2026. Deleted rows are soft-deleted, so the Databases screen counts them under "Soft Deleted" for 30 days.
 
 ## See Also
 

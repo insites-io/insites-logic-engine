@@ -90,6 +90,20 @@ A page with `searchable: true` cannot use `{% content_for %}`: the page is refus
 
 Measured on v6 instances in October 2026. See also [pages gotchas](../pages/gotchas.md#a-searchable-page-cannot-use-include_form-or-content_for).
 
+## A Captured `yield` Prints Escaped
+
+`{% capture seo %}{% yield 'seo' %}{% endcapture %}{{ seo }}` prints the captured tags as text, so the page shows `<title>...</title><meta ...>` across the top. The output sanitizer escapes the string. Yield where you want the output instead:
+
+```liquid
+{%- if context.location.pathname contains '/blog/' -%}
+  {%- yield 'seo' -%}
+{%- else -%}
+  {%- include 'modules/insites_cms/seo' -%}
+{%- endif -%}
+```
+
+Measured on a v6 production instance on 31 October 2026.
+
 ## Limits
 
 | Resource                          | Limit         | Notes                                      |
