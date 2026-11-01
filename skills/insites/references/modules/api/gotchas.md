@@ -55,3 +55,9 @@ Admin controllers set 200 only when `result.items` is present, so an empty but s
 ## 11. Themes POST trusts the payload's user id
 
 `api/themes/post.liquid` updates the theme for `context.params.user`, not the session user; the source comment calls it cosmetic and defers it.
+
+## 12. The module's `/llms` route beats an app page named `llms`
+
+The module serves `/llms` from its own page. An app page named `llms` (for example `app/views/pages/llms.txt.liquid`) is silently shadowed: no error, and the module's output is served. Measured on a v6 instance (docs, 31 October 2026). Route precedence between a module's pages and the app's pages is not described elsewhere, so check before relying on an app page whose name a module also uses.
+
+**Fix:** override the module's own page from the app, at the same path under the module's namespace: `app/modules/insites_api/public/views/pages/llms.txt.liquid`. The app copy replaces the module copy, and the route stays `/llms`.
