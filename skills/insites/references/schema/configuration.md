@@ -182,6 +182,8 @@ properties:
 
 The `_id` suffix is a convention, not enforced. Use `string` type for ID references -- this works for both record IDs and user IDs.
 
+**In v6 modules the join is read with `related_record`, not declared with `belongs_to`.** The v6 convention for a record that points at another (for example a module listing pointing at its module) is an `_id` property on the child plus a `related_record(table:, join_on_property:)` read in GraphQL (see [api.md](api.md#related-record-accessors)). Do not treat a `belongs_to` key in a schema file as the relationship: it is a property metadata string, and it can name a table that does not exist (see the [locator gotcha](../modules/locator/gotchas.md)). Reported from the Console `modules_change_logs` schema comment, which still says belongs-to; this item was recorded from the docs.insites.io rebuild and not re-measured here.
+
 ### Resolution in GraphQL
 
 Relationships are resolved at query time using `related_record` and `related_records`:

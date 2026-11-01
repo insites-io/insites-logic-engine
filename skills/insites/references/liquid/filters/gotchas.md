@@ -179,6 +179,14 @@ The output sanitizer runs over the rendered page, including the JSON. A string v
 {%- assign future = 'now' | add_to_time: 365, 'days' -%}
 ```
 
+### Problem: The `date` Filter Rejects a Zone Argument
+```liquid
+{%- assign day = 'now' | date: '%Y-%m-%d', 'Australia/Perth' -%}
+```
+The second argument is not a time zone. On a v6 instance (docs, measured 31 October 2026) this form raised an error. The only date the platform hands you is `'now'`, and `'now'` is UTC, so a page that must show a local calendar day near midnight is wrong by up to a day.
+
+**Solution:** do not pass a zone to `date`. Format `'now'` as UTC, or shift it yourself with `add_to_time` by the zone's offset before formatting. The `add_to_time` shift was the fallback considered in the docs rebuild and is not measured here, and a zone that observes daylight saving changes offset twice a year.
+
 ## String Filter Gotchas
 
 ### Problem: Regex Special Characters
