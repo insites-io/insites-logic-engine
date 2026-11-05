@@ -44,7 +44,7 @@ Edges visible in module-v6-forms v6.0.3 source on 9 October 2026; item 5 re-read
 
 ## 11. Two path prefixes say `ins_forms`
 
-**Bites:** searching notifications under `modules/insites_forms/`. **Why:** they are stored at `modules/ins_forms/public/notifications/email_notifications/<type>_<id>.liquid`; `functions/notifications/email/generate_physical_file_path` builds `modules/ins_forms/public/emails/forms/` and nothing calls it. **Avoid:** filter on `ins_forms`.
+**Bites:** searching notifications under `modules/insites_forms/`. **Why:** they are stored at `modules/ins_forms/public/notifications/email_notifications/<type>_<id>.liquid`; `functions/notifications/email/generate_physical_file_path` builds `modules/ins_forms/public/emails/forms/` and nothing calls it. Emails moved from v5 still sit at `modules/ins_forms/public/emails/forms/<type>_<database>_<form id>.liquid` (the early v5 Form Builder wrote them there), and from v6.1.3 the module reads them: the migration `20261103000000_moved_form_notifications_sender` rewrites their `from` to the `form_notification_from` include and holds a switched-on autoresponder (trigger exactly `true`) that `functions/notifications/autoresponder_allowed` refuses, and `functions/notifications/moved_notification_type` decides the type from `metadata.type` or the file name. It skips a `from` that already holds the include, and needs Insites Core 6.1.2 or later. **Avoid:** filter on `ins_forms`, and look under both `notifications/email_notifications/` and `emails/forms/`.
 
 ## 12. The database list is filtered in Liquid
 

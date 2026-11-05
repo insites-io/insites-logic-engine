@@ -127,3 +127,11 @@ Don't rely on HTTP status alone — also inspect the body shape.
 **Why:** the v2 API is one-entity-per-request by design.
 
 **Avoid:** loop sequentially with appropriate backoff if rate limits engage. For large initial imports, do them via the IIA admin UI (which has bulk-import affordances) rather than the API.
+
+## 13. The Git Repository page only shows Insites Console's link (from v6.1.7)
+
+**Bites:** a person or script told to open Integrations > Git Repository and press Add Repository Credentials, enter an SSH URL and key, or switch Sync CMS changes to Git on. From module-v6-crm v6.1.7 none of that is there, and `PUT` and `PATCH /api/integrations/git_repository` are gone.
+
+**Why:** Insites Console owns the instance's GitHub link (TW#26946212). It is set up, changed and removed only in Console, through its GitHub app. The page reads Console's `GET /instances/{uuid}/github-link` as the signed-in administrator (`controllers/integrations/version_control/get_link`, `functions/console_backend/github_link_result`) and shows Status (Linked, Not linked, or Not available when Console refuses that administrator, answering 403, or fails), Repository, Branch, Linked, Deploy on push, Last deployment and Last commit (seeding, committed, unchanged or failed, with Console's error), plus a History tab. The CRM no longer reads the `instance_configuration` row `is_version_control_enabled`, so that row says nothing about whether the instance is linked. Read from module-v6-crm v6.1.7, tagged 5 November 2026; not yet measured on an instance. The CMS side (every save asks Console) is in [modules/cms/gotchas.md](../cms/gotchas.md).
+
+**Avoid:** link the repository in Insites Console, then check the page's Status and Last commit. To find whether an instance is linked, read the page or Console; do not read `is_version_control_enabled`. Linking can deploy the instance when the branch changes (Deploy on push), so check the branch holds the current site first.
