@@ -122,7 +122,14 @@ Writing the empty `{}` into another upload property is refused (`tried to store 
 
 A property's `attribute_type` cannot be changed after it exists. `admin_property_update` refuses string to upload (`conversion of attribute from string to upload not supported`), and settings for the new type are accepted silently while the column stays the old type. Presigned upload URLs need the column to really be `upload` (otherwise `Could not find Property with type upload`).
 
-To convert: back up each row's value, delete the property, create it as `upload`, then write `null` to every affected row. Writing null clears old text; without it every `property_upload` read on the table fails with `Property upload should contain only hash`. Re-upload the files after that.
+To convert, in this order:
+
+1. Back up each row's value.
+2. **While the property is still `string` (or `text`), write `null` to every row.** Null clears any text at this stage.
+3. Delete the property and create it as `upload`.
+4. Re-upload the files.
+
+Never create the upload property first and null afterwards. Measured on a v6 instance (shane-sandbox prod01, scratch table, 5 November 2026, TW#26961444): once the property is an upload, a row still holding text that is not a plain URL refuses **every** write. `record_update` with `null`, `""`, JSON such as `{"type":"file","id":"...","name":"x.pdf","hostedUrl":"https://..."}`, JSON with a `url` key, and plain words all fail with `tried to store ... in property upload which is not a valid URL`. A plain URL does clear to `{}` when nulled. Rows left holding non-URL text also make every `property_upload` read on the table fail (`Property upload should contain only hash`).
 
 ## Use `string` for All Text
 
