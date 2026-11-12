@@ -234,6 +234,23 @@ control flow.
 {%- assign slug = title | slugify | replace: 'ä', 'a' -%}
 ```
 
+### Problem: parse_json Decodes HTML Entities
+
+`parse_json` decodes HTML entities in the text it is given, including inside string values. Measured on a v6 staging instance on 12 November 2026: the JSON text `{"a":"&#9733;"}` (the value is 7 characters) parsed to a value of 1 character, the star itself. `&lt;b&gt;` in a stored value comes out the same way, as live markup.
+
+This matters whenever JSON holds content that must come back exactly: stored page or partial source, an email body, anything compared against a hash. The stored text is correct; the parsed copy is not.
+
+**Solution:** before `parse_json`, write every `&` as the JSON escape for it. In JSON text an ampersand can only sit inside a string value, so the parsed value is the same and no entity is left to decode. In the same test the escaped text parsed back to the full 7 characters.
+
+```liquid
+{%- assign bs = '%5C' | url_decode -%}
+{%- assign amp = bs | append: 'u0026' -%}
+{%- assign safe = json_text | replace: '&', amp -%}
+{%- assign data = safe | parse_json -%}
+```
+
+The backslash is built with `url_decode` so that no literal backslash sits in the file. Posted values are decoded the same way before your code sees them: see [forms gotchas](../../forms/gotchas.md), Posted Values Arrive HTML-Entity-Decoded.
+
 ## Crypto & Security Gotchas
 
 ### Problem: Key Management

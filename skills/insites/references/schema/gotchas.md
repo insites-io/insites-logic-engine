@@ -160,6 +160,12 @@ A property named `errors` or `model` is refused at deploy with `Name not allowed
 
 Measured on a v6 production instance on 24 October 2026: `admin_table_create` accepted a property named `1abc`, and `record_create` wrote it and `property(name: "1abc")` read it back. This was checked through the admin API only, not through a schema file deployed by the CLI. A name starting with a letter is still the safer choice for anything that turns property names into identifiers (generated forms, exports, JavaScript).
 
+## A Module's Private Tables Are Not in `admin_tables`
+
+Measured on a v6 staging instance on 12 November 2026: a module with 13 schema files under `private/schema/` had rows in all 13 tables (the admin `records` query, filtered on `modules/<module>/<table>`, returned them), and `admin_tables` listed none of the 13. It listed 13 other tables, all of them created on the instance. `admin_liquid_partials` treats private partials the same way.
+
+So a deploy of a private schema file cannot be confirmed by listing tables. Confirm it by using the table: read or write a row through the module, or count its rows with the `records` query.
+
 ## See Also
 
 - [README.md](README.md) -- overview and getting started
