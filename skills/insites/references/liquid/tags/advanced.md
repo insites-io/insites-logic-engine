@@ -208,7 +208,7 @@ The job sees `user_id` because it was passed. It does not see `user`.
 
 ### Retry Pattern
 
-Let the platform retry: `max_attempts` (1 to 5) reruns a job that fails.
+Let the platform retry: `max_attempts` (0 to 9 retries, default 0; see `background-jobs/README.md`) reruns a job that fails.
 
 ```liquid
 {% background job_id = 'jobs/process_payment', user_id: user_id, amount: amount, max_attempts: 3 %}
