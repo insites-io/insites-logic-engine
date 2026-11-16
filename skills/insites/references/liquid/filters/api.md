@@ -126,8 +126,9 @@ Returns the time from the input to the first argument, in **milliseconds** unles
 {%- assign result = 'now' | to_time | strftime: '%Y-%m-%dT%H:%M:%S%:z' -%}
 ```
 There is no `iso8601` filter. **Measured on a v6 production instance, 16 November 2026**
-(icc.prod01-insites.io): `{{ 'now' | iso8601 }}` in a page rendered an empty string with status 200, and
-inside a `{% liquid %}` block in a background job it failed with "undefined filter iso8601". The
+(icc.prod01-insites.io): `{{ 'now' | iso8601 }}` in a page rendered an empty string with status 200. The same build also
+reported the error "undefined filter iso8601" from its Liquid on that instance; where exactly was not
+recorded. The
 `strftime` line above printed `2026-11-16T14:36:44+00:00` on the same page. This entry documented
 `iso8601` as a working filter until that date.
 
