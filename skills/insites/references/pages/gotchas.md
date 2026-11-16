@@ -118,6 +118,20 @@ searchable: false
 | GraphQL calls per page       | No hard limit        | Each call adds latency; minimize for performance|
 | Redirect chain depth         | 10 hops              | Browser-enforced                              |
 | Response body size           | 10 MB                | For large responses consider pagination        |
+| Page execution time          | 9 seconds, then 504  | Documented by platformOS. Move slow work (email, API calls) to a background job |
+| Requests per IP              | 300 in 5 minutes     | Documented by platformOS: the firewall then blocks the IP for about 10 minutes |
+| Values in one record         | 255 MB               | Documented by platformOS                      |
+
+The last three rows: platformOS "Limitations"
+(https://documentation.platformos.com/developer-guide/limitations, last edited 10 November 2026,
+read 16 November 2026), which says they are "meant to be a guideline for multi-tenant stacks" and
+that private stacks can be configured differently. Not measured on an Insites instance. The 9-second
+page limit is close to, but not the same as, the 19-second default statement timeout that
+`options: { timeout }` documents as "one second less than the platform request timeout"
+(https://documentation.platformos.com/developer-guide/records/read-replica-and-query-timeouts, last
+edited 20 October 2026); the two pages disagree on the request timeout and neither was measured.
+`building-on-insites/01-two-apis-two-credentials.md` gives a separate 300-requests-per-60-seconds
+limit for module REST endpoints; whether it is the same firewall rule is not known.
 
 ## Troubleshooting Flowchart
 

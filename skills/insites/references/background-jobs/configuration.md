@@ -31,19 +31,16 @@ The job's code lives in a partial, named in the tag. The block form (`{% backgro
 
 ### priority
 - **Type**: String
-- **Allowed Values**: `low`, `default`, `high`
-- **Default**: `default`
-- **Description**: Job execution priority in queue
-- **Behavior**: High-priority jobs execute before low-priority ones
-- **Note**: Don't overuse high priority to avoid queue congestion
+- **Allowed Values**: `high`, `default`, `low`
+- **Default**: `high` (measured on an Insites v6 staging instance, 16 November 2026; documented by platformOS)
+- **Maximum run time**: `high` 1 minute, `default` 5 minutes, `low` 4 hours (documented by platformOS)
+- **Choose**: `high` for short work that should start soon, `default` for work over a minute, `low` for long or not time-sensitive work
 
 ### max_attempts
 - **Type**: Integer
-- **Range**: 1–5
-- **Default**: 1
-- **Description**: Maximum retry attempts if job fails
-- **Behavior**: Job runs once by default; retries on failure up to max_attempts times
-- **Backoff**: Automatic exponential backoff between retries
+- **Default**: 0 (a failed job is not retried)
+- **Maximum**: 9; a larger value is treated as 9 (documented by platformOS; the stored value was 9 for `max_attempts: 12`, measured 16 November 2026)
+- **Meaning**: retries after a failure. See [README.md](README.md#parameters) for the conflicting insites-cli text
 
 ### source_name
 - **Type**: String

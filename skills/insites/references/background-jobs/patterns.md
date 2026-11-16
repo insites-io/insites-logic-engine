@@ -48,7 +48,7 @@ Execute tasks after a delay:
 **Pattern**:
 - `delay` parameter controls execution time
 - Delays stack in queue (multiple jobs at different times)
-- Not suitable for precise scheduling (use cron jobs for that)
+- For recurring work there is no cron: use the scheduler pattern in [recurring.md](recurring.md)
 
 ### 3. External API Calls with Retry
 

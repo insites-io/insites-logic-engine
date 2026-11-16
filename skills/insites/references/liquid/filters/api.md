@@ -207,7 +207,31 @@ Encodes string to base64.
 ```
 Decodes base64 string.
 
+### scrub
+
+```liquid
+{% assign clean = api_response_text | scrub %}
+```
+
+Removes invalid characters and byte sequences from a string, in the given encoding (UTF-8 by
+default). Arguments: `source_encoding`, `final_encoding`, both default `"UTF-8"`. A non-string is
+stringified first. Use it on text from external sources such as API responses before parsing or
+storing it. Documented by platformOS
+(https://documentation.platformos.com/api-reference/liquid/platformos-filters#scrub, last edited
+20 October 2026, read 16 November 2026); not measured.
+
 ## Crypto Filters API
+
+### sha1
+
+```liquid
+{{ 'foo' | sha1 }} => '0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33'
+```
+
+Returns the SHA1 hex digest of a string. Documented by platformOS
+(https://documentation.platformos.com/api-reference/liquid/platformos-filters#sha1, last edited
+20 October 2026, read 16 November 2026); not measured. SHA1 is broken for security uses: use it
+only to match a third party that requires it, and use `compute_hmac` with `sha256` for signatures.
 
 ### encrypt
 ```liquid
