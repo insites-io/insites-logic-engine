@@ -121,11 +121,15 @@ Uses standard strftime format codes.
 ```
 Returns the time from the input to the first argument, in **milliseconds** unless you pass a unit: `d`/`days`, `h`/`hours`, `m`/`minutes`, `s`/`seconds`, `ms`/`milliseconds` (the default). The last argument is the decimal places, 3 by default. Source: the filter reference shipped with insites-cli 6.1.0. A bare `time_diff` divided by 3600 gives hours times 1000, not hours.
 
-### iso8601
+### iso8601 (does not exist; use `strftime`)
 ```liquid
-{%- assign result = date | iso8601 -%}
+{%- assign result = 'now' | to_time | strftime: '%Y-%m-%dT%H:%M:%S%:z' -%}
 ```
-Formats as ISO 8601 string.
+There is no `iso8601` filter. **Measured on a v6 production instance, 16 November 2026**
+(icc.prod01-insites.io): `{{ 'now' | iso8601 }}` in a page rendered an empty string with status 200, and
+inside a `{% liquid %}` block in a background job it failed with "undefined filter iso8601". The
+`strftime` line above printed `2026-11-16T14:36:44+00:00` on the same page. This entry documented
+`iso8601` as a working filter until that date.
 
 ## String Filters API
 

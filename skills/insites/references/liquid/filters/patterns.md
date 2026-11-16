@@ -73,7 +73,7 @@ Common patterns and practical examples for using Insites Liquid filters.
 ### Formatting for Different Locales
 ```liquid
 {%- assign local_date = timestamp | localize: 'long' -%}
-{%- assign iso_date = timestamp | iso8601 -%}
+{%- assign iso_date = timestamp | to_time | strftime: '%Y-%m-%dT%H:%M:%S%:z' -%}
 {%- assign custom_date = timestamp | strftime: '%A, %B %d, %Y' -%}
 ```
 
