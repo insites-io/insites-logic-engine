@@ -29,14 +29,18 @@ Inside `jobs/greet`, `name` is set and `greeting` is blank.
 
 The tag also accepts a block, `{% background ... %}...{% endbackground %}`. The tag reference shipped with insites-cli 6.1.0 lists that form under "Deprecated", and the scope rule is the same: the block sees only the variables passed to the tag, not the page's. Some v6 modules still use the block form; use the partial form in new code.
 
-**Unresolved: what `context` a job sees.** The platformOS guide (Creating a Background Job in
-Liquid, last edited 10 November 2026) says that with the block (inline) form "the job gets a copy of
-most of the context of the code that scheduled it, as it was at that moment, for example
-`context.current_user` and `context.params`", and (Background Jobs page) that a partial job gets
-`context.constants` and `context.location` but not `context.current_user` or `context.params`. The
-tag description says constants "need to be explicitly passed". The paragraph above, from the
-insites-cli tag reference, says the same. Neither has been measured on an Insites instance. Until it
-is, pass every value a job needs, constants and the user id included, as tag arguments.
+**A partial job reads `context.constants`. Measured on a v6 production instance, 16 November 2026**
+(icc.prod01-insites.io): a page set a constant with `constant_set` and queued a partial job in the same
+request; the job read the constant and recorded that it could. A collector job there has since read an
+API secret from `context.constants` on every run. So keep a secret in a constant and let the job read
+it; do not pass a secret as a tag argument, because tag arguments are stored with the job and returned
+by `admin_background_jobs`.
+
+**Still unmeasured: `context.current_user` and `context.params` inside a job.** The platformOS guide
+(Creating a Background Job in Liquid, last edited 10 November 2026) says the block (inline) form gets
+"a copy of most of the context of the code that scheduled it", and that a partial job gets
+`context.constants` and `context.location` but not `context.current_user` or `context.params`. Until
+those are measured, pass the user id and any request value a job needs as tag arguments.
 
 ## Parameters
 

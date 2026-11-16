@@ -115,7 +115,7 @@ Advanced patterns, optimization strategies, and professional techniques for Insi
   "items": {{ items | json }},
   "metadata": {
     "total_items": {{ items.size | json }},
-    "generated_at": {{ 'now' | iso8601 | json }}
+    "generated_at": {{ 'now' | to_time | strftime: '%Y-%m-%dT%H:%M:%S%:z' | json }}
   }
 }
 {%- endcapture -%}

@@ -37,7 +37,7 @@ Insites provides a comprehensive set of filters organized by category: Array, Ha
 - `strftime` - Format date/time with pattern
 - `time_diff` - Calculate time difference
 - `time_since` - Time elapsed since date
-- `iso8601` - Format as ISO 8601
+- There is no `iso8601` filter (measured 16 November 2026). Format with `to_time | strftime: '%Y-%m-%dT%H:%M:%S%:z'`
 
 ### String Filters
 - `slugify` - Convert to URL-safe slug
