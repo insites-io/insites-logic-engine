@@ -321,7 +321,7 @@ messages still say "translate filter".
 ```liquid
 {%- assign type = variable | type_of -%}
 ```
-Returns: string, number, array, hash, boolean, nil.
+Returns the capitalized class name: `Hash`, `Array`, `String`, `Integer`, `Float`, `Boolean`, or `null` for nil. Measured on a v6 production instance on 17 November 2026. A posted JSON object in `context.params` returns `ActiveSupport::HashWithIndifferentAccess`, not `Hash`; convert it with `| json | parse_json` first. Add `| downcase` before comparing. See [gotchas.md](gotchas.md#problem-type_of-returns-capitalized-names-and-a-params-hash-is-not-hash).
 
 ### default
 ```liquid
