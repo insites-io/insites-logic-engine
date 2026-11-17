@@ -46,11 +46,41 @@ Applying hash filters to arrays or vice versa:
 
 **Solution:** Check variable type first:
 ```liquid
-{%- assign type = my_variable | type_of -%}
+{%- assign type = my_variable | type_of | downcase -%}
 {%- if type == 'hash' -%}
   {%- assign keys = my_variable | hash_keys -%}
 {%- endif -%}
 ```
+`type_of` does not return lower-case names: see the next entry.
+
+### Problem: type_of Returns Capitalized Names, and a Params Hash Is Not `Hash`
+```liquid
+{%- if payload | type_of == 'hash' -%}{%- comment %} never true {%- endcomment %}{%- endif -%}
+```
+Measured on a v6 production instance on 17 November 2026 with a probe endpoint:
+
+| Value | `\| type_of` returns |
+|---|---|
+| a hash from `parse_json` | `Hash` |
+| an array | `Array` |
+| a string | `String` |
+| a whole number (`1`) | `Integer` |
+| a decimal (`1.5`) | `Float` |
+| `true` | `Boolean` |
+| null / nil | `null` |
+| `context.params.payload` (a posted JSON object), and a nested object inside it | `ActiveSupport::HashWithIndifferentAccess` |
+
+This matters because a validator that compared with `'hash'` refused every valid request: the result is never lower case, and a posted object is not `Hash` either. There is no `number` type: a number is `Integer` or `Float`.
+
+**Solution:** turn a params value into plain data with `| json | parse_json` (the result answers `Hash` or `Array`), then compare the lower-cased name:
+```liquid
+{%- assign payload = context.params.payload | json | parse_json -%}
+{%- assign t = payload | type_of | downcase -%}
+{%- if t == 'hash' -%}
+  {%- assign keys = payload | hash_keys -%}
+{%- endif -%}
+```
+The names to compare with are `hash`, `array`, `string`, `integer`, `float`, `boolean` and `null`.
 
 ### Problem: String vs Number Comparison
 ```liquid

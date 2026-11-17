@@ -172,7 +172,7 @@ Common patterns and practical examples for using Insites Liquid filters.
 
 ### Checking Variable Types
 ```liquid
-{%- assign type = value | type_of -%}
+{%- assign type = value | type_of | downcase -%}
 {%- if type == 'array' -%}
   {%- for item in value -%}...{%- endfor -%}
 {%- elsif type == 'hash' -%}

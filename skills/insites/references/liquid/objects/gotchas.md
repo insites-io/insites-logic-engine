@@ -66,8 +66,9 @@ Common pitfalls and how to avoid them when using Insites Liquid objects.
 
 **Solution:** Handle as array explicitly:
 ```liquid
-{%- assign ids = context.params.ids -%}
-{%- if ids | type_of == 'array' -%}
+{%- assign ids = context.params.ids | json | parse_json -%}
+{%- assign ids_type = ids | type_of | downcase -%}
+{%- if ids_type == 'array' -%}
   {%- for id in ids -%}
     {{ id }}
   {%- endfor -%}
