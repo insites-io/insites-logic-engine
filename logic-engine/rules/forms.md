@@ -7,6 +7,7 @@ Rules that apply to files under `app/forms/` (or module-equivalent paths) and to
 ```yaml
 ---
 id: forms-no-form-tag
+code: INS-FORM-001
 applies_to: [form]
 severity: error
 evidence: real-project
@@ -16,7 +17,7 @@ preship_action: "The reference repos do not follow this convention yet (27 uses 
 ---
 ```
 
-**Rule:** Do NOT use the `{% form ... %}` Liquid tag in pages and partials. All forms MUST use plain HTML `<form>` tags with `{% render 'modules/insites_crm/authenticity_token' %}` (or equivalent CSRF mechanism) for POST, PUT, and DELETE operations.
+**Rule (INS-FORM-001):** Do NOT use the `{% form ... %}` Liquid tag in pages and partials. All forms MUST use plain HTML `<form>` tags with `{% render 'modules/insites_crm/authenticity_token' %}` (or equivalent CSRF mechanism) for POST, PUT, and DELETE operations.
 
 **Why:** Plain HTML forms give full control over markup and integrate cleanly with modern JS, validation libraries, and accessibility tools. This is a convention. The tag itself is **not** deprecated: the tag reference shipped with insites-cli 6.1.0 marks `form` current, the CLI audit flags `form_tag` and not `form`, and the v6 CRM module uses `{% form method: 'delete' %}` in `private/forms/sessions/lock_admin.liquid`. Earlier versions of this rule called it deprecated.
 
@@ -54,6 +55,7 @@ preship_action: "The reference repos do not follow this convention yet (27 uses 
 ```yaml
 ---
 id: csrf-token-required
+code: INS-FORM-002
 applies_to: [form, page]
 severity: warning
 evidence: real-project
@@ -62,7 +64,7 @@ audit_ref: audit/v0-conflicts-batch1.md#rule-r-6
 ---
 ```
 
-**Rule:** All POST, PUT, and DELETE forms MUST include `{% render 'modules/insites_crm/authenticity_token' %}` (or equivalent), OR rely on the global CSRF meta-tag pattern in the layout.
+**Rule (INS-FORM-002):** All POST, PUT, and DELETE forms MUST include `{% render 'modules/insites_crm/authenticity_token' %}` (or equivalent), OR rely on the global CSRF meta-tag pattern in the layout.
 
 GET forms do NOT require CSRF tokens — by definition GET should not change state, so CSRF protection isn't applicable.
 
@@ -91,6 +93,7 @@ Or rely on the global meta tag pattern in the layout:
 ```yaml
 ---
 id: forms-enquiry-to-sales-pipeline
+code: INS-FORM-003
 applies_to: [form, page]
 severity: info
 evidence: skill-only
@@ -99,7 +102,7 @@ related: [csrf-token-required, pipe-vars-through-json-filter, render-vs-function
 ---
 ```
 
-**Rule (strongly recommended, ask first):** When you build an **enquiry form**, a form where someone asks to buy or book (a contact form, a quote request, a booking request), recommend that every submission also goes into the site's sales pipeline. Say why in one line, ask, and build it only if the user says yes. Never build it unasked.
+**Rule (INS-FORM-003, strongly recommended, ask first):** When you build an **enquiry form**, a form where someone asks to buy or book (a contact form, a quote request, a booking request), recommend that every submission also goes into the site's sales pipeline. Say why in one line, ask, and build it only if the user says yes. Never build it unasked.
 
 This rule does not apply to newsletter, support or job application forms.
 

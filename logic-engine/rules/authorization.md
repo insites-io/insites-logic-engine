@@ -7,6 +7,7 @@ Rules that apply to files under `app/authorization_policies/` (or module-equival
 ```yaml
 ---
 id: auth-policies-in-front-matter
+code: INS-AUTH-001
 applies_to: [page, policy]
 severity: warning
 evidence: real-project
@@ -15,7 +16,7 @@ audit_ref: audit/v0-conflicts-batch3.md#rule-r-24
 ---
 ```
 
-**Rule:** Pages that require authorization MUST declare their policies in YAML front matter via the `authorization_policies:` key. Policies run before the page body executes; unauthorized requests get a 403 (or the page's configured `redirect_to`) before any template logic runs.
+**Rule (INS-AUTH-001):** Pages that require authorization MUST declare their policies in YAML front matter via the `authorization_policies:` key. Policies run before the page body executes; unauthorized requests get a 403 (or the page's configured `redirect_to`) before any template logic runs.
 
 **Why:** Front-matter policies are the platform's first-class auth layer — they short-circuit before any data is fetched or any HTML is generated. Inline auth checks (e.g. `{% if context.current_user == blank %}`) run AFTER initial template setup and may leak data via timing or partial rendering.
 
@@ -44,6 +45,7 @@ Inline auth checks are permitted as **secondary** guards (defense in depth), but
 ```yaml
 ---
 id: auth-policy-explicit-true-false
+code: INS-AUTH-002
 applies_to: [policy]
 severity: error
 evidence: real-project
@@ -53,7 +55,7 @@ preship_action: "Fix addon-ecommerce/modules/ecommerce/public/authorization_poli
 ---
 ```
 
-**Rule:** Authorization policies MUST explicitly echo `true` or `false` in EVERY code path. Never let a code path produce no output (nil/blank).
+**Rule (INS-AUTH-002):** Authorization policies MUST explicitly echo `true` or `false` in EVERY code path. Never let a code path produce no output (nil/blank).
 
 **Why:** An empty output from an authorization policy relies on behavior nobody has documented. Measured on 26 September 2026: surrounding whitespace is trimmed (a policy printing a newline, spaces, `true` and a newline admits the request), and a request on which every policy printed nothing was denied with a redirect to `redirect_to`. So blank currently fails closed, but that is an observation, not a contract. An explicit `false` makes the deny path something a reviewer can see and a test can assert, and it does not depend on the platform continuing to treat blank as a denial.
 
@@ -99,6 +101,7 @@ For complex policies, use early-exit `{% return %}` after every echo:
 ```yaml
 ---
 id: auth-policies-handle-nil
+code: INS-AUTH-003
 applies_to: [policy]
 severity: warning
 evidence: real-project
@@ -107,7 +110,7 @@ audit_ref: audit/v0-conflicts-batch2.md#rule-r-12
 ---
 ```
 
-**Rule:** Authorization policies SHOULD explicitly check that data is present before accessing nested properties. Don't assume `context.current_user`, related records, or GraphQL results are non-nil.
+**Rule (INS-AUTH-003):** Authorization policies SHOULD explicitly check that data is present before accessing nested properties. Don't assume `context.current_user`, related records, or GraphQL results are non-nil.
 
 **Why:** A nil-access in a policy can either crash (worst case: 500 error returned to user) or silently produce blank output (auth bypass — see `auth-policy-explicit-true-false`). Defensive nil checks prevent both.
 
@@ -142,6 +145,7 @@ audit_ref: audit/v0-conflicts-batch2.md#rule-r-12
 ```yaml
 ---
 id: auth-sign-out-post-with-token
+code: INS-AUTH-004
 applies_to: [page, form]
 severity: warning
 evidence: runtime-failure
@@ -150,7 +154,7 @@ related: [liquid-no-sign-out-tag]
 ---
 ```
 
-**Rule:** Sign out from a `method: post` page that receives the authenticity token. The page checks `context.current_user`, clears the per-login fields it set with `{% session %}`, runs `user_session_destroy`, and redirects. Do not sign out from a `method: get` page, and do not use the legacy `resource: Session` form.
+**Rule (INS-AUTH-004):** Sign out from a `method: post` page that receives the authenticity token. The page checks `context.current_user`, clears the per-login fields it set with `{% session %}`, runs `user_session_destroy`, and redirects. Do not sign out from a `method: get` page, and do not use the legacy `resource: Session` form.
 
 **Why:**
 - **A `method: get` sign-out can be triggered by another site.** The session cookie is `SameSite=Lax`, which browsers send on a top-level GET navigation, so a link or redirect elsewhere signs the person out.

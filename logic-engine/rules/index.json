@@ -6,6 +6,7 @@
   "rules": [
     {
       "id": "partials-no-underscore-prefix",
+      "code": "INS-PART-001",
       "file": "partials.md",
       "applies_to": ["partial"],
       "severity": "error",
@@ -15,6 +16,7 @@
     },
     {
       "id": "pages-one-http-method",
+      "code": "INS-PAGE-001",
       "file": "pages.md",
       "applies_to": ["page"],
       "severity": "info",
@@ -24,6 +26,7 @@
     },
     {
       "id": "render-vs-function-tags",
+      "code": "INS-PART-002",
       "file": "partials.md",
       "applies_to": ["partial", "page"],
       "severity": "info",
@@ -33,6 +36,7 @@
     },
     {
       "id": "graphql-tables-fully-qualified",
+      "code": "INS-GRPH-001",
       "file": "graphql.md",
       "applies_to": ["graphql"],
       "severity": "info",
@@ -42,6 +46,7 @@
     },
     {
       "id": "schema-property-functions",
+      "code": "INS-SCHM-001",
       "file": "schema.md",
       "applies_to": ["graphql"],
       "severity": "error",
@@ -51,6 +56,7 @@
     },
     {
       "id": "csrf-token-required",
+      "code": "INS-FORM-002",
       "file": "forms.md",
       "applies_to": ["form", "page"],
       "severity": "warning",
@@ -60,6 +66,7 @@
     },
     {
       "id": "commands-return-valid-errors",
+      "code": "INS-CMND-002",
       "file": "commands.md",
       "applies_to": ["command"],
       "severity": "warning",
@@ -69,6 +76,7 @@
     },
     {
       "id": "commands-args-object-syntax",
+      "code": "INS-CMND-003",
       "file": "commands.md",
       "applies_to": ["command", "page"],
       "severity": "warning",
@@ -78,6 +86,7 @@
     },
     {
       "id": "auth-policies-in-front-matter",
+      "code": "INS-AUTH-001",
       "file": "authorization.md",
       "applies_to": ["page", "policy"],
       "severity": "warning",
@@ -87,6 +96,7 @@
     },
     {
       "id": "auth-policy-explicit-true-false",
+      "code": "INS-AUTH-002",
       "file": "authorization.md",
       "applies_to": ["policy"],
       "severity": "error",
@@ -97,6 +107,7 @@
     },
     {
       "id": "auth-policies-handle-nil",
+      "code": "INS-AUTH-003",
       "file": "authorization.md",
       "applies_to": ["policy"],
       "severity": "warning",
@@ -106,6 +117,7 @@
     },
     {
       "id": "use-related-record-for-joins",
+      "code": "INS-GRPH-002",
       "file": "graphql.md",
       "applies_to": ["graphql"],
       "severity": "warning",
@@ -115,6 +127,7 @@
     },
     {
       "id": "liquid-blocks-line-wrapping",
+      "code": "INS-LIQD-001",
       "file": "liquid-syntax.md",
       "applies_to": ["page", "partial", "command", "policy"],
       "severity": "info",
@@ -124,6 +137,7 @@
     },
     {
       "id": "use-context-constants-for-secrets",
+      "code": "INS-MODL-002",
       "file": "modules.md",
       "applies_to": ["page", "partial", "command", "graphql"],
       "severity": "error",
@@ -134,6 +148,7 @@
     },
     {
       "id": "pipe-vars-through-json-filter",
+      "code": "INS-CMND-001",
       "file": "commands.md",
       "applies_to": ["command", "form", "page"],
       "severity": "error",
@@ -144,6 +159,7 @@
     },
     {
       "id": "forms-no-form-tag",
+      "code": "INS-FORM-001",
       "file": "forms.md",
       "applies_to": ["form"],
       "severity": "error",
@@ -154,6 +170,7 @@
     },
     {
       "id": "modules-always-present",
+      "code": "INS-MODL-001",
       "file": "modules.md",
       "applies_to": ["global"],
       "severity": "info",
@@ -164,6 +181,7 @@
     },
     {
       "id": "pages-prefer-partials-for-shared-html",
+      "code": "INS-PAGE-002",
       "file": "pages.md",
       "applies_to": ["page"],
       "severity": "warning",
@@ -173,6 +191,7 @@
     },
     {
       "id": "graphql-in-partials-restricted",
+      "code": "INS-PART-003",
       "file": "partials.md",
       "applies_to": ["partial"],
       "severity": "warning",
@@ -182,6 +201,7 @@
     },
     {
       "id": "commands-build-check-execute",
+      "code": "INS-CMND-004",
       "file": "commands.md",
       "applies_to": ["command"],
       "severity": "warning",
@@ -192,6 +212,7 @@
     },
     {
       "id": "validate-input-in-check-stage",
+      "code": "INS-CMND-005",
       "file": "commands.md",
       "applies_to": ["command"],
       "severity": "warning",
@@ -201,6 +222,7 @@
     },
     {
       "id": "extract-reusable-validations",
+      "code": "INS-CMND-006",
       "file": "commands.md",
       "applies_to": ["command", "form"],
       "severity": "info",
@@ -210,6 +232,7 @@
     },
     {
       "id": "api-pages-declare-a-guard",
+      "code": "INS-APIS-001",
       "file": "api-endpoints.md",
       "applies_to": ["page"],
       "severity": "warning",
@@ -220,6 +243,7 @@
     },
     {
       "id": "api-slug-no-format-extension",
+      "code": "INS-APIS-002",
       "file": "api-endpoints.md",
       "applies_to": ["page"],
       "severity": "warning",
@@ -230,6 +254,7 @@
     },
     {
       "id": "api-no-credentials-in-url",
+      "code": "INS-APIS-003",
       "file": "api-endpoints.md",
       "applies_to": ["page"],
       "severity": "error",
@@ -240,6 +265,7 @@
     },
     {
       "id": "liquid-no-sign-out-tag",
+      "code": "INS-LIQD-002",
       "file": "liquid-syntax.md",
       "applies_to": ["page", "partial", "layout", "command", "form", "policy"],
       "severity": "error",
@@ -249,6 +275,7 @@
     },
     {
       "id": "auth-sign-out-post-with-token",
+      "code": "INS-AUTH-004",
       "file": "authorization.md",
       "applies_to": ["page", "form"],
       "severity": "warning",
@@ -257,6 +284,7 @@
     },
     {
       "id": "forms-enquiry-to-sales-pipeline",
+      "code": "INS-FORM-003",
       "file": "forms.md",
       "applies_to": ["form", "page"],
       "severity": "info",
@@ -266,6 +294,7 @@
     },
     {
       "id": "schema-table-metadata",
+      "code": "INS-SCHM-002",
       "file": "schema.md",
       "applies_to": ["schema"],
       "severity": "error",
@@ -275,6 +304,7 @@
     },
     {
       "id": "pages-name-in-front-matter",
+      "code": "INS-PAGE-003",
       "file": "pages.md",
       "applies_to": ["page"],
       "severity": "warning",

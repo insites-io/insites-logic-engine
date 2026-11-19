@@ -7,6 +7,7 @@ Rules about the module model, platform configuration, secrets management, and ho
 ```yaml
 ---
 id: modules-always-present
+code: INS-MODL-001
 applies_to: [global]
 severity: info
 evidence: real-project
@@ -18,7 +19,7 @@ supersedes:
 ---
 ```
 
-**Rule:** Every Insites module is **always present** on every instance. Modules are checked-in source code under `modules/{module-name}/` — they are never installed at runtime. What varies between instances is the **version** of each module.
+**Rule (INS-MODL-001):** Every Insites module is **always present** on every instance. Modules are checked-in source code under `modules/{module-name}/` — they are never installed at runtime. What varies between instances is the **version** of each module.
 
 **Why:** The skill content originally said modules are "installed once and brought in via app.yml" and that the `modules/` folder is "READ-ONLY because addons are installed there and changes will be overwritten on upgrade." Both are factually wrong:
 
@@ -48,6 +49,7 @@ This matters because users coming from other platforms (Webflow, Shopify, WordPr
 ```yaml
 ---
 id: use-context-constants-for-secrets
+code: INS-MODL-002
 applies_to: [page, partial, command, graphql]
 severity: error
 evidence: runtime-failure
@@ -57,7 +59,7 @@ preship_action: "Migrate hardcoded Statsig key in app-portal/modules/website/pub
 ---
 ```
 
-**Rule:** Secrets — API keys, auth tokens, endpoints, credentials of any kind — MUST come from `context.constants` (or environment-injected values). They MUST NOT be hardcoded in templates, GraphQL files, JavaScript, or HTML.
+**Rule (INS-MODL-002):** Secrets — API keys, auth tokens, endpoints, credentials of any kind — MUST come from `context.constants` (or environment-injected values). They MUST NOT be hardcoded in templates, GraphQL files, JavaScript, or HTML.
 
 **Why:** Hardcoded secrets get committed to git, leak via view-source, ship into client bundles, and are nearly impossible to rotate without a code change. Even "client-safe" keys (like Statsig client keys) follow this rule because:
 - It establishes the secrets-management pattern for the team.
