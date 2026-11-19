@@ -7,6 +7,7 @@ Rules that apply to schema definitions and the GraphQL property-access functions
 ```yaml
 ---
 id: schema-property-functions
+code: INS-SCHM-001
 applies_to: [graphql]
 severity: error
 evidence: real-project
@@ -15,7 +16,7 @@ audit_ref: audit/v0-conflicts-batch3.md#rule-r-25
 ---
 ```
 
-**Rule:** Access schema properties in GraphQL via the typed property functions:
+**Rule (INS-SCHM-001):** Access schema properties in GraphQL via the typed property functions:
 
 | Function | For property type |
 |---|---|
@@ -51,6 +52,7 @@ results {
 ```yaml
 ---
 id: schema-table-metadata
+code: INS-SCHM-002
 applies_to: [schema]
 severity: error
 evidence: skill-only
@@ -59,7 +61,7 @@ related: [schema-property-functions]
 ---
 ```
 
-**Rule:** Every table that appears in the IIA Databases screen names the table, groups its fields, and gives every field a label, a place and a tooltip. In practice that is a project's own `app/schema` tables: the customer and app tables a person opens, reads and edits in the admin.
+**Rule (INS-SCHM-002):** Every table that appears in the IIA Databases screen names the table, groups its fields, and gives every field a label, a place and a tooltip. In practice that is a project's own `app/schema` tables: the customer and app tables a person opens, reads and edits in the admin.
 
 **Scope:** The rule is about what people see, so it covers the tables the Databases screen lists and nothing else. The list leaves out:
 

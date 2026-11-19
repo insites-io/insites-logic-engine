@@ -42,6 +42,7 @@ export type AppliesTo = z.infer<typeof AppliesToSchema>;
 
 export const RuleFrontmatterSchema = z.object({
   id: z.string().regex(/^[a-z][a-z0-9-]*$/, "id must be kebab-case"),
+  code: z.string().regex(/^[A-Z]{3}-[A-Z]{4}-\d{3}$/, "code must be SCOPE-AREA-NNN, for example INS-AUTH-001"),
   applies_to: z.array(AppliesToSchema).min(1),
   severity: SeveritySchema,
   evidence: EvidenceClassSchema,

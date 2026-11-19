@@ -7,6 +7,7 @@ Rules that apply to files under `app/views/partials/` (or module-equivalent path
 ```yaml
 ---
 id: partials-no-underscore-prefix
+code: INS-PART-001
 applies_to: [partial]
 severity: error
 evidence: real-project
@@ -15,7 +16,7 @@ audit_ref: audit/v0-conflicts-batch1.md#rule-r-3
 ---
 ```
 
-**Rule:** Partial filenames MUST NOT start with an underscore. Use `partials/products/card.liquid`, not `partials/products/_card.liquid`.
+**Rule (INS-PART-001):** Partial filenames MUST NOT start with an underscore. Use `partials/products/card.liquid`, not `partials/products/_card.liquid`.
 
 **Why:** The platform's render resolution treats underscore-prefixed files differently (or rejects them outright). Conventional naming guarantees `{% render 'products/card' %}` resolves to the expected file across all environments.
 
@@ -28,6 +29,7 @@ audit_ref: audit/v0-conflicts-batch1.md#rule-r-3
 ```yaml
 ---
 id: render-vs-function-tags
+code: INS-PART-002
 applies_to: [partial, page]
 severity: info
 evidence: real-project
@@ -36,7 +38,7 @@ audit_ref: audit/v0-conflicts-batch2.md#rule-r-14
 ---
 ```
 
-**Rule:** Use `{% render 'path/name' %}` for partials that produce HTML output. Use `{% function result = 'path/name' %}` for partials that return a value the caller will use.
+**Rule (INS-PART-002):** Use `{% render 'path/name' %}` for partials that produce HTML output. Use `{% function result = 'path/name' %}` for partials that return a value the caller will use.
 
 **Why:** The two tags have different semantics. `render` is a side-effect (HTML emitted into the output stream). `function` is a return-a-value call (assigns to a variable). Mixing them makes templates harder to read and reason about.
 
@@ -53,6 +55,7 @@ audit_ref: audit/v0-conflicts-batch2.md#rule-r-14
 ```yaml
 ---
 id: graphql-in-partials-restricted
+code: INS-PART-003
 applies_to: [partial]
 severity: warning
 evidence: real-project
@@ -62,7 +65,7 @@ supersedes: [graphql-not-in-partials]
 ---
 ```
 
-**Rule:** GraphQL calls in partials are permitted ONLY for:
+**Rule (INS-PART-003):** GraphQL calls in partials are permitted ONLY for:
 
 1. **Data-heavy block partials** — product recommendations, category filters, search facets, anything that's a self-contained data block reused across pages.
 2. **Internal calculations** — discount validation, order total computation, date math against records.

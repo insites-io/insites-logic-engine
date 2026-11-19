@@ -9,6 +9,7 @@ Evidence for every rule in this file was measured over the default branch of all
 ```yaml
 ---
 id: api-pages-declare-a-guard
+code: INS-APIS-001
 applies_to: [page]
 severity: warning
 evidence: real-project
@@ -19,7 +20,7 @@ related: [auth-policies-in-front-matter, auth-policy-explicit-true-false]
 ---
 ```
 
-**Rule:** Every page under `views/pages/api/` MUST either declare `authorization_policies` in front matter, call a guard function before touching data, or state in a comment that it is public and why:
+**Rule (INS-APIS-001):** Every page under `views/pages/api/` MUST either declare `authorization_policies` in front matter, call a guard function before touching data, or state in a comment that it is public and why:
 
 ```liquid
 {% comment %}public endpoint: Stripe calls this; the signature is verified below{% endcomment %}
@@ -40,6 +41,7 @@ related: [auth-policies-in-front-matter, auth-policy-explicit-true-false]
 ```yaml
 ---
 id: api-slug-no-format-extension
+code: INS-APIS-002
 applies_to: [page]
 severity: warning
 evidence: real-project
@@ -50,7 +52,7 @@ related: [pages-one-http-method]
 ---
 ```
 
-**Rule:** A page's `slug` (or `path`) MUST NOT contain `.json`. Declare the format with `format: json` in front matter.
+**Rule (INS-APIS-002):** A page's `slug` (or `path`) MUST NOT contain `.json`. Declare the format with `format: json` in front matter.
 
 **Why:** The format belongs to the response, not the URL. A `.json` slug forks the URL space (`/products` and `/products.json`) and every module endpoint already avoids it, so a slug that carries it is almost always a mistake copied from another platform.
 
@@ -70,6 +72,7 @@ format: json
 ```yaml
 ---
 id: api-no-credentials-in-url
+code: INS-APIS-003
 applies_to: [page]
 severity: error
 evidence: real-project
@@ -80,7 +83,7 @@ related: [use-context-constants-for-secrets]
 ---
 ```
 
-**Rule:** A credential MUST NOT travel in the URL. No slug segment named like a credential (`:api_key`, `:secret`, `:password`, `:access_token`), and no GET page reading one from `context.params`. Read it from a header instead.
+**Rule (INS-APIS-003):** A credential MUST NOT travel in the URL. No slug segment named like a credential (`:api_key`, `:secret`, `:password`, `:access_token`), and no GET page reading one from `context.params`. Read it from a header instead.
 
 **Why:** URLs are written to browser history, server and proxy logs, analytics, and `Referer` headers. A key in a URL is a key that has already been shared.
 
