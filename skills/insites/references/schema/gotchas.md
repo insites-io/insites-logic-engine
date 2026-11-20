@@ -180,6 +180,16 @@ So a deploy of a private schema file cannot be confirmed by listing tables. Conf
 - **When you compare an instance with a site's repo**, for example while bringing a site's code back into its repo or moving it to a new instance, a table that exists only on the instance is expected. It is not a gap to commit.
 - **Module repos are the exception.** A module ships its tables, so its schema files belong in the module's repo (`modules/<name>/public/schema/` or `private/schema/`). The rule `schema-files-out-of-site-repos` (INS-SCHM-003) covers site repos only.
 
+## The Search Index Types a Property From Its Values
+
+**Symptom:** the instance log shows `ElasticsearchIndexError ... failed to parse field [properties.string__<name>] of type [date]` on every write to a table.
+
+**Cause:** the search index decides a property's type from the values it sees. Measured on a v6 production instance on 18 November 2026: a `string` property named `period` held date-shaped values such as `2026-10`, and the index typed it as a date. Rows whose `period` was plain text (`last30`, `now`) then logged the error on every write, in a new table and in an older one alike.
+
+**What it did and did not break:** the rows were written and stayed readable. A `records` query filtered on a different property returned all of them (40 rows, measured). Not measured: whether a `records` filter on the affected property with a text value works, and whether search misses those rows.
+
+**Solution:** keep every value of a property in one shape. If a `string` property must hold both dates and words, store the words as stand-in values in the date shape, or use two properties. When you see `ElasticsearchIndexError`, run the read your page uses and count what comes back before concluding that rows are missing.
+
 ## See Also
 
 - [README.md](README.md) -- overview and getting started

@@ -77,6 +77,19 @@ Common pitfalls and how to avoid them when using Insites Liquid objects.
 {%- endif -%}
 ```
 
+### Problem: A Top-Level `action` Param Does Not Arrive as Sent
+
+Measured on a v6 instance on 31 October 2026 with `curl`: a JSON `POST` whose body had a top-level `action` key (`{"action":"question"}`) reached the page with `context.params.action` holding something other than `question`, so the page's check on it failed. The same fields wrapped as `{"payload":{"action":"question"}}` arrived intact. Only `action` was tested; other routing-style names may behave the same way, which is inferred, not measured.
+
+**Solution:** do not read a top-level param named `action`. Wrap the request body in an object of your own and read from it:
+
+```liquid
+{%- assign body = context.params.payload -%}
+{%- if body.action == 'question' -%}
+  ...
+{%- endif -%}
+```
+
 ## Session Management Gotchas
 
 ### Problem: Assuming Session Always Persists
