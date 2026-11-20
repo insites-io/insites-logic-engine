@@ -303,6 +303,16 @@
       "related": ["schema-property-functions"]
     },
     {
+      "id": "schema-files-out-of-site-repos",
+      "code": "INS-SCHM-003",
+      "file": "schema.md",
+      "applies_to": ["schema"],
+      "severity": "warning",
+      "evidence": "real-project",
+      "evidence_source": "Confirmed on 20 November 2026 while moving a site from v5 to v6: tables edited in the IIA Databases screen were not in the repo, and a deploy including the committed schema files would have overwritten them. Admin edits change the instance only; nothing writes back to a repo.",
+      "related": ["schema-table-metadata"]
+    },
+    {
       "id": "pages-name-in-front-matter",
       "code": "INS-PAGE-003",
       "file": "pages.md",
