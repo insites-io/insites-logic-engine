@@ -38,7 +38,7 @@ app/                              # or modules/<name>/public/ or modules/<name>/
 ├── api_calls/                    # Third-party API integrations grouped by service
 │   ├── <service-a>/
 │   └── <service-b>/
-├── schema/                       # Database table definitions (YAML)
+├── schema/                       # Database table definitions (YAML). Module repos only: a site keeps its tables in the admin, see schema/gotchas.md
 ├── user.yml                      # Properties on the user record itself, e.g. roles (seen as app/user.yml)
 ├── user_profile_types/           # Custom user-profile schemas (e.g. crm_contact)
 ├── emails/                       # Email templates
