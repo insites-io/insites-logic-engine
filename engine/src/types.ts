@@ -105,7 +105,7 @@ export type Reference = z.infer<typeof ReferenceSchema>;
 export const FilePlanFileSchema = z.object({
   template: z.string(),
   path: z.string(),
-  params: z.record(z.unknown()).optional(),
+  params: z.record(z.string(), z.unknown()).optional(),
   source: z.string().optional(),
 });
 export type FilePlanFile = z.infer<typeof FilePlanFileSchema>;
@@ -145,7 +145,7 @@ export const FeaturePatternDecisionSchema = z.object({
   kind: z.literal("feature-pattern"),
   intent_keywords: z.array(z.string()).optional(),
   when: ConditionSchema.optional(),
-  module_version_required: z.record(z.string()).optional(),
+  module_version_required: z.record(z.string(), z.string()).optional(),
   then: DecisionOutputSchema,
   confidence: ConfidenceSchema,
   audit_ref: z.string().optional(),
@@ -157,7 +157,7 @@ export const ScaffoldDecisionSchema = z.object({
   id: z.string(),
   kind: z.literal("scaffold"),
   intent_keywords: z.array(z.string()).optional(),
-  params: z.record(z.string()).optional(),
+  params: z.record(z.string(), z.string()).optional(),
   when: ConditionSchema.optional(),
   then: DecisionOutputSchema,
   confidence: ConfidenceSchema.optional(),
@@ -199,7 +199,7 @@ export const SelectionInputSchema = z.object({
     .optional(),
   installedModules: z.array(InstalledModuleSchema).optional(),
   availableConstants: z.array(z.string()).optional(),
-  signals: z.record(z.unknown()).optional(),
+  signals: z.record(z.string(), z.unknown()).optional(),
 });
 export type SelectionInput = z.infer<typeof SelectionInputSchema>;
 
