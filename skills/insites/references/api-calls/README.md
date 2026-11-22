@@ -62,6 +62,16 @@ Until the 14 October 2026 release the schema described `options.timeout` as: "Fo
 | A page waiting on a 15 s response | 200, after 16.1 to 18.0 s |
 | A page waiting on a 25 s response | 504 from the edge after about 21 s, whatever the timeout |
 
+**Calls from a page to its own site, measured 22 November 2026 on an Insites v6 production instance (shane-sandbox, `api_call_send` GET to a page on the same site that bulk-creates N records and answers JSON):**
+
+| N records created by the called page | Time per call |
+|---|---|
+| 1 | 340 to 480 ms (10 calls, one at 820 ms) |
+| 100 | 580 to 1,500 ms (3 calls) |
+| 500 | about 1,870 ms (1 call) |
+
+The site was calling itself, so these times include no network distance. On staging, a page that built and bulk-created 8 batches of 500 records in one request was cut off with a 504 at about 21 seconds; 3 batches of 500 finished in 5 to 6 seconds. `records_create` of 500 records with 12 string properties took 1.1 to 1.9 seconds per call (staging, over 100 calls).
+
 What follows from it:
 
 - **The timeout is the longest wait for the next bytes**, not for the whole response. A service that streams its answer keeps the call alive past the timeout.

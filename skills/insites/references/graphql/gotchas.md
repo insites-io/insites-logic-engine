@@ -173,6 +173,31 @@ A property written with `value` is stored as text, so a later `value_int` filter
 
 where `weight_int` is read with `property_int: "weight"` in the query.
 
+## Measured on staging and production, 22 November 2026
+
+Measured on Insites v6 staging and production (shane-sandbox) while testing an audit log (TW#27012470). Where only one stack is named, the other was not run.
+
+### `admin_versions`: what leaves a version and what does not
+
+- **Leaves a version:** a single `record_create` (`resource` is `{}`), `record_update` (`resource` holds every field before the change, including `properties`), `record_delete` (`resource` holds the record before it was deleted), and a `record_create` made by a background job.
+- **Leaves no version:** `records_create` (bulk, two rows tried), `records_update_all`, and a `record_create` inside a rolled-back transaction. A history built from `admin_versions` misses every bulk write.
+- **`whodunnit`:** on a page request with no signed-in user it is `null` for create and delete and the text `record_update` for a plain property update. After `{% sign_in user_id: ... %}` (read on the next request, same cookie) create, update and delete all carry the user's id as a string (staging, one run).
+- **`sort: [{ id: { order: ASC } }]` is not honoured.** Results came back out of id order.
+- **`filter: { id: { range: { gt: "<id>" } } }` is ignored.** It returned versions with lower ids (246 on staging, 48 on production), so there is no usable cursor on `id`.
+- **These filters work:** `filter: { item_id: { value: "<record id>" } }` and `filter: { created_at: { gte: "<iso>" } }`. Page with `created_at` and `item_id`.
+
+### `record_delete` needs `table`
+
+`record_delete(id: ...)` alone fails with "You must specify table to which the record should belong". Pass `table:` as well. Measured on staging.
+
+### `records_create` properties need a `PropertiesObject` variable
+
+`records_create(records: [{ table: "t", properties: { marker: $a } }])` is refused: "Argument 'properties' ... has an invalid value ({marker: $a}). Expected type 'PropertiesObject'". Pass the whole properties object as one variable of type `PropertiesObject`, or the whole array as one variable of type `[RecordsCreateInputType!]!`. Measured on staging.
+
+### `remote_records` and `remote_users`
+
+From the platform's public documentation, read 22 November 2026, **not measured**: both send a GET only, read only, to an endpoint page you write, and are "not available in requests sent by another instance". The bundled schema lists them as `remote_records(page, per_page!, endpoint!, filter, sort)` and `remote_users(page, per_page!, filter, sort, endpoint!)`.
+
 ## Troubleshooting Flowchart
 
 ```

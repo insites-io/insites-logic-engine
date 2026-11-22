@@ -90,6 +90,8 @@ last edited 10 November 2026, read 16 November 2026):
 - **Transactions:** a job queued inside `{% transaction %}` is queued only on commit, and never if
   the transaction rolls back
   (https://documentation.platformos.com/developer-guide/background-jobs/creating-background-job-liquid).
+  Measured on Insites v6 staging and production, 22 November 2026: the tag still returns a job id for
+  a job queued in a rolled-back transaction, and the job never runs.
 
 ## Recurring Work
 

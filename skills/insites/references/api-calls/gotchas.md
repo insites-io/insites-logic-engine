@@ -100,7 +100,9 @@ request_headers: |
 
 ### Timeout Errors
 
-**Issue**: API call exceeds default timeout (30 seconds)
+**Issue**: API call exceeds the timeout
+
+> **Unverified, 22 November 2026:** this page used to state a 30 second default timeout. The measured table in [README.md](README.md#how-long-a-call-may-take) does not support it: a call with no `timeout` answered after 10 s succeeded, and a page is cut off with a 504 at about 21 seconds whatever the timeout. The platform's public documentation does not state a 30 second default. Treat "30 seconds" as unverified.
 
 **Solution**:
 - Increase timeout in configuration
@@ -108,7 +110,8 @@ request_headers: |
 - Use background jobs for long-running tasks
 
 ```liquid
-<!-- Use async for long operations -->
+<!-- UNVERIFIED: `async: true` on the api_call tag is not in the platform's public
+     documentation and has not been measured. Prefer a {% background %} job. -->
 {% api_call 'large_export' async: true %}
   to: https://api.example.com/export
   format: json

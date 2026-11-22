@@ -284,6 +284,7 @@ with.
 Creates an HMAC signature. With only the secret it is HMAC-SHA256 as lowercase hex. Pass
 `'sha256', 'base64'` for base64, as some webhook providers send it. There is no `hmac_sha256`
 filter: it answers "undefined filter".
+Measured on an Insites v6 staging instance, 22 November 2026: `'entry-body|1795330000' | compute_hmac: 'test-secret'` gave `f8f84fd455727e659a819dccdc079cc92741590ddc35da3dbb0e9cb7d3e74f38`, identical to Python `hmac.new(b'test-secret', b'entry-body|1795330000', hashlib.sha256).hexdigest()`.
 
 ### hkdf
 ```liquid

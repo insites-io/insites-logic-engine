@@ -324,6 +324,8 @@ Non-blocking execution:
 
 Returns job ID immediately.
 
+> **Unverified, 22 November 2026:** `async: true` on the `api_call` tag is not in the platform's public documentation and no measured note in this repo covers it. To run a call without blocking the page, queue a `{% background %}` job that makes the call.
+
 ### Monitor Job Status
 
 ```liquid

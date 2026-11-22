@@ -150,6 +150,14 @@ Always set reasonable `max_attempts` limit:
 
 ---
 
+### Error 7: A Failed GraphQL Step Inside a Job Does Not Fail the Job
+
+**Measured on an Insites v6 staging instance (shane-sandbox), 22 November 2026, three runs.** A job that ran `record_create`, then a `record_update` of an id that does not exist, then another `record_create`, saved **both** records. It never appeared as `DEAD` or `RETRY`, with `max_attempts: 1` and with `max_attempts: 2`, and the log got no entry for the error.
+
+So `max_attempts` does not retry a job whose own Liquid or GraphQL step errored. A job that must not carry on has to check each result itself and stop (see the `unless step1.error` pattern in [Migration gotchas](../migrations/gotchas.md#transaction-rollback-not-supported)), or wrap the writes in `{% transaction %}` so a failed write undoes the earlier ones.
+
+---
+
 ## Common Mistakes
 
 ### Mistake 1: Assuming Execution Order
