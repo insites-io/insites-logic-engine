@@ -116,7 +116,7 @@ Advanced patterns, optimization strategies, and professional techniques for Insi
   {%- assign total_all = total_all | plus: amount -%}
 
   {%- assign current = region_totals[region] | default: 0 -%}
-  {%- hash_assign region_totals[region] = current | plus: amount -%}
+  {%- assign region_totals[region] = current | plus: amount -%}
 {%- endfor -%}
 
 {%- for region_key in region_totals | hash_keys -%}

@@ -148,10 +148,48 @@ With both written this way, a signed-out visitor reaches `/sign-in` whichever po
 
 ---
 
-## 13. Deployed partials and layouts have no name in the CMS
+## 13. Deployed pages, partials and layouts have no name in the CMS
 
-**Bites:** the CMS lists partials and layouts you deployed with a dash where the name should be.
+**Bites:** the CMS lists pages, partials and layouts you deployed with a blank or a dash where the name should be. Renaming a page in the admin does not last: the next deploy of its file blanks the name again.
 
-**Why:** the CMS reads the display name from `metadata.partial_name` (partials) and `metadata.layout_name` (layouts). A deploy or sync does not set either.
+**Why:** the CMS reads the display name from `metadata.page_name` (pages), `metadata.partial_name` (partials) and `metadata.layout_name` (layouts). A deploy or sync sets none of them unless the file says so. For a page, a deploy also replaces the record's whole `metadata` with the front matter's, so a name typed in the admin is lost. Measured on a v6 production instance on 30 October 2026 through CloudShell: a page renamed in the admin read back `metadata: {"page_name": "..."}`, a deploy of its file with no `metadata:` read back `{}`, and a deploy with `metadata: page_name:` in the front matter read back the name.
 
-**Avoid:** set the key in the record's metadata after deploying when a readable name matters. See [partials configuration](../../partials/configuration.md#display-name-in-the-cms).
+**Avoid:** give every page a `page_name` in its front matter, so the name lives with the file and survives every deploy:
+
+```liquid
+---
+slug: ai-adoption
+layout: ''
+metadata:
+  page_name: AI Adoption - Overview
+---
+```
+
+For a partial or layout, set the key in the record's metadata after deploying when a readable name matters. See [partials configuration](../../partials/configuration.md#display-name-in-the-cms) and [pages configuration](../../pages/configuration.md#display-name-in-the-cms).
+
+---
+
+## 14. A details layout answers 200 when no item matches
+
+**Bites:** a details layout is rendered even when no item matches the address: the response is 200 with an empty layout. Crawlers index blank pages and broken links look healthy.
+
+**Avoid:** check the item was found; if not, set `response_status: 404` and render not-found content. (Reported to the CMS team as a bug; remove this note once the CMS answers 404 itself.)
+
+---
+
+## 15. SEO metadata: v5 page keys and the keys v6 reads
+
+`modules/insites_cms/seo` reads these page `metadata` keys. A page carried over from v5 needs its keys renamed:
+
+| v5 key | v6 key |
+|---|---|
+| `description` | `meta_description` |
+| `canonical` | `canonical_url` |
+| `open_graph.facebook.title` | `open_graph_title` |
+| `open_graph.facebook.description` | `open_graph_description` |
+| `open_graph.facebook.url` | `open_graph_url` |
+| `open_graph.facebook.site_name` | `open_graph_site_name` |
+| `open_graph.facebook.type` | `open_graph_type` |
+| `enable_indexed` | `is_visible_to_search_engines` |
+
+The v6 partial omits blank og tags, reads `og:image` from `open_graph_image` as an upload (`.url`), and prints `noindex` everywhere except production.

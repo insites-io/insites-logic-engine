@@ -196,7 +196,7 @@ Need business logic?
 ├─ Encapsulate a create/update/delete operation → forms/ (callback_actions block)
 ├─ Validate user input → forms/ (YAML `validation:` blocks for fields; cross-field checks in callback_actions)
 ├─ Run code asynchronously → background-jobs/
-├─ Run code on a schedule → background-jobs/ (with delay)
+├─ Run code on a schedule (daily, hourly, no cron) → background-jobs/recurring.md
 └─ Send email after an action → forms/ (callback_actions invoke email partial) + emails-sms/
 ```
 

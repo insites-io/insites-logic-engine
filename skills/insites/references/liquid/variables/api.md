@@ -192,18 +192,18 @@ Always use `| json` when interpolating into JSON strings.
 {%- assign specific = data | hash_dig: 'settings', 'theme' -%}
 ```
 
-## hash_assign Tag API
+## Hash Key Assignment (`hash_assign` is deprecated)
 
 ### Basic Hash Assignment
 ```liquid
-{%- hash_assign my_hash['key'] = value -%}
+{%- assign my_hash['key'] = value -%}
 ```
 
 Assigns value to hash key. Creates hash if doesn't exist.
 
 ### Nested Hash Assignment
 ```liquid
-{%- hash_assign user['profile']['address']['city'] = 'New York' -%}
+{%- assign user['profile']['address']['city'] = 'New York' -%}
 ```
 
 Creates nested structure if needed.
@@ -211,14 +211,14 @@ Creates nested structure if needed.
 ### Hash Assignment from Variables
 ```liquid
 {%- assign new_value = 'updated' -%}
-{%- hash_assign config['setting'] = new_value -%}
+{%- assign config['setting'] = new_value -%}
 ```
 
 ### Multiple Assignments
 ```liquid
-{%- hash_assign user['name'] = 'John' -%}
-{%- hash_assign user['email'] = 'john@example.com' -%}
-{%- hash_assign user['active'] = true -%}
+{%- assign user['name'] = 'John' -%}
+{%- assign user['email'] = 'john@example.com' -%}
+{%- assign user['active'] = true -%}
 ```
 
 ## increment/decrement API

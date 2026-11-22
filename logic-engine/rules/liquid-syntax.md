@@ -7,6 +7,7 @@ Rules about Liquid block formatting, tag usage, and template structure.
 ```yaml
 ---
 id: liquid-blocks-line-wrapping
+code: INS-LIQD-001
 applies_to: [page, partial, command, policy]
 severity: info
 evidence: skill-only
@@ -15,7 +16,7 @@ audit_ref: audit/v0-conflicts-batch3.md#rule-r-19
 ---
 ```
 
-**Rule:** Inside `{% liquid %}...{% endliquid %}` blocks, each statement MUST occupy a single complete line. Do not wrap multi-line statements (e.g. long filter chains, long function calls) inside a `{% liquid %}` block.
+**Rule (INS-LIQD-001):** Inside `{% liquid %}...{% endliquid %}` blocks, each statement MUST occupy a single complete line. Do not wrap multi-line statements (e.g. long filter chains, long function calls) inside a `{% liquid %}` block.
 
 **Why:** The `{% liquid %}` block parser is line-oriented — each line is a separate statement. A statement that wraps onto a second line breaks the parse. If you need a multi-line expression, either split into multiple `{% liquid %}` blocks, use `{% capture %}` outside the block, or use individual `{% assign %}` / `{% echo %}` tags.
 
@@ -63,6 +64,7 @@ For long expressions, break out:
 ```yaml
 ---
 id: liquid-no-sign-out-tag
+code: INS-LIQD-002
 applies_to: [page, partial, layout, command, form, policy]
 severity: error
 evidence: cli-audit
@@ -72,7 +74,7 @@ related: [auth-sign-out-post-with-token]
 ---
 ```
 
-**Rule:** There is no `sign_out` tag. Do not write `{% sign_out %}`, or `sign_out` as a statement inside a `{% liquid %}` block. Sign out with the `user_session_destroy` mutation instead.
+**Rule (INS-LIQD-002):** There is no `sign_out` tag. Do not write `{% sign_out %}`, or `sign_out` as a statement inside a `{% liquid %}` block. Sign out with the `user_session_destroy` mutation instead.
 
 **Why:** The platform has a `sign_in` tag and no matching `sign_out`, so the pair looks complete and gets guessed. The guess fails the whole template: `Unknown tag 'sign_out'` is a syntax error, so the page renders nothing, not just a page that leaves the person signed in.
 

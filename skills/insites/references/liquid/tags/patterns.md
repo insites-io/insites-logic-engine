@@ -266,8 +266,8 @@ Build and modify hashes dynamically.
 ```liquid
 {% liquid
   assign defaults = '{ "per_page": 20, "sort": "created_at", "order": "desc" }' | parse_json
-  hash_assign defaults["per_page"] = context.params.per_page | default: 20 | to_positive_integer: 20
-  hash_assign defaults["sort"] = context.params.sort | default: 'created_at'
+  assign defaults["per_page"] = context.params.per_page | default: 20 | to_positive_integer: 20
+  assign defaults["sort"] = context.params.sort | default: 'created_at'
   graphql results = 'records/search', options: defaults
 %}
 ```

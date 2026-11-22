@@ -239,12 +239,12 @@ Set custom HTTP response headers. Pass a JSON string.
 (`{% assign cart["items"] << new_item %}`), so there is one syntax for every
 assignment; see [types](../types/api.md). `hash_assign` still works.
 
-Modify hash values by key. Supports nested keys.
+The equivalent `assign` forms (supports nested keys):
 
 ```liquid
-{% hash_assign user["name"] = "Alice" %}
-{% hash_assign config["settings"]["theme"] = "dark" %}
-{% hash_assign cart["items"] = cart["items"] | array_add: new_item %}
+{% assign user["name"] = "Alice" %}
+{% assign config["settings"]["theme"] = "dark" %}
+{% assign cart["items"] = cart["items"] | array_add: new_item %}
 ```
 
 ## print

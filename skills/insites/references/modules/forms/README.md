@@ -18,6 +18,8 @@ HTML forms, CSRF and form definitions with `callback_actions` are covered in [`.
 
 Forms declares **no** controller aliases, so there is nothing to `{% function %}` ([`alias-inventory.md`](../../building-on-insites/reference/alias-inventory.md), "Modules that declare no controller aliases"). Every page includes a private controller partial by file path. Reach the module over HTTP, or render the partials listed in [`advanced.md`](advanced.md).
 
+**Rendering a Forms partial from your own code is not a declared interface.** The module's controller partials are private: they carry no alias, and their file paths and parameters can change between module versions. A guide that saves form submissions into the CRM by rendering such a partial works only until the module changes it. Use the public v2 REST route for the same job (the form-to-pipeline tutorial does). Whether rendering a private partial from app code is a supported use is an open question for the Insites team; until it is answered, do not teach it as the way to do this.
+
 ## Surface at a glance
 
 Counted in module-v6-forms v6.1.1 on 20 October 2026: 21 page files under `private/views/pages/api/forms/`, all under `/insites/forms`. 17 carry `modules/insites_crm/insites_only_allowed_by_administrators`; 4 carry no policy and say "public on purpose" in their front matter.

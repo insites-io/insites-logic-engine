@@ -63,21 +63,21 @@ The platform runs `{% graphql %}` inside a partial called this way: `signin/take
   { "title": {{ title | json }}, "price": {{ price | json }} }
 {% endparse_json %}
 {% liquid
-  hash_assign object['valid'] = true
-  hash_assign object['errors'] = '{}' | parse_json
+  assign object['valid'] = true
+  assign object['errors'] = '{}' | parse_json
 
   comment Check: inline validation
   if object.title == blank
     assign field_errors = object.errors.title | default: '[]' | parse_json | add_to_array: "can't be blank"
-    hash_assign object['errors']['title'] = field_errors
-    hash_assign object['valid'] = false
+    assign object['errors']['title'] = field_errors
+    assign object['valid'] = false
   endif
 
   comment Execute: run GraphQL mutation if valid
   if object.valid
     graphql r = 'products/create', args: object
     assign object = r.record_create
-    hash_assign object['valid'] = true
+    assign object['valid'] = true
   endif
 
   return object
@@ -151,15 +151,15 @@ When you see the same logic repeated across multiple files, extract it into a re
 {% comment %} commands/products/create.liquid {% endcomment %}
 {% if object.title == blank %}
   {% assign errs = c.errors.title | default: '[]' | parse_json | add_to_array: "can't be blank" %}
-  {% hash_assign c['errors']['title'] = errs %}
-  {% hash_assign c['valid'] = false %}
+  {% assign c['errors']['title'] = errs %}
+  {% assign c['valid'] = false %}
 {% endif %}
 
 {% comment %} commands/orders/create.liquid — same pattern, different field {% endcomment %}
 {% if object.customer_name == blank %}
   {% assign errs = c.errors.customer_name | default: '[]' | parse_json | add_to_array: "can't be blank" %}
-  {% hash_assign c['errors']['customer_name'] = errs %}
-  {% hash_assign c['valid'] = false %}
+  {% assign c['errors']['customer_name'] = errs %}
+  {% assign c['valid'] = false %}
 {% endif %}
 ```
 
@@ -170,8 +170,8 @@ When you see the same logic repeated across multiple files, extract it into a re
   if object[field_name] == blank
     assign message = message | default: "can't be blank"
     assign errs = c.errors[field_name] | default: '[]' | parse_json | add_to_array: message
-    hash_assign c['errors'][field_name] = errs
-    hash_assign c['valid'] = false
+    assign c['errors'][field_name] = errs
+    assign c['valid'] = false
   endif
   return c
 %}
@@ -190,7 +190,7 @@ Now every command calls it in one line:
 {% graphql r = 'products/create', args: object %}
 {% if r.errors %}{% log r, type: 'ERROR' %}{% endif %}
 {% assign object = r.record_create %}
-{% hash_assign object['valid'] = true %}
+{% assign object['valid'] = true %}
 ```
 
 **After** — reusable execute helper:
@@ -203,7 +203,7 @@ Now every command calls it in one line:
     log r, type: 'ERROR: execute'
   endif
   assign object = r[selection]
-  hash_assign object['valid'] = true
+  assign object['valid'] = true
   return object
 %}
 ```

@@ -24,8 +24,8 @@
 <% it.properties.filter(function(p) { return p.required; }).forEach(function(p) { -%>
 {% if object.<%= p.name %> == blank %}
   {% assign field_errors = c.errors.<%= p.name %> | default: '[]' | parse_json | add_to_array: "can't be blank" %}
-  {% hash_assign c['errors']['<%= p.name %>'] = field_errors %}
-  {% hash_assign c['valid'] = false %}
+  {% assign c['errors']['<%= p.name %>'] = field_errors %}
+  {% assign c['valid'] = false %}
 {% endif %}
 <% }) -%>
 {% assign object = object | hash_merge: c %}

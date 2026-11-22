@@ -89,6 +89,10 @@ After a file is uploaded again over an existing asset, `asset_url` (which append
 - Reference every uploaded file through `asset_url`, so a changed file gets a new `?updated=` address.
 - Where a runtime builds addresses itself (webpack chunks, dynamic `import()`), give each changed file a new path, such as a content hash in the file name, and never upload new content over an old path.
 
+## Name the Content-Type on a Presigned PUT
+
+Name the Content-Type on the presigned PUT. If you don't, the file store guesses the type from the first bytes: a script containing SVG markup is then served as `image/svg+xml` and the browser will not run it. A second PUT with the correct type fixes it. Check with `curl -sI` against the `asset_url` the page actually uses, not `/assets/<file>`.
+
 ## Environment-Specific URLs
 
 ### Different CDN in Staging vs Production

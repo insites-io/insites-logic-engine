@@ -39,13 +39,13 @@ Creates a hash/array from JSON. Insites-specific.
 
 **Always use `| json` filter** when interpolating string variables to prevent quote-breaking.
 
-## hash_assign
+## Hash key assignment
 
-Modifies hash values with assign-like syntax.
+`hash_assign` is deprecated; `assign` writes hash keys directly.
 
 ```liquid
-{% hash_assign user["name"]["first"] = "John" %}
-{% hash_assign user["roles"] = user["roles"] | array_add: "admin" %}
+{% assign user["name"]["first"] = "John" %}
+{% assign user["roles"] = user["roles"] | array_add: "admin" %}
 ```
 
 ## increment / decrement

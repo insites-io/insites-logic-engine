@@ -67,8 +67,8 @@ A job sees only the variables passed to the tag, so pass everything it needs. Th
 |-----------|------|---------|-------------|
 | `source_name` | String | -- | Job identifier for logging and tracking |
 | `delay` | Float | `0` | Minutes to delay before execution |
-| `priority` | String | `"default"` | `"low"`, `"default"`, or `"high"` |
-| `max_attempts` | Integer | `1` | Retry count on failure (1-5) |
+| `priority` | String | `"high"` | `"high"` (1 minute), `"default"` (5 minutes) or `"low"` (4 hours). Default measured 16 November 2026 |
+| `max_attempts` | Integer | `0` | Retries after a failure, maximum 9 (documented by platformOS; see `background-jobs/README.md`) |
 
 ## cache
 
@@ -239,8 +239,8 @@ Sets custom HTTP response headers. Accepts a JSON string.
 **Deprecated.** Use `assign obj["key"] = value`, which does the same. Modifies a hash value by key path (supports nested keys).
 
 ```liquid
-{% hash_assign obj["key"] = "value" %}
-{% hash_assign obj["nested"]["key"] = value %}
+{% assign obj["key"] = "value" %}
+{% assign obj["nested"]["key"] = value %}
 ```
 
 ## print

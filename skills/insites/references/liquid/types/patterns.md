@@ -37,15 +37,15 @@ The most common source of bugs is incorrect truthiness checks. Empty strings are
 
 ```liquid
 {% parse_json params %}{}{% endparse_json %}
-{% hash_assign params["page"] = current_page %}
-{% hash_assign params["per_page"] = 20 %}
+{% assign params["page"] = current_page %}
+{% assign params["per_page"] = 20 %}
 
 {% if search_term != blank %}
-  {% hash_assign params["query"] = search_term %}
+  {% assign params["query"] = search_term %}
 {% endif %}
 
 {% if category_id != blank %}
-  {% hash_assign params["category"] = category_id %}
+  {% assign params["category"] = category_id %}
 {% endif %}
 
 {% graphql results = 'products/search', args: params %}

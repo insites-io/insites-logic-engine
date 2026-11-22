@@ -7,6 +7,7 @@ Rules about the module model, platform configuration, secrets management, and ho
 ```yaml
 ---
 id: modules-always-present
+code: INS-MODL-001
 applies_to: [global]
 severity: info
 evidence: real-project
@@ -18,7 +19,7 @@ supersedes:
 ---
 ```
 
-**Rule:** Every Insites module is **always present** on every instance. Modules are checked-in source code under `modules/{module-name}/` — they are never installed at runtime. What varies between instances is the **version** of each module.
+**Rule (INS-MODL-001):** Every Insites module is **always present** on every instance. Modules are checked-in source code under `modules/{module-name}/` — they are never installed at runtime. What varies between instances is the **version** of each module.
 
 **Why:** The skill content originally said modules are "installed once and brought in via app.yml" and that the `modules/` folder is "READ-ONLY because addons are installed there and changes will be overwritten on upgrade." Both are factually wrong:
 
@@ -30,6 +31,7 @@ This matters because users coming from other platforms (Webflow, Shopify, WordPr
 
 **How to apply:**
 - When checking module availability in a decision rule, use `module_version_gte` / `module_version_lt` / `module_version_in_range` to test the version on the current instance — never `module_installed` (which would always return true).
+- A module's tables can gain, lose or rename fields between versions (ecommerce 6.1.0 replaced `is_website_display` with `out_of_stock_action` on product, and fills `net_price` and `unit_tax` with 0 by default). Before writing or importing into `modules/<module>/<table>`, read the installed module version and build field lists for that version. A module's private table may not appear in `admin_tables`, so do not rely on it to validate fields.
 - When extending another team's module, don't edit their files directly. Use composition: write your own pages/partials/commands that call the shared module's exports (`{% function %}`, `{% render %}`, GraphQL queries to shared schemas).
 - When you control the module, you can edit it freely. Modules in your own repo are yours to evolve.
 
@@ -47,6 +49,7 @@ This matters because users coming from other platforms (Webflow, Shopify, WordPr
 ```yaml
 ---
 id: use-context-constants-for-secrets
+code: INS-MODL-002
 applies_to: [page, partial, command, graphql]
 severity: error
 evidence: runtime-failure
@@ -56,7 +59,7 @@ preship_action: "Migrate hardcoded Statsig key in app-portal/modules/website/pub
 ---
 ```
 
-**Rule:** Secrets — API keys, auth tokens, endpoints, credentials of any kind — MUST come from `context.constants` (or environment-injected values). They MUST NOT be hardcoded in templates, GraphQL files, JavaScript, or HTML.
+**Rule (INS-MODL-002):** Secrets — API keys, auth tokens, endpoints, credentials of any kind — MUST come from `context.constants` (or environment-injected values). They MUST NOT be hardcoded in templates, GraphQL files, JavaScript, or HTML.
 
 **Why:** Hardcoded secrets get committed to git, leak via view-source, ship into client bundles, and are nearly impossible to rotate without a code change. Even "client-safe" keys (like Statsig client keys) follow this rule because:
 - It establishes the secrets-management pattern for the team.

@@ -164,17 +164,23 @@ Edges visible in module-v6-ecommerce v6.0.2 source, read on 9 October 2026. Each
 
 ---
 
-## 17. From v6.1.0, `GET /carts/:x` takes a contact uuid, at the same path
+## 17. Table fields change between module versions
+
+A module's tables can gain, lose or rename fields between versions (ecommerce 6.1.0 replaced `is_website_display` with `out_of_stock_action` on product, and fills `net_price` and `unit_tax` with 0 by default). Before writing or importing into `modules/<module>/<table>`, read the installed module version and build field lists for that version. A module's private table may not appear in `admin_tables`, so do not rely on it to validate fields.
+
+---
+
+## 18. From v6.1.0, `GET /carts/:x` takes a contact uuid, at the same path
 
 **Bites:** a client written for v6.0.x calls `GET /ecommerce/api/v2/carts/<cart uuid>` and gets `404` (or another contact's cart never comes back) after the module is upgraded.
 
 **Why:** v6.1.0 made carts one per contact. The page slug changed from `carts/:uuid` to `carts/:contact_uuid`, and `graphql/_external/v2/carts/get_cart.graphql` filters on `contact_uuid`, newest first. `PATCH` and `DELETE /carts/:uuid` still take the cart uuid. `POST /carts` for a contact that already has a cart returns that cart with `is_existing: true` and creates nothing.
 
-**Avoid:** on v6.1.0, read a cart by its contact, or list `/carts` with a filter when you hold only the cart uuid. Check `is_existing` after a create. Read the installed version first (gotcha 12) when the same client talks to both.
+**Avoid:** on v6.1.0, read a cart by its contact, or list `/carts` with a filter when you hold only the cart uuid. Check `is_existing` after a create. Read the installed version first (gotchas 12 and 17) when the same client talks to both.
 
 ---
 
-## 18. `product.is_website_display` is gone in v6.1.0
+## 19. `product.is_website_display` is gone in v6.1.0
 
 **Bites:** `import_models`, GraphQL `record_create` or a V2 write that sends `is_website_display` fails on a v6.1.0 instance with an unknown property. Code that reads it gets null, so a check like `product.is_website_display == true` hides every product.
 
@@ -184,7 +190,7 @@ Edges visible in module-v6-ecommerce v6.0.2 source, read on 9 October 2026. Each
 
 ---
 
-## 19. Rows written outside the module's save keep `net_price` and `unit_tax` at 0
+## 20. Rows written outside the module's save keep `net_price` and `unit_tax` at 0
 
 **Bites:** a product or variant created by `import_models`, plain GraphQL or a migration reads `net_price: 0` and `unit_tax: 0` through the V2 API, though its price is set.
 

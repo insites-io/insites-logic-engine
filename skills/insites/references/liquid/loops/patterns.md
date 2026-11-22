@@ -319,7 +319,7 @@ Common patterns and practical examples for looping in Insites Liquid.
 {%- for item in items -%}
   {%- assign region = item.region -%}
   {%- assign current = region_counts[region] | default: 0 -%}
-  {%- hash_assign region_counts[region] = current | plus: 1 -%}
+  {%- assign region_counts[region] = current | plus: 1 -%}
 {%- endfor -%}
 ```
 

@@ -48,10 +48,10 @@ Filters that expect specific types will coerce input:
 
 ```liquid
 {% parse_json settings %}{}{% endparse_json %}
-{% hash_assign settings["ui"] = nil %}
+{% assign settings["ui"] = nil %}
 {% parse_json ui_defaults %}{"theme": "light", "sidebar": true}{% endparse_json %}
-{% hash_assign settings["ui"] = ui_defaults %}
-{% hash_assign settings["ui"]["theme"] = "dark" %}
+{% assign settings["ui"] = ui_defaults %}
+{% assign settings["ui"]["theme"] = "dark" %}
 
 {{ settings | json }}
 {% comment %} -> {"ui":{"theme":"dark","sidebar":true}} {% endcomment %}
@@ -74,7 +74,7 @@ To do a deep merge, merge nested hashes separately:
 
 ```liquid
 {% assign nested_merged = base.nested | hash_merge: override.nested %}
-{% hash_assign base["nested"] = nested_merged %}
+{% assign base["nested"] = nested_merged %}
 {% assign result = base | hash_merge: override_without_nested %}
 ```
 
@@ -144,10 +144,10 @@ To do a deep merge, merge nested hashes separately:
   {% assign group_key = item.category %}
   {% if groups[group_key] == nil %}
     {% parse_json empty_arr %}[]{% endparse_json %}
-    {% hash_assign groups[group_key] = empty_arr %}
+    {% assign groups[group_key] = empty_arr %}
   {% endif %}
   {% assign updated = groups[group_key] | array_add: item %}
-  {% hash_assign groups[group_key] = updated %}
+  {% assign groups[group_key] = updated %}
 {% endfor %}
 ```
 
@@ -239,7 +239,7 @@ Assigning a hash/array creates a reference, not a copy:
 ```liquid
 {% parse_json original %}{"x": 1}{% endparse_json %}
 {% assign copy = original %}
-{% hash_assign copy["x"] = 99 %}
+{% assign copy["x"] = 99 %}
 {{ original.x }}
 {% comment %} -> 99 (both point to same object) {% endcomment %}
 ```
