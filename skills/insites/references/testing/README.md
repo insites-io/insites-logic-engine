@@ -119,6 +119,8 @@ yourself, because it returns 200 with `total_tests: 0`:
 curl -s "https://<instance>/_tests/run.js" | jq -e '.success and .total_tests > 0 and .total_assertions > 0'
 ```
 
+In zsh, `echo "$json"` turns a `\n` inside a JSON string into a real newline and corrupts the JSON. Pipe with `printf '%s\n' "$json"` or write the response to a file first (measured 22 November 2026).
+
 ## Assertions
 
 All take `contract` and `field_name` and return the updated contract.

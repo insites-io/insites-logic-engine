@@ -186,6 +186,17 @@ Measured on Insites v6 staging and production (shane-sandbox) while testing an a
 - **`filter: { id: { range: { gt: "<id>" } } }` is ignored.** It returned versions with lower ids (246 on staging, 48 on production), so there is no usable cursor on `id`.
 - **These filters work:** `filter: { item_id: { value: "<record id>" } }` and `filter: { created_at: { gte: "<iso>" } }`. Page with `created_at` and `item_id`.
 
+### `records` query time as a table grows
+
+Measured on Insites v6 staging (shane-sandbox), 22 November 2026: one table with 12 string properties and 201,000 records spread over 50 values of a `site_uuid` property, loaded with `records_create` in 387 batches of 500 (every batch stored 500; 950 to 4,598 ms per batch, median 1,650 ms). Queries filtered on `table` plus one or two `properties`, sorted by `created_at DESC`, `per_page: 50`, each run three times in a row.
+
+| Records in the table | Time per query |
+|---|---|
+| 7,500, 10,500, 51,000 and 100,500 | 11 to 43 ms every run (first runs up to 58 ms); the unfiltered count took 213 ms on its first run at 100,500 |
+| 201,000, queried straight after the load | first run 54 to 946 ms (count 946, latest 50 for one value 312, page 40 401, two-property filter 557, `contains` on a string 54); second and third runs 14 to 32 ms |
+
+So the first query after a large load can be slow and later runs are fast. Time the second run, or warm the query, before judging a page. Not measured: queries on a cold table hours later, or on other property types.
+
 ### `record_delete` needs `table`
 
 `record_delete(id: ...)` alone fails with "You must specify table to which the record should belong". Pass `table:` as well. Measured on staging.

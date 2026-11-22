@@ -70,7 +70,19 @@ Until the 14 October 2026 release the schema described `options.timeout` as: "Fo
 | 100 | 580 to 1,500 ms (3 calls) |
 | 500 | about 1,870 ms (1 call) |
 
-The site was calling itself, so these times include no network distance. On staging, a page that built and bulk-created 8 batches of 500 records in one request was cut off with a 504 at about 21 seconds; 3 batches of 500 finished in 5 to 6 seconds. `records_create` of 500 records with 12 string properties took 1.1 to 1.9 seconds per call (staging, over 100 calls).
+The site was calling itself, so these times include no network distance.
+
+**Calls between two different sites, measured 22 November 2026 (shane-sandbox sites, `api_call_send` GET to a page that bulk-creates N records and answers JSON; one run of each pair, calls made one after another):**
+
+| From, to | N=1 | N=100 | N=500 |
+|---|---|---|---|
+| staging, another staging site | 124 to 232 ms (10 calls) | 316 to 966 ms (3) | 1,005 to 1,179 ms (2) |
+| production, another production site | 101 to 1,039 ms (10 calls, half over 500 ms) | 230 to 297 ms (3) | 795 to 1,473 ms (2) |
+| staging, a production site | 96 to 139 ms, one at 676 ms | 247 to 270 ms | 827 to 1,299 ms |
+| production, a staging site | 122 to 243 ms | 279 to 1,300 ms | 1,073 to 1,242 ms |
+| production, itself, same hour | 75 to 129 ms, one at 384 ms | 304 to 386 ms | 1,018 to 1,370 ms |
+
+The same stack and different stacks gave the same range. The spread between calls is larger than the difference between pairs. Batching costs about 2 to 3 ms a record at 500. On staging, a page that built and bulk-created 8 batches of 500 records in one request was cut off with a 504 at about 21 seconds; 3 batches of 500 finished in 5 to 6 seconds. `records_create` of 500 records with 12 string properties took 1.1 to 1.9 seconds per call (staging, over 100 calls).
 
 What follows from it:
 
