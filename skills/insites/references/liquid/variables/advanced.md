@@ -115,7 +115,7 @@ Advanced patterns, optimization strategies, and professional techniques for Insi
   "items": {{ items | json }},
   "metadata": {
     "total_items": {{ items.size | json }},
-    "generated_at": {{ 'now' | iso8601 | json }}
+    "generated_at": {{ 'now' | to_time | strftime: '%Y-%m-%dT%H:%M:%S%:z' | json }}
   }
 }
 {%- endcapture -%}
@@ -239,7 +239,7 @@ Total: {{ total }}, Active: {{ active_count }}, Errors: {{ error_count }}
 
 ### Polymorphic Type Processing
 ```liquid
-{%- assign value_type = source_value | type_of -%}
+{%- assign value_type = source_value | type_of | downcase -%}
 
 {%- case value_type -%}
   {%- when 'string' -%}
@@ -248,7 +248,7 @@ Total: {{ total }}, Active: {{ active_count }}, Errors: {{ error_count }}
     {%- assign processed = source_value | array_sort_by: 'name' -%}
   {%- when 'hash' -%}
     {%- assign processed = source_value | hash_keys -%}
-  {%- when 'number' -%}
+  {%- when 'integer', 'float' -%}
     {%- assign processed = source_value | times: 2 -%}
   {%- else -%}
     {%- assign processed = source_value -%}
@@ -258,7 +258,7 @@ Total: {{ total }}, Active: {{ active_count }}, Errors: {{ error_count }}
 ### Safe Type Coercion
 ```liquid
 {%- assign raw = user_input -%}
-{%- assign type = raw | type_of -%}
+{%- assign type = raw | type_of | downcase -%}
 
 {%- if type == 'string' -%}
   {%- if raw | is_json_valid -%}

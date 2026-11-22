@@ -16,6 +16,8 @@ app/
 
 Every schema file lives in `app/schema/` and has a `.yml` extension.
 
+> **Site repos do not commit schema files.** On a site, tables are created and edited in the IIA Databases screen, and those edits do not flow back to the repo, so a committed file goes stale and the next deploy that includes it overwrites the admin change. Schema files belong in module repos, which ship their tables. See [A Site Repo Does Not Commit Its Schema Files](gotchas.md#a-site-repo-does-not-commit-its-schema-files) and rule `schema-files-out-of-site-repos` (INS-SCHM-003).
+
 > **Module path:** In modules, schema files live in `modules/<module_name>/public/schema/` or `modules/<module_name>/private/schema/`. A table in either is read and written by name in the same way; only `public/` tables appear in `admin_tables` and `admin_model_schemas`. Every IIA module uses `private/schema/`.
 
 ## YAML Format
@@ -86,7 +88,7 @@ be set when the ACL is private, and the unsigned `url` does not open it.
 
 ## Table and Field Metadata
 
-**Required for every table shown in the IIA Databases screen**, which means a project's own `app/schema` tables: each carries a name, field groups, and a label, group, order and tooltip on every field (rule `schema-table-metadata` in `logic-engine/rules/schema.md`). Module private tables (`modules/insites_<name>/private/schema`) are not listed in that screen and are exempt. The `metadata` you write in the file is what the instance stores as the table's and each property's `metadata`, and it is what the IIA Databases screen shows.
+**Required for every table shown in the IIA Databases screen**, which means a project's own `app/schema` tables: each carries a name, field groups, and a label, group, order and tooltip on every field (rule `schema-table-metadata` in `logic-engine/rules/schema.md`). Module private tables (`modules/insites_<name>/private/schema`) are not listed in that screen and are exempt. The `metadata` you write in the file is what the instance stores as the table's and each property's `metadata`, and it is what the IIA Databases screen shows. On a site, whose repo does not commit schema files, set the same keys in the IIA Databases screen (see [gotchas](gotchas.md#a-site-repo-does-not-commit-its-schema-files)).
 
 ```yml
 name: enquiry
@@ -181,6 +183,8 @@ properties:
 ```
 
 The `_id` suffix is a convention, not enforced. Use `string` type for ID references -- this works for both record IDs and user IDs.
+
+**In v6 modules the join is read with `related_record`, not declared with `belongs_to`.** The v6 convention for a record that points at another (for example a module listing pointing at its module) is an `_id` property on the child plus a `related_record(table:, join_on_property:)` read in GraphQL (see [api.md](api.md#related-record-accessors)). Do not treat a `belongs_to` key in a schema file as the relationship: it is a property metadata string, and it can name a table that does not exist (see the [locator gotcha](../modules/locator/gotchas.md)). Reported from the Console `modules_change_logs` schema comment, which still says belongs-to; this item was recorded from the docs.insites.io rebuild and not re-measured here.
 
 ### Resolution in GraphQL
 

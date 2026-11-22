@@ -136,7 +136,9 @@ All take `contract` and `field_name` and return the updated contract.
 `presence`/`blank`/`not_presence`/`true`/`not_true` take either a bare `given`/`value` or an
 `object:` plus the `field_name` key to read from it. `blank` is nil/false/`''`; `empty` only
 checks size, so `false` is not empty. When unsure of a `type` name, print `{{ value | type_of }}`
-once rather than guessing.
+once rather than guessing. The real values are capitalized (`Hash`, `Array`, `String`, `Integer`,
+`Float`, `Boolean`, `null`; a posted object is `ActiveSupport::HashWithIndifferentAccess`), measured
+on 17 November 2026: see [filters gotchas](../liquid/filters/gotchas.md).
 
 Need a check no assertion covers? Fail one by hand:
 

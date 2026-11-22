@@ -121,11 +121,16 @@ Uses standard strftime format codes.
 ```
 Returns the time from the input to the first argument, in **milliseconds** unless you pass a unit: `d`/`days`, `h`/`hours`, `m`/`minutes`, `s`/`seconds`, `ms`/`milliseconds` (the default). The last argument is the decimal places, 3 by default. Source: the filter reference shipped with insites-cli 6.1.0. A bare `time_diff` divided by 3600 gives hours times 1000, not hours.
 
-### iso8601
+### iso8601 (does not exist; use `strftime`)
 ```liquid
-{%- assign result = date | iso8601 -%}
+{%- assign result = 'now' | to_time | strftime: '%Y-%m-%dT%H:%M:%S%:z' -%}
 ```
-Formats as ISO 8601 string.
+There is no `iso8601` filter. **Measured on a v6 production instance, 16 November 2026**
+(icc.prod01-insites.io): `{{ 'now' | iso8601 }}` in a page rendered an empty string with status 200. The same build also
+reported the error "undefined filter iso8601" from its Liquid on that instance; where exactly was not
+recorded. The
+`strftime` line above printed `2026-11-16T14:36:44+00:00` on the same page. This entry documented
+`iso8601` as a working filter until that date.
 
 ## String Filters API
 
@@ -207,7 +212,31 @@ Encodes string to base64.
 ```
 Decodes base64 string.
 
+### scrub
+
+```liquid
+{% assign clean = api_response_text | scrub %}
+```
+
+Removes invalid characters and byte sequences from a string, in the given encoding (UTF-8 by
+default). Arguments: `source_encoding`, `final_encoding`, both default `"UTF-8"`. A non-string is
+stringified first. Use it on text from external sources such as API responses before parsing or
+storing it. Documented by platformOS
+(https://documentation.platformos.com/api-reference/liquid/platformos-filters#scrub, last edited
+20 October 2026, read 16 November 2026); not measured.
+
 ## Crypto Filters API
+
+### sha1
+
+```liquid
+{{ 'foo' | sha1 }} => '0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33'
+```
+
+Returns the SHA1 hex digest of a string. Documented by platformOS
+(https://documentation.platformos.com/api-reference/liquid/platformos-filters#sha1, last edited
+20 October 2026, read 16 November 2026); not measured. SHA1 is broken for security uses: use it
+only to match a third party that requires it, and use `compute_hmac` with `sha256` for signatures.
 
 ### encrypt
 ```liquid
@@ -292,7 +321,7 @@ messages still say "translate filter".
 ```liquid
 {%- assign type = variable | type_of -%}
 ```
-Returns: string, number, array, hash, boolean, nil.
+Returns the capitalized class name: `Hash`, `Array`, `String`, `Integer`, `Float`, `Boolean`, or `null` for nil. Measured on a v6 production instance on 17 November 2026. A posted JSON object in `context.params` returns `ActiveSupport::HashWithIndifferentAccess`, not `Hash`; convert it with `| json | parse_json` first. Add `| downcase` before comparing. See [gotchas.md](gotchas.md#problem-type_of-returns-capitalized-names-and-a-params-hash-is-not-hash).
 
 ### default
 ```liquid

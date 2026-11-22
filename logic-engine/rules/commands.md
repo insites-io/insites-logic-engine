@@ -7,6 +7,7 @@ Rules that apply to files under `app/lib/commands/` (or module-equivalent paths)
 ```yaml
 ---
 id: pipe-vars-through-json-filter
+code: INS-CMND-001
 applies_to: [command, form, page]
 severity: error
 evidence: runtime-failure
@@ -16,7 +17,7 @@ preship_action: "Fix all unsafe parse_json blocks before shipping (see audit for
 ---
 ```
 
-**Rule:** Every variable interpolated into a `{% parse_json %}` block MUST be piped through the `| json` filter.
+**Rule (INS-CMND-001):** Every variable interpolated into a `{% parse_json %}` block MUST be piped through the `| json` filter.
 
 **Why:** Without the `| json` filter, user-controlled or external data interpolated into JSON breaks the JSON when it contains quotes, backslashes, or control characters. Beyond breaking the parse, attacker-controlled values can inject additional JSON properties, escape into surrounding code, or exfiltrate data via XSS in the rendered output.
 
@@ -44,6 +45,7 @@ Two more rules close the same hole:
 ```yaml
 ---
 id: commands-return-valid-errors
+code: INS-CMND-002
 applies_to: [command]
 severity: warning
 evidence: real-project
@@ -52,7 +54,7 @@ audit_ref: audit/v0-conflicts-batch2.md#rule-r-9
 ---
 ```
 
-**Rule:** Commands MUST return an object containing `valid: <boolean>` and `errors: <object>` keys. Callers depend on these to decide whether to redirect, render an error state, or continue.
+**Rule (INS-CMND-002):** Commands MUST return an object containing `valid: <boolean>` and `errors: <object>` keys. Callers depend on these to decide whether to redirect, render an error state, or continue.
 
 **Why:** A single uniform return contract lets callers handle command results consistently. Without it, every caller has to know the internal shape of every command — and exception-based error handling doesn't compose with the rest of Liquid.
 
@@ -87,6 +89,7 @@ audit_ref: audit/v0-conflicts-batch2.md#rule-r-9
 ```yaml
 ---
 id: commands-args-object-syntax
+code: INS-CMND-003
 applies_to: [command, page]
 severity: warning
 evidence: real-project
@@ -95,7 +98,7 @@ audit_ref: audit/v0-conflicts-batch3.md#rule-r-22
 ---
 ```
 
-**Rule:** When calling a GraphQL mutation from a Command (or page), use `args: <object>` syntax to pass the validated object directly.
+**Rule (INS-CMND-003):** When calling a GraphQL mutation from a Command (or page), use `args: <object>` syntax to pass the validated object directly.
 
 **Why:** Eliminates parameter-unpacking boilerplate, ensures all input was validated as a unit, and keeps the call site readable.
 
@@ -114,6 +117,7 @@ audit_ref: audit/v0-conflicts-batch3.md#rule-r-22
 ```yaml
 ---
 id: commands-build-check-execute
+code: INS-CMND-004
 applies_to: [command]
 severity: warning
 evidence: skill-only
@@ -123,7 +127,7 @@ aspirational: true
 ---
 ```
 
-**Rule (aspirational):** State-changing operations extracted into reusable functions SHOULD follow the build → check → execute pattern.
+**Rule (INS-CMND-004, aspirational):** State-changing operations extracted into reusable functions SHOULD follow the build → check → execute pattern.
 
 1. **BUILD** — `{% parse_json object %}` to whitelist input fields, with every variable piped through `| json` (see `pipe-vars-through-json-filter`).
 2. **CHECK** — initialise a `{ "valid": true, "errors": {} }` contract; accumulate per-field validation errors; merge back into the object.
@@ -140,6 +144,7 @@ aspirational: true
 ```yaml
 ---
 id: validate-input-in-check-stage
+code: INS-CMND-005
 applies_to: [command]
 severity: warning
 evidence: real-project
@@ -148,7 +153,7 @@ audit_ref: audit/v0-conflicts-batch2.md#rule-r-10
 ---
 ```
 
-**Rule:** User input arriving outside form submissions MUST be validated explicitly in the CHECK stage of a Command. Form-framework YAML validation is sufficient for input that arrives via standard HTML form submission.
+**Rule (INS-CMND-005):** User input arriving outside form submissions MUST be validated explicitly in the CHECK stage of a Command. Form-framework YAML validation is sufficient for input that arrives via standard HTML form submission.
 
 **Why:** Form framework validates input automatically using the YAML schema. API endpoints, webhooks, and direct GraphQL mutations bypass that — so explicit validation in the command's CHECK stage is the only line of defense.
 
@@ -165,6 +170,7 @@ audit_ref: audit/v0-conflicts-batch2.md#rule-r-10
 ```yaml
 ---
 id: extract-reusable-validations
+code: INS-CMND-006
 applies_to: [command, form]
 severity: info
 evidence: real-project
@@ -173,7 +179,7 @@ audit_ref: audit/v0-conflicts-batch2.md#rule-r-16
 ---
 ```
 
-**Rule:** Validation logic reused across 2+ commands or forms SHOULD be extracted into a helper partial under `app/lib/validations/` (or module-equivalent path).
+**Rule (INS-CMND-006):** Validation logic reused across 2+ commands or forms SHOULD be extracted into a helper partial under `app/lib/validations/` (or module-equivalent path).
 
 **Why:** Inline validation duplication leads to drift — when business rules change, you only want to update one file. Extraction is unnecessary overhead for one-off validations, but valuable once a check appears in multiple places.
 

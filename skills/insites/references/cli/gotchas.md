@@ -174,6 +174,17 @@ insites-cli logs staging --filter background_job
 insites-cli logs staging | grep api_call
 ```
 
+### The Instance Log Keeps Only Its Newest 200 Lines
+
+Measured on a v6 production instance on 5 October 2026, reading the log through `/api/app_builder/logs`:
+
+- With no cursor it returns the newest 20 entries. With `last_id` it returns up to 200 entries with an id strictly greater than `last_id` (ids are microsecond epochs).
+- It keeps only the **newest 200 lines per instance**. After 250 lines were written, the first 50 were gone.
+- It ignores filter parameters. Filter what comes back yourself.
+- A request with no `User-Agent` header is refused (see [403 With `error code: 1010`](#403-with-error-code-1010)).
+
+So the log is a short window, not a history. On a busy instance an entry can be gone within seconds: keep `insites-cli logs` running while you reproduce a fault, and for anything you need later, write it to a table of your own.
+
 ## Module Problems
 
 ### Module Not Found

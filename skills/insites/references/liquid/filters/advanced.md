@@ -193,7 +193,7 @@ Advanced patterns, optimization strategies, and professional techniques for Insi
 
 ### Polymorphic Type Routing
 ```liquid
-{%- assign type = value | type_of -%}
+{%- assign type = value | type_of | downcase -%}
 {%- case type -%}
   {%- when 'array' -%}
     {%- assign result = value | array_sort_by: 'name' -%}
@@ -209,7 +209,7 @@ Advanced patterns, optimization strategies, and professional techniques for Insi
 ### Safe Type Conversion
 ```liquid
 {%- assign value = input -%}
-{%- assign type = value | type_of -%}
+{%- assign type = value | type_of | downcase -%}
 {%- if type == 'string' -%}
   {%- if value | is_json_valid -%}
     {%- assign value = value | parse_json -%}
@@ -257,7 +257,7 @@ Advanced patterns, optimization strategies, and professional techniques for Insi
 
 ### Type Inspection Helper
 ```liquid
-{%- assign var_type = variable | type_of -%}
+{%- assign var_type = variable | type_of | downcase -%}
 <debug>{{ variable | inspect }} (type: {{ var_type }})</debug>
 ```
 

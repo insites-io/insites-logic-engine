@@ -115,7 +115,7 @@ Sequence operations with delays:
   order_id: order.id %}
 ```
 
-(Note: For precise scheduling, consider external cron-based systems)
+(Note: Insites has no cron. For work that repeats, use the scheduler pattern in [recurring.md](recurring.md); a job that re-queues itself every day stops after about 1000 days.)
 
 ---
 

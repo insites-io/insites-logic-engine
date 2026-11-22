@@ -67,7 +67,7 @@ insites-cli deploy <environment> --dry-run --verbose
 
 | Option | Description |
 |---|---|
-| `-p, --partial-deploy` | Partial deployment: does not remove data from directories missing in the build |
+| `-p, --partial-deploy` | Partial deployment: does not remove data from directories missing in the build. Deploy a site this way, since its tables are not in its release ([schema gotchas](../schema/gotchas.md#a-site-repo-does-not-commit-its-schema-files)) |
 | `--dry-run` | Validate the release on the instance and print what would change, without applying anything. Every validation error is listed at once, each starting with its file path. Private stack only (insites-cli 6.1.0 and later) |
 | `--verbose` | List every file path in the deploy report, not just the counts (6.1.0 and later) |
 | `--json` | Print the result and the deploy report as JSON on stdout; everything else goes to stderr (6.1.0 and later) |
@@ -99,7 +99,7 @@ insites-cli sync <environment> -l
 
 **There is no `--watch` flag**; watch is the default.
 
-**Syncing a schema file provisions the table.** Syncing `app/schema/<name>.yml` creates or updates the table, answering `WARNING: Data schema was updated. It will take a while for the change to be applied.`, and the table is usable within seconds. A full `deploy` is not needed for a schema change.
+**Syncing a schema file provisions the table.** Syncing `app/schema/<name>.yml` creates or updates the table, answering `WARNING: Data schema was updated. It will take a while for the change to be applied.`, and the table is usable within seconds. A full `deploy` is not needed for a schema change. This applies to module repos: a site's repo does not commit schema files, because its tables are edited in the IIA Databases screen and a synced file would overwrite those edits (see [schema gotchas](../schema/gotchas.md#a-site-repo-does-not-commit-its-schema-files)).
 
 ---
 

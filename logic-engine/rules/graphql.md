@@ -7,6 +7,7 @@ Rules that apply to `.graphql` files (typically under `app/graphql/` or `modules
 ```yaml
 ---
 id: graphql-tables-fully-qualified
+code: INS-GRPH-001
 applies_to: [graphql]
 severity: info
 evidence: real-project
@@ -15,7 +16,7 @@ audit_ref: audit/v0-conflicts-batch2.md#rule-r-15
 ---
 ```
 
-**Rule:** Name a table by where it is defined. A module's table carries its module path, `modules/{module}/{table}` (e.g. `modules/insites_crm/contact`, `modules/insites_ecommerce/product`). A table defined in the project's own `app/schema/` is named by its file name (`signin_code` for `app/schema/signin_code.yml`).
+**Rule (INS-GRPH-001):** Name a table by where it is defined. A module's table carries its module path, `modules/{module}/{table}` (e.g. `modules/insites_crm/contact`, `modules/insites_ecommerce/product`). A table defined in the project's own `app/schema/` is named by its file name (`signin_code` for `app/schema/signin_code.yml`).
 
 **Why:** The same table name can exist in several modules, so a module table needs its prefix to resolve. An `app/schema/` table belongs to no module, and its plain name works: `records`, `record_create`, `records_update_all` and `external_id` claims all ran against `table: "pwless_demo_code"` on a production instance on 9 October 2026. An earlier version of this rule required the prefix for every table, which is wrong for `app/` tables.
 
@@ -35,6 +36,7 @@ audit_ref: audit/v0-conflicts-batch2.md#rule-r-15
 ```yaml
 ---
 id: use-related-record-for-joins
+code: INS-GRPH-002
 applies_to: [graphql]
 severity: warning
 evidence: real-project
@@ -43,7 +45,7 @@ audit_ref: audit/v0-conflicts-batch3.md#rule-r-21
 ---
 ```
 
-**Rule:** Use `related_record(...)` and `related_records(...)` GraphQL operators for joins to related records. Use `properties: [...]` arrays only for filtering by schema property values.
+**Rule (INS-GRPH-002):** Use `related_record(...)` and `related_records(...)` GraphQL operators for joins to related records. Use `properties: [...]` arrays only for filtering by schema property values.
 
 **Why:** Property-array-based "joins" don't actually join — they filter by ID matches and miss the platform's relationship semantics (cascading, eager loading, pagination on the joined side). `related_record` / `related_records` are the platform's native join operators and should be used whenever the relationship is real.
 

@@ -84,8 +84,33 @@ For simpler API calls, use the `download_file` filter:
 
 With max size:
 ```liquid
-{% assign response = url | download_file: 5242880 %}
+{% assign response = url | download_file: 5 %}
 ```
+
+`max_size` is the second, positional argument. platformOS documents it as "max file size of the
+file, default 1 megabyte. Can't exceed 50 megabytes." with "default: 1", so the unit is megabytes
+(https://documentation.platformos.com/api-reference/liquid/platformos-filters#download_file, last
+edited 20 October 2026, read 16 November 2026; the insites-cli 6.4.1 filter reference has the same
+text). This example used to pass `5242880`, as if the unit were bytes. Documented, not measured: the
+unit has not been tested on an Insites instance.
+
+## Remote File Size Limits
+
+Documented by platformOS, "Limitations", Remote Files
+(https://documentation.platformos.com/developer-guide/limitations, last edited 10 November 2026,
+read 16 November 2026). Each limit is enforced while the file downloads, so it applies even when the
+remote server sends no `Content-Length`. Not measured on an Insites instance.
+
+| Feature | Limit |
+|---|---|
+| `form_data` on `api_call_send` | 50MB in total per request, up to 100 parts, up to 10 files downloaded by `url` |
+| API call notifications with a `*_multipart` request type | 20MB in total per request |
+| Email notification attachments | 20MB in total per email, up to 10 attachments |
+| `download_file` | 1MB by default; `max_size` up to 50MB |
+
+API calls from a page time out after 5 seconds by default per the same page, and from a background
+job after 8 seconds (soft limit 180). The measurements in "How Long a Call May Take" above show the
+page default is not a hard 5-second limit on Insites.
 
 ## Storing API Credentials
 
