@@ -180,6 +180,8 @@ mutation transfer($from_id: ID!, $to_id: ID!, $from_balance: String!, $to_balanc
 
 **Important:** These are **not** atomic transactions. If the second mutation fails, the first is not rolled back. For critical operations, implement compensation logic.
 
+**Measured on Insites v6 staging and production (shane-sandbox), 22 November 2026:** one request with `first: record_create(...)` and `second: record_update(id: <missing>)` returned an error and the first record was saved. To get all-or-nothing, put separate `{% graphql %}` calls inside `{% transaction %}` (see [liquid/tags/api.md](../liquid/tags/api.md#transaction--rollback)).
+
 ## Sorting by Multiple Fields
 
 ```graphql

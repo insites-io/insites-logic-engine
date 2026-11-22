@@ -73,7 +73,7 @@ Secret configuration. Hidden from HTML output.
 {{ context.headers.HTTP_X_CUSTOM_HEADER }}
 {{ context.headers.HTTP_ACCEPT_LANGUAGE }}
 ```
-HTTP request headers, keyed `HTTP_` + the header name uppercased with hyphens as underscores. Keys are **not** case-insensitive and a bracket read by HTTP name (`context.headers['User-Agent']`) returns blank. See [README.md](README.md#contextheaders).
+HTTP request headers, keyed `HTTP_` + the header name uppercased with hyphens as underscores. Keys are **not** case-insensitive and a bracket read by HTTP name (`context.headers['User-Agent']`) returns blank. Custom headers such as `X-Signature` are readable (measured 22 November 2026; the public documentation's allow-list says otherwise). See [README.md](README.md#contextheaders).
 
 ### context.cookies
 ```liquid

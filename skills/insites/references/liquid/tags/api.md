@@ -156,6 +156,14 @@ Atomic database operations with optional manual rollback.
 {% endtransaction %}
 ```
 
+**Measured on Insites v6 staging and production (shane-sandbox), 22 November 2026, one run each, same result on both:**
+
+- `{% rollback %}` works for records. A `record_create` inside `{% transaction %}` followed by `{% rollback %}` is not saved.
+- A failing write rolls the transaction back with no `{% rollback %}`. A later `record_update` of an id that does not exist raises `GraphqlTagError`, and the earlier `record_create` in the same transaction is not saved.
+- A `{% background %}` job queued inside a transaction that rolls back never runs, although the tag still returns a job id. A control job queued outside a transaction ran in the same second. Do not read a returned job id as proof a job will run.
+- `activity_create` inside a transaction that rolls back is not saved (staging, one run): the id was returned, and `activities(ids:)` found only the activity created outside the transaction.
+- One GraphQL request with two mutation fields is **not** a transaction. See [graphql/advanced.md](../../graphql/advanced.md#multiple-mutations-in-one-file). Only `{% transaction %}` gives all-or-nothing.
+
 ## try / catch
 
 Exception handling.

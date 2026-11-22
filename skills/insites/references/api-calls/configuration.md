@@ -277,7 +277,7 @@ async: true
 
 ### Default Timeout
 
-Default timeout: 30 seconds
+Default timeout: 30 seconds (**unverified**: not supported by the measured timings in [README.md](README.md#how-long-a-call-may-take))
 
 Set custom timeout:
 

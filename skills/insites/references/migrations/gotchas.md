@@ -105,6 +105,8 @@ Split large operations into multiple migrations.
 
 No automatic rollback on error. Design fail-safe.
 
+This is about migrations. A page or job that wraps its writes in `{% transaction %}` does roll back (measured 22 November 2026): see [Liquid tags gotchas](../liquid/tags/gotchas.md#a-transaction-rolls-back-on-a-failed-write-and-a-multi-field-mutation-is-not-a-transaction). Whether a `{% transaction %}` inside a migration rolls back was not measured.
+
 ## Accessing Request Context in Migrations
 
 ### params and context Variables Different

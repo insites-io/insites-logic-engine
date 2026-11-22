@@ -217,6 +217,26 @@ The second argument is not a time zone. On a v6 instance (docs, measured 31 Octo
 
 **Solution:** do not pass a zone to `date`. Format `'now'` as UTC, or shift it yourself with `add_to_time` by the zone's offset before formatting. The `add_to_time` shift was the fallback considered in the docs rebuild and is not measured here, and a zone that observes daylight saving changes offset twice a year.
 
+### Problem: Milliseconds for Timing
+```liquid
+{%- assign start_ms = 'now' | strftime: '%s%L' | plus: 0 -%}
+{%- comment %} ... work ... {%- endcomment %}
+{%- assign end_ms = 'now' | strftime: '%s%L' | plus: 0 -%}
+{%- assign took_ms = end_ms | minus: start_ms -%}
+```
+`'now' | strftime: '%s%L' | plus: 0` gives the time in milliseconds as a number, usable for timing a block. Measured on an Insites v6 staging instance, 22 November 2026.
+
+### Problem: `hash_merge` Followed by `to_time` Binds to the Hash
+```liquid
+{%- assign out = out | hash_merge: now: 'now' | to_time -%}
+```
+This is parsed so that `to_time` receives the hash and errors with "first argument must be a parsable time". Compute the value first, then merge it:
+```liquid
+{%- assign now_time = 'now' | to_time -%}
+{%- assign out = out | hash_merge: now: now_time -%}
+```
+Measured on an Insites v6 staging instance, 22 November 2026.
+
 ## String Filter Gotchas
 
 ### Problem: Regex Special Characters

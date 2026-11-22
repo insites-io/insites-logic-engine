@@ -91,7 +91,7 @@ The raw request environment, keyed the CGI way (RFC 3875, section 4.1.18). A req
 | `X-Api-Key` | `context.headers.HTTP_X_API_KEY` |
 | `instance_api_key` | `context.headers.HTTP_INSTANCE_API_KEY` |
 
-This applies to custom headers as much as to standard ones. The object also carries request values that are not headers: `REQUEST_METHOD`, `REQUEST_URI`, `PATH_INFO`, `QUERY_STRING`, `SERVER_NAME`, `SERVER_PORT`.
+This applies to custom headers as much as to standard ones. **Measured on an Insites v6 staging instance (shane-sandbox), 22 November 2026, one run:** a request sent with `X-Signature`, `X-Insites-Signature`, `Authorization` and `Authentication-Token` showed all four in `context.headers`, as `HTTP_X_SIGNATURE`, `HTTP_X_INSITES_SIGNATURE`, `HTTP_AUTHORIZATION` and `HTTP_AUTHENTICATION_TOKEN`. The platform's public documentation lists an allow-list of readable headers that does not include custom ones; the measurement disagrees with it, so test the header you depend on. The object also carries request values that are not headers: `REQUEST_METHOD`, `REQUEST_URI`, `PATH_INFO`, `QUERY_STRING`, `SERVER_NAME`, `SERVER_PORT`.
 
 ```liquid
 {{ context.headers.HTTP_USER_AGENT }}

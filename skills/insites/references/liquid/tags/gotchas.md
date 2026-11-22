@@ -232,6 +232,12 @@ Inside `app/views/partials/jobs/send_order_notification.liquid`, `order_id` and 
 
 ---
 
+## A Transaction Rolls Back on a Failed Write, and a Multi-Field Mutation Is Not a Transaction
+
+**Measured on Insites v6 staging and production (shane-sandbox), 22 November 2026.** A failed write inside `{% transaction %}` undoes the earlier writes in it with no `{% rollback %}`, and `{% rollback %}` itself works for records. A job queued inside a rolled-back transaction never runs, even though the tag returned a job id. One GraphQL request holding two mutation fields (`first: record_create(...)`, `second: record_update(id: <missing>)`) errors and **still saves the first record**. Wrap the writes in `{% transaction %}` when they must succeed together; details in [api.md](api.md#transaction--rollback).
+
+---
+
 ## Transaction Timeout
 
 **Error:** Transaction exceeds maximum execution time.
@@ -316,6 +322,19 @@ Put `comment` and `endcomment` on their own lines, with the text between them:
 ```
 
 The same applies to `if`/`endif`, `for`/`endfor` and `case`/`endcase`. Measured on an instance in September 2026.
+
+## A Filter Inside an Index Is Not Valid in a `{% liquid %}` Block
+
+In a `{% liquid %}` block, `list[k | modulo: 5]` is not valid. Assign the index first, then use it:
+
+```liquid
+{% liquid
+  assign i = k | modulo: 5
+  assign item = list[i]
+%}
+```
+
+Measured on an Insites v6 staging instance, 22 November 2026.
 
 ## Output Tags Are Not HTML-Escaped: an Escaped Quote Breaks Out of an Attribute
 

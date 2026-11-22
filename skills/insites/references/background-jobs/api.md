@@ -223,6 +223,9 @@ last edited 10 November 2026, read 16 November 2026), unless marked measured.
   have no effect." `source_name` is case-sensitive. `timestamp` means `run_at` for `SCHEDULED`,
   `retry_at` for `RETRY`, `dead_at` for `DEAD`, and start time for `RUNNING`.
 - Up to 100 jobs a page and 50 pages.
+- **`admin_background_jobs` returns only `SCHEDULED` jobs unless `filter: { type: ... }` is passed.** Use `type: DEAD`, `RETRY` or `RUNNING` to see the others. `filter.source_name` works together with `type`. Measured on an Insites v6 staging instance (shane-sandbox), 22 November 2026.
+- **Dead jobs are kept for at least 8 weeks.** Dead jobs from 27 September 2026 were still listed on 22 November 2026, with `error_class` `Net::SMTPFatalError`. The upper limit is not measured. Measured on the same instance and day.
+- **A GraphQL error inside a job does not fail it.** See [gotchas.md](gotchas.md#error-7-a-failed-graphql-step-inside-a-job-does-not-fail-the-job): the job carries on, nothing goes `DEAD` or `RETRY`, and `max_attempts` never fires.
 - Why a job failed: query `DEAD` jobs for `error_class` and `error_message`.
 - **Stopping:** the job stops within a few seconds, wherever it is. An unfinished `{% transaction %}`
   rolls back (and jobs queued inside it are never queued); everything else stays done. `try`'s
