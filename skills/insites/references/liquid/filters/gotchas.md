@@ -46,11 +46,41 @@ Applying hash filters to arrays or vice versa:
 
 **Solution:** Check variable type first:
 ```liquid
-{%- assign type = my_variable | type_of -%}
+{%- assign type = my_variable | type_of | downcase -%}
 {%- if type == 'hash' -%}
   {%- assign keys = my_variable | hash_keys -%}
 {%- endif -%}
 ```
+`type_of` does not return lower-case names: see the next entry.
+
+### Problem: type_of Returns Capitalized Names, and a Params Hash Is Not `Hash`
+```liquid
+{%- if payload | type_of == 'hash' -%}{%- comment %} never true {%- endcomment %}{%- endif -%}
+```
+Measured on a v6 production instance on 17 November 2026 with a probe endpoint:
+
+| Value | `\| type_of` returns |
+|---|---|
+| a hash from `parse_json` | `Hash` |
+| an array | `Array` |
+| a string | `String` |
+| a whole number (`1`) | `Integer` |
+| a decimal (`1.5`) | `Float` |
+| `true` | `Boolean` |
+| null / nil | `null` |
+| `context.params.payload` (a posted JSON object), and a nested object inside it | `ActiveSupport::HashWithIndifferentAccess` |
+
+This matters because a validator that compared with `'hash'` refused every valid request: the result is never lower case, and a posted object is not `Hash` either. There is no `number` type: a number is `Integer` or `Float`.
+
+**Solution:** turn a params value into plain data with `| json | parse_json` (the result answers `Hash` or `Array`), then compare the lower-cased name:
+```liquid
+{%- assign payload = context.params.payload | json | parse_json -%}
+{%- assign t = payload | type_of | downcase -%}
+{%- if t == 'hash' -%}
+  {%- assign keys = payload | hash_keys -%}
+{%- endif -%}
+```
+The names to compare with are `hash`, `array`, `string`, `integer`, `float`, `boolean` and `null`.
 
 ### Problem: String vs Number Comparison
 ```liquid
@@ -233,6 +263,23 @@ control flow.
 ```liquid
 {%- assign slug = title | slugify | replace: 'ä', 'a' -%}
 ```
+
+### Problem: parse_json Decodes HTML Entities
+
+`parse_json` decodes HTML entities in the text it is given, including inside string values. Measured on a v6 staging instance on 12 November 2026: the JSON text `{"a":"&#9733;"}` (the value is 7 characters) parsed to a value of 1 character, the star itself. `&lt;b&gt;` in a stored value comes out the same way, as live markup.
+
+This matters whenever JSON holds content that must come back exactly: stored page or partial source, an email body, anything compared against a hash. The stored text is correct; the parsed copy is not.
+
+**Solution:** before `parse_json`, write every `&` as the JSON escape for it. In JSON text an ampersand can only sit inside a string value, so the parsed value is the same and no entity is left to decode. In the same test the escaped text parsed back to the full 7 characters.
+
+```liquid
+{%- assign bs = '%5C' | url_decode -%}
+{%- assign amp = bs | append: 'u0026' -%}
+{%- assign safe = json_text | replace: '&', amp -%}
+{%- assign data = safe | parse_json -%}
+```
+
+The backslash is built with `url_decode` so that no literal backslash sits in the file. Posted values are decoded the same way before your code sees them: see [forms gotchas](../../forms/gotchas.md), Posted Values Arrive HTML-Entity-Decoded.
 
 ## Crypto & Security Gotchas
 

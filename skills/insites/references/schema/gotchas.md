@@ -8,7 +8,7 @@ Common errors, limits, and troubleshooting for schema files.
 
 **Cause:** The schema file has not been deployed, or the `table` value in your GraphQL filter does not match the schema `name`.
 
-**Solution:** Verify the `name` field in your YAML matches exactly what you use in `filter: { table: { value: "..." } }`. Run `insites-cli deploy dev` to push schema changes. Names are case-sensitive.
+**Solution:** Verify the `name` field in your YAML matches exactly what you use in `filter: { table: { value: "..." } }`. Run `insites-cli deploy dev` to push schema changes from a module repo; on a site, the table is created and edited in the IIA Databases screen instead (see [A Site Repo Does Not Commit Its Schema Files](#a-site-repo-does-not-commit-its-schema-files)). Names are case-sensitive.
 
 ### The `name:` Key Decides the Table, Not the Filename
 
@@ -137,7 +137,7 @@ Use `string` for all text, short or long. It has no 255-character limit, and `te
 
 ## A Table With No Metadata Looks Broken in the Admin
 
-The IIA Databases screen reads the table and field `metadata` (see `schema-table-metadata` in `logic-engine/rules/schema.md`, and [configuration.md](configuration.md#table-and-field-metadata)). This matters for the tables that screen lists, which are a project's own `app/schema` tables. It does not list tables whose name starts with `modules/insites_` (every IIA module private table), nine named custom field tables, or tables whose metadata has `insites_databases_hidden`. Read from module-v6-data v6.0.2, not measured on an instance:
+The IIA Databases screen reads the table and field `metadata` (see `schema-table-metadata` in `logic-engine/rules/schema.md`, and [configuration.md](configuration.md#table-and-field-metadata)). This matters for the tables that screen lists, which are a project's own `app/schema` tables. On a site, set the metadata in that screen rather than in a committed file (see [A Site Repo Does Not Commit Its Schema Files](#a-site-repo-does-not-commit-its-schema-files)). It does not list tables whose name starts with `modules/insites_` (every IIA module private table), nine named custom field tables, or tables whose metadata has `insites_databases_hidden`. Read from module-v6-data v6.0.2, not measured on an instance:
 
 - **No `metadata.label` on the table:** the "Database Table Name" column in the table list is blank. It has no fallback to the table's `name`.
 - **A field with no `group_id`:** it is placed after every group, so it sinks to the bottom of the item form. A `group_id` that matches no group is treated the same way, which is what happens when a group's uuid changes between deploys.
@@ -159,6 +159,36 @@ A property named `errors` or `model` is refused at deploy with `Name not allowed
 ## A Property Name Can Start With a Digit
 
 Measured on a v6 production instance on 24 October 2026: `admin_table_create` accepted a property named `1abc`, and `record_create` wrote it and `property(name: "1abc")` read it back. This was checked through the admin API only, not through a schema file deployed by the CLI. A name starting with a letter is still the safer choice for anything that turns property names into identifiers (generated forms, exports, JavaScript).
+
+## A Module's Private Tables Are Not in `admin_tables`
+
+Measured on a v6 staging instance on 12 November 2026: a module with 13 schema files under `private/schema/` had rows in all 13 tables (the admin `records` query, filtered on `modules/<module>/<table>`, returned them), and `admin_tables` listed none of the 13. It listed 13 other tables, all of them created on the instance. `admin_liquid_partials` treats private partials the same way.
+
+So a deploy of a private schema file cannot be confirmed by listing tables. Confirm it by using the table: read or write a row through the module, or count its rows with the `records` query.
+
+## A Site Repo Does Not Commit Its Schema Files
+
+**Symptom:** a field someone added, renamed or relabelled in the IIA Databases screen disappears after a deploy, or a table's settings go back to an older version.
+
+**Cause:** on a site, tables are edited in the admin, in the IIA Databases screen. Those edits change the table on the instance only. Nothing writes them back to the repo, so a schema file committed to the site's repo (`app/schema/*.yml`, or `modules/<name>/public/schema/*.yml` in the site's own module) goes stale as soon as someone edits the table in the admin. The next deploy that includes the file writes the file's older definition over the admin change. Confirmed on 20 November 2026 while moving a site from v5 to v6.
+
+**Solution:**
+
+- **Keep schema `.yml` files out of a site's repo.** The table lives on the instance and is edited in the IIA Databases screen. Give it its name, groups, labels and tooltips there (rule `schema-table-metadata`, INS-SCHM-002).
+- **A schema file already committed to a site's repo is a fault.** Flag it for removal, and before removing it, check that the table on the instance holds everything the file did.
+- **Deploy a site with a partial deploy** (`insites-cli deploy --partial-deploy <environment>`). A full deploy deletes files that are not in the release ([cli/api.md](../cli/api.md#deploy)), and a site's tables are deliberately not in its release. That the full deploy would remove those tables is inferred from the flag's description, not measured.
+- **When you compare an instance with a site's repo**, for example while bringing a site's code back into its repo or moving it to a new instance, a table that exists only on the instance is expected. It is not a gap to commit.
+- **Module repos are the exception.** A module ships its tables, so its schema files belong in the module's repo (`modules/<name>/public/schema/` or `private/schema/`). The rule `schema-files-out-of-site-repos` (INS-SCHM-003) covers site repos only.
+
+## The Search Index Types a Property From Its Values
+
+**Symptom:** the instance log shows `ElasticsearchIndexError ... failed to parse field [properties.string__<name>] of type [date]` on every write to a table.
+
+**Cause:** the search index decides a property's type from the values it sees. Measured on a v6 production instance on 18 November 2026: a `string` property named `period` held date-shaped values such as `2026-10`, and the index typed it as a date. Rows whose `period` was plain text (`last30`, `now`) then logged the error on every write, in a new table and in an older one alike.
+
+**What it did and did not break:** the rows were written and stayed readable. A `records` query filtered on a different property returned all of them (40 rows, measured). Not measured: whether a `records` filter on the affected property with a text value works, and whether search misses those rows.
+
+**Solution:** keep every value of a property in one shape. If a `string` property must hold both dates and words, store the words as stand-in values in the date shape, or use two properties. When you see `ElasticsearchIndexError`, run the read your page uses and count what comes back before concluding that rows are missing.
 
 ## See Also
 

@@ -24,28 +24,23 @@ The block form, `{% background ... %}...{% endbackground %}`, is listed as depre
 
 ### priority
 ```liquid
-{% background job_id = 'jobs/example', priority: 'default' %}
+{% background job_id = 'jobs/example', priority: 'low' %}
 ```
 - **Type**: String (quoted)
-- **Values**: `'low'`, `'default'`, `'high'`
-- **Default**: `'default'`
-- **Behavior**: Affects job queue ordering; does not affect performance within a priority level
+- **Values**: `'high'`, `'default'`, `'low'`
+- **Default**: `'high'` (measured on an Insites v6 staging instance, 16 November 2026: a job queued with no `priority` is stored with `queue: "high"`; also documented by platformOS)
+- **Maximum run time**: `high` 1 minute, `default` 5 minutes, `low` 4 hours (documented by platformOS, background-job-limitations, last edited 10 November 2026). The priority also decides how quickly the job is picked up.
 
 ### max_attempts
 ```liquid
-{% background job_id = 'jobs/example', max_attempts: 1 %}
+{% background job_id = 'jobs/example', max_attempts: 3 %}
 ```
 - **Type**: Integer
-- **Range**: 1–5
-- **Default**: 1
-- **Behavior**: Total attempts = 1 (initial) + (max_attempts - 1) retries
-
-| max_attempts | Initial | Retries | Total Runs |
-|---|---|---|---|
-| 1 | 1 | 0 | 1 |
-| 2 | 1 | 1 | 2 |
-| 3 | 1 | 2 | 3 |
-| 5 | 1 | 4 | 5 |
+- **Default**: 0, a failed job is not retried
+- **Maximum**: 9; a larger value is treated as 9
+- **Meaning**: the number of **retries** after a failure, not total runs
+- Documented by platformOS (creating-background-job-liquid, last edited 10 November 2026; tag reference, last edited 20 October 2026). Measured on an Insites v6 staging instance, 16 November 2026: `max_attempts: 12` is stored as `attempts: 9`, and no `max_attempts` as `attempts: 0`. Retries were not watched. The insites-cli 6.4.1 tag reference still says "Default is 1, maximum is 5"; see [README.md](README.md#parameters).
+- A job stopped with `admin_background_job_stop` is never retried and does not become `DEAD`.
 
 ### source_name
 ```liquid
@@ -187,10 +182,12 @@ Nothing appears in `insites-cli logs` unless the job writes a `{% log %}` entry 
 
 | Constraint | Value |
 |---|---|
-| Max Parameters | 20 |
-| Max Delay | 65535 minutes (~45 days) |
-| Max Attempts | 5 |
-| Max Job Duration | 5 minutes |
+| Max Parameters | 20 (not in the platformOS documentation; unverified) |
+| Max Delay | 65535 minutes (~45 days) (not in the platformOS documentation; unverified. The documented scheduler uses `delay: 43200`) |
+| Max Attempts | 9 retries (documented by platformOS; stored as 9 for `max_attempts: 12`, measured 16 November 2026) |
+| Max Job Duration | `high` 1 minute, `default` 5 minutes, `low` 4 hours (documented by platformOS) |
+| Payload | under 100KB (documented by platformOS) |
+| Chain of jobs queued by jobs | 1000 steps (documented by platformOS); see [recurring.md](recurring.md) |
 | Priority Levels | 3 (low, default, high) |
 | Parameter Name Length | 255 characters |
 
@@ -202,6 +199,56 @@ The `{% background %}` tag returns immediately and does not block execution:
 {% background job_id = 'jobs/example', source_name: 'async_task' %}
 
 Response sent to user immediately (doesn't wait for background job)
+```
+
+## Managing Jobs with GraphQL
+
+Documented by platformOS, "Managing Background Jobs with GraphQL"
+(https://documentation.platformos.com/developer-guide/background-jobs/managing-background-jobs-graphql,
+last edited 10 November 2026, read 16 November 2026), unless marked measured.
+
+| Operation | Use |
+|---|---|
+| `admin_background_jobs` | List jobs. `filter.type`: `SCHEDULED` (the default), `RUNNING`, `RETRY`, `DEAD` |
+| `admin_background_job_delete(id)` | Delete one `SCHEDULED`, `RETRY` or `DEAD` job. A running job cannot be deleted |
+| `admin_background_jobs_delete_all(filter)` | Delete matching jobs, **at most 100 per call**; call again until `results` is empty |
+| `admin_background_job_stop(id)` | Stop a `RUNNING` job |
+| `admin_background_job_retry(id)` | Run a `DEAD` job again. Only `DEAD` jobs |
+
+- **No mutation creates a job.** Queue jobs with the `background` tag; to run GraphQL in the
+  background, put the `graphql` tag inside the job.
+- The `id` is the value the tag assigns (`job_id` in `background job_id = ...`).
+- A job queued without `delay` goes straight to the queue and is never listed as `SCHEDULED`.
+- Only `type`, `id`, `source_name`, `timestamp` and `or` filter. "The other fields of the filter
+  have no effect." `source_name` is case-sensitive. `timestamp` means `run_at` for `SCHEDULED`,
+  `retry_at` for `RETRY`, `dead_at` for `DEAD`, and start time for `RUNNING`.
+- Up to 100 jobs a page and 50 pages.
+- Why a job failed: query `DEAD` jobs for `error_class` and `error_message`.
+- **Stopping:** the job stops within a few seconds, wherever it is. An unfinished `{% transaction %}`
+  rolls back (and jobs queued inside it are never queued); everything else stays done. `try`'s
+  `catch` does not run, its `ensure` does. A stopped job is not retried and does not become `DEAD`.
+  The log gets a `BackgroundJobStopped` entry. The running list can be 10 seconds old, so a job that
+  just started answers `Job not found` until it is listed. Deploys, imports, exports and instance
+  copies are listed as running jobs but cannot be stopped.
+- **Measured on an Insites v6 staging instance, 16 November 2026:** `admin_background_job_stop` is
+  a field of `RootMutation` there. The bundled `graphql/schema/schema.json` (introspected
+  16 October 2026) does not list it, so the schema has changed since; regenerate it.
+- **Measured, same instance and day:** `admin_background_jobs_delete_all` with
+  `filter: { type: SCHEDULED, source_name: { contains: "..." } }` deleted three delayed jobs, and a
+  second `admin_background_jobs` read returned `total_entries: 0`. Results carry `queue`,
+  `attempts`, `arguments` (the tag arguments plus `context.location` and `context.background_ttl`)
+  and `run_at`.
+
+```graphql
+query search_background_jobs($source_name: String!) {
+  admin_background_jobs(
+    per_page: 100
+    filter: { type: SCHEDULED, source_name: { value: $source_name } }
+  ) {
+    total_entries
+    results { id source_name queue run_at arguments }
+  }
+}
 ```
 
 ## See Also

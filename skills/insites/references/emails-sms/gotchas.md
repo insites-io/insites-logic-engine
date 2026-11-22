@@ -249,6 +249,12 @@ Reported, not visible from the instance: on staging the From is rewritten to `no
 
 `admin_sent_notifications` lists API call sends (`API_CALL`) beside emails, and an API call's `options.headers` can hold a live `Authorization` token, readable by anyone with admin GraphQL access (seen on a v6 staging instance on 20 October 2026). When you read sent notifications, filter with `notification_type: { value: EMAIL }` or leave `options` out of the query, and never print or log that field.
 
+### A `created_at` Filter on Sent Notifications Is Ignored
+
+`admin_sent_notifications` accepts `filter: { created_at: { ... } }` and returns every row anyway. Measured on a v6 staging instance on 12 November 2026: with no filter the list held 4,610 rows; with `created_at: { gte: "2030-01-01T00:00:00Z" }` it still answered 4,610. A filter on `id` in the same query shape returned exactly 1, so filters as such work.
+
+So a count of email sent in a period cannot use the filter. Apply the period yourself: sort newest first, page through, keep the rows where `since <= created_at < until`, and stop at the first row older than `since`. Set a limit on the pages read, and say in the result how far back the count reached when the limit was hit.
+
 ### Validate Template Rendering
 
 Pre-render templates in tests to catch Liquid syntax errors early.

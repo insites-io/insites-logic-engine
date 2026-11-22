@@ -7,6 +7,7 @@ Rules that apply to schema definitions and the GraphQL property-access functions
 ```yaml
 ---
 id: schema-property-functions
+code: INS-SCHM-001
 applies_to: [graphql]
 severity: error
 evidence: real-project
@@ -15,7 +16,7 @@ audit_ref: audit/v0-conflicts-batch3.md#rule-r-25
 ---
 ```
 
-**Rule:** Access schema properties in GraphQL via the typed property functions:
+**Rule (INS-SCHM-001):** Access schema properties in GraphQL via the typed property functions:
 
 | Function | For property type |
 |---|---|
@@ -51,6 +52,7 @@ results {
 ```yaml
 ---
 id: schema-table-metadata
+code: INS-SCHM-002
 applies_to: [schema]
 severity: error
 evidence: skill-only
@@ -59,7 +61,7 @@ related: [schema-property-functions]
 ---
 ```
 
-**Rule:** Every table that appears in the IIA Databases screen names the table, groups its fields, and gives every field a label, a place and a tooltip. In practice that is a project's own `app/schema` tables: the customer and app tables a person opens, reads and edits in the admin.
+**Rule (INS-SCHM-002):** Every table that appears in the IIA Databases screen names the table, groups its fields, and gives every field a label, a place and a tooltip. In practice that is a project's own `app/schema` tables: the customer and app tables a person opens, reads and edits in the admin.
 
 **Scope:** The rule is about what people see, so it covers the tables the Databases screen lists and nothing else. The list leaves out:
 
@@ -173,3 +175,36 @@ No table name, so the Databases list shows a blank name. No groups, labels or to
 - The item form: `module-v6-data` v6.0.2 `vue/src/views/Databases/routes/DatabaseItems/routes/ManageDatabaseItem/sections/DatabaseItemForm/DatabaseItemForm.vue:14` (group heading), `:23` and `:51` (`metadata.label || name`), `:26` and `:54` (`help_text_tooltip`).
 - Select options are stored codes: `module-v6-data` v6.0.2 `vue/src/components/DynamicFields/DynamicFields.vue:145-148`, each option is both the label and the value.
 - The admin's save: `module-v6-data` v6.0.2 `vue/src/views/Databases/routes/ManageDatabase/ManageDatabase.vue:399-422` (starts from the existing metadata and writes `label` and `groups` as `{id, name, weight}`) and `.../ManageField/ManageField.vue:119-143` (the full list of field metadata keys, `help_text_tooltip` among them).
+
+---
+
+```yaml
+---
+id: schema-files-out-of-site-repos
+code: INS-SCHM-003
+applies_to: [schema]
+severity: warning
+evidence: real-project
+evidence_source: "Confirmed on 20 November 2026 while moving a site from v5 to v6: tables on the site had been edited in the IIA Databases screen, the edits were not in the repo, and a deploy that included the committed schema files would have written the older definitions over them. The admin edits a table on the instance only; nothing writes back to a repo."
+related: [schema-table-metadata]
+---
+```
+
+**Rule (INS-SCHM-003):** A site's repo does not commit schema `.yml` files (`app/schema/*.yml`, or `modules/<name>/public/schema/*.yml` in the site's own module). A site's tables live on the instance and are created and edited in the IIA Databases screen. A module repo is the exception: a module ships its tables, so its schema files belong in its repo.
+
+**Why:** Edits made in the IIA Databases screen change the table on the instance and nothing else. A committed schema file therefore goes stale as soon as someone edits the table in the admin, and the next deploy that includes the file writes the older definition over the admin change.
+
+**How to apply:**
+
+1. **Do not add a schema file to a site's repo.** Create the table in the IIA Databases screen and give it its name, groups, labels and tooltips there (INS-SCHM-002).
+2. **Flag a schema file already committed to a site's repo for removal.** Before removing it, check that the table on the instance holds everything the file did.
+3. **Deploy a site with `insites-cli deploy --partial-deploy <environment>`.** A full deploy deletes files that are not in the release, and a site's tables are deliberately not in its release.
+4. **When comparing an instance with a site's repo, a table that exists only on the instance is expected**, not a gap to commit.
+
+❌ **Wrong:** a site repo with `app/schema/enquiry.yml`, deployed after someone added a `phone` field to the Enquiries table in the admin. The deploy writes the file's definition, which has no `phone`, over the table.
+
+✅ **Correct:** the site repo has no `app/schema/` folder. The Enquiries table is edited in the IIA Databases screen, and the site is deployed with `--partial-deploy`.
+
+**Verified by:**
+- The site move of 20 November 2026 described in `evidence_source`.
+- `skills/insites/references/cli/api.md`, `deploy`: a full deploy "deletes files that are not in the release"; `--partial-deploy` "does not remove data from directories missing in the build". That a full deploy would remove admin-made tables is inferred from this description, not measured.
