@@ -169,11 +169,16 @@ For a partial or layout, set the key in the record's metadata after deploying wh
 
 ---
 
-## 14. A details layout answers 200 when no item matches
+## 14. From CMS v6.0.4, a details address with no item answers 404 unless the layout answers it itself
 
-**Bites:** a details layout is rendered even when no item matches the address: the response is 200 with an empty layout. Crawlers index blank pages and broken links look healthy.
+**Bites:** before CMS v6.0.4 a details layout was rendered even when no item matched the address, so the response was 200 with an empty layout. Crawlers indexed blank pages and broken links looked healthy. From v6.0.4 (`databases_layouts/page_content.liquid`, TW#26961827) the CMS decides this itself, which changes what an instance on v6.0.4 or later answers:
 
-**Avoid:** check the item was found; if not, set `response_status: 404` and render not-found content. (Reported to the CMS team as a bug; remove this note once the CMS answers 404 itself.)
+- A details address (a second segment, `context.params.slug2`) that matches no record, or a collection with no details layout, is not found (`functions/collections/details_not_found`).
+- If the details layout's source contains `response_status 404` or `redirect_to`, the CMS treats the layout as answering a missing item itself and renders it exactly as before (`functions/collections/layout_answers_not_found`). This is a plain text match on the layout source.
+- Any other layout is not rendered. The page answers 404, runs the CRM's `functions/redirects/404_redirect` (Settings > Redirects) first, then prints a bare "404 / Page not found" block with a link to `/`. It does not render the site's own 404 page.
+- A found item and the list address render as before.
+
+**Avoid:** keep handling the missing item in the details layout (check the item was found; if not, set `{% response_status 404 %}` and render the site's own not-found content). That works on every CMS version and keeps the site's own design for not-found items. The text match also means a layout that only mentions `redirect_to` in a comment or an unrelated branch is treated as handling a missing item, so the CMS's own 404 does not apply to it. Read from module-v6-cms v6.0.4 (tagged 2 November 2026); not yet measured on an instance.
 
 ---
 
@@ -193,3 +198,11 @@ For a partial or layout, set the key in the record's metadata after deploying wh
 | `enable_indexed` | `is_visible_to_search_engines` |
 
 The v6 partial omits blank og tags, reads `og:image` from `open_graph_image` as an upload (`.url`), and prints `noindex` everywhere except production.
+
+---
+
+## 16. From CMS v6.0.4, every CMS save commits to Git when Console links a repository; there is no switch
+
+**Bites:** up to CMS v6.0.3 a save in the CMS was committed to Git only when the instance's Integrations > Git Repository switch (the `instance_configuration` row `is_version_control_enabled`) was on. From v6.0.4 (`functions/version_control/push.liquid`, TW#26961534) every save and delete in the CMS asks Insites Console to commit the file: "there is no switch and no pause". Console commits to the GitHub branch linked to the instance in Console, or through the SSH key an older instance set up. Only an instance with no Console at all stays silent. So the switch no longer tells you whether CMS saves reach Git, and linking a repository in Console starts commits at once. Two instances linked to the same branch, such as an old site and its replacement during a move, both commit to it.
+
+**Avoid:** to know whether an instance on CMS v6.0.4 or later commits its CMS saves, check whether Console links it to a repository, not the `is_version_control_enabled` row. When moving a site, link the new instance's repository only once the old instance is frozen, or unlink the old one first. The CMS editors now offer "Save with commit message" when the instance is linked in Console, and fall back to the switch only for an older CRM (`vue/src/services/CoreServices.js`, `getGitLinkState`). A push that fails never undoes the save. The screen shows it as a warning and records it in the instance event stream. A file over 5 MB is saved but not committed. Read from module-v6-cms v6.0.4 (tagged 2 November 2026); not yet measured on an instance.

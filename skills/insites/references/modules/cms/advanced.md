@@ -76,7 +76,7 @@ Rendering it returns a JSON object describing the module:
 
 Other modules and apps consume this for "is CMS installed?" checks. Don't override it; only consume.
 
-**The `version` field is not a release number.** Release tooling does not bump this partial, so it lags the module's git tag. Measured 5 October 2026 against the latest tags: `insites_cms`, `insites_assets`, `insites_ecommerce`, `insites_locator` and `insites_permissions` were tagged v6.0.2 while their hook still said `6.0.0`. Use the hook to answer *"is the module installed"*; for *"which version"*, read the git tag or the Console changelog.
+**The `version` field is not a release number.** Release tooling does not bump this partial, so it lags the module's git tag. Measured 5 October 2026 against the latest tags: `insites_cms`, `insites_assets`, `insites_ecommerce`, `insites_locator` and `insites_permissions` were tagged v6.0.2 while their hook still said `6.0.0`. Use the hook to answer *"is the module installed"*; for *"which version"*, read the git tag or the Console changelog. For `insites_cms` this has changed: from v6.0.3 the release bumps the hook, so v6.0.3 says `6.0.3` and v6.0.4 says `6.0.4` (read from the tags on 2 November 2026). The git tag is still the reliable answer across modules.
 
 ---
 
