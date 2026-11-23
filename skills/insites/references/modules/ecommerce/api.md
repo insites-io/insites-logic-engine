@@ -1,6 +1,6 @@
 # Ecommerce — V2 REST API
 
-The Ecommerce module (machine name `insites_ecommerce`) exposes a V2 REST API at `/ecommerce/api/v2/...`. Counted in module-v6-ecommerce v6.0.2 on 9 October 2026: 109 endpoints across 22 resources, each a page under `modules/insites_ecommerce/private/views/pages/api/_external/v2/` that includes one controller alias. Method, path and policy below come from each page's front matter; required params, params and documented status codes come from the matching doc partial under `private/views/partials/insites_api/external_api/`; behaviour notes come from the controller under `private/views/partials/controllers/_external/v2/`.
+The Ecommerce module (machine name `insites_ecommerce`) exposes a V2 REST API at `/ecommerce/api/v2/...`. Counted in module-v6-ecommerce v6.0.2 on 9 October 2026: 109 endpoints across 22 resources (v6.1.0 adds seven, listed below and marked v6.1.0), each a page under `modules/insites_ecommerce/private/views/pages/api/_external/v2/` that includes one controller alias. Method, path and policy below come from each page's front matter; required params, params and documented status codes come from the matching doc partial under `private/views/partials/insites_api/external_api/`; behaviour notes come from the controller under `private/views/partials/controllers/_external/v2/`.
 
 For authentication, see [`../../api/authentication.md`](../../api/authentication.md). Send the raw instance API key as `Authorization`, no `Bearer` prefix.
 
@@ -81,6 +81,8 @@ The tables list required params (`req`) and the status codes the doc partial doc
 
 Controllers `ecommerce/controller/product/{list,get,create,update,delete}`. 72 fields on the object, including pricing (`regular_price`, `sale_price`, `is_on_sale`, `effective_price`, `total_price`, tax flags), stock, dimensions, shipping dimensions, media (`product_image`, `gallery_1`, `gallery_2`, `media_1..4`), SEO (`meta_*`, `open_graph_*`, `sitemap_*`, `schema_content`), `category_uuids`, `brand_uuid` / `brand_name` (plain fields; no brand table exists in `private/schema/`), `status`, `product_weighting`, `is_product_variant_enabled`, `custom_field`.
 
+v6.1.0: `is_website_display` is removed (sending it fails as an unknown property); `status` is what shows or hides a product. New: `out_of_stock_action` (`display_no_purchase`, `display_preorder` or `hide`, else `400 invalid_params`), `related_product_uuids`, and `net_price` / `unit_tax`, which create and update compute from the price and tax fields.
+
 | Method | Path | req | codes |
 |---|---|---|---|
 | `GET` | `/products` | | 200 400 401 |
@@ -93,7 +95,7 @@ List defaults: `sort_by=product_name`, `search_by=product_name`.
 
 ### Product variants
 
-`ecommerce/controller/product_variant/*`. Fields: `product.uuid`, `product_sku`, `product_image`, `stock_level`, `regular_price`, `cost_price`, `effective_price`, `compare_at_price`, `sale_price`, `is_on_sale`, `is_tax_included`, `is_variant_sale_price_tax_included`, `is_fixed_tax_amount`, `tax_amount`, `freight_amount`, `is_free_shipping`, `width`, `length`, `height`, `weight`, `product_options` (array of JSON strings).
+`ecommerce/controller/product_variant/*`. Fields: `product.uuid`, `product_sku`, `product_image`, `stock_level`, `regular_price`, `cost_price`, `effective_price`, `compare_at_price`, `sale_price`, `is_on_sale`, `is_tax_included`, `is_variant_sale_price_tax_included`, `is_fixed_tax_amount`, `tax_amount`, `freight_amount`, `is_free_shipping`, `width`, `length`, `height`, `weight`, `product_options` (array of JSON strings). v6.1.0 adds `out_of_stock_action`, and `net_price` / `unit_tax`, computed on create and update.
 
 | Method | Path | req | codes |
 |---|---|---|---|
@@ -136,10 +138,13 @@ List defaults: `sort_by=product_sku`, `search_by=product_sku`; the doc partial n
 | Method | Path | req | codes |
 |---|---|---|---|
 | `GET` | `/carts` | | 200 |
-| `GET` | `/carts/:uuid` | uuid | 200 |
+| `GET` | `/carts/:uuid` (v6.0.x); `/carts/:contact_uuid` (v6.1.0) | uuid; contact_uuid | 200 |
 | `POST` | `/carts` | | 200 |
 | `PATCH` | `/carts/:uuid` | uuid | 200 |
 | `DELETE` | `/carts/:uuid` | uuid | 200 |
+| `DELETE` | `/carts/:contact_uuid/items` (v6.1.0) | contact_uuid | 200 404 |
+
+v6.1.0 makes carts one per contact. `GET /carts/:contact_uuid` returns the contact's newest undeleted cart: the path segment is a **contact** uuid at the path where v6.0.x took the cart uuid. `POST /carts` for a contact that already has a cart returns that cart with `is_existing: true`, and creates nothing; a new cart has `is_existing: false`. `PATCH` that moves a cart to a contact who has one refuses `duplicate_contact_cart`. `DELETE /carts/:contact_uuid/items` empties the cart (items and discounts) and returns it; `404 no_cart` when the contact has none. `DELETE /carts/:uuid` now deletes the cart's discounts as well as its items.
 
 The cart doc partials document only 200; the controllers return 400 and 404 in the same way as the others.
 
@@ -264,7 +269,7 @@ Quote items add `is_use_sale_price` to the order-item field set. There is no quo
 
 ### Discounts
 
-`ecommerce/controller/discount/{list,get,by_code,create,update,delete}`. Fields: `discount_name`, `status`, `discount_code`, `auth_policy_id`, `usage_limit`, `usage_count`, `usage_limit_per_user`, `discount_type`, `discount_value`, `minimum_cart_value`, `applicable_to`, `is_applicable_to_all_products`, `is_applicable_to_all_categories`, `category_uuids`, `product_uuids`, `event_uuids`, `is_applicable_to_all_events`, `allocations`.
+`ecommerce/controller/discount/{list,get,by_code,create,update,delete}`. Fields: `discount_name`, `status`, `discount_code`, `auth_policy_id`, `usage_limit`, `usage_count`, `usage_limit_per_user`, `discount_type`, `discount_value`, `minimum_cart_value`, `applicable_to`, `is_applicable_to_all_products`, `is_applicable_to_all_categories`, `category_uuids`, `product_uuids`, `event_uuids`, `is_applicable_to_all_events`, `allocations`. v6.1.0 adds `event_pricing_tier_uuids` and `is_applicable_to_all_event_pricing_tiers`: an event discount is limited to pricing tiers, not issued tickets. Create and update refuse tiers on a discount without `event_uuids`, and tiers that are not under those events (`400 invalid_params`).
 
 | Method | Path | req | codes |
 |---|---|---|---|
@@ -276,6 +281,30 @@ Quote items add `is_use_sale_price` to the order-item field set. There is no quo
 | `DELETE` | `/discounts/:uuid` | uuid | 200 401 404 |
 
 The by-code controller also falls back to `context.params.discount_code` when called without the argument.
+
+### Gift cards (v6.1.0)
+
+`ecommerce/controller/gift_card/{list,by_code,issue}`. Fields: `uuid`, `code` (generated, uppercase), `initial_value`, `balance_remaining`, `status` (`active`, `spent`, `expired`), `expiry_date`, `contact_uuid`, `issued_via`. Every balance change writes a `gift_card_transaction` row. Refusals are `422`, not `400`.
+
+| Method | Path | req | codes |
+|---|---|---|---|
+| `GET` | `/gift-cards` | contact_uuid | 200 422 |
+| `GET` | `/gift-cards/by-code/:code` | code | 200 404 |
+| `POST` | `/gift-cards` | initial_value (> 0) | 200 422 500 |
+
+The project issues a card after it has taken payment for it. `expiry_date` must be a date (`invalid_expiry_date`); `contact.uuid`, when sent, must exist (`invalid_contact_uuid`). By-code upper-cases the code before the lookup, so a lowercase code matches. Lists take `page` and `size` (default 10), newest first.
+
+### Order gift cards (v6.1.0)
+
+`ecommerce/controller/order_gift_card/{list,create,delete}`. Applies a card to an order and records it as a payment.
+
+| Method | Path | req | codes |
+|---|---|---|---|
+| `GET` | `/order-gift-cards` | order_uuid | 200 422 |
+| `POST` | `/order-gift-cards` | code, order.uuid | 200 404 409 422 |
+| `DELETE` | `/order-gift-cards/:uuid` | uuid | 200 404 409 422 |
+
+The body never carries an amount: the module applies the smaller of the card's balance and what the order still owes, writes a `paid` payment and a transaction row, and marks the card `spent` at 0. Two requests at once get `409 conflict` or `409 order_conflict`, and nothing is taken. Delete is for an unpaid order (for example when the Stripe charge fails): it puts the amount back on the card and deletes that payment. These six controllers answer with `{ "error": "...", "message": "..." }`, not the `errors` array, and call the response handler without the `format` gate.
 
 ### Payments
 
@@ -359,4 +388,5 @@ List accepts a `system_field` filter beside the common params; defaults `sort_by
 - **Relations are dotted keys on write, nested objects on read**; custom fields likewise.
 - **Four webhook events**, orders and quotes, create and update, one URL each.
 - **Payments are records, not charges.** The Stripe outbound calls under `private/notifications/` have no V2 trigger in source.
-- **105 controller aliases, all gated, all returning**; call them with `{% function %}` per [`patterns.md`](patterns.md).
+- **105 controller aliases, all gated, all returning** in v6.0.2. v6.1.0 has 112: all return, but the six gift-card aliases are not gated on `format`. Call them with `{% function %}` per [`patterns.md`](patterns.md).
+- **v6.1.0: `GET /carts/:contact_uuid`** takes a contact uuid, and carts are one per contact.

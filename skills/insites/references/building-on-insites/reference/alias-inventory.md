@@ -5,12 +5,12 @@ module source. **Check a name here before you call it.** An alias that does not 
 fails at render time with a partial-not-found error, and inventing plausible names is
 the most common way a build is wasted.
 
-**404 controller aliases** across 8 modules, plus 90 internal aliases listed at the end.
+**411 controller aliases** across 8 modules, plus 90 internal aliases listed at the end.
 
 | Module | Controller aliases | Internal aliases | Version |
 |---|---|---|---|
 | `module-v6-pipelines` | 107 | 60 | v6.0.2 |
-| `module-v6-ecommerce` | 105 | 0 | v6.0.2 |
+| `module-v6-ecommerce` | 112 | 0 | v6.1.0 |
 | `module-v6-data` | 61 | 28 | v6.0.2 |
 | `module-v6-crm` | 59 | 1 | v6.1.2 |
 | `module-v6-events` | 37 | 1 | v6.0.2 |
@@ -19,7 +19,7 @@ the most common way a build is wasted.
 | `module-v6-api` | 5 | 0 | v6.0.2 |
 
 The version is the module's newest git tag. Release tooling does not bump the
-`hook_module_info` partial, so the version a running instance reports can lag: `module-v6-cms` says v6.0.0 at v6.0.2, `module-v6-ecommerce` says v6.0.0 at v6.0.2, `module-v6-locator` says v6.0.0 at v6.0.2, `module-v6-permissions` says v6.0.0 at v6.0.2. Read the tag or the Console changelog for "which version"; use the hook only for "is it installed".
+`hook_module_info` partial, so the version a running instance reports can lag: `module-v6-cms` says v6.0.0 at v6.0.2, `module-v6-locator` says v6.0.0 at v6.0.2, `module-v6-permissions` says v6.0.0 at v6.0.2. Read the tag or the Console changelog for "which version"; use the hook only for "is it installed".
 
 Modules that declare **no** controller aliases, so there is nothing to call in them:
 
@@ -148,8 +148,9 @@ them write. Build on the controllers.
 - `pipeline/controller/system_fields/list`
 - `pipeline/controller/system_fields/update`
 
-## module-v6-ecommerce (105)
+## module-v6-ecommerce (112)
 
+- `ecommerce/controller/cart/clear_items`
 - `ecommerce/controller/cart/create`
 - `ecommerce/controller/cart/delete`
 - `ecommerce/controller/cart/get`
@@ -185,6 +186,9 @@ them write. Build on the controllers.
 - `ecommerce/controller/freight_supplier/get`
 - `ecommerce/controller/freight_supplier/list`
 - `ecommerce/controller/freight_supplier/update`
+- `ecommerce/controller/gift_card/by_code`
+- `ecommerce/controller/gift_card/issue`
+- `ecommerce/controller/gift_card/list`
 - `ecommerce/controller/order/create`
 - `ecommerce/controller/order/delete`
 - `ecommerce/controller/order/get`
@@ -196,6 +200,9 @@ them write. Build on the controllers.
 - `ecommerce/controller/order_discount/get`
 - `ecommerce/controller/order_discount/list`
 - `ecommerce/controller/order_discount/update`
+- `ecommerce/controller/order_gift_card/create`
+- `ecommerce/controller/order_gift_card/delete`
+- `ecommerce/controller/order_gift_card/list`
 - `ecommerce/controller/order_items/add_bulk`
 - `ecommerce/controller/order_items/create`
 - `ecommerce/controller/order_items/delete`
