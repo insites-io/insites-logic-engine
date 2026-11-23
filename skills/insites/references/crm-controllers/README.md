@@ -39,6 +39,7 @@ For non-CRM resources (your own product's data), use a generic API endpoint unde
 
 ## See Also
 
+- [Gotchas](./gotchas.md): silent-failure writes, call forms and response shapes
 - [`modules/crm/api.md`](../modules/crm/api.md) — full V2 endpoint catalogue
 - [`modules/crm/configuration.md`](../modules/crm/configuration.md) — custom fields, system fields
 - [`api/authentication.md`](../api/authentication.md) — V2 token format

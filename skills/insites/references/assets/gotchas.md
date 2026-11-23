@@ -212,6 +212,12 @@ await fetch(uploadUrl, { method: 'PUT', body: bytes, headers: { 'Content-Type': 
 
 Then check the type each file is served with at the address pages use (`curl -sI <asset URL>`), not only that the file exists.
 
+Two more findings, from the same fault on 29 September and 24 October 2026:
+
+- **CloudShell's `insites_request_upload` path.** On 29 September 2026 a script with four `<svg ...>` string literals in its first 4 KB was served as `image/svg+xml` even though it was uploaded through `insites_request_upload` with `contentType: application/javascript`. Building the tag as `"<" + "svg ..."` made the store serve `application/javascript` again. On 24 October 2026, on an Insites v6 production instance, a PUT through `admin_assets_presign_urls` that named a Content-Type kept it, and a second PUT with the right type fixed a wrong one. So "the store ignores the type it is given" was seen only on the CloudShell upload path.
+- **Re-uploading identical bytes changes nothing.** The `?updated=` stamp on the asset URL stays the same, and so does the stored type. The content has to change.
+- **Check the URL the page actually loads.** Fetching `<instance>/assets/<file>` returned the right bytes but said nothing about the type the file store sends. Read `src=` from the rendered page and run `curl -sI` on that URL.
+
 ### The Presign Path Has No `assets/` Prefix
 
 `admin_assets_presign_urls(paths: [{ path: ... }])` takes the path under the instance's assets folder, which is where `asset_url` points. Send `styles/app.css`, not `assets/styles/app.css`: with the prefix the file lands at `assets/assets/styles/app.css`, where nothing looks. A module's public asset goes under `modules/<module>/` without `public/assets/`.

@@ -231,6 +231,12 @@ Read `trigger_condition` and `delay_by` back after every update.
 
 `admin_api_call_notification_create` and `_update` store `headers` and `request_headers` as a Ruby hash string (`{"k" => "v"}`), in any form they are sent, and the save is refused with `headers invalid json`. If it is saved anyway, every send fails. Write the notification as a file (`app/notifications/api_call_notifications/<name>.liquid`, with `request_headers: |-` in front matter) and sync or deploy it. Measured in October 2026.
 
+Measured on an Insites v6 production instance on 9 October 2026, writing the file with `PUT /api/app_builder/marketplace_releases/sync` (what `insites-cli sync` does): these front-matter keys read back correctly: `name`, `to`, `request_type`, `delay`, `trigger_condition`, `callback`, `metadata` (JSON flow style) and `request_headers: |-`. A file with `delay_by` instead of `delay` is refused. A body that ends with a newline is stored with the newline.
+
+### Inline `email_send(email: { to: ... })` Fails
+
+Measured on an Insites v6 production instance on 5 October 2026: an `email_send` with an inline `email: { to: ... }` failed with a 501. The platform serialized `to` as the string `["x@y"]`. Send through a registered template instead (`email_send(template: { name: "..." }, data: $d)`).
+
 ## Debugging Tips
 
 ### Enable Email Logs
@@ -244,6 +250,8 @@ A staging instance sends email only to its test recipients. The list sits on the
 The sent-notification record shows what was requested, not what left. Measured on a v6 staging instance on 20 October 2026: an `email_send` with `to`, `cc`, `bcc`, `from` (`Platform <no-reply@insites.site>`) and a subject answered `is_scheduled_to_send: true`, and its `admin_sent_notifications` record held exactly those values. Any rewrite on the way out happens after the record is written.
 
 Reported, not visible from the instance: on staging the From is rewritten to `no-reply@staging.insites.site`, the real To and BCC are moved into the subject, and the message goes to the test recipients. So recipients, CC, BCC and the From cannot be tested on a staging instance; check them on the sent-notification record, and test delivery itself on production.
+
+An earlier measurement, on an Insites staging instance on 8 September 2026, saw a different rewrite: the sender became `no-reply@staging-usw2-platformos.com` and the subject was prefixed `(to: …) - From: …`. Delivery to a Gmail inbox took one second. The exact sender address has changed over time, so read the received message rather than relying on either address.
 
 ### Sent-Notification Records Hold API Call Headers
 

@@ -58,7 +58,7 @@ Removing a property from the YAML only removes it from the schema definition. Da
 
 ### Use `string` for all text
 
-Use `string` for short and long text alike: titles, slugs, status codes, body content, HTML, markdown and JSON. The schema states no length limit for `string`, and its `PropertyTypeEnum` marks `text` "Deprecated, use string instead" ([`configuration.md`](configuration.md), property types). Do not create `text` properties.
+Use `string` for short and long text alike: titles, slugs, status codes, body content, HTML, markdown and JSON. The schema states no length limit for `string`; a 3,760-byte value round-tripped byte for byte through a `string` property (measured on an instance on 2 September 2026), and its `PropertyTypeEnum` marks `text` "Deprecated, use string instead" ([`configuration.md`](configuration.md), property types). Do not create `text` properties.
 
 ### Denormalization for Performance
 

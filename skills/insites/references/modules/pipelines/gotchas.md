@@ -162,6 +162,10 @@ Edges visible in the module source (`modules/insites_pipeline/private/`, module-
 
 ---
 
+## 18. Re-importable exports depend on `ImportHeaders.js`, not an ignored-headers prop
+
+An exported opportunity CSV imports again because every readable column is declared in `vue/src/models/ImportHeaders.js`, paired with its `*_uuid` twin in export-mapper order. module-pipelines has no `ignored-headers` prop. module-crm's `<Import>` component does use `ignored-headers` (Contacts passes `['Company Name']`). Read from source on `release/v5.10.2`, 3 September 2026; not re-checked on v6.
+
 ## 17. Two version strings in the tree disagree with the hook
 
 **Bites:** `hook_module_info` says 6.0.2, the generated `insites_admin/insites_pipeline_dependencies.liquid` comment says v6.0.1, `CLAUDE.md` says v6.0.0.

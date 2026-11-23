@@ -274,6 +274,20 @@ On the receiving side, check before parsing and answer 400 rather than raising a
 %}
 ```
 
+## A Top-Level `action` Param Does Not Arrive as Sent
+
+**Problem:** A JSON POST whose body has a top-level `action` key reaches the page with `context.params.action` not equal to the value sent. A page that switched on it answered "not a known action" for `{"action":"question"}`. The same fields wrapped as `{"payload": {...}}` worked. Measured with curl on an Insites v6 instance on 31 October 2026.
+
+**Solution:** wrap the body's fields in `payload` and read `context.params.payload.action`. Never trust a top-level param named `action`.
+
+## `admin_form_update` Needs the Unchanged Fields Too
+
+`FormInput` on `admin_form_update` requires `physical_file_path`, `resource` and `resource_owner` even when you are not changing them. Send all three on every update.
+
+## A Deprecated Platform Form API Is Not a Reason to Skip the Form Builder
+
+The platform update of 15 October 2026 marked `admin_forms` and `admin_form_create` deprecated. The deprecation came from the hosting partner, not from Insites. The Forms module (the IIA form builder) is built on the platform form, and Insites has asked for the deprecation to be removed. Build a form through the Forms module: create the table first, then the form on top of it, with its workflow and autoresponder emails. Do not replace it with a plain HTML form and a page that runs a mutation. Before you follow any deprecation, check whether it is Insites' own product position.
+
 ## A Form Whose Table Is Missing Answers 503
 
 A form whose `resource` names a table that does not exist on the instance is refused with **HTTP 503**, which reads exactly like an outage. The body says `Missing validation in form Admin::FormConfigurationForm: resource ... is not allowed`. Measured on a v6 production instance on 29 September 2026.

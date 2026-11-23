@@ -281,6 +281,50 @@ insites-cli deploy production
 insites-cli deploy production  # always name the environment
 ```
 
+## CloudShell
+
+### Header Credentials Are Refused
+
+CloudShell (`https://cloudshell.insites.io/mcp`) answers a request signed with header credentials with `401 WorkOS authentication required`. Only the browser WorkOS sign-in works. In Claude Code, add it as an HTTP MCP server (`claude mcp add cloudshell --scope user --transport http https://cloudshell.insites.io/mcp`), then sign in from `/mcp`. Measured July 2026.
+
+### Deploying Needs the Developer Role
+
+Console v6 roles are Viewer, Editor, Developer, Admin and Owner; the wire names `read`, `edit` and `deploy` map to Viewer, Editor and Developer. Read from source on 7 October 2026, as the default gating (an organization can edit it):
+
+| Level | CloudShell tools |
+|---|---|
+| read | logs, environment variable get, history, GitHub reads |
+| edit | environment variable set, push to a branch, change the watched branch |
+| deploy | deploy, sync, upload, asset, GitHub push, connect, disconnect and revert |
+
+So deploying needs Developer or above. `insites_list_instances` is not filtered by role: it lists every instance in the caller's Console accounts plus explicit grants, including ones they cannot change.
+
+### CloudShell Cannot See an Instance
+
+An instance appears in CloudShell once it has a connection, created by the Console OAuth callback or by the CloudShell connection registration at the end of the v6 instance setup. An instance created in the v5 Console is not connected automatically. Measured 16 October 2026: a setup run with no subdomain and no packages returned `skipped` without reaching the backend, so the registration never ran and CloudShell could not see the instance.
+
+`insites_github_tree` on an instance with no GitHub connection answers "No GitHub connection found for this instance", so it cannot list that instance's files.
+
+### An Upload Slot Belongs to Its Instance
+
+`insites_select_instance` is per session since CloudShell v1.2.2 (see [Deploying Through CloudShell](README.md#deploying-through-cloudshell)). A client that sends no MCP session id falls back to a single per-person selection, shared by all that person's sessions. A slot from `insites_request_upload` stays bound to the instance it was requested for. Before v1.2.2 the selection was shared, and on 29 September 2026 another session switched it mid-batch so files landed on the wrong instance.
+
+### Check `backupRetained` Before Relying on a Rollback
+
+When `insites_commit_upload` overwrites a file, CloudShell normally keeps the replaced file for 30 days. The commit result says whether it did in `backupRetained`. On 13 November 2026 a second overwrite of the same file returned `false` ("No copy of the replaced file could be read"). When it is `false`, roll back by uploading the previous version yourself.
+
+### A Migration Runs When It Is Committed
+
+A migration file committed through CloudShell runs once, at commit. To run it again, give it a new timestamp. Measured 29 to 30 September 2026.
+
+## Instance and Console Addresses
+
+- Console v6 is `https://console.insites.io/` since 13 October 2026. The v5 Console moved to `https://console-v5.prod01.sydney.platformos.com`.
+- Signed in to the Console, a browser is signed in to every instance the person can reach (28 October 2026).
+- v6 instances are `<name>.prod01-insites.io` (production) and `<name>.staging-insites.io` (staging), not `.insites.site`.
+- The v6 admin is `<instance>/admin/insites`. Bare `/admin` answers 404 even when signed in, so a 404 there does not mean you are signed out (28 October 2026).
+- Giving a production instance a subdomain moves it to `<subdomain>.prod01-insites.io` at once. Its old `site-<id>` address then answers 302 to insites.io, and an admin key answers 401 there, so point credentials at the new address straight away (17 October 2026).
+
 ## See Also
 
 - [CLI Gotchas](../cli/gotchas.md)
