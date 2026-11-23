@@ -127,7 +127,7 @@ The `from` must be an address the instance can authenticate. A customer's own do
 
 | Key on `customer` | Meaning |
 |---|---|
-| `address` | The address to send from. The instance's verified domain sender when Insites Console has set one up; otherwise `no-reply@insites.site` |
+| `address` | The address to send from. The instance's verified domain sender when Insites Console has set one up; otherwise `no-reply@insites.site` on a production instance, and `no-reply@staging.insites.site` on a staging instance from module-v6-crm v6.1.7 (`functions/email_sender/derive` reads `context.environment`, TW#26980173). Below v6.1.7 a staging instance also gets `no-reply@insites.site` |
 | `is_sendable` | `true` when `address` can be used. `false` for a suspended instance (`validation_status` `suspended`), which gets no fallback |
 | `name` | The sender's display name, when one is stored |
 | `mode` | Where the address came from: `console`, `platform_default`, or the stored sender's mode (`custom_domain`, `own_sendgrid`, `fallback`, `unprovisioned`) |
