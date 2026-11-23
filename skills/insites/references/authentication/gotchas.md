@@ -142,6 +142,10 @@ authorization_policies:
 
 If you need to debug a denial, temporarily prepend `{% log "policy result: " %}{% log result %}` *before* the final emit and watch `insites-cli logs <environment>`, but never leave logging in a deployed policy.
 
+## Customer SAML Single Sign-On Is On Request
+
+Customer SAML single sign-on is available on request. It has no self-serve setup screen, so module source code alone makes it look absent. This is the product owner's statement of 13 November 2026, not a measurement. Ask before you report SSO as a gap.
+
 ## Limits
 
 | Limit | Value | Notes |

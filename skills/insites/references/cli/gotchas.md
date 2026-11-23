@@ -154,6 +154,20 @@ en:
   goodbye: "Goodbye"
 ```
 
+### What a Console Access Token Can Do
+
+A Console access token (`iak_...`, Console v6.4.1, October 2026) is issued from the instance's CLI tab in Console. It is shown once, expires in 90 days and replaces the holder's previous token. It exists only for private-stack instances (`*.prod01-insites.io`, `*.staging-insites.io`).
+
+- The proxy route is `ANY /i/{instanceUuid}/{path}` with `Authorization: Token iak_...`. Only the `content-type`, `accept`, `user-agent` and `from` headers pass through.
+- The Editor role can read, and can run `record_*` and `user_*` mutations. Everything else (`admin_*`, constants, imports, sync, release, asset presign) needs the Developer role.
+- The `INSITES_EMAIL_SENDERS` constant is refused for every role.
+- The upstream timeout is 25 seconds.
+- Every change is recorded against the person who holds the token.
+
+### A Re-minted v5 Login Token Is the Same Token
+
+Measured on 14 October 2026: asking a v5 `cli/login` for a new token returned the same token. A 401 means your saved copy is stale, not that the token expired.
+
 ## Log Filtering Issues
 
 ### No Logs Appearing

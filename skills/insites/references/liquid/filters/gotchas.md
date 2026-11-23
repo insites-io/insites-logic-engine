@@ -146,7 +146,7 @@ Some filters consume iterators:
 
 The output sanitizer runs over the rendered page, including the JSON. A string value such as `<<Suggested note>>` is treated as a tag: it comes out lower-cased and entity-escaped, and a stray `&lt;/suggested&gt;` is appended after the closing `]`, so the script fails to parse. Measured on an instance in September 2026. Escaping only `</` does not prevent it.
 
-**Solution:** `| json | replace: '<', '\u003c' | replace: '>', '\u003e'`. Liquid leaves the escape alone, and `JSON.parse` turns `\u003c` back into `<`. A hash returned as the body of a JSON-format page was measured escaping itself (no raw `<` in the response), so the fault is JSON written into HTML. The `escape_output_instead_of_sanitize` flag is described in [configuration](../../configuration/README.md).
+**Solution:** `| json | replace: '<', '\u003c' | replace: '>', '\u003e'`. Liquid leaves the escape alone, and `JSON.parse` turns `\u003c` back into `<`. A hash returned as the body of a JSON-format page was measured escaping itself (no raw `<` in the response), so the fault is JSON written into HTML. After the fix, the same URL kept serving the broken render until it was loaded with a fresh query string, so reload with a new query string before you judge the fix. The `escape_output_instead_of_sanitize` flag is described in [configuration](../../configuration/README.md).
 
 ### Problem: Filters That Do Not Exist on v6
 | Not a filter on v6 | Use instead |
